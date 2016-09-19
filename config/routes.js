@@ -31,7 +31,9 @@ module.exports.routes = {
   * `assets` directory)                                                      *
   *                                                                          *
   ***************************************************************************/
-
+  '/:page':'RouterController.redirect',
+  '/:page/:action':'RouterController.redirect',
+  '/:page/:action/:id':'RouterController.redirect'
 
   /***************************************************************************
   *                                                                          *
