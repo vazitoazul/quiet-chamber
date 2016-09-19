@@ -19,7 +19,6 @@ module.exports = {
 			}
 			//if a valid route is requested return index.html using homepage view
 			if(page.length < 5){
-				res.location='/'+page;
 				res.locals.layout='';
 				return res.view('homepage');
 			}
