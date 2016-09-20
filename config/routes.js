@@ -35,6 +35,7 @@ module.exports.routes = {
   '/:page/:action':'RouterController.redirect',
   '/:page/:action/:id':'RouterController.redirect'
 
+
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

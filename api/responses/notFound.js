@@ -61,6 +61,10 @@ module.exports = function notFound (data, options) {
     }
   }
 
+  // Change the location to notfound, for being redirected to homaepage view 
+  // and then routed to notfound view
+  res.location('/notfound');
+
   // If a view was provided in options, serve it.
   // Otherwise try to guess an appropriate view, or if that doesn't
   // work, just send JSON.
@@ -68,9 +72,9 @@ module.exports = function notFound (data, options) {
     return res.view(options.view, { data: viewData, title: 'Not Found' });
   }
 
-  // If no second argument provided, try to serve the default view,
+  // If no second argument provided, try to serve homepage view,
   // but fall back to sending JSON(P) if any errors occur.
-  else return res.view('404', { data: viewData, title: 'Not Found' }, function (err, html) {
+  else return res.view('homepage', { data: viewData, title: 'Not Found' }, function (err, html) {
 
     // If a view error occured, fall back to JSON(P).
     if (err) {

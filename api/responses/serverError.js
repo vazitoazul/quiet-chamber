@@ -56,6 +56,9 @@ module.exports = function serverError (data, options) {
     }
   }
 
+  // Change the location to /serverError for being redirect to the homepage 
+  // and being routed by it
+  res.redirect('/serverError');
   // If a view was provided in options, serve it.
   // Otherwise try to guess an appropriate view, or if that doesn't
   // work, just send JSON.
@@ -65,7 +68,7 @@ module.exports = function serverError (data, options) {
 
   // If no second argument provided, try to serve the default view,
   // but fall back to sending JSON(P) if any errors occur.
-  else return res.view('500', { data: viewData, title: 'Server Error' }, function (err, html) {
+  else return res.view('homepage', { data: viewData, title: 'Server Error' }, function (err, html) {
 
     // If a view error occured, fall back to JSON(P).
     if (err) {

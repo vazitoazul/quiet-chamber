@@ -4,7 +4,9 @@
   "fragments": [
     "src/acco-view.html",
     "src/main-view.html",
-    "src/notfound-view.html"
+    "src/notfound-view.html",
+    "src/forbidden-view.html",
+    "src/serverError-view.html"
   ],
   "sourceGlobs": [
    "src/**/*",

@@ -56,6 +56,10 @@ module.exports = function forbidden (data, options) {
     }
   }
 
+  // Change the location to notfound, for being redirected to homaepage view 
+  // and then routed to notfound view
+  res.redirect('/forbidden');
+
   // If a view was provided in options, serve it.
   // Otherwise try to guess an appropriate view, or if that doesn't
   // work, just send JSON.
@@ -63,9 +67,9 @@ module.exports = function forbidden (data, options) {
     return res.view(options.view, { data: viewData, title: 'Forbidden' });
   }
 
-  // If no second argument provided, try to serve the default view,
+  // If no second argument provided, try to serve the homepage view,
   // but fall back to sending JSON(P) if any errors occur.
-  else return res.view('403', { data: viewData, title: 'Forbidden' }, function (err, html) {
+  else return res.view('homepage', { data: viewData, title: 'Forbidden' }, function (err, html) {
 
     // If a view error occured, fall back to JSON(P).
     if (err) {
