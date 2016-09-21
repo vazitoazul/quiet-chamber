@@ -1,6 +1,9 @@
 language: node_js
 sudo: required
 dist: trusty
+services: 
+  - mongodb
+  - redis-server
 addons:
   firefox: '46.0'
   apt:
@@ -13,7 +16,9 @@ node_js:
   - '5'
   - '4'
 before_script:
+  - npm install
   - npm install -g bower polymer-cli
   - bower install
 script:
   - xvfb-run polymer test
+  - NODE_ENV="test" mocha test/api/**/*.test.js

@@ -34,5 +34,4 @@ module.exports.connections = {
     url:process.env.MONGODB_URI
   }
 
-
 };
