@@ -1,6 +1,9 @@
 language: node_js
 sudo: required
 dist: trusty
+env: 
+  - TEST_ENV = xvfb-run polymer test test/app
+  - TEST_ENV = NODE_ENV="test" mocha test/api/**/*.test.js
 services: 
   - mongodb
   - redis-server
@@ -16,6 +19,4 @@ node_js:
 before_script:
   - npm install -g bower polymer-cli
   - bower install
-script:
-  - xvfb-run polymer test test/app
-  - NODE_ENV="test" mocha test/api/**/*.test.js
+script: "$TEST_ENV"
