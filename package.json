@@ -1,8 +1,8 @@
 {
   "name": "quiet-chamber",
   "private": true,
-  "version": "0.0.1",
-  "description": "a Sails application",
+  "version": "0.0.2",
+  "description": "Sails application to make buisness online",
   "keywords": [],
   "dependencies": {
     "bower": "^1.7.9",
