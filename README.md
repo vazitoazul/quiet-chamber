@@ -1,5 +1,5 @@
 
 # quiet-chamber
 New buissness platform
-####Master branch build status: 
-![](https://travis-ci.org/vazitoazul/MovingHelper.svg?branch=staging)
+####Staging branch build status: 
+[![Build Status](https://travis-ci.org/vazitoazul/quiet-chamber.png?branch=staging)](https://travis-ci.org/vazitoazul/quiet-chamber)

@@ -14,7 +14,7 @@ addons:
 node_js:
   - '6'
 before_script:
-  - npm install -g bower polymer-cli
+  - npm install -g bower web-component-tester 
 script: 
   - mocha test/api/**/*.test.js
-  - xvfb-run polymer test test/app
+  - xvfb-run wct test/app
