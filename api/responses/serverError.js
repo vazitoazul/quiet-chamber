@@ -58,7 +58,7 @@ module.exports = function serverError (data, options) {
 
   // Change the location to /serverError for being redirect to the homepage 
   // and being routed by it
-  res.redirect('/serverError');
+  res.redirect('/servererror');
   // If a view was provided in options, serve it.
   // Otherwise try to guess an appropriate view, or if that doesn't
   // work, just send JSON.

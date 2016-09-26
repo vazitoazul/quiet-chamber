@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>notfound-view</title>
+
+    <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../../bower_components/web-component-tester/browser.js"></script>
+
+    <!-- Import the element to test -->
+    <link rel="import" href="../../../src/fragments/notfound-view.html">
+  </head>
+  <body>
+    <test-fixture id="basic">
+      <template>
+        <notfound-view></notfound-view>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('notfound-view tests', function() {
+        var view;
+
+        setup(function() {
+          view = fixture('basic');
+        });
+
+        test('notfound-view should return its name', function() {
+          assert.equal(view.is, 'notfound-view');
+        })
+      });
+    </script>
+  </body>
+</html>

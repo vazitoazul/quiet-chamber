@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>my-app</title>
+
+    <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../bower_components/web-component-tester/browser.js"></script>
+
+    <!-- Import the element to test -->
+    <link rel="import" href="../../src/my-app.html">
+  </head>
+  <body>
+    <test-fixture id="basic">
+      <template>
+        <my-app></my-app>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('my-app tests', function() {
+        var app;
+
+        setup(function() {
+          app = fixture('basic');
+        });
+
+        test('my-app should return its name ', function() {
+          assert.equal(app.is, 'my-app');
+        })
+      });
+    </script>
+  </body>
+</html>
