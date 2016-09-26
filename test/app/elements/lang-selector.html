@@ -28,20 +28,62 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <lang-selector></lang-selector>
       </template>
     </test-fixture>
-
     <script>
-      suite('lang-selector tests', function() {
-        var lang;
+      
+      describe('<lang-selector>', function() {
+        
+        describe('local storage test ', function(){
+          var lang;
+          before(function(){
+            lang = fixture('basic');
+          });
+          it('should set language on local storage when setLanguage is called',function(){
+            lang.language='es';
+            lang.setLanguage();
+            var currentLang=lang.$.localStorageLang.data;
+            assert.equal(currentLang,lang.language);
+          });
+          it('should not use the new value if it equals the one setted on local storage',function(){
+            lang.language='es';
+            assert.equal(lang.$.toast.opened,false);
+          });
+          it('should open success toast when setLanguage is called',function(){
+            lang.language='en';
+            lang.setLanguage();
+            assert.equal(lang.$.success.opened,true);
+          });
+        }); 
+        describe('opening toast tests',function(){
+          var lang;
+          var opositeLang;
+          beforeEach(function(){
+            lang = fixture('basic');
+          });
+          it('should have a valid language after savedLanguage changes for the first time',function(done){
+            lang.addEventListener('first-language-setted',function(){
+              assert(lang.language,'It does not have a valid language');
+              opositeLang=lang.language==='es'? 'en' : 'es';
+              done();
+            });            
+          });
+          it('should open its toast when language changes', function() {
+            lang.language=opositeLang;
+            assert.equal(lang.$.toast.opened,true);
+          });
+          it('should not open its toast when language remains the same', function() {
+            lang.$.toast.close();
+            lang.language=lang.language;
+            assert.equal(lang.$.toast.opened,false);
+          });
+          it('should not open when language is set to empty', function() {
+            lang.language='';
+            assert.equal(lang.$.toast.opened,false);
+          });
 
-        setup(function() {
-          lang = fixture('basic');
-        });
+        });  
 
-        test('lang-selector first language should be empty', function(done) {
-          assert.equal(lang.language, '');
-          done();
-        })
       });
+      
     </script>
   </body>
 </html>
