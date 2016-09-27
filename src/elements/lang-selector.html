@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 
 <dom-module id="lang-selector">
@@ -29,14 +30,14 @@
 			}
 		</style>
 
-		<app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
-		<paper-dropdown-menu vertical-align="[[orientation]]">
-		  <paper-listbox class="dropdown-content" selected="{{language}}" attr-for-selected="value" label="[[localize('language')]]">
+		<app-localstorage-document id="localStorageLang" key="langauge" data="{{savedLang}}"></app-localstorage-document>
+		<paper-dropdown-menu label="[[localize('language')]]">
+		  <paper-listbox class="dropdown-content" selected="{{language}}" attr-for-selected="value" >
 		    <paper-item value="es">Español</paper-item>
 		    <paper-item value="en">English</paper-item>
 		  </paper-listbox>
 		</paper-dropdown-menu>
-		<paper-toast id="toast" text="[[localize('warn')]]" duration="10">
+		<paper-toast id="toast" text="[[localize('warn')]]" duration="0">
 			<paper-button on-click='setLanguage' class="primary">[[localize('set')]]</paper-button>
 			<paper-button on-click='closeToast'>[[localize('close')]]</paper-button>
 		</paper-toast>
@@ -51,13 +52,8 @@
 			properties:{
 				language:{
 					type:String,
-					value: '',
 					notify:true,
 					observer:'languageChanged'
-				},
-				orientation:{
-					type:String,
-					notify:true
 				},
 				resources: {
 		            value: function() {
@@ -74,15 +70,26 @@
 		                	'warn':'Usar Español como idioma predeterminado',
 		                	'close':'Cerrar',
 		                	'set':'Usar',
-		                	'success': 'Español configurado como idioma preferido'
+		                	'success': 'Español configurado como idioma predeterminado'
 		              	}
 		          		}
 		        	}
+		        },
+		        savedLang:{
+		        	type:String,
+		        	notify:true,
+		        	observer:'savedLangChanged'
 		        }
 			},
+			savedLangChanged:function(newValue,lastValue){
+				this.language=newValue;
+				if(!lastValue){
+					this.fire('first-language-setted');
+				}
+			},
 			languageChanged:function(newValue,lastValue){
-				var currentLang = this.$.localStorageLang.data;
-				if((newValue===lastValue)||newValue==currentLang||newValue==''){
+				this.$.toast.close();
+				if((newValue===lastValue)||!newValue||this.savedLang===newValue){
 					return;
 				}
 				this.$.toast.open();
@@ -91,9 +98,10 @@
 				this.$.toast.close();
 			},
 			setLanguage:function(){
-				console.log('send');
-				this.$.localStorageLang.data = language;
-				closeToast();
+				this.$.localStorageLang.data = this.language;
+				this.$.localStorageLang.save('langauge');
+				this.$.success.open();
+				this.closeToast();
 			},
 
 
