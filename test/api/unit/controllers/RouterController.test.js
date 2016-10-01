@@ -1,4 +1,6 @@
 var request = require('supertest');
+var chai = require('chai')
+  , should = chai.should();
 
 describe('RouterController', function() {
   describe('redirect', function() {
@@ -12,7 +14,8 @@ describe('RouterController', function() {
 	      request(sails.hooks.http.app)
 	        .get('/user?id=xxxx')
 	        .expect(function(res){
-	        	if(!res.text.includes("<title>My App</title>")) throw new Error('oh shit');
+            res.text.should.include('<title>My App</title>')
+	        	// if(!res.text.includes("<title>My App</title>")) throw new Error('no on homepage');
 	        })
 	        .end(done)
     });

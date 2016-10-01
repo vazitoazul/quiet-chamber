@@ -5,10 +5,13 @@
   "description": "Sails application to make buisness online",
   "keywords": [],
   "dependencies": {
+    "bcryptjs": "^2.3.0",
     "bower": "^1.7.9",
     "connect-redis": "^3.0.2",
     "ejs": "2.3.4",
     "include-all": "~0.1.6",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
     "polymer-cli": "^0.16.0",
     "rc": "1.0.1",
     "sails": "~0.12.1",

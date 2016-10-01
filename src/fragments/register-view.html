@@ -1,0 +1,30 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="rgst-view">
+  <template>
+    <style>
+      :host {
+        display: block;
+
+        padding: 10px 20px;
+      }
+    </style>
+
+    <form is="iron-form" method="get" action="/" id="eventsDemo">
+	  <paper-input name="name" label="Name" required auto-validate></paper-input>
+	  <paper-input name="password" label="Password" type="password" required auto-validate></paper-input>
+	  <paper-checkbox name="read" required>You must check this box</paper-checkbox><br>
+	  <paper-button raised onclick="_delayedSubmit(event)" disabled id="eventsDemoSubmit">
+	    <paper-spinner id="spinner" hidden></paper-spinner>Submit</paper-button>
+	  <paper-button raised onclick="_reset(event)">Reset</paper-button>
+	  <div class="output"></div>
+	</form>
+	
+  </template>
+
+  <script>
+    Polymer({
+      is: 'rgst-view'
+    });
+  </script>
+</dom-module>
