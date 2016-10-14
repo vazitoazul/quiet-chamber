@@ -6,8 +6,9 @@
     "src/fragments/main-view.html",
     "src/fragments/notfound-view.html",
     "src/fragments/forbidden-view.html",
-    "src/fragments/servererror-view.html"
-    "src/fragments/register-view.html"
+    "src/fragments/servererror-view.html",
+    "src/fragments/rgst-view.html",
+    "src/fragments/lgin-view.html"
   ],
   "sourceGlobs": [
    "src/**/*",

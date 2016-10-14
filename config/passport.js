@@ -43,16 +43,20 @@ module.exports.passport = {
   //   }
   // },
 
-  // facebook: {
-  //   name: 'Facebook',
-  //   protocol: 'oauth2',
-  //   strategy: require('passport-facebook').Strategy,
-  //   options: {
-  //     clientID: 'your-client-id',
-  //     clientSecret: 'your-client-secret',
-  //     scope: ['email'] /* email is necessary for login behavior */
-  //   }
-  // },
+  facebook: {
+    name: 'Facebook',
+    protocol: 'oauth2',
+    strategy: require('passport-facebook').Strategy,
+    options: {
+      clientID: process.env.FACEBOOK_ID,
+      clientSecret: process.env.FACEBOOK_SECRET,
+      scope: ['email'], /* email is necessary for login behavior */
+      callbackURL: process.env.FACEBOOK_CALLBACK_URL,
+      profileFields: ['id', 'first_name','last_name','picture', 'email'],
+      enableProof:true,
+      appsecret_proof:process.env.FACEBOOK_APPSECRET
+    }
+  }
 
   // google: {
   //   name: 'Google',

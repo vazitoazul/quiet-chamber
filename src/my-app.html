@@ -52,6 +52,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <notfound-view name="notfound"></notfound-view>
       <forbidden-view name="forbidden"></forbidden-view>
       <serverError-view name="serverError"></serverError-view>
+      <rgst-view name="rgst" on-route-change="changeRoute" ></rgst-view>
+      <lgin-view name="lgin" on-route-change="changeRoute" ></lgin-view>
     </iron-pages>
   </template>
 
@@ -84,6 +86,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _showPage404: function() {
         this.page = 'notfound';
+      },
+
+      changeRoute : function(e){
+        var newPath = e.detail.route
+        this.page = newPath;
+        this.set('route.path','/'+newPath);
+
       }
     });
   </script>

@@ -1,6 +1,8 @@
 var validator = require('validator');
 var crypto    = require('crypto');
-
+var recaptcha = require("recaptcha_v2");
+var keys = sails.config.recaptcha;
+var captcha = new recaptcha({secret:keys.private_key});
 /**
  * Local Authentication Protocol
  *
@@ -25,58 +27,80 @@ var crypto    = require('crypto');
  */
 exports.register = function (req, res, next) {
   var email    = req.param('email')
-    , password = req.param('password');
+    , password = req.param('password')
+    , confirmation = req.param('confirmation');;
 
     
   if (!email) {
-    req.flash('error', 'Error.Passport.Email.Missing');
+    res.body = { error : 'Error.Passport.Email.Missing'};
     return next(new Error('No email was entered.'));
   }
-
   if (!password) {
-    req.flash('error', 'Error.Passport.Password.Missing');
+    res.body = { error : 'Error.Passport.Password.Missing'};
+    return next(new Error('No password was entered.'));
+  }
+  if (password!==confirmation){
+    res.body = { error : 'Error.Passport.Password.DoesntMatch'};
     return next(new Error('No password was entered.'));
   }
 
-  
-  User.create({
-    email    : email
-  }, function (err, user) {
-    if (err) {
-      if (err.code === 'E_VALIDATION') {
-        if (err.invalidAttributes.email) {
-          req.flash('error', 'Error.Passport.Email.Exists');
-        } else {
-          req.flash('error', 'Error.Passport.User.Exists');
-        }
-      }
+  //set recaptcha response to captcha library
+  captcha.response = req.body['g-recaptcha-response'];
+  //using recatpcha verify package for cheking the recaptcha incomming response
+  captcha.verify(function(err,done){
+        //Error will finish proccess if exists
+        if(err) {
+            console.log(`not verified`);
+            res.body = { error : 'Error.Recaptcha.verify'};    
+            return next(err);
+        } 
+        if(done) {
+           // recaptcha verified
+           User.create({
+              email    : email
+            }, function (err, user) {
+              if (err) {
+                if (err.code === 'E_VALIDATION') {
+                  if (err.invalidAttributes.email) {
+                    res.body = { error : 'Error.Passport.Email.Exists'};
+                  } else {
+                    res.body = { error : 'Error.Passport.User.Exists'};
+                  }
+                }
+                return next(err);
+              }
 
-      res.body = { error : err};
-      return next(err);
-    }
+              // Generating accessToken for API authentication
+              var token = crypto.randomBytes(48).toString('base64');
 
-    // Generating accessToken for API authentication
-    var token = crypto.randomBytes(48).toString('base64');
+              Passport.create({
+                protocol    : 'local'
+              , password    : password
+              , user        : user.id
+              , accessToken : token
+              }, function (err, passport) {
+                if (err) {
+                  if (err.code === 'E_VALIDATION') {
+                    res.body = { error : 'Error.Passport.Password.Invalid'};
+                  }
 
-    Passport.create({
-      protocol    : 'local'
-    , password    : password
-    , user        : user.id
-    , accessToken : token
-    }, function (err, passport) {
-      if (err) {
-        if (err.code === 'E_VALIDATION') {
-          req.flash('error', 'Error.Passport.Password.Invalid');
-        }
+                  return user.destroy(function (destroyErr) {
+                    next(destroyErr || err);
+                  });
+                }
 
-        return user.destroy(function (destroyErr) {
-          next(destroyErr || err);
-        });
-      }
-
-      next(null, user);
+                next(null, user);
+              });
+            });
+        }      
     });
-  });
+
+
+
+    
+
+
+
 };
 
 /**
@@ -133,40 +157,30 @@ exports.login = function (req, identifier, password, next) {
   var isEmail = validator.isEmail(identifier)
     , query   = {};
 
-  if (isEmail) {
-    query.email = identifier;
-  }
-  else {
-    query.username = identifier;
-  }
-
+  query.email = identifier;
+  
+  
   User.findOne(query, function (err, user) {
     if (err) {
       return next(err);
     }
-
     if (!user) {
-      if (isEmail) {
-        req.flash('error', 'Error.Passport.Email.NotFound');
-      } else {
-        req.flash('error', 'Error.Passport.Username.NotFound');
-      }
-
       return next(null, false);
     }
-
+    
     Passport.findOne({
       protocol : 'local'
     , user     : user.id
     }, function (err, passport) {
       if (passport) {
         passport.validatePassword(password, function (err, res) {
+          console.log(err);
           if (err) {
             return next(err);
           }
 
           if (!res) {
-            req.flash('error', 'Error.Passport.Password.Wrong');
+            console.log('mal pass');
             return next(null, false);
           } else {
             return next(null, user);
@@ -174,7 +188,6 @@ exports.login = function (req, identifier, password, next) {
         });
       }
       else {
-        req.flash('error', 'Error.Passport.Password.NotSet');
         return next(null, false);
       }
     });

@@ -109,6 +109,15 @@ passport.connect = function (req, query, profile, next) {
       //           authentication provider.
       // Action:   Create a new user and assign them a passport.
       if (!passport) {
+        //get information from third party
+       switch (provider){
+          case 'facebook':
+            user.mailVerified=true;
+          break;
+          case 'google':
+            user.mailVerified=true;
+          break;
+        }
         User.create(user, function (err, user) {
           if (err) {
             if (err.code === 'E_VALIDATION') {
@@ -143,15 +152,15 @@ passport.connect = function (req, query, profile, next) {
         if (query.hasOwnProperty('tokens') && query.tokens !== passport.tokens) {
           passport.tokens = query.tokens;
         }
-
+         console.log(passport);
         // Save any updates to the Passport before moving on
-        passport.save(function (err, passport) {
+        passport.save(function (err, passp) {
           if (err) {
             return next(err);
           }
-
+          console.log(passport);
           // Fetch the user associated with the Passport
-          User.findOne(passport.user.id, next);
+          User.findOne(passport.user, next);
         });
       }
     } else {

@@ -149,8 +149,13 @@ var AuthController = {
       // false fro success if not it redirect to root  
          if(!req.wantsJSON){
             res.redirect('/');
+
          }else{
-            res.json({success:false,error:flashError});
+            if(res.body.error){
+              res.json({success:false, error: res.body.error});
+            }else{
+              res.json({success:false, error: err});
+            }
          }
         
         break;
@@ -158,11 +163,12 @@ var AuthController = {
           res.redirect('back');
           break;
         default:
-          res.redirect('/login');
+          res.json({success:false, error: err});
       }
     }
 
     passport.callback(req, res, function (err, user, challenges, statuses) {
+      console.log(`logenadose bru ${user} ${err}`);
       if (err || !user) {
         return tryAgain(challenges);
       }
@@ -176,7 +182,12 @@ var AuthController = {
         req.session.authenticated = true
 
         // Upon successful login, return the user id
-        return res.json({user : user.id});
+        if(req.param('provider')){
+          res.redirect('/acco')
+        }else{
+          return res.json({user : user.id});
+        }
+        
       });
     });
   },
