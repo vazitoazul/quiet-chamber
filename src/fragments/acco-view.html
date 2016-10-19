@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="acco-view">
@@ -20,6 +21,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         padding: 10px;
       }
     </style>
+    <iron-ajax
+    url="/getcurrentuser"
+    handle-as="json"
+    on-response="currentUserHandler"
+    id="currentUserRequester"></iron-ajax>
 
     <div class="card">
       <div class="circle">1</div>
@@ -31,7 +37,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script>
     Polymer({
-      is: 'acco-view'
+      is: 'acco-view',
+
+      ready : function(){
+       var that = this;
+      
+        setTimeout(function(){
+           that.$.currentUserRequester.generateRequest();
+        }
+        
+        , 1000);
+      },
+
+      currentUserHandler : function(e){
+        console.log(e);
+      }
     });
   </script>
 </dom-module>
