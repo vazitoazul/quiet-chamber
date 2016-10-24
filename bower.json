@@ -27,7 +27,7 @@
     "paper-item": "^1.2.1",
     "iron-form": "PolymerElements/iron-form#^1.1.4",
     "paper-spinner": "PolymerElements/paper-spinner#^1.2.0",
-    "re-captcha": "^1.1.1",
+    "re-captcha": "^1.1.1"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
