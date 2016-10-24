@@ -1,6 +1,7 @@
 var path     = require('path')
   , url      = require('url')
-  , passport = require('passport');
+  , passport = require('passport')
+  , appUrl = sails.config.appUrl;
 
 /**
  * Passport Service
@@ -321,7 +322,7 @@ passport.loadStrategies = function () {
 
       Strategy = strategies[key].strategy;
 
-      var baseUrl = sails.getBaseurl();
+      var baseUrl = appUrl;
 
       switch (protocol) {
         case 'oauth':
