@@ -33,7 +33,7 @@
           <iron-icon icon="mdi:google-plus" class="google"></iron-icon>
       </a>
 	</div>    
-    <form is="iron-form" method="POST" action="/auth/local" on-iron-form-response= "responseHandler" id="registerForm" on-change="validateForm">
+    <form is="iron-form" method="POST" action="/auth/local" on-iron-form-response= "responseHandler" id="registerForm">
   	  <paper-input name="identifier" label="[[localize('email')]]" required auto-validate  error-message="[[localize('email_form')]]"></paper-input>
       <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate ></paper-input>
   	  <paper-button raised on-click="submit" id="submitButton">

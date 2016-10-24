@@ -153,13 +153,13 @@ passport.connect = function (req, query, profile, next) {
         if (query.hasOwnProperty('tokens') && query.tokens !== passport.tokens) {
           passport.tokens = query.tokens;
         }
-         console.log(passport);
+
         // Save any updates to the Passport before moving on
         passport.save(function (err, passp) {
           if (err) {
             return next(err);
           }
-          console.log(passport);
+
           // Fetch the user associated with the Passport
           User.findOne(passport.user, next);
         });

@@ -30,7 +30,7 @@ exports.register = function (req, res, next) {
     , password = req.param('password')
     , confirmation = req.param('confirmation');;
 
-    
+
   if (!email) {
     res.body = { error : 'Error.Passport.Email.Missing'};
     return next(new Error('No email was entered.'));
@@ -180,7 +180,6 @@ exports.login = function (req, identifier, password, next) {
           }
 
           if (!res) {
-            console.log('mal pass');
             return next(null, false);
           } else {
             return next(null, user);

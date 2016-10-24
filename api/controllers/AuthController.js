@@ -168,7 +168,6 @@ var AuthController = {
     }
 
     passport.callback(req, res, function (err, user, challenges, statuses) {
-      console.log(`logenadose bru ${user} ${err}`);
       if (err || !user) {
         return tryAgain(challenges);
       }
