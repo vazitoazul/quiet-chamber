@@ -11,9 +11,7 @@ module.exports = {
 
 	redirect:function(req,res,next){
 		var page = req.params.page;	
-		var action = req.params.action;
 		//check if page exists
-
 
 		if(page){
 			//check if no src is requested 
