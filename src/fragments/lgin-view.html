@@ -26,10 +26,10 @@
     </style>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
     <div >
-      <a href="/auth/facebook">
+      <a href="/auth/facebook" rel="external">
           <iron-icon icon="mdi:facebook" class="facebook"></iron-icon>
       </a>
-      <a href="/auth/google">
+      <a href="/auth/google" rel="external">
           <iron-icon icon="mdi:google-plus" class="google"></iron-icon>
       </a>
 	</div>    
@@ -94,7 +94,7 @@
         this.$.spinner.hidden = true;
         console.log(response);
         if(response.success==false){
-          this.$.toast.text = `Correo o contraseña incorrectos`;
+          this.$.toast.text = 'Correo o contraseña incorrectos';
           this.$.toast.open();
 
         }else if(response.user){

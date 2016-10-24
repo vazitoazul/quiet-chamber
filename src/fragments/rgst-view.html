@@ -77,7 +77,7 @@
 
       submit : function(e){
         if(this.$.password.value !== this.$.confirmation.value){
-          this.$.toast.text = `Las contraseñas no coinciden`;
+          this.$.toast.text = 'Las contraseñas no coinciden';
           this.$.toast.open();
         
         }else{
@@ -86,7 +86,7 @@
             this.$.spinner.hidden = false;
             this.$.registerForm.submit();
           }else{
-            this.$.toast.text = `Verifica que no eres un robot`;
+            this.$.toast.text = 'Verifica que no eres un robot';
             this.$.toast.open();
           }
         }
