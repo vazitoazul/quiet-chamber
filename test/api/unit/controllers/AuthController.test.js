@@ -29,17 +29,6 @@ describe('AuthController', function(){
 		   
 		    });
 
-		    it('should enter a user and log it in', function (done) {
-		      request(sails.hooks.http.app)
-		        .post('/auth/local/register')
-		        .send({email : 'test@test.com',password : 'testtest'})
-		        .expect(function(res, req){
-		        	res.body.should.have.property('user');
-	      		})
-	        	.end(done)
-		   
-		    });
-
 	});
 
 });
