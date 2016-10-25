@@ -1,11 +1,12 @@
 var Sails = require('sails');
-
+var path= require('path');
+var rc = require('rc');
   // Global before hook
   before(function (done) {
+    process.chdir(path.resolve(__dirname,'../../'));
+    this.timeout(5000);
     // Lift Sails with test database
-    Sails.lift({
-
-    }, function(err) {
+    Sails.lift(rc('sails'), function(err) {
       if (err)
         return done(err);
 
