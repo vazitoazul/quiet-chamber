@@ -12,6 +12,7 @@
   ],
   "sourceGlobs": [
    "src/**/*",
+   "src/elements/**/*",
    "images/**/*",
    "bower.json"
   ],

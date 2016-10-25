@@ -51,7 +51,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <acco-view name="acco"></acco-view>
       <notfound-view name="notfound"></notfound-view>
       <forbidden-view name="forbidden"></forbidden-view>
-      <servererror-view name="serverError"></servererror-view>
+      <servererror-view name="servererror"></servererror-view>
       <rgst-view name="rgst" on-route-change="changeRoute" ></rgst-view>
       <lgin-view name="lgin" on-route-change="changeRoute" ></lgin-view>
     </iron-pages>
@@ -74,7 +74,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ],
 
       _routePageChanged: function(page) {
-        
+
         this.page = page || 'main';
       },
 
@@ -92,7 +92,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var newPath = e.detail.route
         this.page = newPath;
         this.set('route.path','/'+newPath);
-
       }
     });
   </script>
