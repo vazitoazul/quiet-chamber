@@ -19,7 +19,7 @@ module.exports = {
 
 	models:{
 		connection:'testMongo',
-		migrate: 'alter'
+		migrate: 'drop'
 	},
 	session:{
 		secret:'f99fc5594661102ab5055dc74a2f2ebd',
@@ -33,7 +33,7 @@ module.exports = {
 		}
 	},
 	port:9000,
-	
+
 	// log:{
 	// 	level:"silly"
 	// },

@@ -73,7 +73,6 @@ passport.connect = function (req, query, profile, next) {
   // Use profile.provider or fallback to the query.provider if it is undefined
   // as is the case for OpenID, for example
   provider = profile.provider || query.provider;
-
   // If the provider cannot be identified we cannot match it to a passport so
   // throw an error and let whoever's next in line take care of it.
   if (!provider){
@@ -119,7 +118,9 @@ passport.connect = function (req, query, profile, next) {
             user.mailVerified=true;
           break;
         }
+        console.log(user);
         User.create(user, function (err, user) {
+          console.log(user);
           if (err) {
             if (err.code === 'E_VALIDATION') {
               if (err.invalidAttributes.email) {
@@ -206,7 +207,7 @@ passport.endpoint = function (req, res) {
   // If a provider doesn't exist for this endpoint, send the user back to the
   // login page
   if (!strategies.hasOwnProperty(provider)) {
-    return res.redirect('/login');
+    return res.redirect('/lgn');
   }
 
   // Attach scope if it has been set in the config

@@ -25,8 +25,12 @@ module.exports.policies = {
   * access)                                                                  *
   *                                                                          *
   ***************************************************************************/
+  'UserController' : {
+    'current' : ['passport','sessionAuth'],
+    '*' : ['passport','sessionAuth','intlCredential']
+  }
 
-  '*': ['passport']
+
 
   /***************************************************************************
   *                                                                          *

@@ -27,9 +27,9 @@
   	  <paper-input name="email" label="[[localize('email')]]" required auto-validate pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" error-message="[[localize('email_form')]]"></paper-input>
       <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
   	  <paper-input name="confirmation" id="confirmation" label="[[localize('confirmation')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('repeat_pass')]]"></paper-input>
-      <re-captcha id="recaptcha" sitekey="6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha> 
+      <!-- <re-captcha id="recaptcha" sitekey="6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha>  -->
       <!-- for development use only -->
-      <!-- <re-captcha id="recaptcha" sitekey="6LdaZAgUAAAAAL39MPM8qmsb3_DpXsBBS08UU0RF" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha>  -->
+      <re-captcha id="recaptcha" sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha> 
   	  <paper-button raised on-click="submit" disabled id="submitButton">
   	    <paper-spinner id="spinner" hidden></paper-spinner>[[localize('submit')]]</paper-button>
   	  <paper-button raised on-click="reset">[[localize('reset')]]</paper-button>
@@ -37,7 +37,7 @@
 	  </form>
 	   <paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
-  
+
   <script>
     Polymer({
       is: 'rgst-view',
@@ -55,7 +55,7 @@
         resources: {
                 value: function() {
                   return {
-                    'en': { 
+                    'en': {
                       'email' : 'email',
                       'password' : 'password' ,
                       'confirmation' : 'repeat password',
@@ -65,7 +65,7 @@
                       'email_form' : 'must be a vali email',
                       'repeat_pass' : 'repeat pass'
                     },
-                    'es': { 
+                    'es': {
                       'email' : 'email',
                       'password' : 'contraseña' ,
                       'confirmation' : 'repita la contraseña',
@@ -81,7 +81,7 @@
         if(this.$.password.value !== this.$.confirmation.value){
           this.$.toast.text = 'Las contraseñas no coinciden';
           this.$.toast.open();
-        
+
         }else{
           if(this.recaptchaResponse){
             this.$.spinner.active = true;
@@ -93,8 +93,8 @@
           }
         }
 
-        
-       
+
+
       },
 
       responseHandler : function(e){
@@ -130,7 +130,7 @@
 
       recaptchaCallback : function(e){
         this.set('recaptchaResponse',true);
-        
+
       }
 
 

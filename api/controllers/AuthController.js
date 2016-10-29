@@ -69,10 +69,10 @@ var AuthController = {
    */
   logout: function (req, res) {
     req.logout();
-    
+
     // mark the user as logged out for auth purposes
     req.session.authenticated = false;
-    
+
     res.redirect('/');
   },
 
@@ -146,7 +146,7 @@ var AuthController = {
       switch (action) {
         case 'register':
       // if the request is waiting for a jsno response it gets
-      // false fro success if not it redirect to root  
+      // false fro success if not it redirect to root
          if(!req.wantsJSON){
             res.redirect('/');
 
@@ -157,7 +157,7 @@ var AuthController = {
               res.json({success:false, error: err});
             }
          }
-        
+
         break;
         case 'disconnect':
           res.redirect('back');
@@ -176,7 +176,7 @@ var AuthController = {
         if (err) {
           return tryAgain(err);
         }
-        
+
         // Mark the session as authenticated to work with default Sails sessionAuth.js policy
         req.session.authenticated = true
 
@@ -186,7 +186,7 @@ var AuthController = {
         }else{
           return res.json({user : user.id});
         }
-        
+
       });
     });
   },

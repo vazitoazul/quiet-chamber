@@ -30,7 +30,6 @@ exports.register = function (req, res, next) {
     , password = req.param('password')
     , confirmation = req.param('confirmation');;
 
-
   if (!email) {
     res.body = { error : 'Error.Passport.Email.Missing'};
     return next(new Error('No email was entered.'));
@@ -51,9 +50,9 @@ exports.register = function (req, res, next) {
         //Error will finish proccess if exists
         if(err) {
             console.log(`not verified`);
-            res.body = { error : 'Error.Recaptcha.verify'};    
+            res.body = { error : 'Error.Recaptcha.verify'};
             return next(err);
-        } 
+        }
         if(done) {
            // recaptcha verified
            User.create({
@@ -92,12 +91,12 @@ exports.register = function (req, res, next) {
                 next(null, user);
               });
             });
-        }      
+        }
     });
 
 
 
-    
+
 
 
 
@@ -158,23 +157,23 @@ exports.login = function (req, identifier, password, next) {
     , query   = {};
 
   query.email = identifier;
-  
-  
+
   User.findOne(query, function (err, user) {
+    // console.log(identifier);
+    // console.log(password);
     if (err) {
       return next(err);
     }
     if (!user) {
       return next(null, false);
     }
-    
+
     Passport.findOne({
       protocol : 'local'
     , user     : user.id
     }, function (err, passport) {
       if (passport) {
         passport.validatePassword(password, function (err, res) {
-          console.log(err);
           if (err) {
             return next(err);
           }
