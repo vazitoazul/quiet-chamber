@@ -49,7 +49,8 @@ module.exports.routes = {
   '/:page/:action':'RouterController.redirect',
   '/:page/:action/:id':'RouterController.redirect',
 
-  '/getcurrentuser' : 'UserController.current'
+  '/getcurrentuser' : 'UserController.getCurrentUser',
+  '/updateIntlCredential' : 'UserController.updateIntlCredential'
 
   /***************************************************************************
   *                                                                          *
