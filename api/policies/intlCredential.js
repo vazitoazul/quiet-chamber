@@ -1,11 +1,12 @@
 // this policy will check if the connected user has already updated it's
-// intlCredential attribute
-module.exports = function(req,res,next){
-  console.log(req.user);
-  // if (req.user) {
-  //   return next();
-  // }
+// intlCredential attribute for allowing it to continue
 
-  // return res.forbidden('You are not permitted to perform this action.');
+module.exports = function(req,res,next){
+  if(!req.user){
+    return res.badRequest();
+  }
+  if(!req.user.intlCredential){
+    return res.forbidden();
+  }
   return next();
 };

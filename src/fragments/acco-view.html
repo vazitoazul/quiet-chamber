@@ -10,6 +10,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="acco-view">
@@ -26,31 +31,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     handle-as="json"
     on-response="currentUserHandler"
     id="currentUserRequester"></iron-ajax>
-
+    <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
     <div class="card">
       <div class="circle">1</div>
       <h1>View One</h1>
       <p>Ut labores minimum atomorum pro. Laudem tibique ut has.
       <p>Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Cu mei vide viris gloriatur, at populo eripuit sit.</p>
     </div>
+    <paper-dialog modal id="credentialDialog">
+      <h3>Hola</h3>
+      <h3>Ingresa tu identificacion para asegurarnos que eres el unico tu</h3>
+      <form is="iron-form" action="/updateintlcredential" method="post">
+        <paper-input label="Ingresa tu pais" name="country"></paper-input>
+        <paper-input label="Ingresa el numero de identificacion" name="credential"></paper-input>
+      </form>
+    </paper-dialog>
   </template>
 
   <script>
     Polymer({
       is: 'acco-view',
 
+      properties:{
+        user :{
+          type : Object
+        },
+        language :{
+          tpye : String,
+          value : 'en'
+        }
+      },
+
+      behaviors: [
+            Polymer.AppLocalizeBehavior
+          ],
+
       ready : function(){
        var that = this;
-      
-        setTimeout(function(){
-           that.$.currentUserRequester.generateRequest();
-        }
-        
-        , 1000);
+       that.$.currentUserRequester.generateRequest();
       },
 
       currentUserHandler : function(e){
-        console.log(e);
+        var user = e.detail.__data__.response;
+        if(user){
+          this.user = user;
+          if(!this.user.intlCredential){
+            this.$.credentialDialog.open();
+          }
+        }
+
       }
     });
   </script>

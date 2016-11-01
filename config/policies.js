@@ -26,7 +26,8 @@ module.exports.policies = {
   *                                                                          *
   ***************************************************************************/
   'UserController' : {
-    'current' : ['passport','sessionAuth'],
+    'getCurrentUser' : ['passport','sessionAuth'],
+    'updateIntlCredential' : ['passport','sessionAuth'],
     '*' : ['passport','sessionAuth','intlCredential']
   },
 

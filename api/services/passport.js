@@ -118,9 +118,7 @@ passport.connect = function (req, query, profile, next) {
             user.mailVerified=true;
           break;
         }
-        console.log(user);
         User.create(user, function (err, user) {
-          console.log(user);
           if (err) {
             if (err.code === 'E_VALIDATION') {
               if (err.invalidAttributes.email) {

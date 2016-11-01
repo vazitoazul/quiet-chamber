@@ -31,15 +31,15 @@ module.exports.routes = {
   * `assets` directory)                                                      *
   *                                                                          *
   ***************************************************************************/
-  
+
   //authentication routes
   'get /login': 'AuthController.login',
   'get /logout': 'AuthController.logout',
   'get /register': 'AuthController.register',
-   
+
   'post /auth/local': 'AuthController.callback',
   'post /auth/local/:action': 'AuthController.callback',
-   
+
   'get /auth/:provider': 'AuthController.provider',
   'get /auth/:provider/callback': 'AuthController.callback',
   'get /auth/:provider/:action': 'AuthController.callback',
@@ -50,7 +50,8 @@ module.exports.routes = {
   '/:page/:action/:id':'RouterController.redirect',
 
   '/getcurrentuser' : 'UserController.getCurrentUser',
-  '/updateIntlCredential' : 'UserController.updateIntlCredential'
+  '/updateintlcredential' : 'UserController.updateIntlCredential',
+  '/updateuserinfo' : 'UserController.updateUserInfo',
 
   /***************************************************************************
   *                                                                          *
