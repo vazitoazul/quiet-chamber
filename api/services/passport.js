@@ -113,9 +113,13 @@ passport.connect = function (req, query, profile, next) {
        switch (provider){
           case 'facebook':
             user.mailVerified=true;
+            user.firstName=profile._json.first_name;
+            user.lastName=profile._json.last_name;
           break;
           case 'google':
             user.mailVerified=true;
+            user.firstName=profile.name.givenName;
+            user.lastName=profile.name.familyName;
           break;
         }
         User.create(user, function (err, user) {

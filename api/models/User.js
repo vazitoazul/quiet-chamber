@@ -6,7 +6,11 @@ var User = {
     email     : { type: 'email',  unique: true },
     passports : { collection: 'Passport', via: 'user' },
     mailVerified : { type: 'boolean', defaultsTo : false},
-    intlCredential : { type: 'string', unique : true}
+    intlCredential : { type: 'string', unique : true},
+    firstName : {type : 'string'},
+    lastName : {type : 'string'},
+    contactInfo: {type : 'json'},
+    address: {type: 'json'}
   }
 };
 

@@ -99,7 +99,8 @@
       },
 
       redirectThirdParty : function(e){
-        if(e.path[0].id == 'fb_icon'){
+        console.log(e);
+        if(e.target.id == 'fb_icon'){
           window.location = "/auth/facebook";
         }else{
           window.location = "/auth/google";

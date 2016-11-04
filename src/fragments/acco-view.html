@@ -13,8 +13,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
+
+<link rel="import" href="../elements/user-info.html">
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="acco-view">
@@ -22,7 +26,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <style include="shared-styles">
       :host {
         display: block;
-
         padding: 10px;
       }
     </style>
@@ -30,22 +33,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     url="/getcurrentuser"
     handle-as="json"
     on-response="currentUserHandler"
-    id="currentUserRequester"></iron-ajax>
+    id="currentUserRequester"
+    on-error="currentUserErrorHandler"></iron-ajax>
     <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
+    <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <div class="card">
-      <div class="circle">1</div>
-      <h1>View One</h1>
-      <p>Ut labores minimum atomorum pro. Laudem tibique ut has.
-      <p>Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Cu mei vide viris gloriatur, at populo eripuit sit.</p>
+      <user-info id="userInfo"></user-info>
+      <test-element></test-element>
     </div>
     <paper-dialog modal id="credentialDialog">
       <h3>Hola</h3>
       <h3>Ingresa tu identificacion para asegurarnos que eres el unico tu</h3>
-      <form is="iron-form" action="/updateintlcredential" method="post">
-        <paper-input label="Ingresa tu pais" name="country"></paper-input>
-        <paper-input label="Ingresa el numero de identificacion" name="credential"></paper-input>
+      <form id="userIntlCredentialForm" is="iron-form" action="/updateintlcredential" method="post" on-iron-form-error="updateIntlCredentialErrorHandler" on-iron-form-response="updateIntlCredentialResponseHandler">
+        <paper-input id="countryInput" label="Ingresa tu pais" value="Ecuador"></paper-input>
+        <paper-input required auto-validate id="credentialNumber" label="Ingresa el numero de identificacion" error-message="Debes ingresar tu identificacion!"></paper-input>
+        <input hidden name="newCredential" value="{{newCredential}}">
+        <div class="buttons">
+          <paper-button on-click="updateIntlCredential">Enviar</paper-button>
+        </div>
       </form>
     </paper-dialog>
+    <paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
 
   <script>
@@ -56,6 +64,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         user :{
           type : Object
         },
+        newCredential:{
+          type : String
+        },
+        countryCode :{
+          type: String,
+          value: 'EC'
+        },
         language :{
           tpye : String,
           value : 'en'
@@ -63,12 +78,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       behaviors: [
-            Polymer.AppLocalizeBehavior
-          ],
+        Polymer.AppLocalizeBehavior
+      ],
 
       ready : function(){
-       var that = this;
-       that.$.currentUserRequester.generateRequest();
+       this.$.currentUserRequester.generateRequest();
       },
 
       currentUserHandler : function(e){
@@ -77,9 +91,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.user = user;
           if(!this.user.intlCredential){
             this.$.credentialDialog.open();
+          }else{
+            this.$.userInfo.user = this.user;
+            this.$.credentialDialog.close();
           }
+        }else{
+          this.fire('route-change',{route : 'forbidden'})
         }
+      },
 
+      googleApiReady : function(e){
+        var countrySearch = new google.maps.places.Autocomplete(this.$.countryInput.inputElement,{types : ['(regions)']});
+        var that = this;
+        google.maps.event.addListener(countrySearch,'place_changed', function(){
+          var country = countrySearch.getPlace();
+          if(!country.address_components){
+            that.$.toast.text = 'Pais no valido,escribe y elije otro';
+            that.$.toast.open();
+          }else{
+            that.set('countryCode',country.address_components[0].short_name);
+          }
+        });
+      },
+
+      currentUserErrorHandler : function(e){
+        this.fire('route-change',{route : 'forbidden'})
+      },
+
+      updateIntlCredential : function(e){
+        var form = this.$.userIntlCredentialForm;
+        this.set('newCredential',this.countryCode.concat(this.$.credentialNumber.value));
+
+        if(form.validate()){
+          form.submit();
+        }
+      },
+
+      updateIntlCredentialErrorHandler : function(e){
+        this.$.toast.text = 'Esta credencial ya esta siendo usada';
+        this.$.toast.open();  
+      },
+
+      updateIntlCredentialResponseHandler : function(e){
+        if(e.detail.__data__.status == 200){
+          this.$.currentUserRequester.generateRequest();
+        }else{
+          this.updateIntlCredentialResponseHandler();
+        }
       }
     });
   </script>

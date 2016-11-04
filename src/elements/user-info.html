@@ -1,0 +1,129 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/gold-phone-input/gold-phone-input.html">
+<link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
+<link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
+
+
+
+<dom-module id="user-info">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 10px 20px;
+      }
+    </style>
+    <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" ></google-maps-api>
+    <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
+   	<form is="iron-form" method="POST" action="/updateuserinfo" on-iron-form-response= "responseHandler" id="registerForm">
+   	  <h4>Informacion del Usuario</h4>
+    	  <paper-input name="userFirstName" label="nombres" required auto-validate value="{{user.firstName}}" error-message="[[localize('email_form')]]"></paper-input>
+    	  <paper-input name="userLastName" label="apellidos" required auto-validate value="{{user.lastName}}" error-message="[[localize('email_form')]]"></paper-input>
+    	  <h4>Informacion de contacto</h4>
+    	  <paper-input name="contactFirstName" label="nombres" required auto-validate value="{{user.contactInfo.firstName}}" error-message="[[localize('email_form')]]"></paper-input>
+    	  <paper-input name="contactLastName" label="apellidos" required auto-validate value="{{user.contactInfo.lastName}}" error-message="[[localize('email_form')]]"></paper-input>
+        <div>
+  	      <h5>Telefonos</h5>
+  	      <gold-phone-input required name="telephone"  phone-number-pattern="X-XXXX-XXXX" error-message="[[localize(lang,'enter_a_valid_cellphone_number')]]" label="[[localize(lang,'mobile')]]" value="{{user.contactInfo.telephones.0}}"></gold-phone-input>
+  	      <gold-phone-input name="telephone"  phone-number-pattern="X-XXX-XXXX" error-message="[[localize(lang,'enter_a_number_with_province_code')]]" label="[[localize(lang,'landline','number','1')]]" value="{{user.contactInfo.telephones.1}}"></gold-phone-input>
+  	      <gold-phone-input name="telephone"  phone-number-pattern="X-XXX-XXXX" error-message="[[localize(lang,'enter_a_number_with_province_code')]]" label="[[localize(lang,'landline','number','1')]]" value="{{user.contactInfo.telephones.2}}"></gold-phone-input>
+  	    </div>
+        <paper-input id="addressInput" name="addressLabel" label="direccion" value={{user.contactInfo.address.label}} ></paper-input>
+        <input hidden name="longitude" value="{{user.contactInfo.longitude}}">
+        <input hidden name="latitude" value="{{user.contactInfo.latitude}}">
+        <gold-email-input name="contactEmail" label="your email address" value="{{user.contactInfo.email}}"></gold-email-input>
+    	  <paper-button raised on-click="submit" id="submitButton">
+    	  <paper-spinner id="spinner" hidden></paper-spinner>Actualizar</paper-button>
+    	  <div class="output"></div>
+  	</form>
+  	<paper-toast id="toast" duration="5000" ></paper-toast>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'user-info',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior
+      ],
+
+      properties : {
+
+        language : {
+          value : 'en'
+        },
+
+        user :{
+        	type : Object,
+          notify : true,
+          observer : 'userChanged'
+        },
+
+        resources: {
+            value: function() {
+              return {
+                'en': {
+                  'email' : 'email',
+                  'password' : 'password' ,
+                  'confirmation' : 'repeat password',
+                  'log_in' : 'log in',
+                  'reset' : 'reset',
+                  'pass_form' : 'must have 8 chars, capitals and numbers',
+                  'email_form' : 'must be a vali email',
+                  'repeat_pass' : 'repeat pass'
+                },
+                'es': {
+                  'email' : 'email',
+                  'password' : 'contraseña' ,
+                  'confirmation' : 'repita la contraseña',
+                  'submit' : 'enviar',
+                  'reset' : 'limpiar'
+                }
+              }
+          }
+        },
+      },
+
+      submit : function(e){
+        this.$.spinner.active = true;
+        this.$.spinner.hidden = false;
+        this.$.registerForm.submit();
+      },
+
+      responseHandler : function(e){
+        var response = e.detail.__data__.response;
+        console.log(e.detail.__data__)
+      },
+
+      userChanged : function(){
+        var that = this;
+
+        setTimeout(function(){
+          var addressSearch = new google.maps.places.Autocomplete(that.$.addressInput.inputElement,{types : ['(regions)'], componentRestrictions: {country: that.user.intlCredential.substring(0,2)}});
+          google.maps.event.addListener(addressSearch,'place_changed', function(){
+            var address = addressSearch.getPlace();
+            console.log(address);
+            if(!address.geometry){
+              that.$.toast.text = 'Pais no valido,escribe y elije otro';
+              that.$.toast.open();
+            }else{
+              that.set(['user','contactInfo','address','latitude'],address.geometry.location.lat());
+              that.set(['user','contactInfo','address','longitude'],address.geometry.location.lng());
+              that.set(['user','contactInfo','address','label'],address.formatted_address);
+              console.log(that.user.contactInfo);
+            }
+          });
+        },500);
+        console.log(this.user);
+      }
+
+    });
+  </script>
+</dom-module>
