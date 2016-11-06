@@ -22,17 +22,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="my-icons.html">
+<link rel="import" href="shared-styles.html">
 
 <dom-module id="my-app">
   <template>
-    <style>
-      :host {
-        --app-primary-color: #4285f4;
-        --app-secondary-color: black;
-        margin: 0;
-        height: 100vh;
-        display: block;
-      }
+    <style include="shared-styles">
+
     </style>
 
     <app-location route="{{route}}"></app-location>

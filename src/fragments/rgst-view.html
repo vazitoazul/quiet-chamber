@@ -7,13 +7,14 @@
 <link rel="import" href="../../bower_components/re-captcha/re-captcha.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+
 
 <dom-module id="rgst-view">
   <template>
     <style>
       :host {
         display: block;
-
         padding: 10px 20px;
       }
 
@@ -23,18 +24,24 @@
       }
     </style>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
-    <form is="iron-form" method="POST" action="/auth/local/register" on-iron-form-response= "responseHandler" id="registerForm" on-change="validateForm">
-  	  <paper-input name="email" label="[[localize('email')]]" required auto-validate pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" error-message="[[localize('email_form')]]"></paper-input>
-      <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
-  	  <paper-input name="confirmation" id="confirmation" label="[[localize('confirmation')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('repeat_pass')]]"></paper-input>
-      <re-captcha id="recaptcha" sitekey="6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha> 
-      <!-- for development use only -->
-      <!-- <re-captcha id="recaptcha" sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha>  -->
-  	  <paper-button raised on-click="submit" disabled id="submitButton">
-  	    <paper-spinner id="spinner" hidden></paper-spinner>[[localize('submit')]]</paper-button>
-  	  <paper-button raised on-click="reset">[[localize('reset')]]</paper-button>
-  	  <div class="output"></div>
-	  </form>
+    <paper-card>
+      <div class="card-content">
+        <form is="iron-form" method="POST" action="/auth/local/register" on-iron-form-response= "responseHandler" id="registerForm" on-change="validateForm">
+      	  <paper-input name="email" label="[[localize('email')]]" required auto-validate pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" error-message="[[localize('email_form')]]"></paper-input>
+          <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
+      	  <paper-input name="confirmation" id="confirmation" label="[[localize('confirmation')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('repeat_pass')]]"></paper-input>
+          <re-captcha id="recaptcha" sitekey="6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha>
+          <!-- for development use only -->
+          <!-- <re-captcha id="recaptcha" sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha>  -->
+      	  <paper-button raised on-click="submit" disabled id="submitButton">
+      	    <paper-spinner id="spinner" hidden></paper-spinner>[[localize('submit')]]</paper-button>
+      	  <paper-button raised on-click="reset">[[localize('reset')]]</paper-button>
+      	  <div class="output"></div>
+    	  </form>
+      </div>
+      <div class="card-actions"></div>
+    </paper-card>
+
 	   <paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
 

@@ -93,15 +93,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </script>
 
     <link rel="import" href="src/my-app.html">
-
     <style>
-      body {
-        margin: 0;
-        font-family: 'Roboto', 'Noto', sans-serif;
-        line-height: 1.5;
-        min-height: 100vh;
-        background-color: #eeeeee;
-      }
+      @import url("https://fonts.googleapis.com/css?family=Oxygen|Source+Sans+Pro");
+      html { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-size: 16px; }
+
+      html, body { margin: 0px; padding: 0px; min-height: 100%; color: #bdced7; background-color: #373b50; font-family: 'Source Sans Pro', sans-serif; font-weight: 400; }
+
+      section { padding: 40px 0px; }
+      section[hero] { background-color: #3d415a; }
+
+      h1, h2, h3, h4, h5, h6 { font-weight: 400; margin: 0px; padding: 0px; line-height: 1em; }
+
+      h1, h3, h5 { font-family: 'Oxygen', sans-serif; }
+
+      h1 { font-size: 50px; margin: 30px 0px; }
+
+      h2 { color: #edf1f4; font-size: 35px; margin: 20px 0px; }
+
+      h3 { font-size: 25px; margin: 15px 0px; }
+
+      h4 { font-size: 20px; }
     </style>
   </head>
   <body>
