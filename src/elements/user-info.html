@@ -36,8 +36,8 @@
   	      <gold-phone-input name="telephone"  phone-number-pattern="X-XXX-XXXX" error-message="[[localize(lang,'enter_a_number_with_province_code')]]" label="[[localize(lang,'landline','number','1')]]" value="{{user.contactInfo.telephones.2}}"></gold-phone-input>
   	    </div>
         <paper-input id="addressInput" name="addressLabel" label="direccion" value={{user.contactInfo.address.label}} ></paper-input>
-        <input hidden name="longitude" value="{{user.contactInfo.longitude}}">
-        <input hidden name="latitude" value="{{user.contactInfo.latitude}}">
+        <input hidden name="longitude" value="{{user.contactInfo.address.longitude}}">
+        <input hidden name="latitude" value="{{user.contactInfo.address.latitude}}">
         <gold-email-input name="contactEmail" label="your email address" value="{{user.contactInfo.email}}"></gold-email-input>
     	  <paper-button raised on-click="submit" id="submitButton">
     	  <paper-spinner id="spinner" hidden></paper-spinner>Actualizar</paper-button>
@@ -98,18 +98,29 @@
       },
 
       responseHandler : function(e){
-        var response = e.detail.__data__.response;
-        console.log(e.detail.__data__)
+        var response = e.detail.__data__;
+        this.$.spinner.active = false;
+        this.$.spinner.hidden = false;
+        if(response.status == 200){
+          this.set('user',e.detail.__data__.response);
+          this.user;
+          this.$.toast.text = 'Tu informacion ha sido actualziada';
+          this.$.toast.show();
+          console.log(this.user);
+        }
       },
 
-      userChanged : function(){
+      userChanged : function(newUser,lastUser){
+        
+        if(this.user.contactInfo.address.telephones){
+          this.user.contactInfo.address.telephones = this.user.contactInfo.address.telephones.split(',');
+        }
         var that = this;
 
         setTimeout(function(){
           var addressSearch = new google.maps.places.Autocomplete(that.$.addressInput.inputElement,{types : ['(regions)'], componentRestrictions: {country: that.user.intlCredential.substring(0,2)}});
           google.maps.event.addListener(addressSearch,'place_changed', function(){
             var address = addressSearch.getPlace();
-            console.log(address);
             if(!address.geometry){
               that.$.toast.text = 'Pais no valido,escribe y elije otro';
               that.$.toast.open();
@@ -117,11 +128,15 @@
               that.set(['user','contactInfo','address','latitude'],address.geometry.location.lat());
               that.set(['user','contactInfo','address','longitude'],address.geometry.location.lng());
               that.set(['user','contactInfo','address','label'],address.formatted_address);
-              console.log(that.user.contactInfo);
+              that.setCurrentUser(that.user);
             }
           });
         },500);
-        console.log(this.user);
+
+      },
+
+      setCurrentUser : function(newUser){
+        this.set('user',newUser);
       }
 
     });

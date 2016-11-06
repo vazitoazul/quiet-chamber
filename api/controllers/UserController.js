@@ -28,12 +28,12 @@ module.exports = {
 		var contactInfo = {
 			firstName : req.param('contactFirstName'),
 			lastName : req.param('contactLastName'),
-			telephones : req.param('telephone'),
+			telephones : req.param('telephone').split(','),
 			email : req.param('contactEmail'),
 			address : {
 				latitude : req.param('latitude'),
 				longitude : req.param('longitude'),
-				label : req.param('label'),
+				label : req.param('addressLabel'),
 			}
 		}
 		console.log(contactInfo);
