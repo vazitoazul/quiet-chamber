@@ -131,23 +131,19 @@
 
       userChanged : function(newUser,lastUser){
 
-        if(this.user.contactInfo.address.telephones){
-          this.user.contactInfo.address.telephones = this.user.contactInfo.address.telephones.split(',');
-        }
-        var that = this;
-
-        setTimeout(function(){
-          var addressSearch = new google.maps.places.Autocomplete(that.$.addressInput.inputElement,{types : ['(regions)'], componentRestrictions: {country: that.user.intlCredential.substring(0,2)}});
+        var self = this;
+        this.async(function(){
+          var addressSearch = new google.maps.places.Autocomplete(self.$.addressInput.inputElement,{types : ['(regions)'], componentRestrictions: {country: self.user.intlCredential.substring(0,2)}});
           google.maps.event.addListener(addressSearch,'place_changed', function(){
             var address = addressSearch.getPlace();
             if(!address.geometry){
-              that.$.toast.text = 'Pais no valido,escribe y elije otro';
-              that.$.toast.open();
+              self.$.toast.text = 'Pais no valido,escribe y elije otro';
+              self.$.toast.open();
             }else{
-              that.set(['user','contactInfo','address','latitude'],address.geometry.location.lat());
-              that.set(['user','contactInfo','address','longitude'],address.geometry.location.lng());
-              that.set(['user','contactInfo','address','label'],address.formatted_address);
-              that.setCurrentUser(that.user);
+              self.set(['user','contactInfo','address','latitude'],address.geometry.location.lat());
+              self.set(['user','contactInfo','address','longitude'],address.geometry.location.lng());
+              self.set(['user','contactInfo','address','label'],address.formatted_address);
+              self.setCurrentUser(that.user);
             }
           });
         },500);

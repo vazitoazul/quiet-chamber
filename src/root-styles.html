@@ -10,7 +10,7 @@
       font-family: "Roboto", sans-serif;
       font-weight: normal;
       color: #bdced7;
-      background-color: #373b50}
+      background-color: #373b50;}
     @media only screen and (min-width: 0) {
       html {
         font-size: 14px; } }
@@ -20,6 +20,12 @@
     @media only screen and (min-width: 1200px) {
       html {
         font-size: 15px; } }
+    re-captcha{
+      display: none;
+    }
+    my-app[page="rgst"] ~ re-captcha{
+      display: block !important;
+    }
     </style>
 
   </template>

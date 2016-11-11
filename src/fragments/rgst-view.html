@@ -38,6 +38,9 @@
         border-color: #bdced7;
         border-width: 0 0 1px 0;
       }
+      div#recaptcha{
+        height: 100px;
+      }
     </style>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
     <div class="container vertical center h-100">
@@ -60,12 +63,12 @@
             <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
         	  <paper-input name="confirmation" id="confirmation" label="[[localize('confirmation')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('repeat_pass')]]"></paper-input>
             <br>
-            <re-captcha id="recaptcha" sitekey="6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha>
+            <input hidden name="g-recaptcha-response" value="[[recaptchaToken]]">
+            <div id="recaptcha"></div>
       	  </form>
         </div>
         <div class="card-actions horizontal">
           <div class="flex">
-
           </div>
           <paper-button on-click="reset" class="secondary">[[localize('reset')]]</paper-button>
           <paper-button raised on-click="submit" disabled id="submitButton" class="secondary">
@@ -116,12 +119,34 @@
               }
             },
       },
-
+      attached:function(e){
+        this._setUpRecaptcha();
+      },
+      detached:function(e){
+        document.body.removeChild(this.recaptcha);
+      },
+      _setUpRecaptcha:function(){
+        this.recaptcha = document.createElement('re-captcha');
+        this.recaptcha.style.position = 'absolute';
+        var position = this.$.recaptcha.getBoundingClientRect();
+        this.recaptcha.style.left = (position.left-6) + 'px';
+        this.recaptcha.style.top = (position.top+28) + 'px';
+        this.recaptcha.setAttribute('sitekey','6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq');
+        var self=this;
+        this.recaptcha.addEventListener('captcha-response',function(e){
+          console.log('response');
+          self.recaptchaToken=e.detail.response;
+          self.set('recaptchaResponse',true);
+        });
+        this.recaptcha.addEventListener('captcha-expired',function(e){
+          this.set('recaptchaResponse',false);
+        });
+        document.body.appendChild(this.recaptcha);
+      },
       submit : function(e){
         if(this.$.password.value !== this.$.confirmation.value){
           this.$.toast.text = 'Las contraseñas no coinciden';
           this.$.toast.open();
-
         }else{
           if(this.recaptchaResponse){
             this.$.spinner.active = true;
@@ -133,21 +158,16 @@
           }
         }
 
-
-
       },
-
       responseHandler : function(e){
         var response = e.detail.__data__.response;
         this.$.spinner.active = false;
         this.$.spinner.hidden = true;
-
-        if(response.success==false){
+        if(!response.success){
           this.$.toast.text = response.error;
           this.$.toast.open();
-          this.$.recaptcha.reload();
+          this.recaptcha.reload();
           this.set('recaptchaResponse',false);
-
         }else if(response.user){
           //fire app route change event
           this.fire('route-change',{ route : 'acco'});
@@ -161,18 +181,7 @@
 
       reset : function(e){
         this.$.registerForm.reset();
-
-      },
-
-      recaptchaInvalidated : function(e){
-        this.set('recaptchaResponse',false);
-      },
-
-      recaptchaCallback : function(e){
-        this.set('recaptchaResponse',true);
-
       }
-
 
     });
   </script>
