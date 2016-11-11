@@ -88,7 +88,6 @@ var AuthController = {
 
     passport.callback(req, res, function (err, user, challenges, statuses) {
       if (err || !user) {
-        console.log('aqui es');
         return tryAgain(challenges);
       }
 
