@@ -31,27 +31,21 @@ exports.register = function (req, res, next) {
     , confirmation = req.param('confirmation');;
 
   if (!email) {
-    res.body = { error : 'Error.Passport.Email.Missing'};
-    return next(new Error('No email was entered.'));
+    return next(null,null,{message:'no_email_entered'});
   }
   if (!password) {
-    res.body = { error : 'Error.Passport.Password.Missing'};
-    return next(new Error('No password was entered.'));
+    return next(null,null,{message:'no_pass_entered'});
   }
   if (password!==confirmation){
-    res.body = { error : 'Error.Passport.Password.DoesntMatch'};
-    return next(new Error('No password was entered.'));
+    return next(null,null,{message:'pass_not_match'});
   }
-
   //set recaptcha response to captcha library
   captcha.response = req.body['g-recaptcha-response'];
   //using recatpcha verify package for cheking the recaptcha incomming response
   captcha.verify(function(err,done){
         //Error will finish proccess if exists
         if(err) {
-            console.log(`not verified`);
-            res.body = { error : 'Error.Recaptcha.verify'};
-            return next(err);
+            return next(err,null,{message:'recaptcha_error'});
         }
         if(done) {
            // recaptcha verified
@@ -61,14 +55,12 @@ exports.register = function (req, res, next) {
               if (err) {
                 if (err.code === 'E_VALIDATION') {
                   if (err.invalidAttributes.email) {
-                    res.body = { error : 'Error.Passport.Email.Exists'};
-                  } else {
-                    res.body = { error : 'Error.Passport.User.Exists'};
+                    return next(err,null,{message:'user_already_exists'});
+                  } else{
+                    return next(err,null,{message:'invalid_user'});
                   }
                 }
-                return next(err);
               }
-
               // Generating accessToken for API authentication
               var token = crypto.randomBytes(48).toString('base64');
 
@@ -80,9 +72,8 @@ exports.register = function (req, res, next) {
               }, function (err, passport) {
                 if (err) {
                   if (err.code === 'E_VALIDATION') {
-                    res.body = { error : 'Error.Passport.Password.Invalid'};
+                    console.log('Error on passport validation');
                   }
-
                   return user.destroy(function (destroyErr) {
                     next(destroyErr || err);
                   });
@@ -155,7 +146,6 @@ exports.connect = function (req, res, next) {
 exports.login = function (req, identifier, password, next) {
   var isEmail = validator.isEmail(identifier)
     , query   = {};
-
   query.email = identifier;
 
   User.findOne(query, function (err, user) {
@@ -177,7 +167,6 @@ exports.login = function (req, identifier, password, next) {
           if (err) {
             return next(err);
           }
-
           if (!res) {
             return next(null, false);
           } else {
