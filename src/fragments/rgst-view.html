@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
@@ -8,41 +9,73 @@
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
-
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../my-icons.html">
 
 <dom-module id="rgst-view">
   <template>
-    <style>
+    <style include="shared-styles">
       :host {
         display: block;
         padding: 10px 20px;
+        height: 100vh;
       }
-
-      form {
-
-        width: 20rem;
+      paper-card {
+        width: 320px;
+      }
+      iron-icon.facebook, iron-icon.google{
+        height: 5rem;
+        width: 5rem;
+      }
+      iron-icon.facebook{
+        color:#3b5998;
+      }
+      iron-icon.google{
+        color:#d34836;
+      }
+      .divider{
+        border-style: solid;
+        border-color: #bdced7;
+        border-width: 0 0 1px 0;
       }
     </style>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
-    <paper-card>
-      <div class="card-content">
-        <form is="iron-form" method="POST" action="/auth/local/register" on-iron-form-response= "responseHandler" id="registerForm" on-change="validateForm">
-      	  <paper-input name="email" label="[[localize('email')]]" required auto-validate pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" error-message="[[localize('email_form')]]"></paper-input>
-          <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
-      	  <paper-input name="confirmation" id="confirmation" label="[[localize('confirmation')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('repeat_pass')]]"></paper-input>
-          <re-captcha id="recaptcha" sitekey="6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha>
-          <!-- for development use only -->
-          <!-- <re-captcha id="recaptcha" sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha>  -->
-      	  <paper-button raised on-click="submit" disabled id="submitButton">
-      	    <paper-spinner id="spinner" hidden></paper-spinner>[[localize('submit')]]</paper-button>
-      	  <paper-button raised on-click="reset">[[localize('reset')]]</paper-button>
-      	  <div class="output"></div>
-    	  </form>
-      </div>
-      <div class="card-actions"></div>
-    </paper-card>
+    <div class="container vertical center h-100">
+      <h2>Registrate</h2>
+      <paper-card>
+        <div class="card-content">
+          <div class="row flex-items-xs-center">
+            <a href="/auth/facebook" rel="external" class="col-xs-3">
+              <iron-icon icon="icons:facebook" class="facebook"></iron-icon>
+            </a>
+            <a href="/auth/google" rel="external" class="col-xs-3">
+              <iron-icon icon="icons:google-plus" class="google"></iron-icon>
+            </a>
+          </div>
+          <div class="divider text-xs-center">
+            <span>o</span>
+          </div>
+          <form is="iron-form" method="POST" action="/auth/local/register" on-iron-form-response= "responseHandler" id="registerForm" on-change="validateForm">
+        	  <paper-input name="email" label="[[localize('email')]]" required auto-validate pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" error-message="[[localize('email_form')]]"></paper-input>
+            <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
+        	  <paper-input name="confirmation" id="confirmation" label="[[localize('confirmation')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('repeat_pass')]]"></paper-input>
+            <br>
+            <re-captcha id="recaptcha" sitekey="6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq" on-captcha-expired="recaptchaInvalidated" on-captcha-response="recaptchaCallback"></re-captcha>
+      	  </form>
+        </div>
+        <div class="card-actions horizontal">
+          <div class="flex">
 
-	   <paper-toast id="toast" duration="5000" ></paper-toast>
+          </div>
+          <paper-button on-click="reset" class="secondary">[[localize('reset')]]</paper-button>
+          <paper-button raised on-click="submit" disabled id="submitButton" class="secondary">
+          <paper-spinner id="spinner" hidden></paper-spinner>[[localize('submit')]]</paper-button>
+        </div>
+      </paper-card>
+      <div class="output"></div>
+      <h4><a href="/lgin">O inicia sesión</a></h4>
+    </div>
+	  <paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
 
   <script>

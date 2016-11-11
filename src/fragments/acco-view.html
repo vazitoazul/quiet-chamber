@@ -39,7 +39,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <div class="card">
       <user-info id="userInfo"></user-info>
-      <test-element></test-element>
     </div>
     <paper-dialog modal id="credentialDialog">
       <h3>Hola</h3>
@@ -129,7 +128,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       updateIntlCredentialErrorHandler : function(e){
         this.$.toast.text = 'Esta credencial ya esta siendo usada';
-        this.$.toast.open();  
+        this.$.toast.open();
       },
 
       updateIntlCredentialResponseHandler : function(e){

@@ -6,12 +6,12 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
-
+<link rel="import" href="../shared-styles.html">
 <dom-module id="lang-selector">
-	<template>
+	<template include="shared-styles">
 		<style>
 			:host {
-				display: block;			
+				display: block;
 			}
 			:host.light paper-dropdown-menu{
 				width: 4.5rem;
@@ -58,14 +58,14 @@
 				resources: {
 		            value: function() {
 		              return {
-		                'en': { 
+		                'en': {
 		                	'language': 'Language',
 		                	'warn':'Set english as preffered language',
 		                	'close': 'Close',
 		                	'set': 'Set',
-		                	'success': 'English setted as preffered language' 
+		                	'success': 'English setted as preffered language'
 		                },
-		                'es': { 
+		                'es': {
 		                	'language': 'Idioma',
 		                	'warn':'Usar Español como idioma predeterminado',
 		                	'close':'Cerrar',

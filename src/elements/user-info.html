@@ -3,46 +3,65 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/gold-phone-input/gold-phone-input.html">
 <link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
-
-
-
+<link rel="import" href="../shared-styles.html">
 <dom-module id="user-info">
-  <template>
+  <template include="shared-styles">
     <style>
       :host {
         display: block;
         padding: 10px 20px;
+        max-width: 600px;
+        min-width: 300px;
+      }
+      paper-card{
+        width: 100%;
       }
     </style>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" ></google-maps-api>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
-   	<form is="iron-form" method="POST" action="/updateuserinfo" on-iron-form-response= "responseHandler" id="registerForm">
-   	  <h4>Informacion del Usuario</h4>
-    	  <paper-input name="userFirstName" label="nombres" required auto-validate value="{{user.firstName}}" error-message="[[localize('email_form')]]"></paper-input>
-    	  <paper-input name="userLastName" label="apellidos" required auto-validate value="{{user.lastName}}" error-message="[[localize('email_form')]]"></paper-input>
-    	  <h4>Informacion de contacto</h4>
-    	  <paper-input name="contactFirstName" label="nombres" required auto-validate value="{{user.contactInfo.firstName}}" error-message="[[localize('email_form')]]"></paper-input>
-    	  <paper-input name="contactLastName" label="apellidos" required auto-validate value="{{user.contactInfo.lastName}}" error-message="[[localize('email_form')]]"></paper-input>
+    <form is="iron-form" method="POST" action="/updateuserinfo" on-iron-form-response= "responseHandler" id="registerForm">
+
+    <h4>Informacion del Usuario</h4>
+    <paper-card>
+      <div class="card-content">
+          <paper-input name="userFirstName" label="nombres" required auto-validate value="{{user.firstName}}" error-message="[[localize('email_form')]]"></paper-input>
+          <paper-input name="userLastName" label="apellidos" required auto-validate value="{{user.lastName}}" error-message="[[localize('email_form')]]"></paper-input>
+      </div>
+      <div class="card-actions">
+        <paper-button raised on-click="submit" id="submitButton">
+    	  <paper-spinner id="spinner" hidden></paper-spinner>Actualizar</paper-button>
+      </div>
+    </paper-card>
+    <h4>Informacion de contacto</h4>
+    <paper-card>
+      <div class="card-content">
+        <paper-input name="contactFirstName" label="nombres" required auto-validate value="{{user.contactInfo.firstName}}" error-message="[[localize('email_form')]]"></paper-input>
+        <paper-input name="contactLastName" label="apellidos" required auto-validate value="{{user.contactInfo.lastName}}" error-message="[[localize('email_form')]]"></paper-input>
         <div>
-  	      <h5>Telefonos</h5>
-  	      <gold-phone-input required name="telephone"  phone-number-pattern="X-XXXX-XXXX" error-message="[[localize(lang,'enter_a_valid_cellphone_number')]]" label="[[localize(lang,'mobile')]]" value="{{user.contactInfo.telephones.0}}"></gold-phone-input>
-  	      <gold-phone-input name="telephone"  phone-number-pattern="X-XXX-XXXX" error-message="[[localize(lang,'enter_a_number_with_province_code')]]" label="[[localize(lang,'landline','number','1')]]" value="{{user.contactInfo.telephones.1}}"></gold-phone-input>
-  	      <gold-phone-input name="telephone"  phone-number-pattern="X-XXX-XXXX" error-message="[[localize(lang,'enter_a_number_with_province_code')]]" label="[[localize(lang,'landline','number','1')]]" value="{{user.contactInfo.telephones.2}}"></gold-phone-input>
-  	    </div>
+          <h5>Telefonos</h5>
+          <gold-phone-input required name="telephone"  phone-number-pattern="X-XXXX-XXXX" error-message="[[localize(lang,'enter_a_valid_cellphone_number')]]" label="[[localize(lang,'mobile')]]" value="{{user.contactInfo.telephones.0}}"></gold-phone-input>
+          <gold-phone-input name="telephone"  phone-number-pattern="X-XXX-XXXX" error-message="[[localize(lang,'enter_a_number_with_province_code')]]" label="[[localize(lang,'landline','number','1')]]" value="{{user.contactInfo.telephones.1}}"></gold-phone-input>
+          <gold-phone-input name="telephone"  phone-number-pattern="X-XXX-XXXX" error-message="[[localize(lang,'enter_a_number_with_province_code')]]" label="[[localize(lang,'landline','number','1')]]" value="{{user.contactInfo.telephones.2}}"></gold-phone-input>
+        </div>
         <paper-input id="addressInput" name="addressLabel" label="direccion" value={{user.contactInfo.address.label}} ></paper-input>
         <input hidden name="longitude" value="{{user.contactInfo.address.longitude}}">
         <input hidden name="latitude" value="{{user.contactInfo.address.latitude}}">
         <gold-email-input name="contactEmail" label="your email address" value="{{user.contactInfo.email}}"></gold-email-input>
-    	  <paper-button raised on-click="submit" id="submitButton">
-    	  <paper-spinner id="spinner" hidden></paper-spinner>Actualizar</paper-button>
-    	  <div class="output"></div>
-  	</form>
+      </div>
+      <div class="card-actions">
+        <paper-button raised on-click="submit" id="submitButton">
+        <paper-spinner id="spinner" hidden></paper-spinner>Actualizar</paper-button>
+      </div>
+    </paper-card>
+    <div class="output"></div>
+    </form>
   	<paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
 
@@ -111,7 +130,7 @@
       },
 
       userChanged : function(newUser,lastUser){
-        
+
         if(this.user.contactInfo.address.telephones){
           this.user.contactInfo.address.telephones = this.user.contactInfo.address.telephones.split(',');
         }
