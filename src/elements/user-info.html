@@ -111,12 +111,7 @@
       },
 
       userChanged : function(newUser,lastUser){
-        
-        if(this.user.contactInfo.address.telephones){
-          this.user.contactInfo.address.telephones = this.user.contactInfo.address.telephones.split(',');
-        }
         var that = this;
-
         setTimeout(function(){
           var addressSearch = new google.maps.places.Autocomplete(that.$.addressInput.inputElement,{types : ['(regions)'], componentRestrictions: {country: that.user.intlCredential.substring(0,2)}});
           google.maps.event.addListener(addressSearch,'place_changed', function(){

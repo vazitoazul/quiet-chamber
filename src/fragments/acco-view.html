@@ -121,7 +121,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       updateIntlCredential : function(e){
         var form = this.$.userIntlCredentialForm;
         this.set('newCredential',this.countryCode.concat(this.$.credentialNumber.value));
-
         if(form.validate()){
           form.submit();
         }
@@ -129,7 +128,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       updateIntlCredentialErrorHandler : function(e){
         this.$.toast.text = 'Esta credencial ya esta siendo usada';
-        this.$.toast.open();  
+        this.$.toast.open();
       },
 
       updateIntlCredentialResponseHandler : function(e){
