@@ -7,53 +7,6 @@
  */
 var AuthController = {
   /**
-   * Render the login page
-   *
-   * The login form itself is just a simple HTML form:
-   *
-      <form role="form" action="/auth/local" method="post">
-        <input type="text" name="identifier" placeholder="Username or Email">
-        <input type="password" name="password" placeholder="Password">
-        <button type="submit">Sign in</button>
-      </form>
-   *
-   * You could optionally add CSRF-protection as outlined in the documentation:
-   * http://sailsjs.org/#!documentation/config.csrf
-   *
-   * A simple example of automatically listing all available providers in a
-   * Handlebars template would look like this:
-   *
-      {{#each providers}}
-        <a href="/auth/{{slug}}" role="button">{{name}}</a>
-      {{/each}}
-   *
-   * @param {Object} req
-   * @param {Object} res
-   */
-  login: function (req, res) {
-    var strategies = sails.config.passport
-      , providers  = {};
-
-    // Get a list of available providers for use in your templates.
-    Object.keys(strategies).forEach(function (key) {
-      if (key === 'local') {
-        return;
-      }
-
-      providers[key] = {
-        name: strategies[key].name
-      , slug: key
-      };
-    });
-
-    // Render the `auth/login.ext` view
-    res.view({
-      providers : providers
-    , errors    : req.flash('error')
-    });
-  },
-
-  /**
    * Log out a user and return them to the homepage
    *
    * Passport exposes a logout() function on req (also aliased as logOut()) that
@@ -69,32 +22,9 @@ var AuthController = {
    */
   logout: function (req, res) {
     req.logout();
-
     // mark the user as logged out for auth purposes
     req.session.authenticated = false;
-
     res.redirect('/');
-  },
-
-  /**
-   * Render the registration page
-   *
-   * Just like the login form, the registration form is just simple HTML:
-   *
-      <form role="form" action="/auth/local/register" method="post">
-        <input type="text" name="username" placeholder="Username">
-        <input type="text" name="email" placeholder="Email">
-        <input type="password" name="password" placeholder="Password">
-        <button type="submit">Sign up</button>
-      </form>
-   *
-   * @param {Object} req
-   * @param {Object} res
-   */
-  register: function (req, res) {
-    res.view({
-      errors: req.flash('error')
-    });
   },
 
   /**
@@ -124,24 +54,15 @@ var AuthController = {
    * @param {Object} res
    */
   callback: function (req, res) {
-    function tryAgain (err) {
-
-      // Only certain error messages are returned via req.flash('error', someError)
-      // because we shouldn't expose internal authorization errors to the user.
-      // We do return a generic error and the original request body.
-      var flashError = req.flash('error')[0];
-
-      if (err && !flashError ) {
-        req.flash('error', 'Error.Passport.Generic');
-      } else if (flashError) {
-        req.flash('error', flashError);
-      }
-      req.flash('form', req.body);
+    function tryAgain (challenges) {
 
       // If an error was thrown, redirect the user to the
       // login, register or disconnect action initiator view.
       // These views should take care of rendering the error messages.
       var action = req.param('action');
+
+      //set default when nothing comes up
+      challenges = challenges || {message:'login_error'};
 
       switch (action) {
         case 'register':
@@ -149,21 +70,19 @@ var AuthController = {
       // false fro success if not it redirect to root
          if(!req.wantsJSON){
             res.redirect('/');
-
          }else{
-            if(res.body.error){
-              res.json({success:false, error: res.body.error});
+            if(challenges.message){
+              res.json({success:false, error: challenges.message});
             }else{
-              res.json({success:false, error: err});
+              res.json({success:false, error: challenges});
             }
          }
-
         break;
         case 'disconnect':
           res.redirect('back');
-          break;
+        break;
         default:
-          res.json({success:false, error: err});
+          res.json({success:false, error: challenges});
       }
     }
 
@@ -174,17 +93,18 @@ var AuthController = {
 
       req.login(user, function (err) {
         if (err) {
+
           return tryAgain(err);
         }
 
         // Mark the session as authenticated to work with default Sails sessionAuth.js policy
-        req.session.authenticated = true
+        req.session.authenticated = true;
 
         // Upon successful login, return the user id
         if(req.param('provider')){
-          res.redirect('/acco')
+          res.redirect('/acco');
         }else{
-          return res.json({user : user.id});
+          return res.json({user : user.id,success:true});
         }
 
       });

@@ -11,201 +11,86 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/app-layout/app-grid/app-grid-style.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../bower_components/re-captcha/re-captcha.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../elements/lang-selector.html">
-
 <link rel="import" href="../shared-styles.html">
-
 <dom-module id="main-view">
   <template>
-    <style include="shared-styles app-grid-style">
-      :host {
-        display: block;
-
-        padding: 10px;
-
-        --app-grid-columns: 3;
-        --app-grid-expandible-item-columns: 4;
+    <style include="app-grid-style shared-styles">
+      .secondary-text{
+          color:var(--secondary-text-color);
       }
-
-      header {
-        background-color: white;
-        height: 128px;
+      .first{
+        height: 600px;
       }
-      #scrollingRegion {
-        position: fixed;
-        left: 100px;
-        right: 100px;
-        top: 50px;
-        bottom: 50px;
-        overflow-y: auto;
-        background-color: #fff;
-        box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
-        scroll-behavior: smooth;
-      }
-      app-toolbar {
-        font-size: 18px;
-        font-weight: 400;
-        letter-spacing: 5px;
-        text-align: center;
-        color: #1a237e;
-      }
-      .nav {
-        height: 64px;
-        margin: 0;
-        padding: 0;
-        text-align: center;
-        background-color: rgba(255, 255, 255, 0.9);
-      }
-      .nav li {
-        display: inline-block;
-        list-style: none;
-      }
-      .nav a {
-        display: inline-block;
-        font-weight: 12px;
-        line-height: 64px;
-        text-decoration: none;
-        color: black;
-        font-weight: 300;
-        margin: 0 10px;
-      }
-      .nav a:hover {
-        color: #444;
-        border-bottom: 1px solid #999;
-      }
-      [threshold-triggered] {
-        position: fixed;
-        top: 50px;
-        left: 100px;
-        right: 100px;
-        z-index: 1;
-      }
-      .first, .second, .third, .fourth {
-        height: 640px;
-      }
-      .second {
-        --app-box-background-front-layer: {
-          background-image: url(//app-layout-assets.appspot.com/assets/bg2.jpg);
-          background-position: bottom;
-          padding-bottom: 120px;
-          margin-top: -20px;
-          height: 100%;
+      app-drawer{
+        --app-drawer-content-container:{
+          background-color: var(--default-primary-color);
         };
       }
-      .third {
-        --app-box-background-front-layer: {
-          background-image: url(//app-layout-assets.appspot.com/assets/bg3.jpg);
-          background-position: bottom;
-          padding-bottom: 120px;
-          margin-top: -20px;
-          height: 100%;
-        };
-      }
-      .fourth {
-        --app-box-background-front-layer: {
-          background-image: url(//app-layout-assets.appspot.com/assets/bg4.jpg);
-          background-position: bottom;
-          padding-bottom: 120px;
-          margin-top: -20px;
-          height: 100%;
-        };
-      }
-      section {
-        padding-top: 100px;
-      }
-      article {
-        font-weight: 100;
-        max-width: 500px;
-        text-align: center;
-        margin: 0 auto 100px auto;
-      }
-      article h2 {
-        font-weight: 100;
-        font-size: 50px;
-        margin: 5px;
-      }
-      article p {
-        font-size: 18px;
-        line-height: 30px;
-      }
-      article hr {
-        width: 100px;
-        height: 1px;
-        border: none;
-        margin: 20px auto;
-        background-color: black;
-      }
-
     </style>
-    
+
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
-    <header>
-      <app-toolbar>
-        <div main-title>VAZITOAZUL</div>
-      </app-toolbar>
-      <app-box threshold="64">
-        <ul role="navigation" class="nav">
-          <li><a href="#speed">Noticias</a></li>
-          <li><a href="#modern">Registrate</a></li>
-          <li><a href="#standard">Nuestros Clientes</a></li>
-          <li><a href="#create">Nuevo</a></li>
-        </ul>
-      </app-box>
-    </header>
+    <app-drawer-layout fullbleed force-narrow>
+      <app-drawer align="right">
+         <div role="listbox">
+           <paper-item><a href="/help">Ayuda</a></paper-item>
+           <paper-item><a href="/rgst">Registrarme</a></paper-item>
+           <paper-item><a href="/lgin">Ingresar</a></paper-item>
+         </div>
+      </app-drawer>
+      <app-header-layout>
+       <app-header>
+         <app-toolbar>
+             <div main-title><span class="text-display-2">Vazitoazul</span></div>
+             <div class="hidden-sm-down">
+               <a href="/help"><paper-button>Ayuda</paper-button></a>
+               <a href="/rgst"><paper-button>Registrarme</paper-button></a>
+               <a href="/lgin"><paper-button raised class="primary">Ingresar</paper-button></a>
+             </div>
+             <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+         </app-toolbar>
+       </app-header>
+       <div>
+         <section>
+           <div class="container center vertical">
+             <div class="row">
+               <h2 class="text-xs-center">Descubre un mundo de oportunidades</h1>
+               <h4 class="text-xs-center">Encuentra a las personas que necesitas para salir adelante.</h2>
+               <div class="w-100 horizontal center">
+                 <a href="/rgst"><paper-button raised class="secondary">Regsitrarme</paper-button></a>
+                 <a href="/tut"><paper-button raised class="info">¿Cómo funciona?</paper-button></a>
+               </div>
+             </div>
 
-    <main>
-      <section id="speed">
-        <article>
-          <hr />
-          <h2>Una nueva plataforma para hacer negocios</h2>
-          <p>Encuentra toda clase de nuevas ofertas tanto para invertir como para encontrar empleo</p>
-        </article>
-        <app-box class="first" effects="parallax-background">
-          <!--
-            app-box allows to style the mixin `--app-box-background-front-layer` or create a custom background in the light DOM.
-            In this case, we create a custom background by adding the attribute `background` to the `img` in
-            the light DOM.
-          -->
-          <img background src="//app-layout-assets.appspot.com/assets/bg1.jpg" style="width:100%; height: 900px" />
-        </app-box>
-        
-      </section>
+            <br>
+            <br>
+           </div>
+         </section>
+         <section>
+           <app-box class="first " effects="parallax-background">
+             <div class="container h-100">
+               <div class="h-100 vertical center">
+                <h3 class="secondary-text">Invierte en nuestros planes para tener un redito inmediato.</h3>
+               </div>
+             </div>
+             <img background src="//app-layout-assets.appspot.com/assets/bg2.jpg" style="width:100%; height: 900px" />
+           </app-box>
+         </section>
+       </div>
 
-      <section id="modern">
-        <article>
-          <hr />
-          <h2>For Modern Browsers</h2>
-          <p>Polymer is built from the ground up for modern browsers, using the latest web platform APIs. Polyfills provide support on evergreen browsers for APIs that aren't universal yet.</p>
-        </article>
-        <!--
-          This app-box uses the class `.second` and the mixin `--app-box-background-front-layer` to assign the background image.
-        -->
-        <app-box class="second" effects="parallax-background"></app-box>
-      </section>
-
-      <section id="standard">
-        <article>
-          <hr />
-          <h2>Using Web Components</h2>
-          <p>Polymer leverages web components, a new set of standards designed to provide reusable components for the web.</p>
-        </article>
-        <app-box class="third" effects="parallax-background"></app-box>
-      </section>
-
-      <section id="create">
-        <article>
-          <hr />
-          <h2>Create your own elements</h2>
-          <p>The Polymer library makes it easy to create your own powerful elements. Give your element some markup and properties, and then use it on a site. Polymer provides useful features like templating and data binding to reduce the amount of boilerplate you need to write.</p>
-        </article>
-        <app-box class="fourth" effects="parallax-background"></app-box>
-      </section>
-    </main>
+     </app-header-layout>
+    </app-drawer-layout>
   </template>
 
   <script>

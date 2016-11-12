@@ -42,7 +42,19 @@ describe('AuthController', function(){
             .expect('location','/',done);
         });
 
-        it('should login the new user', loginUser());
+        it('should login the new user',(done)=>{
+          user
+              .post('/auth/local')
+              .send({identifier : 'test@test.com',password : 'testtest'})
+              .expect((res)=>{
+                res.body.should.have.property('user');
+              })
+              .end((err,res)=>{
+                if(err)return done(err);
+
+                return done();
+              });
+        });
 
         it('should return the user logged in', function (done) {
           user
@@ -55,20 +67,3 @@ describe('AuthController', function(){
 	});
 
 });
-
-function loginUser() {
-    return function(done) {
-        user
-            .post('/auth/local')
-            .send({identifier : 'test@test.com',password : 'testtest'})
-            .expect(function(res){
-              res.body.should.have.property('user');
-            })
-            .end(onResponse);
-
-        function onResponse(err, res) {
-           if (err) return done(err);
-           return done();
-        }
-    };
-};

@@ -2,11 +2,12 @@
 // intlCredential attribute for allowing it to continue
 
 module.exports = function(req,res,next){
-  if(!req.user){
-    return res.badRequest();
+
+  if(req.user){
+    if(req.user.intlCredential){
+      return next();
+    }
   }
-  if(!req.user.intlCredential){
-    return res.forbidden();
-  }
-  return next();
+
+  return res.forbidden('You are not permitted to perform this action.');
 };
