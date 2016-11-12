@@ -56,7 +56,7 @@
             </a>
           </div>
           <div class="divider text-xs-center">
-            <span>o</span>
+            <span>[[localize('or')]]</span>
           </div>
           <form is="iron-form" method="POST" action="/auth/local/register" on-iron-form-response= "responseHandler" id="registerForm" on-change="validateForm">
         	  <paper-input name="email" label="[[localize('email')]]" required auto-validate pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" error-message="[[localize('email_form')]]"></paper-input>
@@ -76,7 +76,7 @@
         </div>
       </paper-card>
       <div class="output"></div>
-      <h4><a href="/lgin">O inicia sesión</a></h4>
+      <h4><a href="/lgin">[[localize('or_login')]]</a></h4>
     </div>
 	  <paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
@@ -104,27 +104,40 @@
                       'confirmation' : 'repeat password',
                       'submit' : 'submit',
                       'reset' : 'reset',
-                      'pass_form' : 'must have 8 chars, capitals and numbers',
-                      'email_form' : 'must be a vali email',
-                      'repeat_pass' : 'repeat pass'
+                      'pass_form' : 'must have 8 chars, one capital and one number',
+                      'email_form' : 'must be a valid email',
+                      'repeat_pass' : 'repeat the password',
+                      'or' : 'or',
+                      'pass_not_match' : "the password confirmation doesn't match ",
+                      'not_robot' : "prove you are not a robot",
+                      'or_login' : "Or log in"
                     },
                     'es': {
-                      'email' : 'email',
+                      'email' : 'correo electrónico',
                       'password' : 'contraseña' ,
-                      'confirmation' : 'repita la contraseña',
-                      'submit' : 'enviar',
-                      'reset' : 'limpiar'
+                      'confirmation' : 'repita contraseña',
+                      'submit' : 'Enviar',
+                      'reset' : 'Limpiar forma',
+                      'pass_form' : 'debe tener al menos 8 caracteres, una letra mayúscula y un número',
+                      'email_form' : 'debe ser una dirección de correo válida',
+                      'repeat_pass' : 'repita la contraseña',
+                      'or' : 'or',
+                      'pass_not_match' : "las contraseñas no coinciden",
+                      'or_login' : "O inicia sesión"
                     }
                   }
               }
             },
       },
+
       attached:function(e){
         this._setUpRecaptcha();
       },
+
       detached:function(e){
         document.body.removeChild(this.recaptcha);
       },
+
       _setUpRecaptcha:function(){
         this.recaptcha = document.createElement('re-captcha');
         this.recaptcha.style.position = 'absolute';
@@ -143,9 +156,10 @@
         });
         document.body.appendChild(this.recaptcha);
       },
+
       submit : function(e){
         if(this.$.password.value !== this.$.confirmation.value){
-          this.$.toast.text = 'Las contraseñas no coinciden';
+          this.$.toast.text = this.localize('pass_not_match');
           this.$.toast.open();
         }else{
           if(this.recaptchaResponse){
@@ -153,12 +167,13 @@
             this.$.spinner.hidden = false;
             this.$.registerForm.submit();
           }else{
-            this.$.toast.text = 'Verifica que no eres un robot';
+            this.$.toast.text = this.localize('not_robot');
             this.$.toast.open();
           }
         }
 
       },
+
       responseHandler : function(e){
         var response = e.detail.__data__.response;
         this.$.spinner.active = false;

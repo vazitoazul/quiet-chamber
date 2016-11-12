@@ -30,13 +30,12 @@ module.exports = {
 			lastName : req.param('contactLastName'),
 			telephones : req.param('telephone').split(','),
 			email : req.param('contactEmail'),
-			address : {
+			location : {
 				latitude : req.param('latitude'),
 				longitude : req.param('longitude'),
-				label : req.param('addressLabel'),
-			}
+			},
+			address : req.param('addressLabel')
 		}
-		console.log(contactInfo);
 		User.update({id : req.user.id}, {firstName: req.param('userFirstName'), lastName: req.param('userLastName'),contactInfo : contactInfo}, function(err,updated){
 			if(err){
 				return next(err);

@@ -26,38 +26,34 @@
     </style>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" ></google-maps-api>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
-    <form is="iron-form" method="POST" action="/updateuserinfo" on-iron-form-response= "responseHandler" id="registerForm">
+    <form is="iron-form" method="POST" action="/updateuserinfo" on-iron-form-response= "responseHandler" id="userInfoForm">
 
-    <h4>Informacion del Usuario</h4>
+    <h4>[[localize('user_info')]]</h4>
     <paper-card>
       <div class="card-content">
-          <paper-input name="userFirstName" label="nombres" required auto-validate value="{{user.firstName}}" error-message="[[localize('email_form')]]"></paper-input>
-          <paper-input name="userLastName" label="apellidos" required auto-validate value="{{user.lastName}}" error-message="[[localize('email_form')]]"></paper-input>
-      </div>
-      <div class="card-actions">
-        <paper-button raised on-click="submit" id="submitButton">
-    	  <paper-spinner id="spinner" hidden></paper-spinner>Actualizar</paper-button>
+          <paper-input name="userFirstName" label="[[localize('names')]]" required  value="{{user.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+          <paper-input name="userLastName" label="[[localize('last_name')]]" required  value="{{user.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
       </div>
     </paper-card>
-    <h4>Informacion de contacto</h4>
+    <h4>[[localize('contact_information)')]]</h4>
     <paper-card>
       <div class="card-content">
-        <paper-input name="contactFirstName" label="nombres" required auto-validate value="{{user.contactInfo.firstName}}" error-message="[[localize('email_form')]]"></paper-input>
-        <paper-input name="contactLastName" label="apellidos" required auto-validate value="{{user.contactInfo.lastName}}" error-message="[[localize('email_form')]]"></paper-input>
+        <paper-input name="contactFirstName" label="[[localize('names')]]" required  value="{{user.contactInfo.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+        <paper-input name="contactLastName" label="[[localize('last_name')]]" required  value="{{user.contactInfo.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
         <div>
-          <h5>Telefonos</h5>
-          <gold-phone-input required name="telephone"  phone-number-pattern="X-XXXX-XXXX" error-message="[[localize(lang,'enter_a_valid_cellphone_number')]]" label="[[localize(lang,'mobile')]]" value="{{user.contactInfo.telephones.0}}"></gold-phone-input>
-          <gold-phone-input name="telephone"  phone-number-pattern="X-XXX-XXXX" error-message="[[localize(lang,'enter_a_number_with_province_code')]]" label="[[localize(lang,'landline','number','1')]]" value="{{user.contactInfo.telephones.1}}"></gold-phone-input>
-          <gold-phone-input name="telephone"  phone-number-pattern="X-XXX-XXXX" error-message="[[localize(lang,'enter_a_number_with_province_code')]]" label="[[localize(lang,'landline','number','1')]]" value="{{user.contactInfo.telephones.2}}"></gold-phone-input>
+          <h5>[[localize('telephones')]]</h5>
+          <paper-input required name="telephone" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('mobile')]]" value="{{user.contactInfo.telephones.0}}"></paper-input>
+          <paper-input name="telephone" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','1')]]" value="{{user.contactInfo.telephones.1}}"></paper-input>
+          <paper-input name="telephone" pattern="[0-9]{5,20}"error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','2')]]" value="{{user.contactInfo.telephones.2}}"></paper-input>
         </div>
-        <paper-input id="addressInput" name="addressLabel" label="direccion" value={{user.contactInfo.address.label}} ></paper-input>
-        <input hidden name="longitude" value="{{user.contactInfo.address.longitude}}">
-        <input hidden name="latitude" value="{{user.contactInfo.address.latitude}}">
-        <gold-email-input name="contactEmail" label="your email address" value="{{user.contactInfo.email}}"></gold-email-input>
+        <paper-input id="addressInput" name="addressLabel" label="[[localize('address')]]" error-message="[[localize('must_enter_this')]]" value={{user.contactInfo.address}} required></paper-input>
+        <input hidden name="longitude" value="{{user.contactInfo.location.longitude}}">
+        <input hidden name="latitude" value="{{user.contactInfo.location.latitude}}">
+        <gold-email-input name="contactEmail" label="[[localize('email')]]" value="{{user.contactInfo.email}}" error-message="[[localize('valid_email')]]"></gold-email-input>
       </div>
       <div class="card-actions">
         <paper-button raised on-click="submit" id="submitButton">
-        <paper-spinner id="spinner" hidden></paper-spinner>Actualizar</paper-button>
+        <paper-spinner id="spinner" hidden></paper-spinner>[[localize('update')]]</paper-button>
       </div>
     </paper-card>
     <div class="output"></div>
@@ -89,21 +85,40 @@
             value: function() {
               return {
                 'en': {
+                  'user_info' : 'User Information',
+                  'names' : 'name',
+                  'last_name' : 'last name',
+                  'must_fill_this_just_letters' : 'you must enter this field, use just letters',
+                  'must_fill_this' : 'you must enter this field',
+                  'update' : 'Update',
+                  'contact_info' : 'User Contact Information',
+                  'telephones' : 'telephones',
+                  'mobile' : 'mobile phone',
+                  'number' : 'phone number {number}',
+                  'address' : 'address',
                   'email' : 'email',
-                  'password' : 'password' ,
-                  'confirmation' : 'repeat password',
-                  'log_in' : 'log in',
-                  'reset' : 'reset',
-                  'pass_form' : 'must have 8 chars, capitals and numbers',
-                  'email_form' : 'must be a vali email',
-                  'repeat_pass' : 'repeat pass'
+                  'valid_email' : 'enter a valid email',
+                  'must_be_numbers' : 'must have just from 5 to 20 numbers',
+                  'info_updated' : 'Your information has been updated',
+                  'not_valid_address' : 'address not valid, please type and select an other one'
                 },
                 'es': {
-                  'email' : 'email',
-                  'password' : 'contraseña' ,
-                  'confirmation' : 'repita la contraseña',
-                  'submit' : 'enviar',
-                  'reset' : 'limpiar'
+                  'user_info' : 'Información del Usuario',
+                  'names' : 'nombres',
+                  'last_name' : 'apellidos',
+                  'must_fill_this_just_letters' : 'este campo es obligatorio, solo letras',
+                  'must_fill_this' : 'debes llenar este campo',
+                  'update' : 'Actualizar',
+                  'contact_info' : 'Información de Contacto',
+                  'telephones' : 'teléfonos',
+                  'mobile' : 'teléfono celular',
+                  'number' : 'teléfono {number}',
+                  'address' : 'dirección',
+                  'email' : 'correo electrónico',
+                  'valid_email' : 'ingrese una dirección de correo válida',
+                  'must_be_numbers' : 'debe ser solo de 5 a 20 números',
+                  'info_updated' : 'Se ha actualizado tu información',
+                  'not_valid_address' : 'Dirección no válida,escribe y elije otro'
                 }
               }
           }
@@ -111,9 +126,11 @@
       },
 
       submit : function(e){
-        this.$.spinner.active = true;
-        this.$.spinner.hidden = false;
-        this.$.registerForm.submit();
+        if(this.$.userInfoForm.validate()){
+          this.$.spinner.active = true;
+          this.$.spinner.hidden = false;
+          this.$.userInfoForm.submit();
+        }
       },
 
       responseHandler : function(e){
@@ -123,9 +140,9 @@
         if(response.status == 200){
           this.set('user',e.detail.__data__.response);
           this.user;
-          this.$.toast.text = 'Tu informacion ha sido actualziada';
+          this.$.toast.text = this.localize('info_updated');
           this.$.toast.show();
-          console.log(this.user);
+          // console.log(this.user);
         }
       },
 
@@ -136,13 +153,14 @@
           google.maps.event.addListener(addressSearch,'place_changed', function(){
             var address = addressSearch.getPlace();
             if(!address.geometry){
-              self.$.toast.text = 'Pais no valido,escribe y elije otro';
+              self.$.toast.text = self.localize('not_valid_address');
               self.$.toast.open();
             }else{
-              self.set(['user','contactInfo','address','latitude'],address.geometry.location.lat());
-              self.set(['user','contactInfo','address','longitude'],address.geometry.location.lng());
-              self.set(['user','contactInfo','address','label'],address.formatted_address);
-              self.setCurrentUser(that.user);
+              self.set(['user','contactInfo','location','latitude'],address.geometry.location.lat());
+              self.set(['user','contactInfo','location','longitude'],address.geometry.location.lng());
+              self.set(['user','contactInfo','address'],address.formatted_address);
+              self.setCurrentUser(self.user);
+              console.log(self.user.contactInfo.location);
             }
           });
         },500);
@@ -151,6 +169,7 @@
 
       setCurrentUser : function(newUser){
         this.set('user',newUser);
+        console.log(this.user);
       }
 
     });

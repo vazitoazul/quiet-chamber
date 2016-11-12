@@ -9,8 +9,7 @@ var User = {
     intlCredential : { type: 'string', unique : true},
     firstName : {type : 'string'},
     lastName : {type : 'string'},
-    contactInfo: {type : 'json',defaultsTo:{firstName:null,lastName:null,telephones:[],location:null,email:null}},
-    address: {type: 'json'}
+    contactInfo: {type : 'json',defaultsTo:{firstName:null,lastName:null,telephones:[],location:{latitude:null,longitude:null},email:null,address:null}},
   }
 };
 

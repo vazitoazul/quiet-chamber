@@ -41,14 +41,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <user-info id="userInfo"></user-info>
     </div>
     <paper-dialog modal id="credentialDialog">
-      <h3>Hola</h3>
-      <h3>Ingresa tu identificacion para asegurarnos que eres el unico tu</h3>
+      <h4 class="text-xs-left">[[localize('hello')]]</h4>
+      <h4>[[localize('enter_your_credential')]]</h4>
       <form id="userIntlCredentialForm" is="iron-form" action="/updateintlcredential" method="post" on-iron-form-error="updateIntlCredentialErrorHandler" on-iron-form-response="updateIntlCredentialResponseHandler">
-        <paper-input id="countryInput" label="Ingresa tu pais" value="Ecuador"></paper-input>
-        <paper-input required auto-validate id="credentialNumber" label="Ingresa el numero de identificacion" error-message="Debes ingresar tu identificacion!"></paper-input>
+        <paper-input id="countryInput" label="[[localize('enter_country')]]" value="Ecuador"></paper-input>
+        <paper-input required auto-validate id="credentialNumber" label="[[localize('enter_credential_number')]]" error-message="[[localize('must_enter_id')]]"></paper-input>
         <input hidden name="newCredential" value="{{newCredential}}">
         <div class="buttons">
-          <paper-button on-click="updateIntlCredential">Enviar</paper-button>
+          <paper-button on-click="updateIntlCredential" class="secondary">[[localize('submit')]]</paper-button>
         </div>
       </form>
     </paper-dialog>
@@ -73,7 +73,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         language :{
           tpye : String,
           value : 'en'
-        }
+        },
+        resources: {
+                value: function() {
+                  return {
+                    'en': {
+                      'hello' : 'Hi there',
+                      'enter_your_credential' : 'Enter your credential to make sure you are the only you',
+                      'enter_country' : 'enter your country',
+                      'enter_credential_number' : 'enter your ID number',
+                      'not_valid_country' : 'country not valid, please type and select an other one',
+                      'must_enter_id' : 'you must enter your ID!',
+                      'submit' : 'SUBMIT'
+                    },
+                    'es': {
+                      'hello' : 'Hola',
+                      'enter_your_credential' : 'Ingresa tu identificacion para asegurarnos que eres el unico tu',
+                      'enter_country' : 'ingresa tu país',
+                      'enter_credential_number' : 'ingresa el numero de tu identicicación',
+                      'not_valid_country' : 'país no válido, por favor escribe y seleccion otro',
+                      'must_enter_id' : 'debes ingresar tu identificación!',
+                      'submit' : 'ENVIAR'
+                    }
+                  }
+              }
+          },
       },
 
       behaviors: [
@@ -105,7 +129,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         google.maps.event.addListener(countrySearch,'place_changed', function(){
           var country = countrySearch.getPlace();
           if(!country.address_components){
-            that.$.toast.text = 'Pais no valido,escribe y elije otro';
+            that.$.toast.text = [[localize('not_valid_country')]];
             that.$.toast.open();
           }else{
             that.set('countryCode',country.address_components[0].short_name);

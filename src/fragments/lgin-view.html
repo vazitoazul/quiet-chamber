@@ -41,7 +41,7 @@
       }
     </style>
   <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
-  <h2>Ingreso</h2>
+  <h2>[[localize('log_in_tittle')]]</h2>
   <paper-card>
     <div class="card-content">
       <div class="row flex-items-xs-center">
@@ -58,12 +58,10 @@
     	</form>
       <br>
       <div class="flex-items-xs-center row">
-
         <paper-button raised class="secondary" on-click="submit" id="submitButton">
         <paper-spinner id="spinner" hidden></paper-spinner>[[localize('log_in')]]</paper-button>
       </div>
     </div>
-
   </paper-card>
   <div class="output"></div>
 	<paper-toast id="toast" duration="5000" ></paper-toast>
@@ -87,21 +85,19 @@
                 value: function() {
                   return {
                     'en': {
+                      'log_in_tittle' : 'Log In',
                       'email' : 'email',
                       'password' : 'password' ,
-                      'confirmation' : 'repeat password',
                       'log_in' : 'log in',
-                      'reset' : 'reset',
-                      'pass_form' : 'must have 8 chars, capitals and numbers',
-                      'email_form' : 'must be a vali email',
+                      'email_form' : 'must be a valid email',
                       'repeat_pass' : 'repeat pass'
                     },
                     'es': {
-                      'email' : 'email',
+                      'log_in_tittle' : 'Ingreso',
+                      'email' : 'correo electronico',
                       'password' : 'contraseña' ,
-                      'confirmation' : 'repita la contraseña',
-                      'submit' : 'enviar',
-                      'reset' : 'limpiar'
+                      'log_in' : 'Ingresar',
+                      'email_form' : 'debe ser una direccion de correo válida',
                     }
                   }
               }
