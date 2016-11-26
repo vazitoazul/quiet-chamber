@@ -19,6 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 
 <link rel="import" href="../elements/user-info.html">
+<link rel="import" href="../elements/paypal-integration.html">
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="acco-view">
@@ -40,6 +41,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="card">
       <user-info id="userInfo"></user-info>
     </div>
+    <div id="paypalDiv"></div>
     <paper-dialog modal id="credentialDialog">
       <h4 class="text-xs-left">[[localize('hello')]]</h4>
       <h4>[[localize('enter_your_credential')]]</h4>
@@ -84,7 +86,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'enter_credential_number' : 'enter your ID number',
                       'not_valid_country' : 'country not valid, please type and select an other one',
                       'must_enter_id' : 'you must enter your ID!',
-                      'submit' : 'SUBMIT'
+                      'submit' : 'SUBMIT',
+                      'credential_used' : 'this credential is already being used'
                     },
                     'es': {
                       'hello' : 'Hola',
@@ -93,7 +96,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'enter_credential_number' : 'ingresa el numero de tu identicicación',
                       'not_valid_country' : 'país no válido, por favor escribe y seleccion otro',
                       'must_enter_id' : 'debes ingresar tu identificación!',
-                      'submit' : 'ENVIAR'
+                      'submit' : 'ENVIAR',
+                      'credential_used' : 'Esta credencial ya esta siendo usada'
                     }
                   }
               }
@@ -117,9 +121,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }else{
             this.$.userInfo.user = this.user;
             this.$.credentialDialog.close();
+            this.paypal = document.createElement('paypal-integration');
+            this.$.paypalDiv.appendChild(this.paypal);
           }
         }else{
-          this.fire('route-change',{route : 'forbidden'})
+          this.$.paypalIntegration.detached();
+          console.log('noay');
+          this.fire('route-change',{route : 'forbidden'});
         }
       },
 
@@ -150,7 +158,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       updateIntlCredentialErrorHandler : function(e){
-        this.$.toast.text = 'Esta credencial ya esta siendo usada';
+        this.$.toast.text = localize('credential_used');
         this.$.toast.open();
       },
 
@@ -160,7 +168,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }else{
           this.updateIntlCredentialResponseHandler();
         }
+      },
+
+      detached : function(e){
+        this.$.paypalDiv.removeChild(this.paypal);
       }
+
     });
   </script>
 </dom-module>

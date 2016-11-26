@@ -49,7 +49,9 @@ module.exports.routes = {
   '/getcurrentuser' : 'UserController.getCurrentUser',
   '/updateintlcredential' : 'UserController.updateIntlCredential',
   '/updateuserinfo' : 'UserController.updateUserInfo',
-
+  '/checkoutPayment' : 'PaymentController.setExpressCheckout',
+  '/cancelPaypal' : 'PaymentController.cancelPayment',
+  '/returnPaypal' : 'PaymentController.returnPayment'
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

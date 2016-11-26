@@ -1,0 +1,39 @@
+<dom-module id="paypal-integration">
+  <script src="http://www.paypalobjects.com/api/checkout.js" async></script>
+  <template>
+    pay pal
+    <div id="paypalDiv"></div>
+  </template>
+  <script>
+    Polymer({
+      is : 'paypal-integration',
+
+      properties : {
+        buttonAction : {
+          type : String,
+          value : '/checkoutPayment'
+        }
+      },
+
+      attached : function(){
+        this.payA = document.createElement('form');
+        this.payA.style.position = 'absolute';
+        this.payA.method = 'POST'
+        var position = this.$.paypalDiv.getBoundingClientRect();
+        this.payA.id = "myContainer";
+        this.payA.action = this.buttonAction;
+        document.body.appendChild(this.payA);
+        window.paypalCheckoutReady = function () {
+          paypal.checkout.setup('T88GU9Z2BDJMS', {
+              environment: 'sandbox',
+              container: 'myContainer'
+            });
+          };
+      },
+
+      detached : function(){
+        document.body.removeChild(this.payA);
+      }
+    });
+  </script>
+</dom-module>
