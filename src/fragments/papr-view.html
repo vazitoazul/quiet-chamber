@@ -1,0 +1,29 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="papr-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px 20px;
+      }
+    </style>
+
+   	<h4>TU PAGO HA SIDO EXITOSO <a href="/">Head back to home.</a></h4>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'papr-view',
+
+      ready : function(e){
+
+      	setTimeout(function(e){
+
+      		window.close();
+      	},5000);
+      }
+    });
+  </script>
+</dom-module>

@@ -76,9 +76,9 @@ var createAndActivePayPalBillingPlan = function(next){
 module.exports = {
 
 	returnPayment : function(req,res,next){
-    if(!req.param('token')){
-      return res.badRequest();
-    }
+	    if(!req.param('token')){
+	      return res.badRequest();
+	    }
 		paypal.billingAgreement.execute(req.param('token'), {}, function (error, billingAgreement) {
 		    if (error) {
 		        console.log(error);
@@ -86,7 +86,7 @@ module.exports = {
 		    } else {
 		        console.log("Billing Agreement Execute Response");
 		        console.log(JSON.stringify(billingAgreement));
-            return res.ok();
+            return res.redirect("/papr");
 		    }
 		});
 	},
@@ -124,7 +124,7 @@ module.exports = {
 	                  console.log(approval_url);
 	                  // See billing_agreements/execute.js to see example for executing agreement
 	                  // after you have payment token
-										return res.redirect(approval_url);
+					  return res.redirect(approval_url);
 	              }
 	          }
 	      }
