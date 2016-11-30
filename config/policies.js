@@ -31,7 +31,10 @@ module.exports.policies = {
     '*' : ['passport','sessionAuth','intlCredential']
   },
 
-  'PaymentController'  : ['passport','sessionAuth','intlCredential'],
+  'PaymentController'  : {
+    'ipnListener' : [],
+    '*' : ['passport','sessionAuth','intlCredential']
+  },
 
   '*' : ['passport']
 

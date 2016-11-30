@@ -51,7 +51,8 @@ module.exports.routes = {
   '/updateuserinfo' : 'UserController.updateUserInfo',
   '/checkoutPayment' : 'PaymentController.setExpressCheckout',
   '/cancelPaypal' : 'PaymentController.cancelPayment',
-  '/returnPaypal' : 'PaymentController.returnPayment'
+  '/returnPaypal' : 'PaymentController.returnPayment',
+  '/paypalipn' : 'PaymentController.ipnListener'
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *
