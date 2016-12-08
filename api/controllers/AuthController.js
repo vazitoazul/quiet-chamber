@@ -101,8 +101,9 @@ var AuthController = {
         req.session.authenticated = true;
 
         // Upon successful login, return the user id
+
         if(req.param('provider')){
-          res.redirect('/acco');
+          return res.redirect('/acco');
         }else{
           return res.json({user : user.id,success:true});
         }

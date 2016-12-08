@@ -35,7 +35,7 @@ module.exports = {
   //   level: "silent"
   // }
   paths:{
-    'public':'build/bundled'
+    'public':'.'
   }
 
 

@@ -142,11 +142,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var that = this;
         google.maps.event.addListener(countrySearch,'place_changed', function(){
           var country = countrySearch.getPlace();
-          if(!country.address_components){
-            that.$.toast.text = [[localize('not_valid_country')]];
+          var countryCode=null;
+          country.address_components.forEach(function(item){
+            item.types.forEach(function(type){
+              if(type==='country'){
+                countryCode=item.short_name;
+              }
+            });
+          });
+          if(!countryCode){
+            that.$.toast.text = this.localize('not_valid_country');
             that.$.toast.open();
           }else{
-            that.set('countryCode',country.address_components[0].short_name);
+            that.set('countryCode',countryCode);
           }
         });
       },
@@ -164,7 +172,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       updateIntlCredentialErrorHandler : function(e){
-        this.$.toast.text = localize('credential_used');
+        this.$.toast.text = this.localize('credential_used');
         this.$.toast.open();
       },
 
