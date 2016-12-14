@@ -117,8 +117,7 @@ module.exports = {
 		    "description": "Acuerdo para subcripcion a la page",
 		    "start_date": isoDate,
 		    "plan": {
-          "id": "P-5G065982F24424329RUIIYAA"
-		        // "id": "P-2M5800062P50100547356LLI"
+          "id": sails.config.billingPlanId
 		    },
 		    "payer": {
 		        "payment_method": "paypal"
