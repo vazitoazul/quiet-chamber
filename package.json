@@ -22,7 +22,8 @@
     "recaptcha_v2": "0.0.5",
     "sails": "~0.12.1",
     "sails-disk": "~0.10.9",
-    "sails-mongo": "^0.12.1"
+    "sails-mongo": "^0.12.1",
+    "date-utils": "^1.2.17"
   },
   "scripts": {
     "postinstall": "bash ./post-install.sh",
