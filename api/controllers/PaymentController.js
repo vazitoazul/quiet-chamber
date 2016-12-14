@@ -18,10 +18,10 @@ var createAndActivePayPalBillingPlan = function(next){
 			"description": "Create test plan for Regular",
 			"merchant_preferences": {
 					"auto_bill_amount": "yes",
-					"cancel_url": "http://localhost:1337/cancelPaypal",
+					"cancel_url": sails.config.appUrl+"/cancelPaypal",
 					"initial_fail_amount_action": "continue",
 					"max_fail_attempts": "2",
-					"return_url": "http://localhost:1337/returnPaypal",
+					"return_url": sails.config.appUrl+"/returnPaypal",
 					"setup_fee": {
 							"currency": "USD",
 							"value": "2"
