@@ -18,10 +18,10 @@ var createAndActivePayPalBillingPlan = function(next){
 			"description": "Create test plan for Regular",
 			"merchant_preferences": {
 					"auto_bill_amount": "yes",
-					"cancel_url": sails.config.appUrl+"/cancelPaypal",
+					"cancel_url": "https://quiet-chamber-staging.herokuapp.com/cancelPaypal",
 					"initial_fail_amount_action": "continue",
 					"max_fail_attempts": "2",
-					"return_url": sails.config.appUrl+"/returnPaypal",
+					"return_url": "https://quiet-chamber-staging.herokuapp.com/returnPaypal",
 					"setup_fee": {
 							"currency": "USD",
 							"value": "2"
@@ -34,7 +34,7 @@ var createAndActivePayPalBillingPlan = function(next){
 									"value": "2.00"
 							},
 							"cycles": "0",
-							"frequency": "MONTH",
+							"frequency": "DAY",
 							"frequency_interval": "1",
 							"name": "Pago del test",
 							"type": "REGULAR"
@@ -86,7 +86,19 @@ module.exports = {
 		    } else {
 		        console.log("Billing Agreement Execute Response");
 		        console.log(JSON.stringify(billingAgreement));
-            return res.redirect("/papr");
+            Payment.create({user : req.user.id, billingAgreement : billingAgreement.id},function(err,payment){
+              if(err){
+                throw err;
+              }
+              var subscribedUntil = new Date();
+              subscribedUntil.setMonth(subscribedUntil.getMonth() + 1);
+              User.update(req.user.id, {subscribedUntil : subscribedUntil }, function(err, updated){
+                if(err){
+                  throw err;
+                }
+                return res.redirect("/papr");
+              });
+            });
 		    }
 		});
 	},
@@ -105,7 +117,8 @@ module.exports = {
 		    "description": "Acuerdo para subcripcion a la page",
 		    "start_date": isoDate,
 		    "plan": {
-		        "id": "P-5G065982F24424329RUIIYAA"
+          "id": "P-5G065982F24424329RUIIYAA"
+		        // "id": "P-2M5800062P50100547356LLI"
 		    },
 		    "payer": {
 		        "payment_method": "paypal"
@@ -124,7 +137,7 @@ module.exports = {
 	                  console.log(approval_url);
 	                  // See billing_agreements/execute.js to see example for executing agreement
 	                  // after you have payment token
-					  return res.redirect(approval_url);
+					          return res.redirect(approval_url);
 	              }
 	          }
 	      }
@@ -134,7 +147,39 @@ module.exports = {
   ipnListener : function(req,res,next){
     console.log("LISTENER");
     console.log(req.body);
-    console.log(req);
-    return res.ok();
+    console.log(req.body.resource.billing_agreement_id);
+    if(req.body.resource.billing_agreement_id){
+      Payment.find({billingAgreement : req.body.resource.billing_agreement_id}).populate('user').exec(function(err,payment){
+        if(err){
+          console.log(err);
+          return res.ok();
+        }
+        console.log(payment[0].user);
+
+        if(payment[0].user.subscribedUntil){
+          Payment.create({user : payment[0].user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
+            if(err){
+              throw err;
+            }
+            var subscribedUntil = new Date();
+            subscribedUntil.setMonth(subscribedUntil.getMonth() + 1);
+            User.update(payment[0].user.id, {subscribedUntil : subscribedUntil }, function(err, updated){
+              if(err){
+                throw err;
+              }
+              console.log(updated);
+              return res.redirect("/papr");
+            });
+          });
+
+        }else{
+          return res.ok();
+        }
+      });
+
+    }else{
+      return res.ok();
+    }
+
   }
 };
