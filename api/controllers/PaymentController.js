@@ -117,7 +117,7 @@ module.exports = {
 		    "description": "Acuerdo para subcripcion a la page",
 		    "start_date": isoDate,
 		    "plan": {
-          "id": sails.config.billingPlanId
+          "id": sails.config.paypal.billingPlanId
 		    },
 		    "payer": {
 		        "payment_method": "paypal"
@@ -125,7 +125,7 @@ module.exports = {
 		};
 		paypal.billingAgreement.create(billingAgreementAttributes, function (error, billingAgreement) {
 	      if (error) {
-	          console.log(error.response.details);
+	          console.log(error.response);
 	          throw error;
 	      } else {
 	          console.log("Create Billing Agreement Response");
@@ -155,7 +155,8 @@ module.exports = {
         }
         console.log(payment[0].user);
 
-        if(payment[0].user.subscribedUntil){
+
+        if(payment[0].user.payments.length > 0){
           Payment.create({user : payment[0].user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
             if(err){
               throw err;
