@@ -146,16 +146,14 @@ module.exports = {
   ipnListener : function(req,res,next){
     console.log("LISTENER");
     console.log(req.body);
-    console.log(req.body.resource.billing_agreement_id);
     if(req.body.resource.billing_agreement_id){
       Payment.find({billingAgreement : req.body.resource.billing_agreement_id}).populate('user').exec(function(err,payment){
         if(err){
           console.log(err);
           return res.ok();
         }
-        console.log(payment[0].user);
-
-
+        console.log('PAGOS');
+        console.log(payment[0].user.payments);
         if(payment[0].user.payments.length > 0){
           Payment.create({user : payment[0].user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
             if(err){
@@ -167,8 +165,8 @@ module.exports = {
               if(err){
                 throw err;
               }
-              console.log(updated);
-              return res.redirect("/papr");
+              console.log(updated[0]);
+              return res.ok();
             });
           });
 

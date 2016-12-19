@@ -23,6 +23,7 @@
         this.payA.id = "myContainer";
         this.payA.action = this.buttonAction;
         document.body.appendChild(this.payA);
+        
         window.paypalCheckoutReady = function () {
           paypal.checkout.setup('YFRS3M7MDRHTW', {
               environment: 'sandbox',
