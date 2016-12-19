@@ -82,7 +82,12 @@ var AuthController = {
           res.redirect('back');
         break;
         default:
-          res.json({success:false, error: challenges});
+          if(req.wantsJSON){
+            res.json({success:false, error: challenges});
+          }else{
+            res.redirect('/')
+          }
+
       }
     }
 
