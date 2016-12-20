@@ -39,7 +39,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         };
       }
     </style>
-
+    <iron-ajax
+    url="/getcurrentuser"
+    handle-as="json"
+    on-response="currentUserHandler"
+    id="currentUserRequester"
+    on-error="currentUserErrorHandler"></iron-ajax>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
     <app-drawer-layout fullbleed force-narrow>
       <app-drawer align="right">
@@ -56,7 +61,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
              <div class="hidden-sm-down">
                <a href="/help"><paper-button>Ayuda</paper-button></a>
                <a href="/rgst"><paper-button>Registrarme</paper-button></a>
-               <a href="/lgin"><paper-button raised class="primary">Ingresar</paper-button></a>
+               <a href="/lgin" hidden id="loginButton"><paper-button raised class="primary">Ingresar</paper-button></a>
+               <a href="/acco" hidden id="accoButton"><paper-button raised class="primary">[[user.firstName]]</paper-button></a>
              </div>
              <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
          </app-toolbar>
@@ -104,13 +110,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       properties : {
         language : {
           value : 'en'
+        },
+        user :{
+          type : Object
+        }
+      },
+
+      ready : function(){
+       this.$.currentUserRequester.generateRequest();
+      },
+
+      currentUserHandler : function(e){
+        console.log(e);
+        var user = e.detail.__data__.response;
+        if(user){
+          this.set('user',user);
+          this.$.accoButton.hidden = false;
+        }else{
+          this.$.loginButton.hidden = false;
         }
       },
 
       attached : function() {
-
         this.loadResources( this.resolveUrl('../locales/main-view.json'));
-      }
+      },
+
+      currentUserErrorHandler : function(e){
+        this.$.loginButton.hidden = false;
+      },
     });
   </script>
 </dom-module>

@@ -37,6 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     id="currentUserRequester"
     on-error="currentUserErrorHandler"></iron-ajax>
     <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
+    <app-localstorage-document id="localStorageUser" key="user" data="{{user}}"></app-localstorage-document>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <div class="card">
       <user-info id="userInfo"></user-info>
@@ -121,7 +122,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       currentUserHandler : function(e){
         var user = e.detail.__data__.response;
         if(user){
-          this.user = user;
+          this.set('user',user);
           if(!this.user.intlCredential){
             this.$.credentialDialog.open();
           }else{
