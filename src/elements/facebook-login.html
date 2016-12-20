@@ -1,0 +1,77 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<dom-module id="facebook-login">
+  <template>
+    <!-- Load facebook SDK -->
+    <script>
+
+
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
+    <iron-ajax
+      auto
+      url="/auth/key/facebook"
+      handle-as="json"
+      method="GET"
+      on-response="handleKeyResponse"></iron-ajax>
+    <iron-ajax
+      id="loginAjax"
+      url="/auth/facebook/callback"
+      handle-as="json"
+      on-response="handleResponse"></iron-ajax>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <paper-button raised on-click="login"> Login</paper-button>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'facebook-login',
+      login:function(){
+
+        FB.getLoginStatus((response)=>{
+          console.log(response);
+          if (response.status === 'connected') {
+            // Logged into your app and Facebook.
+            FB.api('/me', function(response) {
+              console.log('Successful login for: ' + response.name);
+            });
+          } else if (response.status === 'not_authorized') {
+            // The person is logged into Facebook, but not your app.
+            FB.login(function(response){
+              console.log(response);
+            });
+          } else {
+            FB.login(function(response){
+              console.log(response);
+            });
+          }
+        });
+      },
+      handleResponse:function(e){
+        console.log(e.detail.__data__.response);
+      },
+      handleKeyResponse:function(e){
+        var key = e.detail.__data__.response.key;
+        console.log(key);
+        window.fbAsyncInit = function() {
+          FB.init({
+            appId      : key,
+            xfbml      : true,
+            version    : 'v2.8'
+          });
+        };
+      }
+    });
+  </script>
+</dom-module>

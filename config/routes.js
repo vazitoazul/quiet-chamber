@@ -34,6 +34,7 @@ module.exports.routes = {
 
   //authentication routes
   'get /logout': 'AuthController.logout',
+  'get /auth/key/:provider': 'AuthController.key',
   'post /auth/local': 'AuthController.callback',
   'post /auth/local/:action': 'AuthController.callback',
 
