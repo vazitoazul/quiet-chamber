@@ -147,32 +147,38 @@ module.exports = {
     console.log("LISTENER");
     console.log(req.body);
     if(req.body.resource.billing_agreement_id){
-      Payment.find({billingAgreement : req.body.resource.billing_agreement_id}).populate('user').exec(function(err,payment){
+      Payment.find({billingAgreement : req.body.resource.billing_agreement_id},function(err,payment){
         if(err){
           console.log(err);
           return res.ok();
         }
         console.log('PAGOS');
-        console.log(payment[0].user.payments);
-        if(payment[0].user.payments.length > 0){
-          Payment.create({user : payment[0].user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
-            if(err){
-              throw err;
-            }
-            var subscribedUntil = new Date();
-            subscribedUntil.setMonth(subscribedUntil.getMonth() + 1);
-            User.update(payment[0].user.id, {subscribedUntil : subscribedUntil }, function(err, updated){
-              if(err){
-                throw err;
-              }
-              console.log(updated[0]);
-              return res.ok();
-            });
-          });
+        console.log(payment[0].user);
 
-        }else{
-          return res.ok();
-        }
+        User.findOne(payment[0].user).populate('payments').exec(function(err,user){
+        	if(err || !user){
+        		return res.ok();
+        	}
+        	if(user.payments.length > 0){
+		        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
+		            if(err){
+		              throw err;
+		            }
+		            var subscribedUntil = new Date();
+		            subscribedUntil.setMonth(subscribedUntil.getMonth() + 1);
+		            User.update(payment[0].user.id, {subscribedUntil : subscribedUntil }, function(err, updated){
+		              if(err){
+		                throw err;
+		              }
+		              console.log(updated[0]);
+		              return res.ok();
+		            });
+		        });
+	        }else{
+	          return res.ok();
+	        }
+        });
+
       });
 
     }else{
