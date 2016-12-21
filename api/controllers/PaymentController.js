@@ -146,6 +146,7 @@ module.exports = {
   ipnListener : function(req,res,next){
     console.log("LISTENER");
     console.log(req.body);
+
     if(req.body.resource.billing_agreement_id){
       Payment.find({billingAgreement : req.body.resource.billing_agreement_id},function(err,payment){
         if(err){
@@ -159,6 +160,7 @@ module.exports = {
         	if(err || !user){
         		return res.ok();
         	}
+        	console.log(user);
         	if(user.payments.length > 0){
 		        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
 		            if(err){
@@ -166,7 +168,9 @@ module.exports = {
 		            }
 		            var subscribedUntil = new Date();
 		            subscribedUntil.setMonth(subscribedUntil.getMonth() + 1);
-		            User.update(payment[0].user.id, {subscribedUntil : subscribedUntil }, function(err, updated){
+		            console.log('FECHA NUEVA');
+		            console.log(user);
+		            User.update(user.id, {subscribedUntil : subscribedUntil }, function(err, updated){
 		              if(err){
 		                throw err;
 		              }
