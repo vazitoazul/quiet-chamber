@@ -157,7 +157,7 @@ module.exports = {
         	if(err || !user){
         		return res.ok();
         	}
-        	if(user.payments.length > 0){
+        	if(user.payments.length > 1){
 		        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
 		            if(err){
 		              throw err;
