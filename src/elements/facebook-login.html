@@ -40,34 +40,36 @@
     Polymer({
       is: 'facebook-login',
       login:function(){
-
+        self=this;
         FB.getLoginStatus((response)=>{
           console.log(response);
           if (response.status === 'connected') {
             // Logged into your app and Facebook.
-            this.$.loginAjax.body={
+            self.$.loginAjax.body={
               token:response.authResponse.accessToken,
               userID:response.authResponse.userID};
-            this.$.loginAjax.generateRequest();
+            self.$.loginAjax.generateRequest();
           } else if (response.status === 'not_authorized') {
             // The person is logged into Facebook, but not your app.
-            FB.login(function(response){
-              console.log(response);
+            FB.login((response)=>{
+              self.callback(response);
             });
           } else {
-            // The person is not logged into Facebook, so we're not sure if
-            // they are logged into this app or not.
-            document.getElementById('status').innerHTML = 'Please log ' +
-              'into Facebook.';
+            FB.login((response)=>{
+              self.callback(response);
+            });
           }
         });
       },
       handleResponse:function(e){
-        console.log(e.detail.__data__.response);
+        var response=e.detail.__data__.response;
+        if(response.success){
+          this.fire('user-logged',response.user);
+          console.log('success');
+        }
       },
       handleKeyResponse:function(e){
         var key = e.detail.__data__.response.key;
-        console.log(key);
         window.fbAsyncInit = function() {
           FB.init({
             appId      : key,
@@ -75,6 +77,17 @@
             version    : 'v2.8'
           });
         };
+      },
+      callback:function(response){
+        if (response.status === 'connected') {
+          // Logged into your app and Facebook.
+          this.$.loginAjax.body={
+            token:response.authResponse.accessToken,
+            userID:response.authResponse.userID};
+          this.$.loginAjax.generateRequest();
+        } else {
+          this.fire('show-message','error_log_with_fb');
+        }
       }
     });
   </script>
