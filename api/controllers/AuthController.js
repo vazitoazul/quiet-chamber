@@ -94,7 +94,6 @@ var AuthController = {
 
       }
     }
-    console.log('params',req.allParams());
     passport.callback(req, res, function (err, user, challenges, statuses) {
       if (err || !user) {
         return tryAgain(challenges);
@@ -136,9 +135,6 @@ var AuthController = {
   */
   key:function(req,res){
     res.json({key:keys[req.param('provider')]});
-  },
-  facebook:function(req,res){
-
   }
 };
 

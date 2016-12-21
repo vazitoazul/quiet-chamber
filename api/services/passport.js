@@ -89,13 +89,17 @@ passport.connect = function (req, query, profile, next) {
     user.username = profile.username;
   }
 
+  //check if the user only has one email and add it to the user
+  if(profile.hasOwnProperty('email')){
+    user.email= profile.email;
+  }
   // If neither an email or a username was available in the profile, we don't
   // have a way of identifying the user in the future. Throw an error and let
   // whoever's next in the line take care of it.
   if (!user.username && !user.email) {
     return next(new Error('Neither a username nor email was available'));
   }
-
+  console.log(query,profile);
   Passport.findOne({
     provider   : provider
   , identifier : query.identifier.toString()
@@ -345,9 +349,19 @@ passport.loadStrategies = function () {
       // do that.
       _.extend(options, strategies[key].options);
 
-      self.use(new Strategy(options, self.protocols[protocol]));
+      //options become a simple string when using a custom Strategy
+      //defined by passport-custom : https://github.com/mbell8903/passport-custom
+      if(options.custom){
+        var Custom = new Strategy(self.protocols[protocol]);
+        Custom.name=key;
+        self.use(Custom);
+      }else{
+        self.use(new Strategy(options, self.protocols[protocol]));
+      }
+
     }
   });
+
 };
 
 /**
