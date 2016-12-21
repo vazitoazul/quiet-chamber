@@ -153,14 +153,10 @@ module.exports = {
           console.log(err);
           return res.ok();
         }
-        console.log('PAGOS');
-        console.log(payment[0].user);
-
         User.findOne(payment[0].user).populate('payments').exec(function(err,user){
         	if(err || !user){
         		return res.ok();
         	}
-        	console.log(user);
         	if(user.payments.length > 0){
 		        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
 		            if(err){
@@ -169,8 +165,8 @@ module.exports = {
 		            var subscribedUntil = new Date();
 		            subscribedUntil.setMonth(subscribedUntil.getMonth() + 1);
 		            console.log('FECHA NUEVA');
-		            console.log(user);
-		            User.update(user.id, {subscribedUntil : subscribedUntil }, function(err, updated){
+		            console.log(subscribedUntil);
+		            User.update(user, {subscribedUntil : subscribedUntil }, function(err, updated){
 		              if(err){
 		                throw err;
 		              }
