@@ -159,7 +159,7 @@ module.exports = {
         		return res.ok();
         	}
  			var today = new Date();
- 			today.setMonth(subscribedUntil.getMonth() + 1);
+ 			today.setMonth(today.getMonth() + 1);
  			today.setHours(0,0,0,0);
         	if(user.subscribedUntil.valueOf() !== today.valueOf()){
 		        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
