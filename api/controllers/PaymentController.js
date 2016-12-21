@@ -163,7 +163,7 @@ module.exports = {
         	if(user.subscribedUntil.valueOf() !== today.valueOf()){
 		        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
 		            if(err){
-		              throw err;
+		              return res.ok();
 		            }
 		            var newDate = user.subscribedUntil;
 		            newDate.setHours(0,0,0,0);
@@ -171,8 +171,8 @@ module.exports = {
 		            console.log('FECHA NUEVA');
 		            console.log(newDate);
 		            User.update({id : user.id}, {subscribedUntil : newDate }, function(err, updated){
-		              if(err){
-		                throw err;
+		              if(err || !updated[0]){
+		                return res.ok();
 		              }
 		              console.log(updated[0]);
 		              return res.ok();
