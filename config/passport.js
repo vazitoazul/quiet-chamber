@@ -55,20 +55,19 @@ module.exports.passport = {
       enableProof:true,
       appsecret_proof:process.env.FACEBOOK_APPSECRET
     }
+  },
+  google: {
+    name: 'Google',
+    protocol: 'google',
+    strategy: require('passport-custom'),
+    options: {
+      clientID: process.env.GOOGLE_ID,
+      custom:true,
+      clientSecret: process.env.GOOGLE_SECRET,
+      scope:['https://www.googleapis.com/auth/userinfo.email'],
+      callbackURL: process.env.GOOGLE_CALLBACK_URL
+    }
   }
-  //,
-  //
-  // google: {
-  //   name: 'Google',
-  //   protocol: 'oauth2',
-  //   strategy: require('passport-google-oauth').OAuth2Strategy,
-  //   options: {
-  //     clientID: process.env.GOOGLE_ID,
-  //     clientSecret: process.env.GOOGLE_SECRET,
-  //     scope:['https://www.googleapis.com/auth/userinfo.email'],
-  //     callbackURL: process.env.GOOGLE_CALLBACK_URL
-  //   }
-  // }
 
   // cas: {
   //   name: 'CAS',

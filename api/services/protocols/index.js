@@ -19,4 +19,5 @@ module.exports = {
 , bearer : require('./bearer')
 , cas    : require('./cas')
 , facebook : require('./facebook')
+, google : require('./google')
 };

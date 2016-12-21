@@ -99,7 +99,6 @@ passport.connect = function (req, query, profile, next) {
   if (!user.username && !user.email) {
     return next(new Error('Neither a username nor email was available'));
   }
-  console.log(query,profile);
   Passport.findOne({
     provider   : provider
   , identifier : query.identifier.toString()

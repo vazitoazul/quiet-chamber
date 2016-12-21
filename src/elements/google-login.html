@@ -1,0 +1,81 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/google-signin/google-signin.html">
+<dom-module id="google-login">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <iron-ajax
+      auto
+      url="/auth/key/google"
+      handle-as="json"
+      method="GET"
+      on-response="handleKeyResponse"></iron-ajax>
+    <iron-ajax
+      id="loginAjax"
+      url="/auth/google/callback"
+      method="POST"
+      handle-as="json"
+      on-response="handleResponse"
+      content-type="application/json"></iron-ajax>
+      <google-signin need-additional-auth id="signIn" scopes="profile email" on-google-signin-success="signInSuccess" raised width="iconOnly" hidden></google-signin>
+      <paper-button raised on-click="login"></paper-button>
+  </template>
+  <script>
+    Polymer({
+      is: 'google-login',
+      properties:{
+        wantsLogin:{
+          type:Boolean,
+          value:false
+        }
+      },
+      login:function(e){
+        if(this.$.signIn.signedIn){
+          e.preventDefault();
+          var user = gapi.auth2.getAuthInstance()['currentUser'].get();
+          var authResponse = user.getAuthResponse();
+          var profile = user.getBasicProfile();
+          this.$.loginAjax.body={
+            token: authResponse.id_token,
+            email: profile.getEmail(),
+            familyName: profile.getFamilyName(),
+            givenName:profile.getGivenName()
+          };
+          this.$.loginAjax.generateRequest();
+        }else{
+          this.$.signIn.signIn();
+          this.wantsLogin=true;
+        }
+      },
+      handleResponse:function(e){
+        var response=e.detail.__data__.response;
+        if(response.success){
+          this.fire('user-logged',response.user);
+        }  
+      },
+      handleKeyResponse:function(e){
+        this.$.signIn.clientId=e.detail.__data__.response.key;
+      },
+      signInSuccess:function(e,detail){
+        if(this.wantsLogin){
+          var user = gapi.auth2.getAuthInstance()['currentUser'].get();
+          var authResponse = user.getAuthResponse();
+          var profile = user.getBasicProfile();
+          this.$.loginAjax.body={
+            token: authResponse.id_token,
+            email: profile.getEmail(),
+            familyName: profile.getFamilyName(),
+            givenName:profile.getGivenName()
+          };
+          this.$.loginAjax.generateRequest();
+        }
+
+      }
+    });
+  </script>
+</dom-module>
