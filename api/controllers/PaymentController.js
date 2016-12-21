@@ -91,6 +91,7 @@ module.exports = {
                 throw err;
               }
               var subscribedUntil = new Date();
+              subscribedUntil.setHours(0,0,0,0);
               subscribedUntil.setMonth(subscribedUntil.getMonth() + 1);
               User.update(req.user.id, {subscribedUntil : subscribedUntil }, function(err, updated){
                 if(err){
@@ -157,12 +158,15 @@ module.exports = {
         	if(err || !user){
         		return res.ok();
         	}
-        	if(user.payments.length > 1){
+ 			var today = new Date();
+ 			today.setHours(0,0,0,0);
+        	if(user.subscribedUntil.valueOf() !== today.valueOf()){
 		        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
 		            if(err){
 		              throw err;
 		            }
 		            var newDate = user.subscribedUntil;
+		            newDate.setHours(0,0,0,0);
 		            newDate.setMonth(newDate.getMonth() + 1);
 		            console.log('FECHA NUEVA');
 		            console.log(newDate);
@@ -175,6 +179,7 @@ module.exports = {
 		            });
 		        });
 	        }else{
+	          console.log('first time');
 	          return res.ok();
 	        }
         });
