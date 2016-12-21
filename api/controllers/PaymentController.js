@@ -162,11 +162,11 @@ module.exports = {
 		            if(err){
 		              throw err;
 		            }
-		            var subscribedUntil = new Date();
-		            subscribedUntil.setMonth(subscribedUntil.getMonth() + 1);
+		            var newDate = user.subscribedUntil;
+		            newDate.setMonth(newDate.getMonth() + 1);
 		            console.log('FECHA NUEVA');
 		            console.log(subscribedUntil);
-		            User.update(user, {subscribedUntil : subscribedUntil }, function(err, updated){
+		            User.update({id : user.id}, {subscribedUntil : subscribedUntil }, function(err, updated){
 		              if(err){
 		                throw err;
 		              }
