@@ -149,7 +149,7 @@ module.exports = {
 
     if(req.body.resource.billing_agreement_id){
       Payment.find({billingAgreement : req.body.resource.billing_agreement_id},function(err,payment){
-        if(err){
+        if(err || !payment[0]){
           console.log(err);
           return res.ok();
         }
