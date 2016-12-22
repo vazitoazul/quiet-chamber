@@ -41,7 +41,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="card">
       <user-info id="userInfo"></user-info>
     </div>
-    <div id="paypalDiv"></div>
+    <div class="card">
+      <div id="paypalDiv"></div>
+      <div id="subscribedUntilDiv" hidden>
+        [[localize('subscribed_until')]]
+        [[user.subscribedUntil.getDay()]] / [[this.user.subscribedUntil.getMonth()]] / [[this.user.subscribedUntil.getYear()]]
+      </div>
+    </div>
+    
     <!-- <form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post" target="_top">
       <input type="hidden" name="cmd" value="_s-xclick">
       <input type="hidden" name="hosted_button_id" value="2Z5GB9R9P7H22">
@@ -143,7 +150,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   this.paypal = document.createElement('paypal-integration');
                   this.$.paypalDiv.appendChild(this.paypal);
                 }else{
-                  this.$.paypalDiv.innerHTML = this.localize('subscribedUntil') +' '+this.user.subscribedUntil.getDay()+'/'+this.user.subscribedUntil.getMonth()+'/'+this.user.subscribedUntil.getYear();
+                  console.log('esta subscrito hasta');
+                  console.log(this.user.subscribedUntil);
+                  this.$.subscribedUntilDiv.hidden = false;
                 }
             }
           }
