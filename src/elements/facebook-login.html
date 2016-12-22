@@ -1,0 +1,108 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../my-icons.html">
+<dom-module id="facebook-login">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      iron-icon.facebook{
+        height: 5rem;
+        width: 5rem;
+      }
+      iron-icon.facebook,paper-button.facebook{
+        color:white;
+        background-color: #3b5998;
+      }
+      paper-button{
+        padding: 0;
+      }
+    </style>
+    <!-- Load facebook SDK -->
+    <script>
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
+    <iron-ajax
+      auto
+      url="/auth/key/facebook"
+      handle-as="json"
+      method="GET"
+      on-response="handleKeyResponse"></iron-ajax>
+    <iron-ajax
+      id="loginAjax"
+      url="/auth/facebook/callback"
+      method="POST"
+      handle-as="json"
+      on-response="handleResponse"
+      content-type="application/json"></iron-ajax>
+
+    <paper-button raised on-click="login" class="facebook">
+      <iron-icon icon="icons:facebook" class="facebook"></iron-icon>
+    </paper-button>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'facebook-login',
+      login:function(){
+        self=this;
+        FB.getLoginStatus((response)=>{
+          console.log(response);
+          if (response.status === 'connected') {
+            // Logged into your app and Facebook.
+            self.$.loginAjax.body={
+              token:response.authResponse.accessToken,
+              userID:response.authResponse.userID};
+            self.$.loginAjax.generateRequest();
+          } else if (response.status === 'not_authorized') {
+            // The person is logged into Facebook, but not your app.
+            FB.login((response)=>{
+              self.callback(response);
+            });
+          } else {
+            FB.login((response)=>{
+              self.callback(response);
+            });
+          }
+        });
+      },
+      handleResponse:function(e){
+        var response=e.detail.__data__.response;
+        if(response.success){
+          this.fire('user-logged',response.user);
+          console.log('success');
+        }
+      },
+      handleKeyResponse:function(e){
+        var key = e.detail.__data__.response.key;
+        window.fbAsyncInit = function() {
+          FB.init({
+            appId      : key,
+            xfbml      : true,
+            version    : 'v2.8'
+          });
+        };
+      },
+      callback:function(response){
+        if (response.status === 'connected') {
+          // Logged into your app and Facebook.
+          this.$.loginAjax.body={
+            token:response.authResponse.accessToken,
+            userID:response.authResponse.userID};
+          this.$.loginAjax.generateRequest();
+        } else {
+          this.fire('show-message','error_log_with_fb');
+        }
+      }
+    });
+  </script>
+</dom-module>

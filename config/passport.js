@@ -13,7 +13,6 @@
  * For more information on the available providers, check out:
  * http://passportjs.org/guide/providers/
  */
-
 module.exports.passport = {
   local: {
     strategy: require('passport-local').Strategy
@@ -45,25 +44,25 @@ module.exports.passport = {
 
   facebook: {
     name: 'Facebook',
-    protocol: 'oauth2',
-    strategy: require('passport-facebook').Strategy,
+    protocol: 'facebook',
+    strategy: require('passport-custom'),
     options: {
       clientID: process.env.FACEBOOK_ID,
       clientSecret: process.env.FACEBOOK_SECRET,
       scope: ['email'], /* email is necessary for login behavior */
-      callbackURL: process.env.FACEBOOK_CALLBACK_URL,
+      custom:true,
       profileFields: ['id', 'first_name','last_name','picture', 'email'],
       enableProof:true,
       appsecret_proof:process.env.FACEBOOK_APPSECRET
     }
   },
-
   google: {
     name: 'Google',
-    protocol: 'oauth2',
-    strategy: require('passport-google-oauth').OAuth2Strategy,
+    protocol: 'google',
+    strategy: require('passport-custom'),
     options: {
       clientID: process.env.GOOGLE_ID,
+      custom:true,
       clientSecret: process.env.GOOGLE_SECRET,
       scope:['https://www.googleapis.com/auth/userinfo.email'],
       callbackURL: process.env.GOOGLE_CALLBACK_URL
