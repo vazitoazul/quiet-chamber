@@ -1,12 +1,28 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../my-icons.html">
 <dom-module id="facebook-login">
   <template>
+    <style>
+      :host {
+        display: block;
+      }
+      iron-icon.facebook{
+        height: 5rem;
+        width: 5rem;
+      }
+      iron-icon.facebook,paper-button.facebook{
+        color:white;
+        background-color: #3b5998;
+      }
+      paper-button{
+        padding: 0;
+      }
+    </style>
     <!-- Load facebook SDK -->
     <script>
-
-
       (function(d, s, id){
          var js, fjs = d.getElementsByTagName(s)[0];
          if (d.getElementById(id)) {return;}
@@ -28,12 +44,10 @@
       handle-as="json"
       on-response="handleResponse"
       content-type="application/json"></iron-ajax>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <paper-button raised on-click="login"> Login</paper-button>
+
+    <paper-button raised on-click="login" class="facebook">
+      <iron-icon icon="icons:facebook" class="facebook"></iron-icon>
+    </paper-button>
 
   </template>
   <script>

@@ -10,6 +10,8 @@
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../my-icons.html">
 <link rel="import" href="../shared-styles.html">
+<link rel="import" href="../elements/facebook-login.html">
+<link rel="import" href="../elements/google-login.html">
 
 <dom-module id="lgin-view">
   <template>
@@ -24,16 +26,6 @@
       paper-card {
         width: 320px;
       }
-      iron-icon.facebook, iron-icon.google{
-        height: 5rem;
-        width: 5rem;
-      }
-      iron-icon.facebook{
-        color:#3b5998;
-      }
-      iron-icon.google{
-        color:#d34836;
-      }
       .divider{
         border-style: solid;
         border-color: #bdced7;
@@ -45,12 +37,8 @@
   <paper-card>
     <div class="card-content">
       <div class="row flex-items-xs-center">
-        <a href="/auth/facebook" rel="external" class="col-xs-3">
-          <iron-icon icon="icons:facebook" class="facebook"></iron-icon>
-        </a>
-        <a href="/auth/google" rel="external" class="col-xs-3">
-          <iron-icon icon="icons:google-plus" class="google"></iron-icon>
-        </a>
+        <facebook-login on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></facebook-login>
+        <google-login on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></google-login>
       </div>
       <form is="iron-form" method="POST" action="/auth/local" on-iron-form-response= "responseHandler" id="registerForm">
       	  <paper-input name="identifier" label="[[localize('email')]]" required auto-validate  error-message="[[localize('email_form')]]"></paper-input>
@@ -80,24 +68,26 @@
         language : {
           value : 'en'
         },
-
         resources: {
                 value: function() {
                   return {
                     'en': {
                       'log_in_tittle' : 'Log In',
-                      'email' : 'email',
-                      'password' : 'password' ,
-                      'log_in' : 'log in',
-                      'email_form' : 'must be a valid email',
-                      'repeat_pass' : 'repeat pass'
+                      'email' : 'Email',
+                      'password' : 'Password' ,
+                      'log_in' : 'Log in',
+                      'email_form' : 'Must be a valid email',
+                      'repeat_pass' : 'Repeat your password',
+                      'email_or_pass_wrong' : 'Email or password incorrect.'
                     },
                     'es': {
                       'log_in_tittle' : 'Ingreso',
-                      'email' : 'correo electronico',
-                      'password' : 'contraseña' ,
+                      'email' : 'Correo electrónico',
+                      'password' : 'Contraseña' ,
                       'log_in' : 'Ingresar',
-                      'email_form' : 'debe ser una direccion de correo válida',
+                      'email_form' : 'Debe ser una direccion de correo válida',
+                      'repeat_pass' : 'Repite tu contraseña',
+                      'email_or_pass_wrong' : 'Correo o contraseña incorrectos.'
                     }
                   }
               }
@@ -109,19 +99,20 @@
         this.$.spinner.hidden = false;
         this.$.registerForm.submit();
       },
-
       responseHandler : function(e){
         var response = e.detail.__data__.response;
         this.$.spinner.active = false;
         this.$.spinner.hidden = true;
 
         if(response.success==false){
-          this.$.toast.text = 'Correo o contraseña incorrectos';
+          this.$.toast.text = this.localize('email_or_pass_wrong');
           this.$.toast.open();
-
         }else if(response.user){
           this.fire('route-change',{ route : 'acco'});
         }
+      },
+      handleThirdPartyLogin:function(e){
+        this.fire('route-change',{ route : 'acco'});
       }
 
     });
