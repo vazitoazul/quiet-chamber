@@ -152,7 +152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }else{
                   console.log('esta subscrito hasta');
                   console.log(this.user.subscribedUntil);
-                  set(['user','subscribedUntilParced'], this.user.subscribedUntil.getDay()+'/'+this.user.subscribedUntil.getMonth()+'/'+this.user.subscribedUntil.getYear() )
+                  this.set(['user','subscribedUntilParced'], this.user.subscribedUntil.getDay()+'/'+this.user.subscribedUntil.getMonth()+'/'+this.user.subscribedUntil.getYear() )
                   this.$.subscribedUntilDiv.hidden = false;
                 }
             }

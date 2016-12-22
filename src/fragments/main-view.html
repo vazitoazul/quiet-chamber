@@ -51,7 +51,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          <div role="listbox">
            <paper-item><a href="/help">Ayuda</a></paper-item>
            <paper-item><a href="/rgst">Registrarme</a></paper-item>
-           <paper-item><a href="/lgin">Ingresar</a></paper-item>
+           <paper-item id="accoPaperitem"><a href="/acco">[[user.firstName]]</a></paper-item>
+           <paper-item id="loginPaperitem"><a href="/lgin">Ingresar</a></paper-item>
          </div>
       </app-drawer>
       <app-header-layout>
@@ -126,8 +127,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if(user){
           this.set('user',user);
           this.$.accoButton.hidden = false;
+          this.$.accoPaperitem.hidden = false;
         }else{
           this.$.loginButton.hidden = false;
+          this.$.loginPaperitem.hidden = false;
         }
       },
 
