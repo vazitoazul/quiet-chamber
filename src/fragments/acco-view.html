@@ -143,9 +143,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   this.paypal = document.createElement('paypal-integration');
                   this.$.paypalDiv.appendChild(this.paypal);
                 }else{
-                  this.subscribedLabel = document.createElement('h4');
-                  this.subscribedLabel.innerHTML = this.localize('subscribedUntil');
-                  this.$.paypalDiv.appendChild(this.subscribedLabel);
+                  this.$.paypalDiv.innerHTML = this.localize('subscribedUntil') +' '+this.user.subscribedUntil.getDay()+'/'+this.user.subscribedUntil.getMonth()+'/'+this.user.subscribedUntil.getYear();
                 }
             }
           }
