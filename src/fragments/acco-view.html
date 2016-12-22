@@ -37,7 +37,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     id="currentUserRequester"
     on-error="currentUserErrorHandler"></iron-ajax>
     <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
-    <app-localstorage-document id="localStorageUser" key="user" data="{{user}}"></app-localstorage-document>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <div class="card">
       <user-info id="userInfo"></user-info>
@@ -129,21 +128,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if(!this.user.intlCredential){
             this.$.credentialDialog.open();
           }else{
-            var today = new Date();
-            today.setHours(0,0,0,0);
             this.$.userInfo.user = this.user;
             this.$.credentialDialog.close();
-            if(this.user.subscribedUntil > today && this.user.subscribedUntil){
-              this.paypal = document.createElement('paypal-integration');
-              this.$.paypalDiv.appendChild(this.paypal);
+            console.log(this.user);
+            if(!this.user.subscribedUntil){
+                  this.paypal = document.createElement('paypal-integration');
+                  this.$.paypalDiv.appendChild(this.paypal);
             }else{
-              this.subscribedLabel = document.createElement('h4');
-              this.subscribedLabel.innerHTML = this.localize('subscribedUntil');
-              this.$.paypalDiv.appendChild(this.subscribedLabel);
+                var today = new Date();
+                today.setHours(0,0,0,0);
+                console.log('antes de la comprobacion');
+                if(this.user.subscribedUntil.valueOf() < today.valueOf()){
+                  console.log('aqi deberia estar');
+                  this.paypal = document.createElement('paypal-integration');
+                  this.$.paypalDiv.appendChild(this.paypal);
+                }else{
+                  this.subscribedLabel = document.createElement('h4');
+                  this.subscribedLabel.innerHTML = this.localize('subscribedUntil');
+                  this.$.paypalDiv.appendChild(this.subscribedLabel);
+                }
             }
           }
         }else{
-          this.$.paypalIntegration.detached();
           console.log('noay');
           this.fire('route-change',{route : 'forbidden'});
         }
