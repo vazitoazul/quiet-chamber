@@ -45,7 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div id="paypalDiv"></div>
       <div id="subscribedUntilDiv" hidden>
         [[localize('subscribed_until')]]
-        [[user.subscribedUntil.getDay()]] / [[this.user.subscribedUntil.getMonth()]] / [[this.user.subscribedUntil.getYear()]]
+        [[user.subscribedUntilParced]]
       </div>
     </div>
     
@@ -152,6 +152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }else{
                   console.log('esta subscrito hasta');
                   console.log(this.user.subscribedUntil);
+                  set(['user','subscribedUntilParced'], this.user.subscribedUntil.getDay()+'/'+this.user.subscribedUntil.getMonth()+'/'+this.user.subscribedUntil.getYear() )
                   this.$.subscribedUntilDiv.hidden = false;
                 }
             }
