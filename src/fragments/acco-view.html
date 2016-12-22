@@ -37,6 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     id="currentUserRequester"
     on-error="currentUserErrorHandler"></iron-ajax>
     <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
+    <app-localstorage-document id="localStorageUser" key="user" data="{{user}}"></app-localstorage-document>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <div class="card">
       <user-info id="userInfo"></user-info>
@@ -93,7 +94,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'not_valid_country' : 'country not valid, please type and select an other one',
                       'must_enter_id' : 'you must enter your ID!',
                       'submit' : 'SUBMIT',
-                      'credential_used' : 'this credential is already being used'
+                      'credential_used' : 'this credential is already being used',
+                      'subscribed_until' : 'You are subscribed until'
                     },
                     'es': {
                       'hello' : 'Hola',
@@ -103,7 +105,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'not_valid_country' : 'país no válido, por favor escribe y seleccion otro',
                       'must_enter_id' : 'debes ingresar tu identificación!',
                       'submit' : 'ENVIAR',
-                      'credential_used' : 'Esta credencial ya esta siendo usada'
+                      'credential_used' : 'Esta credencial ya esta siendo usada',
+                      'subscribed_until' : 'Estas subscrito hasta'
+
                     }
                   }
               }
@@ -121,14 +125,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       currentUserHandler : function(e){
         var user = e.detail.__data__.response;
         if(user){
-          this.user = user;
+          this.set('user',user);
           if(!this.user.intlCredential){
             this.$.credentialDialog.open();
           }else{
+            var today = new Date();
+            today.setHours(0,0,0,0);
             this.$.userInfo.user = this.user;
             this.$.credentialDialog.close();
-            this.paypal = document.createElement('paypal-integration');
-            this.$.paypalDiv.appendChild(this.paypal);
+            if(this.user.subscribedUntil > today && this.user.subscribedUntil){
+              this.paypal = document.createElement('paypal-integration');
+              this.$.paypalDiv.appendChild(this.paypal);
+            }else{
+              this.subscribedLabel = document.createElement('h4');
+              this.subscribedLabel.innerHTML = this.localize('subscribedUntil');
+              this.$.paypalDiv.appendChild(this.subscribedLabel);
+            }
           }
         }else{
           this.$.paypalIntegration.detached();

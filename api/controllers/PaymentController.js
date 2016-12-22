@@ -18,10 +18,10 @@ var createAndActivePayPalBillingPlan = function(next){
 			"description": "Create test plan for Regular",
 			"merchant_preferences": {
 					"auto_bill_amount": "yes",
-					"cancel_url": "http://localhost:1337/cancelPaypal",
+					"cancel_url": "https://quiet-chamber-staging.herokuapp.com/cancelPaypal",
 					"initial_fail_amount_action": "continue",
 					"max_fail_attempts": "2",
-					"return_url": "http://localhost:1337/returnPaypal",
+					"return_url": "https://quiet-chamber-staging.herokuapp.com/returnPaypal",
 					"setup_fee": {
 							"currency": "USD",
 							"value": "2"
@@ -34,7 +34,7 @@ var createAndActivePayPalBillingPlan = function(next){
 									"value": "2.00"
 							},
 							"cycles": "0",
-							"frequency": "MONTH",
+							"frequency": "DAY",
 							"frequency_interval": "1",
 							"name": "Pago del test",
 							"type": "REGULAR"
@@ -86,7 +86,20 @@ module.exports = {
 		    } else {
 		        console.log("Billing Agreement Execute Response");
 		        console.log(JSON.stringify(billingAgreement));
-            return res.redirect("/papr");
+            Payment.create({user : req.user.id, billingAgreement : billingAgreement.id},function(err,payment){
+              if(err){
+                throw err;
+              }
+              var subscribedUntil = new Date();
+              subscribedUntil.setHours(0,0,0,0);
+              subscribedUntil.setMonth(subscribedUntil.getMonth() + 1);
+              User.update(req.user.id, {subscribedUntil : subscribedUntil }, function(err, updated){
+                if(err){
+                  throw err;
+                }
+                return res.redirect("/papr");
+              });
+            });
 		    }
 		});
 	},
@@ -105,7 +118,7 @@ module.exports = {
 		    "description": "Acuerdo para subcripcion a la page",
 		    "start_date": isoDate,
 		    "plan": {
-		        "id": "P-5G065982F24424329RUIIYAA"
+          "id": sails.config.paypal.billingPlanId
 		    },
 		    "payer": {
 		        "payment_method": "paypal"
@@ -113,7 +126,7 @@ module.exports = {
 		};
 		paypal.billingAgreement.create(billingAgreementAttributes, function (error, billingAgreement) {
 	      if (error) {
-	          console.log(error.response.details);
+	          console.log(error.response);
 	          throw error;
 	      } else {
 	          console.log("Create Billing Agreement Response");
@@ -124,7 +137,7 @@ module.exports = {
 	                  console.log(approval_url);
 	                  // See billing_agreements/execute.js to see example for executing agreement
 	                  // after you have payment token
-					  return res.redirect(approval_url);
+					          return res.redirect(approval_url);
 	              }
 	          }
 	      }
@@ -134,7 +147,49 @@ module.exports = {
   ipnListener : function(req,res,next){
     console.log("LISTENER");
     console.log(req.body);
-    console.log(req);
-    return res.ok();
+
+    if(req.body.resource.billing_agreement_id){
+      Payment.find({billingAgreement : req.body.resource.billing_agreement_id},function(err,payment){
+        if(err || !payment[0]){
+          console.log(err);
+          return res.ok();
+        }
+        User.findOne(payment[0].user).populate('payments').exec(function(err,user){
+        	if(err || !user){
+        		return res.ok();
+        	}
+ 			var today = new Date();
+ 			today.setMonth(today.getMonth() + 1);
+ 			today.setHours(0,0,0,0);
+        	if(user.subscribedUntil.valueOf() !== today.valueOf()){
+		        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
+		            if(err){
+		              return res.ok();
+		            }
+		            var newDate = user.subscribedUntil;
+		            newDate.setHours(0,0,0,0);
+		            newDate.setMonth(newDate.getMonth() + 1);
+		            console.log('FECHA NUEVA');
+		            console.log(newDate);
+		            User.update({id : user.id}, {subscribedUntil : newDate }, function(err, updated){
+		              if(err || !updated[0]){
+		                return res.ok();
+		              }
+		              console.log(updated[0]);
+		              return res.ok();
+		            });
+		        });
+	        }else{
+	          console.log('first time');
+	          return res.ok();
+	        }
+        });
+
+      });
+
+    }else{
+      return res.ok();
+    }
+
   }
 };

@@ -1,3 +1,4 @@
+require('date-utils');
 var User = {
   // Enforce model schema in the case of schemaless databases
   schema: true,
@@ -10,6 +11,8 @@ var User = {
     firstName : {type : 'string'},
     lastName : {type : 'string'},
     contactInfo: {type : 'json',defaultsTo:{firstName:null,lastName:null,telephones:[],location:{latitude:null,longitude:null},email:null,address:null}},
+    payments : { collection : 'Payment', via : 'user'},
+    subscribedUntil : {type: 'date',defaultsTo:null,date:true}
   }
 };
 

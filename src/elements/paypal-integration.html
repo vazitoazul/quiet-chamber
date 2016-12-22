@@ -1,5 +1,5 @@
 <dom-module id="paypal-integration">
-  <script src="http://www.paypalobjects.com/api/checkout.js" async></script>
+  <script src="https://www.paypalobjects.com/api/checkout.js" async></script>
   <template>
     pay pal
     <div id="paypalDiv"></div>
@@ -23,6 +23,7 @@
         this.payA.id = "myContainer";
         this.payA.action = this.buttonAction;
         document.body.appendChild(this.payA);
+        
         window.paypalCheckoutReady = function () {
           paypal.checkout.setup('YFRS3M7MDRHTW', {
               environment: 'sandbox',
