@@ -1,3 +1,7 @@
+var keys={
+  facebook:sails.config.passport.facebook.options.clientID,
+  google:sails.config.passport.google.options.clientID
+};
 /**
  * Authentication Controller
  *
@@ -67,7 +71,7 @@ var AuthController = {
       switch (action) {
         case 'register':
       // if the request is waiting for a jsno response it gets
-      // false fro success if not it redirect to root
+      // false for success if not it redirect to root
          if(!req.wantsJSON){
             res.redirect('/');
          }else{
@@ -82,10 +86,14 @@ var AuthController = {
           res.redirect('back');
         break;
         default:
-          res.json({success:false, error: challenges});
+          if(req.wantsJSON){
+            res.json({success:false, error: challenges});
+          }else{
+            res.redirect('/');
+          }
+
       }
     }
-
     passport.callback(req, res, function (err, user, challenges, statuses) {
       if (err || !user) {
         return tryAgain(challenges);
@@ -102,7 +110,7 @@ var AuthController = {
 
         // Upon successful login, return the user id
 
-        if(req.param('provider')){
+        if(!req.wantsJSON){
           return res.redirect('/acco');
         }else{
           return res.json({user : user.id,success:true});
@@ -120,6 +128,13 @@ var AuthController = {
    */
   disconnect: function (req, res) {
     passport.disconnect(req, res);
+  },
+
+  /**
+    Handle send to the client the key necesary to initialize any third party provider authenticator
+  */
+  key:function(req,res){
+    res.json({key:keys[req.param('provider')]});
   }
 };
 

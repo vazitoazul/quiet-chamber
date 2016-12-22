@@ -34,12 +34,13 @@ module.exports.routes = {
 
   //authentication routes
   'get /logout': 'AuthController.logout',
+  'get /auth/key/:provider': 'AuthController.key',
   'post /auth/local': 'AuthController.callback',
   'post /auth/local/:action': 'AuthController.callback',
 
   'get /auth/:provider': 'AuthController.provider',
-  'get /auth/:provider/callback': 'AuthController.callback',
-  'get /auth/:provider/:action': 'AuthController.callback',
+  'post /auth/:provider/callback': 'AuthController.callback',
+  'post /auth/:provider/:action': 'AuthController.callback',
 
 
   '/:page':'RouterController.redirect',
