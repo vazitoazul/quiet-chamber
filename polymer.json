@@ -8,7 +8,8 @@
     "src/fragments/forbidden-view.html",
     "src/fragments/servererror-view.html",
     "src/fragments/rgst-view.html",
-    "src/fragments/lgin-view.html"
+    "src/fragments/lgin-view.html",
+    "src/fragments/info-view.html"
   ],
   "sourceGlobs": [
    "src/**/*",
