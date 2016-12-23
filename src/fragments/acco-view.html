@@ -101,7 +101,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'must_enter_id' : 'you must enter your ID!',
                       'submit' : 'SUBMIT',
                       'credential_used' : 'this credential is already being used',
-                      'subscribed_until' : 'You are subscribed until'
+                      'subscribed_until' : 'You are subscribed until {start , date , medium}'
                     },
                     'es': {
                       'hello' : 'Hola',
@@ -112,7 +112,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'must_enter_id' : 'debes ingresar tu identificación!',
                       'submit' : 'ENVIAR',
                       'credential_used' : 'Esta credencial ya esta siendo usada',
-                      'subscribed_until' : 'Estas subscrito hasta'
+                      'subscribed_until' : 'Estas subscrito hasta {start, date , medium}'
 
                     }
                   }
@@ -152,7 +152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }else{
                   console.log('esta subscrito hasta');
                   console.log(this.user.subscribedUntil);
-                  this.set(['user','subscribedUntilParced'], this.user.subscribedUntil.getDay()+'/'+this.user.subscribedUntil.getMonth()+'/'+this.user.subscribedUntil.getYear() )
+                  this.set(['user','subscribedUntilParced'], this.localize('subscribedUntil', 'start' , user.subscribedUntil.getTime());
                   this.$.subscribedUntilDiv.hidden = false;
                 }
             }
