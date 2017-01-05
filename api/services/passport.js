@@ -66,7 +66,6 @@ passport.protocols = require('./protocols');
 passport.connect = function (req, query, profile, next) {
   var user = {}
     , provider;
-
   // Get the authentication provider from the query.
   query.provider = req.param('provider');
 
@@ -106,7 +105,6 @@ passport.connect = function (req, query, profile, next) {
     if (err) {
       return next(err);
     }
-
     if (!req.user) {
       // Scenario: A new user is attempting to sign up using a third-party
       //           authentication provider.
@@ -116,8 +114,8 @@ passport.connect = function (req, query, profile, next) {
        switch (provider){
           case 'facebook':
             user.mailVerified=true;
-            user.firstName=profile._json.first_name;
-            user.lastName=profile._json.last_name;
+            user.firstName=profile.first_name;
+            user.lastName=profile.last_name;
           break;
           case 'google':
             user.mailVerified=true;
