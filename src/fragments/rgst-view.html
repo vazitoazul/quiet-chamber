@@ -36,7 +36,7 @@
     </style>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
     <div class="container vertical center h-100">
-      <h2>Registrate</h2>
+      <h2>Regístrate</h2>
       <paper-card>
         <div class="card-content">
           <div class="row flex-items-xs-center">
@@ -80,42 +80,42 @@
       properties : {
 
         language : {
-          value : 'en'
+          value : 'es'
         },
 
         resources: {
                 value: function() {
                   return {
                     'en': {
-                      'email' : 'email',
-                      'password' : 'password' ,
-                      'confirmation' : 'repeat password',
-                      'submit' : 'submit',
-                      'reset' : 'reset',
-                      'pass_form' : 'must have 8 chars, one capital and one number',
-                      'email_form' : 'must be a valid email',
-                      'repeat_pass' : 'repeat the password',
+                      'email' : 'Email',
+                      'password' : 'Password' ,
+                      'confirmation' : 'Repeat password',
+                      'submit' : 'Submit',
+                      'reset' : 'Reset',
+                      'pass_form' : 'Must have 8 chars, one capital and one number',
+                      'email_form' : 'Must be a valid email',
+                      'repeat_pass' : 'Repeat the password',
                       'or' : 'or',
-                      'pass_not_match' : "the password confirmation doesn't match ",
-                      'not_robot' : "prove you are not a robot",
+                      'pass_not_match' : "The password confirmation doesn't match ",
+                      'not_robot' : "Prove you are not a robot",
                       'or_login' : "Or log in"
                     },
                     'es': {
-                      'email' : 'correo electrónico',
-                      'password' : 'contraseña' ,
-                      'confirmation' : 'repita contraseña',
+                      'email' : 'Correo electrónico',
+                      'password' : 'Contraseña' ,
+                      'confirmation' : 'Repita contraseña',
                       'submit' : 'Enviar',
                       'reset' : 'Limpiar forma',
-                      'pass_form' : 'debe tener al menos 8 caracteres, una letra mayúscula y un número',
-                      'email_form' : 'debe ser una dirección de correo válida',
-                      'repeat_pass' : 'repita la contraseña',
-                      'or' : 'or',
-                      'pass_not_match' : "las contraseñas no coinciden",
+                      'pass_form' : 'Debe tener al menos 8 caracteres, una letra mayúscula y un número',
+                      'email_form' : 'Debe ser una dirección de correo válida',
+                      'repeat_pass' : 'Repita la contraseña',
+                      'or' : 'o',
+                      'pass_not_match' : "Las contraseñas no coinciden",
                       'or_login' : "O inicia sesión"
                     }
                   }
               }
-            },
+            }
       },
 
       attached:function(e){

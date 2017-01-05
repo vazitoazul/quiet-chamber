@@ -36,7 +36,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         attr-for-selected="name"
         fallback-selection="notfound"
         role="main">
-      <main-view name="main"></main-view>
+      <main-view name="main" on-route-change="changeRoute"></main-view>
       <acco-view name="acco" on-route-change="changeRoute"></acco-view>
       <notfound-view name="notfound"></notfound-view>
       <forbidden-view name="forbidden"></forbidden-view>
@@ -44,6 +44,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <rgst-view name="rgst" on-route-change="changeRoute" ></rgst-view>
       <lgin-view name="lgin" on-route-change="changeRoute" ></lgin-view>
       <papr-view name="papr" on-route-change="changeRoute" ></papr-view>
+      <info-view name="info" on-route-change="changeRoute" ></info-view>
     </iron-pages>
   </template>
 
