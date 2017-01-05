@@ -1,10 +1,33 @@
 {
-	"en":{
-
-		"hello_world" : "hellow world"
-	},
 	"es":{
-
-		"hello_world" : "hela mundo"
+		"hello_world" : "Hola mundo",
+		"email" : "Correo electrónico",
+		"password" : "Contraseña" ,
+		"confirmation" : "repita contraseña",
+		"submit" : "Enviar",
+		"reset" : "Limpiar forma",
+		"pass_form" : "Debe tener al menos 8 caracteres, una letra mayúscula y un número",
+		"email_form" : "Debe ser una dirección de correo válida",
+		"repeat_pass" : "Repita la contraseña",
+		"or" : "or",
+		"pass_not_match" : "Las contraseñas no coinciden",
+		"or_login" : "O inicia sesión",
+		"login_error": "Error al crear tu cuenta"
+	},
+	"en":{
+		"hello_world" : "Hello world",
+		"email" : "Email",
+		"password" : "Password" ,
+		"confirmation" : "Repeat password",
+		"submit" : "Submit",
+		"reset" : "Reset",
+		"pass_form" : "Must have 8 chars, one capital and one number",
+		"email_form" : "Must be a valid email",
+		"repeat_pass" : "Repeat the password",
+		"or" : "or",
+		"pass_not_match" : "The password confirmation doesn't match ",
+		"not_robot" : "Prove you are not a robot",
+		"or_login" : "Or log in",
+		"login_error": "There was an error trying to create your account"
 	}
 }
