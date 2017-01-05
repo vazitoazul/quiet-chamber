@@ -8,11 +8,13 @@
     "bcryptjs": "^2.3.0",
     "bower": "^1.7.9",
     "connect-redis": "^3.0.2",
+    "date-utils": "^1.2.17",
     "ejs": "2.3.4",
     "fb": "^1.1.1",
     "google-auth-library": "^0.9.10",
     "google-recaptcha": "^1.0.2",
     "include-all": "~0.1.6",
+    "mailgun-js": "^0.8.0",
     "passport": "^0.3.2",
     "passport-custom": "^1.0.5",
     "passport-local": "^1.0.0",
@@ -24,8 +26,7 @@
     "request": "^2.79.0",
     "sails": "~0.12.1",
     "sails-disk": "~0.10.9",
-    "sails-mongo": "^0.12.1",
-    "date-utils": "^1.2.17"
+    "sails-mongo": "^0.12.1"
   },
   "scripts": {
     "postinstall": "bash ./post-install.sh",
