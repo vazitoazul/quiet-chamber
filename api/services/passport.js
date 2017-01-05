@@ -113,11 +113,12 @@ passport.connect = function (req, query, profile, next) {
       // Action:   Create a new user and assign them a passport.
       if (!passport) {
         //get information from third party
+        console.log(profile);
        switch (provider){
           case 'facebook':
             user.mailVerified=true;
-            user.firstName=profile._json.first_name;
-            user.lastName=profile._json.last_name;
+            user.firstName=profile.first_name;
+            user.lastName=profile.last_name;
           break;
           case 'google':
             user.mailVerified=true;

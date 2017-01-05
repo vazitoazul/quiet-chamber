@@ -105,8 +105,7 @@ module.exports = {
 	},
 
 	cancelPayment : function(req,res,next){
-		console.log('canceled');
-		return next();
+    return res.redirect('/acco/membership');
 	},
 
 	setExpressCheckout : function(req,res,next){
@@ -158,9 +157,9 @@ module.exports = {
         	if(err || !user){
         		return res.ok();
         	}
- 			var today = new Date();
- 			today.setMonth(today.getMonth() + 1);
- 			today.setHours(0,0,0,0);
+     			var today = new Date();
+     			today.setMonth(today.getMonth() + 1);
+     			today.setHours(0,0,0,0);
         	if(user.subscribedUntil.valueOf() !== today.valueOf()){
 		        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
 		            if(err){
@@ -184,12 +183,48 @@ module.exports = {
 	          return res.ok();
 	        }
         });
-
       });
 
     }else{
       return res.ok();
     }
 
+  }
+  ,
+  paymentTest : function(req,res,next){
+    console.log('called');
+    var isoDate = new Date();
+    isoDate.setSeconds(isoDate.getSeconds() + 60);
+    isoDate.toISOString().slice(0, 19) + 'Z';
+    var billingAgreementAttributes = {
+        "name": "Subcripcion para la pagina",
+        "description": "Acuerdo para subcripcion a la page",
+        "start_date": isoDate,
+        "plan": {
+          "id": sails.config.paypal.billingPlanId
+        },
+        "payer": {
+            "payment_method": "paypal"
+        }
+    };
+    paypal.billingAgreement.create(billingAgreementAttributes, function (error, billingAgreement) {
+        if (error) {
+            console.log(error.response);
+            throw error;
+        } else {
+            console.log("Create Billing Agreement Response");
+            for (var index = 0; index < billingAgreement.links.length; index++) {
+                if (billingAgreement.links[index].rel === 'approval_url') {
+                    var approval_url = billingAgreement.links[index].href;
+                    console.log("For approving subscription via Paypal, first redirect user to");
+                    console.log(billingAgreement.plan.id);
+                    console.log(approval_url);
+                    // See billing_agreements/execute.js to see example for executing agreement
+                    // after you have payment token
+                    return res.json({'paymentID' : billingAgreement.plan.id});
+                }
+            }
+        }
+    });
   }
 };

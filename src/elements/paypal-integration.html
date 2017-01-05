@@ -20,20 +20,28 @@
         this.payA.style.position = 'absolute';
         this.payA.method = 'POST'
         var position = this.$.paypalDiv.getBoundingClientRect();
-        this.payA.id = "myContainer";
+        this.payA.id = 'myContainer';
         this.payA.action = this.buttonAction;
+        this.payA.style.left = (position.left-1) + 'px';
+        this.payA.style.top = (position.top+1) + 'px';
+        this.payA.locale = 'ES';
+        this.payA.onClose = 'onClose';
         document.body.appendChild(this.payA);
-        
         window.paypalCheckoutReady = function () {
           paypal.checkout.setup('YFRS3M7MDRHTW', {
               environment: 'sandbox',
-              container: 'myContainer'
+              container: 'myContainer',
+              locale : 'ES'
             });
           };
       },
 
       detached : function(){
         document.body.removeChild(this.payA);
+      },
+
+      onClose : function(e){
+        window.location = '/';
       }
     });
   </script>
