@@ -16,11 +16,16 @@ module.exports = {
 		if(!newCredential){
 			return res.badRequest();
 		}
-		User.update({id : req.user.id}, {intlCredential : newCredential}, function(err,updated){
-			if(err){
-				return next(err);
+		User.findOne({intlCredential : newCredential},function(err,user){
+			if(user){
+				return next(new Error("Credential in use"));
 			}
-			return res.ok();
+			User.update({id : req.user.id}, {intlCredential : newCredential}, function(err,updated){
+				if(err){
+					return next(err);
+				}
+				return res.ok();
+			});
 		});
 	},
 

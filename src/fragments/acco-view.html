@@ -76,15 +76,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
       </app-drawer>
       <app-header-layout>
-      <app-header>
-       <app-toolbar>
-           <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-           <div main-title><span class="text-display-2">Dinabum</span></div>
-           <div class="hidden-sm-down">
-             <a href="/help"><paper-button>[[localize('help')]]</paper-button></a>
-           </div>
-       </app-toolbar>
-      </app-header>
+        <app-header>
+         <app-toolbar>
+             <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+             <div main-title><span class="text-display-2">Dinabum</span></div>
+             <div class="hidden-sm-down">
+               <a href="/help"><paper-button>[[localize('help')]]</paper-button></a>
+             </div>
+         </app-toolbar>
+        </app-header>
+      </app-header-layuout>
       <iron-pages selected='[[section]]' attr-for-selected="section">
         <section section="membership">
           <div class="card">
@@ -113,7 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
       </form>
     </paper-dialog>
-    <paper-toast id="toast" duration="5000" ></paper-toast>
+    <paper-toast id="toast" duration="5000"></paper-toast>
   </template>
 
   <script>
@@ -191,11 +192,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         Polymer.AppLocalizeBehavior
       ],
 
+
       currentUserHandler : function(e){
         var user = e.detail.__data__.response;
         user.subscribedUntil = user.subscribedUntil ? new Date(user.subscribedUntil): 0;
         if(user){
           this.set('user',user);
+          if(this.routeData.section === 'undefined'){
+            this.set('route.path','acco/userInfo');
+            return ;
+          }
           this.set('section',null);
           this.set('section',this.routeData.section ? this.routeData.section : 'userInfo');
         }else{
@@ -273,7 +279,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
           switch(newSection){
             case 'membership':
-            console.log('poniendo el paypal');
               Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
                 Polymer.dom(self.$.paypalDiv).removeChild(node);
               });

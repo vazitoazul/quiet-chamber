@@ -64,6 +64,7 @@ describe('AuthController', function(){
             })
             .end(done)
         });
+
 	});
 
 });
