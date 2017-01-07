@@ -65,12 +65,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ],
 
       _routePageChanged: function(page) {
-
         this.page = page || 'main';
       },
 
       _pageChanged: function(page) {
-        if(page==='auth'){
+        if(page==='auth' || page === 'logout'){
           window.location = this.route.path;
           return;
         }

@@ -79,13 +79,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <app-header>
        <app-toolbar>
            <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-           <div main-title><span class="text-display-2">Vazitoazul</span></div>
+           <div main-title><span class="text-display-2">Dinabum</span></div>
            <div class="hidden-sm-down">
-             <a href="/help"><paper-button>Ayuda</paper-button></a>
+             <a href="/help"><paper-button>[[localize('help')]]</paper-button></a>
            </div>
        </app-toolbar>
       </app-header>
-      <iron-pages selected="[[section]]" attr-for-selected="section">
+      <iron-pages selected='[[section]]' attr-for-selected="section">
         <section section="membership">
           <div class="card">
             <div id="paypalDiv"></div>
@@ -178,12 +178,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           section : {
             type: String,
-            value : 'userInfo',
             observer : 'sectionChangeObserver'
           },
 
           route : {
-            type : String,
+            type : Object,
             observer : 'routeDataObserver'
           }
       },
@@ -192,22 +191,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         Polymer.AppLocalizeBehavior
       ],
 
-      ready : function(){
-       this.$.currentUserRequester.generateRequest();
-      },
-
       currentUserHandler : function(e){
         var user = e.detail.__data__.response;
         user.subscribedUntil = user.subscribedUntil ? new Date(user.subscribedUntil): 0;
         if(user){
           this.set('user',user);
-          if(!this.user.intlCredential){
-            this.$.credentialDialog.open();
-          }else{
-            this.$.userInfo.user = this.user;
-            this.$.credentialDialog.close();
-            this.set('section',this.routeData.section);
-          }
+          this.set('section',null);
+          this.set('section',this.routeData.section ? this.routeData.section : 'userInfo');
         }else{
           this.fire('route-change',{route : 'forbidden'});
         }
@@ -256,7 +246,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if(e.detail.__data__.status == 200){
           this.$.currentUserRequester.generateRequest();
         }else{
-          this.updateIntlCredentialResponseHandler();
+          this.updateIntlCredentialErrorHandler();
         }
       },
 
@@ -268,45 +258,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       sectionChangeObserver : function(newSection,lastSection){
         var self = this;
-        if(newSection !== 'membership'){
-          Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
-            Polymer.dom(self.$.paypalDiv).removeChild(node);
-          });
+        if(!newSection){
+          return ;
         }
-        switch(newSection){
-          case 'membership':
+        if(!this.user.intlCredential){
+          this.$.credentialDialog.open();
+        }else{
+          this.$.userInfo.user = this.user;
+          this.$.credentialDialog.close();
+          if(newSection !== 'membership'){
             Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
-              Polymer.dom(self.$.paypalDiv).removeChild(node);
+            Polymer.dom(self.$.paypalDiv).removeChild(node);
             });
-            if(!this.user.subscribedUntil){
-                  this.paypal = document.createElement('paypal-integration');
-                  this.$.paypalDiv.appendChild(this.paypal);
-            }else{
-                var today = new Date();
-                today.setHours(0,0,0,0);
-                if(this.user.subscribedUntil.valueOf() < today.valueOf()){
-                  this.paypal = document.createElement('paypal-integration');
-                  this.$.paypalDiv.appendChild(this.paypal);
-                }else{
-                  this.set(['user','parsedSubscribedUntil'], this.localize('subscribed_until', 'start' , this.user.subscribedUntil.getTime()));
-                  this.$.subscribedUntilDiv.hidden = false;
-                }
+          }
+          switch(newSection){
+            case 'membership':
+            console.log('poniendo el paypal');
+              Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
+                Polymer.dom(self.$.paypalDiv).removeChild(node);
+              });
+              if(!this.user.subscribedUntil){
+                    this.paypal = document.createElement('paypal-integration');
+                    this.$.paypalDiv.appendChild(this.paypal);
+              }else{
+                  var today = new Date();
+                  today.setHours(0,0,0,0);
+                  if(this.user.subscribedUntil.valueOf() < today.valueOf()){
+                    this.paypal = document.createElement('paypal-integration');
+                    this.$.paypalDiv.appendChild(this.paypal);
+                  }else{
+                    this.set(['user','parsedSubscribedUntil'], this.localize('subscribed_until', 'start' , this.user.subscribedUntil.getTime()));
+                    this.$.subscribedUntilDiv.hidden = false;
+                  }
+              }
+            break;
+            case 'userInfo':
+            break;
             }
-            this.set('route.path','acco/membership');
-          break;
-          case 'userInfo':
-            this.set('route.path','acco/userInfo');
-          break;
-          default :
-            this.set('section','userInfo');
-        }
-      },
+          }
+        },
 
-      routeDataObserver: function(newData,lastData){
-        if(this.user && this.routeData.section !== this.section){
-          this.set('section',this.routeData.section);
+        routeDataObserver: function(newData,lastData){
+          if(this.route.path.substring(0,5) === '/acco'){
+            if(this.user){
+              if(this.routeData){
+                this.set('section',null);
+                this.set('section',this.routeData.section ? this.routeData.section : 'userInfo');
+              }else{
+                this.set('section',null);
+                this.set('section','userInfo');
+              }
+            }else{
+              this.$.currentUserRequester.generateRequest();
+            }
+          }else{
+            this.$.credentialDialog.close();
+          }
         }
-      }
+
     });
   </script>
 </dom-module>
