@@ -16,6 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstore/app-localstore-document.html">
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
@@ -47,10 +48,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-drawer-panel responsive-width="960px">
       <div drawer>
         <paper-menu class="row">
-            <paper-icon-item onclick="page('userInfo')"><iron-icon item-icon icon="verified-user"></iron-icon>Mi informacion</paper-icon-item> 
+            <paper-icon-item onclick="page('userInfo')"><iron-icon item-icon icon="verified-user"></iron-icon>Mi informacion</paper-icon-item>
             <br>
             <paper-icon-item onclick="page('membership')"><iron-icon item-icon icon="card-membership"></iron-icon>Membresia</paper-icon-item>
-        </paper-menu> 
+        </paper-menu>
       </div>
       <paper-scroll-header-panel class="flex" main id="scroller">
 <!--         <iron-pages selected="[[section]]" attr-for-selected="section">

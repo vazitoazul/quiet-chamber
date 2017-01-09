@@ -43,5 +43,49 @@ module.exports = {
 			console.log(updated[0]);
 			return res.ok(updated[0]);
 		});
+	},
+	verifyMail:function(req,res,next){
+		var token = req.param('token');
+		if(!token){return res.badRequest()}
+		Token.consumeToken(token,(err,user)=>{
+			if(err){
+				if(err.tokenNotFound){
+					return res.redirect('/mvf/failure');
+				}else{
+					return next(err);
+				}
+			}
+			User.update(user.id,{mailVerified:true},(err,updated)=>{
+				if(err)return next(err);
+				res.redirect('/mvf/success');
+			});
+
+		});
+	},
+	getMailVerification:function(req,res,next){
+		User.findOne(req.user.id).populate('tokens',{rol:'m'}).exec((err,user)=>{
+			if(err)return next(err);
+			if(user.tokens.length>0||user.mailVerified){
+				res.ok({success:false});
+			}else{
+				var expireAt= (new Date()).add({days:7});
+				var tok={user:user.id,rol:'m',expireAt:expireAt};
+				Token.createToken(tok,(err,token)=>{
+					if(err)return next(err);
+					var info={
+						url:'https://dinabun.com/verifyMail/'+token
+					};
+					var destination = {
+						to:user.email,
+						subject:'Confirmación de correo'
+					};
+					mailgun.send('mailVerification',info,destination,(err,result)=>{
+						if(err) return next(err);
+						res.ok({success:true,address:user.email});
+					});
+				});
+			}
+
+		});
 	}
 }

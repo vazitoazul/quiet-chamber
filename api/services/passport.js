@@ -116,11 +116,13 @@ passport.connect = function (req, query, profile, next) {
             user.mailVerified=true;
             user.firstName=profile.first_name;
             user.lastName=profile.last_name;
+            user.mailVerified=true;
           break;
           case 'google':
             user.mailVerified=true;
             user.firstName=profile.name.givenName;
             user.lastName=profile.name.familyName;
+            user.mailVerified=true;
           break;
         }
         User.create(user, function (err, user) {

@@ -234,7 +234,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.spinner.active = false;
         this.$.spinner.hidden = true;
         if(!response.success){
-          this.$.toast.text = localize(response.error);
+          this.$.toast.text = this.localize(response.error);
           this.$.toast.open();
           this.recaptcha.reload();
           this.set('recaptchaResponse',false);
