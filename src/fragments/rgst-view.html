@@ -9,10 +9,13 @@
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../my-icons.html">
 <link rel="import" href="../elements/facebook-login.html">
 <link rel="import" href="../elements/google-login.html">
+<link rel="import" href="../fragments/lgin-view.html">
 
 <dom-module id="rgst-view">
   <template>
@@ -30,18 +33,24 @@
         border-color: #bdced7;
         border-width: 0 0 1px 0;
       }
-      div#recaptcha{
-        height: 100px;
+      div#recaptchaDiv{
+        height: 5rem;
       }
     </style>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="/:route/:section"
+        data="{{routeData}}"
+        tail="{{subroute}}"></app-route>
     <div class="container vertical center h-100">
       <h2>Regístrate</h2>
       <paper-card>
         <div class="card-content">
           <div class="row flex-items-xs-center">
-            <facebook-login on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></facebook-login>
-            <google-login on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></google-login>
+            <facebook-login recommender=[[recommender]] on-user-logged="routeChangedHandler" on-show-message="showMessage"></facebook-login>
+            <google-login recommender=[[recommender]] on-user-logged="routeChangedHandler" on-show-message="showMessage"></google-login>
           </div>
           <div class="divider text-xs-center">
             <span>[[localize('or')]]</span>
@@ -52,7 +61,8 @@
         	  <paper-input name="confirmation" id="confirmation" label="[[localize('confirmation')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('repeat_pass')]]"></paper-input>
             <br>
             <input hidden name="g-recaptcha-response" value="[[recaptchaToken]]">
-            <div id="recaptcha"></div>
+            <input hidden name="recommender" value="[[recommender]]">
+            <div id="recaptchaDiv"></div>
       	  </form>
         </div>
         <div class="card-actions horizontal">
@@ -65,6 +75,7 @@
       </paper-card>
       <div class="output"></div>
       <h4><a href="/lgin">[[localize('or_login')]]</a></h4>
+      <lgin-view recommender="[[recommender]]" on-route-change="routeChangedHandler"></lgin-view>
     </div>
 	  <paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
@@ -98,7 +109,7 @@
                       'or' : 'or',
                       'pass_not_match' : "The password confirmation doesn't match ",
                       'not_robot' : "Prove you are not a robot",
-                      'or_login' : "Or log in"
+                      'or_login' : "Or"
                     },
                     'es': {
                       'email' : 'Correo electrónico',
@@ -111,15 +122,26 @@
                       'repeat_pass' : 'Repita la contraseña',
                       'or' : 'o',
                       'pass_not_match' : "Las contraseñas no coinciden",
-                      'or_login' : "O inicia sesión"
+                      'or_login' : "O"
                     }
                   }
               }
-            }
-      },
+            },
 
-      attached:function(e){
-        this._setUpRecaptcha();
+          recommender : {
+            type: String,
+            value: null
+          },
+
+          route : {
+            type: String,
+            observer : 'routeObserver'
+          },
+
+          recaptchaToken : {
+            type: String
+          }
+
       },
 
       detached:function(e){
@@ -127,15 +149,19 @@
       },
 
       _setUpRecaptcha:function(){
+        if(document.querySelector('#recaptchaElement')){
+          document.body.removeChild(document.querySelector('#recaptchaElement'));
+        }
         this.recaptcha = document.createElement('re-captcha');
         this.recaptcha.style.position = 'absolute';
-        var position = this.$.recaptcha.getBoundingClientRect();
+        console.log('setting recaptcha');
+        var position = this.$.recaptchaDiv.getBoundingClientRect();
+        this.recaptcha.id = "recaptchaElement";
         this.recaptcha.style.left = (position.left-6) + 'px';
-        this.recaptcha.style.top = (position.top+28) + 'px';
+        this.recaptcha.style.top = (position.top) + 'px';
         this.recaptcha.setAttribute('sitekey','6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq');
         var self=this;
         this.recaptcha.addEventListener('captcha-response',function(e){
-          console.log('response');
           self.recaptchaToken=e.detail.response;
           self.set('recaptchaResponse',true);
         });
@@ -173,7 +199,7 @@
           this.set('recaptchaResponse',false);
         }else if(response.user){
           //fire app route change event
-          this.fire('route-change',{ route : 'acco'});
+          this.changeRoute();
         }
 
       },
@@ -185,8 +211,26 @@
       reset : function(e){
         this.$.registerForm.reset();
       },
-      handleThirdPartyLogin:function(e){
+
+      routeChangedHandler:function(e){
+        this.changeRoute();
+      },
+
+      changeRoute : function(){
+        if(this.route.path.substring(0,5) === '/recw'){
+          window.location = this.route.path;
+          return;
+        }
         this.fire('route-change',{ route : 'acco'});
+      },
+
+      routeObserver : function(newValue,lastValue){
+        if(this.route.path == '/rgst'){
+          var self = this;
+          if(!document.querySelector('#recaptchaElement')){
+            setTimeout(function(){ self._setUpRecaptcha() }, 100);
+          }
+        }
       }
 
     });

@@ -1,0 +1,242 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/app-layout/app-grid/app-grid-style.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/re-captcha/re-captcha.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../elements/main-toolbar.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../fragments/rgst-view.html">
+
+<dom-module id="recw-view">
+  <style include="app-grid-style shared-styles">
+    div#recaptchaStaf{
+      height: 100px;
+    }
+    .content{
+      padding: 3rem;
+    }
+    paper-dialog {
+      width: 52rem;
+    }
+    paper-button#confirmButton{
+      height: 4rem;
+      margin-top: 2rem;
+    }
+  </style>
+  <template>
+    <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+      route="{{route}}"
+      pattern="/:page/:recommenderId"
+      data="{{data}}"
+      tail="{{tail}}"></app-route>
+    <iron-ajax
+      id="getRecommenderRequester"
+      url="/getRecommenderUser"
+      handle-as="json"
+      on-response="recommendedUserhandleResponse"
+      on-error="recommendedUserhandleError"></iron-ajax>
+    <iron-ajax
+      id="setRecommenderRequester"
+      url="/setRecommender"
+      handle-as="json"
+      on-response="setRecommendedHandleResponse"
+      on-error="setRecommendedHandleError"></iron-ajax>
+    <app-drawer-layout>
+      <main-toolbar></main-toolbar>
+      <iron-pages selected="[[section]]" attr-for-selected="section">
+        <section class="col" section="noLogged">
+          <h5 class="content col-sm-7 offset-sm-2">[[localize('log_in_or_register','recommender',recommender.firstName)]]</h5>
+          <rgst-view id="registerView"></rgst-view>
+        </section>
+        <section class="col" section="malformed">
+          <div class="content col-sm-7 offset-sm-2">
+            <h4>[[localize('malformed_url')]]</h4>
+          </div>
+        </section>
+        <section class="col" section="changeRecommender">
+          <div class="content col-sm-7 offset-sm-2">
+            <h5>[[localize('change_recommender','lastRecommender',user.recommender.firstName,'newRecommender',recommender.firstName)]]</h5>
+            <paper-button raised class="secondary col-sm-3 offset-sm-4" on-click="openDialog">[[localize('change')]]</paper-button>
+          </div>
+        </section>
+        <section class="col" section="setRecommender">
+          <div class="content col-sm-7 offset-sm-2">
+            <h4>[[localize('set_new_recommender','recommender',recommender.firstName)]]</h4>
+            <paper-button raised class="primary col-sm-3 offset-sm-4" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
+          </div>
+        </section>
+        <section class="col" section="sameRecommenderThanBefore">
+          <div class="content col-sm-7 offset-sm-2">
+            <h4>[[localize('same_recommender_than_before','recommender',recommender.firstName)]]</h4>
+          </div>
+        </section>
+      </iron-pages>
+      <paper-toast duration="5000" id="toast"></paper-toast>
+      <paper-dialog class="row" id="dialog" with-backdrop>
+        <h5 class="col-sm-10">[[localize('confirm_change','lastRecommender',user.recommender.firstName,'newRecommender',recommender.firstName)]]</h5>
+        <paper-button id="confirmButton" raised class="primary col-sm-3 offset-sm-4" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
+      </paper-dialog>
+    </app-drawer-layout>
+  </template>
+  <script>
+    Polymer({
+      is : 'recw-view',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior
+      ],
+
+      properties : {
+        section : {
+          type : String,
+          observer : 'sectionObserver'
+        },
+        route : {
+          type : Object,
+          observer : 'routeObserver'
+        },
+        user : {
+          type : Object
+        },
+        recommender : {
+          type : Object
+        },
+        resources : {
+          value : function(){
+            return {
+              'en' : {
+                'log_in_or_register' : 'Logg in first in order to be a recommended of {recommender} or register under this recommender',
+                'malformed_url' : 'You are trying to access a malformed url or you are tryng to be your recommender. Try it again with a new url =) ',
+                'same_recommender_than_before': 'You are already a recommended of {recommender} ! =)',
+                'change_recommender' : 'You are a recommended of {lastRecommender}, would you like to be a recommended of {newRecommender} ?',
+                'change':'Change',
+                'confirm_change' : 'Are you sure you want to change your recommender {lastRecommender} to {newRecommender} ?',
+                'confirm' : 'Confirm',
+                'recommender_set' : 'You have changed your recommender {recommender}',
+                'recommender_set_error' : 'Thera was an error changing the recommender try again with a new one',
+                'set_new_recommender' : 'You have been recommended by {recommender} confirm it in order to be under his/her line',
+                'recommender_no_name' : 'no name recommender'
+              },
+              'es' : {
+                'log_in_or_register' : 'Inicia sesión para que puedas ser recomendado de {recommender} o registrate bajo su recomendación',
+                'malformed_url' : 'Estas accediendo a una direccion equivocada o estas tratando de ser recomendado de ti mismo. Inténtalo denuevo =) ',
+                'same_recommender_than_before': 'Tu ya eres recomendado de {recommender} ! =)',
+                'change_recommender' : 'Tu eres recomendado bajo {lastRecommender}, deseas cambiarte a ser recomendado de {newRecommender} ?',
+                'change':'Cambiar',
+                'confirm_change' : 'Estas seguro que quieres cambiar la persona que te recomendó de {lastRecommender} a {newRecommender}',
+                'confirm' : 'Confirmar',
+                'recommender_set' : 'Has cambiado la persona que te recomendó a {recommender}',
+                'recommender_set_error' : 'Hubo un error cambiando tu recommendador intenta con otro',
+                'set_new_recommender' : 'Has sido recomendado por {recommender} confirma para estar en su linea',
+                'recommender_no_name' : 'Recomendador sin nombre'
+              }
+            }
+          }
+        },
+        language :{
+          tpye : String,
+          value : 'en'
+        },
+      },
+
+      routeObserver : function(newPage,lastPage){
+        if(this.data && this.data.recommenderId){
+          this.$.getRecommenderRequester.params = { id : this.data.recommenderId};
+          this.$.getRecommenderRequester.generateRequest();
+        }else{
+          this.set('section','malformed');
+        }
+      },
+
+      recommendedUserhandleResponse : function(e){
+        var response = e.detail.__data__.response;
+        this.set('user',response.user);
+        this.set('recommender',response.recommender);
+        if(response.recommender == ''){
+          this.set('section','malformed');
+          return;
+        }
+        if(!this.recommender.firstName){
+          this.set(['recommender','firstName'],this.localize('recommender_no_name'));
+        }
+        if(response.user == ''){
+          this.set('section','noLogged');
+          return;
+        }
+        if(!response.user.recommender){
+          this.set('section','setRecommender');
+        }else{
+          if(!response.user.recommender.firstName){
+            this.set(['user','recommender','firstName'],this.localize('recommender_no_name'));
+          }
+          if(response.user.recommender.id == this.recommender.id){
+            this.set('section','sameRecommenderThanBefore');
+            return;
+          }
+          this.set('section','changeRecommender');
+        }
+      },
+
+      sectionObserver : function(newSection,lastSection){
+        switch(newSection){
+            case 'noLogged':
+              this.$.registerView.recommender = this.recommender.id;
+              this.$.registerView._setUpRecaptcha();
+            break;
+            default :
+            if(document.querySelector('#recaptchaElement')){
+              document.body.removeChild(document.querySelector('#recaptchaElement'));
+            }
+        }
+      },
+
+      openDialog : function(){
+        this.$.dialog.toggle();
+      },
+
+      changeRecommender : function(){
+        this.$.setRecommenderRequester.params = {
+          recommender : this.recommender.id
+        }
+        this.$.setRecommenderRequester.generateRequest();
+      },
+
+      showToast : function(message){
+        this.$.toast.text = message;
+        this.$.toast.show();
+      },
+
+      setRecommendedHandleResponse : function(e){
+        console.log(e);
+        if(e.detail.__data__.status == 200){
+          this.showToast(this.localize('recommender_set','recommender',this.recommender.firstName));
+          this.$.getRecommenderRequester.generateRequest();
+        }else{
+          this.showToast(this.localize('recommender_set_error'));
+        }
+        this.$.dialog.close();
+      },
+
+      setRecommendedHandleError : function(){
+        this.showToast(this.localize('recommender_set_error'));
+        this.$.getRecommenderRequester.generateRequest();
+      }
+
+    });
+  </script>
+</dom-module>

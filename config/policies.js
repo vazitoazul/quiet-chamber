@@ -28,6 +28,8 @@ module.exports.policies = {
   'UserController' : {
     'getCurrentUser' : ['passport','sessionAuth'],
     'updateIntlCredential' : ['passport','sessionAuth'],
+    'getRecommenderUser' : ['passport'],
+    'setRecommender' : ['passport','sessionAuth'],
     '*' : ['passport','sessionAuth','intlCredential']
   },
 

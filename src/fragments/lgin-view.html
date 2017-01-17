@@ -37,8 +37,8 @@
   <paper-card>
     <div class="card-content">
       <div class="row flex-items-xs-center">
-        <facebook-login on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></facebook-login>
-        <google-login on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></google-login>
+        <facebook-login recommender="[[recommender]]" on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></facebook-login>
+        <google-login recommender="[[recommender]]" on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></google-login>
       </div>
       <form is="iron-form" method="POST" action="/auth/local" on-iron-form-response= "responseHandler" id="registerForm">
       	  <paper-input name="identifier" label="[[localize('email')]]" required auto-validate  error-message="[[localize('email_form')]]"></paper-input>
@@ -92,6 +92,9 @@
                   }
               }
             },
+          recommender : {
+            type : String
+          }
       },
 
       submit : function(e){

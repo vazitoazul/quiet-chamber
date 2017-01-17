@@ -53,6 +53,11 @@
   <script>
     Polymer({
       is: 'facebook-login',
+      properties:{
+        recommender : {
+          type : String
+        }
+      },
       login:function(){
         self=this;
         FB.getLoginStatus(function(response){
@@ -98,7 +103,10 @@
           // Logged into your app and Facebook.
           this.$.loginAjax.body={
             token:response.authResponse.accessToken,
-            userID:response.authResponse.userID};
+            userID:response.authResponse.userID,
+            recommender : this.recommender
+          };
+          console.log(this.recommender);
           this.$.loginAjax.generateRequest();
         } else {
           this.fire('show-message','error_log_with_fb');
