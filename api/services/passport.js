@@ -69,8 +69,6 @@ passport.connect = function (req, query, profile, next) {
     , recommender = req.session.recommender;
   // Get the authentication provider from the query.
   query.provider = req.param('provider');
-  console.log('el recommender');
-  console.log(req.session.recommender);
   // Use profile.provider or fallback to the query.provider if it is undefined
   // as is the case for OpenID, for example
   provider = profile.provider || query.provider;
@@ -102,7 +100,7 @@ passport.connect = function (req, query, profile, next) {
   }
 
   User.findOne({ id : recommender}, function(err , newRecommender){
-    if(!err&&newRecommender){
+    if(newRecommender && Object.keys(newRecommender.recommended).length < 4 && !err){
       user.recommender = newRecommender.id;
     }
     Passport.findOne({
@@ -150,7 +148,7 @@ passport.connect = function (req, query, profile, next) {
               if (err) {
                 return next(err);
               }
-              if(newRecommender){
+              if(newRecommender && Object.keys(newRecommender.recommended).length < 4){
                 newRecommender.recommended[user.id] = true;
                 newRecommender.save(function(err,saved){
                   next(err, user);
@@ -254,7 +252,6 @@ passport.callback = function (req, res, next) {
   var provider = req.param('provider', 'local')
     , action   = req.param('action')
     , recommender = req.param('recommender');
-    console.log(recommender);
   if(recommender){
     req.session.recommender = recommender;
   }

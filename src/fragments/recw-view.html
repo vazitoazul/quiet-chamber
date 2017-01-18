@@ -85,6 +85,11 @@
             <h4>[[localize('same_recommender_than_before','recommender',recommender.firstName)]]</h4>
           </div>
         </section>
+        <section class="col" section="recommendedFull">
+          <div class="content col-sm-7 offset-sm-2">
+            <h4>[[localize('recommended_full','recommender',recommender.firstName)]]</h4>
+          </div>
+        </section>
       </iron-pages>
       <paper-toast duration="5000" id="toast"></paper-toast>
       <paper-dialog class="row" id="dialog" with-backdrop>
@@ -130,7 +135,8 @@
                 'recommender_set' : 'You have changed your recommender {recommender}',
                 'recommender_set_error' : 'Thera was an error changing the recommender try again with a new one',
                 'set_new_recommender' : 'You have been recommended by {recommender} confirm it in order to be under his/her line',
-                'recommender_no_name' : 'no name recommender'
+                'recommender_no_name' : 'no name recommender',
+                'recommended_full':'The user {recommender} has already all the recommended, try with other one!'
               },
               'es' : {
                 'log_in_or_register' : 'Inicia sesión para que puedas ser recomendado de {recommender} o registrate bajo su recomendación',
@@ -143,7 +149,8 @@
                 'recommender_set' : 'Has cambiado la persona que te recomendó a {recommender}',
                 'recommender_set_error' : 'Hubo un error cambiando tu recommendador intenta con otro',
                 'set_new_recommender' : 'Has sido recomendado por {recommender} confirma para estar en su linea',
-                'recommender_no_name' : 'Recomendador sin nombre'
+                'recommender_no_name' : 'Recomendador sin nombre',
+                'recommended_full':'El/la usuario {recommender} ya tiene todos los recomendados, intenta con otro!'
               }
             }
           }
@@ -173,6 +180,10 @@
         }
         if(!this.recommender.firstName){
           this.set(['recommender','firstName'],this.localize('recommender_no_name'));
+        }
+        if(Object.keys(this.recommender.recommended).length >= 4){
+          this.set('section','recommendedFull');
+          return;
         }
         if(response.user == ''){
           this.set('section','noLogged');

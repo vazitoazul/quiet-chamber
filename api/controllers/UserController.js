@@ -7,7 +7,11 @@ module.exports = {
 			if(!user){
 				return res.badRequest();
 			}
-			return res.json(user);
+			User.find({recommender : user.id}, (err,found) => {
+				if(err) return res.badRequest();
+				user.recommended = found;
+				return res.json(user);
+			});
 		});
 	},
 
@@ -92,13 +96,12 @@ module.exports = {
 			return res.badRequest();
 		}
 		User.findOne({id : recommender},(err, newRecommender) => {
-			if(!newRecommender || err){
+			if(!newRecommender || Object.keys(newRecommender.recommended).length >= 4 || err){
 				return res.badRequest();
 			}
 			if(newRecommender.id === currentUser.id){
 				return res.badRequest();
 			}
-
 			User.findOne({id : req.user.recommender },(err,lastRecommender) => {
 				if(err)return res.badRequest();
 				if(lastRecommender){

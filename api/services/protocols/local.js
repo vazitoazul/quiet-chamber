@@ -54,7 +54,7 @@ exports.register = function (req, res, next) {
              var newUser = {
                email : email
              }
-             if(!err&&recommender){
+             if(recommender && Object.keys(recommender.recommended).length < 4 && !err){
                newUser['recommender'] = recommender.id;
              }
              User.create(newUser, function (err, user) {
@@ -84,7 +84,7 @@ exports.register = function (req, res, next) {
                       next(destroyErr || err);
                     });
                   }
-                  if(recommender){
+                  if(recommender && Object.keys(recommender.recommended).length < 4 ){
                     recommender.recommended[user.id] = true;
                     recommender.save(function (err,saved) {
                       next(null, user);
