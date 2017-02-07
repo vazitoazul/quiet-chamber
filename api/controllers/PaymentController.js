@@ -188,43 +188,13 @@ module.exports = {
     }else{
       return res.ok();
     }
+  },
 
-  }
-  ,
-  paymentTest : function(req,res,next){
-    console.log('called');
-    var isoDate = new Date();
-    isoDate.setSeconds(isoDate.getSeconds() + 60);
-    isoDate.toISOString().slice(0, 19) + 'Z';
-    var billingAgreementAttributes = {
-        "name": "Subcripcion para la pagina",
-        "description": "Acuerdo para subcripcion a la page",
-        "start_date": isoDate,
-        "plan": {
-          "id": sails.config.paypal.billingPlanId
-        },
-        "payer": {
-            "payment_method": "paypal"
-        }
-    };
-    paypal.billingAgreement.create(billingAgreementAttributes, function (error, billingAgreement) {
-        if (error) {
-            console.log(error.response);
-            throw error;
-        } else {
-            console.log("Create Billing Agreement Response");
-            for (var index = 0; index < billingAgreement.links.length; index++) {
-                if (billingAgreement.links[index].rel === 'approval_url') {
-                    var approval_url = billingAgreement.links[index].href;
-                    console.log("For approving subscription via Paypal, first redirect user to");
-                    console.log(billingAgreement.plan.id);
-                    console.log(approval_url);
-                    // See billing_agreements/execute.js to see example for executing agreement
-                    // after you have payment token
-                    return res.json({'paymentID' : billingAgreement.plan.id});
-                }
-            }
-        }
+  create: function(req,res,next){
+    Payment.create({user : req.param('user')},function(err,payment){
+      console.log('yes')
+      console.log(err)
+      return res.json(payment);
     });
   }
 };

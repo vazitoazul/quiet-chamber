@@ -59,6 +59,7 @@ exports.register = function (req, res, next) {
              }
              User.create(newUser, function (err, user) {
                 if (err) {
+                  console.log(err);
                   if (err.code === 'E_VALIDATION') {
                     if (err.invalidAttributes.email) {
                       return next(err,null,{message:'user_already_exists'});

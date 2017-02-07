@@ -55,7 +55,8 @@ module.exports.routes = {
   '/returnPaypal' : 'PaymentController.returnPayment',
   '/paypalipn' : 'PaymentController.ipnListener',
   '/getRecommenderUser' : 'UserController.getRecommenderUser',
-  '/setRecommender' : 'UserController.setRecommender'
+  '/setRecommender' : 'UserController.setRecommender',
+  '/create' : 'PaymentController.create'
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

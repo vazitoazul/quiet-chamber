@@ -23,7 +23,9 @@ var User = {
     payments : { collection : 'Payment', via : 'user'},
     subscribedUntil : {type: 'date',defaultsTo:null,date:true},
     recommender : {type : 'string', defaultsTo : null},
-    recommended : {type:'json',defaultsTo:{}, recommended :true}
+    recommended : {type:'json',defaultsTo:{}, recommended :true},
+    totalBalance : { type:'float'},
+    balance : { type : 'array', defaultsTo : []}
   }
 };
 

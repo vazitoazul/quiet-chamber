@@ -232,7 +232,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.$.spinner.hidden = false;
             this.$.registerForm.submit();
           }else{
-            this.$.toast.text = this.localize('not_robot');
+            this.$.toast.text = 'roboto';
             this.$.toast.open();
           }
         }
@@ -244,6 +244,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.spinner.active = false;
         this.$.spinner.hidden = true;
         if(!response.success){
+          console.log('no paso');
+          console.log(response.error);
           this.$.toast.text = this.localize(response.error);
           this.$.toast.open();
           this.recaptcha.reload();
