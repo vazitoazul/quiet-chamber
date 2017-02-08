@@ -11,17 +11,18 @@ describe('UserController',function(){
     var recommender;
     var currentUser;
     var newRecommender;
-    before(function() {
-      user
-        .post('/auth/local')
-        .send({identifier : 'test@test.com',password : 'testtest'})
-        .expect(res => {
-          currentUser = res.body.user;
-        })
-        .end(function(err,next){
-        });
-    });
+
     describe('update information', function(){
+      before(function() {
+        user
+          .post('/auth/local')
+          .send({identifier : 'test@test.com',password : 'testtest'})
+          .expect(res => {
+            currentUser = res.body.user;
+          })
+          .end(function(err,next){
+          });
+      });
       before(function() {
         request(sails.hooks.http.app)
           .post('/auth/local/register')
@@ -51,9 +52,6 @@ describe('UserController',function(){
           .end(done)
       });
 
-    });
-
-    describe('get recommender user',function(){
       it('should update user intlCredential',function(done){
           user
             .post('/updateintlcredential')
@@ -61,6 +59,11 @@ describe('UserController',function(){
             .expect(200)
             .end(done)
       });
+
+    });
+
+    describe('get recommender user',function(){
+
 
       it('should get a response with user and recommender undefined',function(done){
           request(sails.hooks.http.app)
