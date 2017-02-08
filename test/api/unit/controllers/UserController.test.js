@@ -52,6 +52,9 @@ describe('UserController',function(){
           .end(done)
       });
 
+    });
+
+    describe('get recommender user',function(){
       it('should update user intlCredential',function(done){
           user
             .post('/updateintlcredential')
@@ -59,11 +62,6 @@ describe('UserController',function(){
             .expect(200)
             .end(done)
       });
-
-    });
-
-    describe('get recommender user',function(){
-
 
       it('should get a response with user and recommender undefined',function(done){
           request(sails.hooks.http.app)

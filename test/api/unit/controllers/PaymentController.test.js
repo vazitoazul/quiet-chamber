@@ -30,7 +30,7 @@ describe('PaymentController',function(){
     });
 
     it('should redirect to paypal approving url',function(done){
-        this.timeout(10000);
+        this.timeout(5000);
         user
           .get('/checkoutPayment')
           .expect(function(res,err){
