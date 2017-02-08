@@ -1,7 +1,7 @@
 var request = require('supertest');
 var chai = require('chai')
   , should = chai.should();
-var user = request.agent('http://localhost:9000');
+var user = request.agent('http://localhost:80');
 
 
 describe('PaymentController',function(){
@@ -30,7 +30,7 @@ describe('PaymentController',function(){
     });
 
     it('should redirect to paypal approving url',function(done){
-        this.timeout(5000);
+        this.timeout(10000);
         user
           .get('/checkoutPayment')
           .expect(function(res,err){
