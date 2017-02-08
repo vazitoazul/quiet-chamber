@@ -105,8 +105,7 @@ module.exports = {
 	},
 
 	cancelPayment : function(req,res,next){
-		console.log('canceled');
-		return next();
+    return res.redirect('/acco/membership');
 	},
 
 	setExpressCheckout : function(req,res,next){
@@ -158,9 +157,9 @@ module.exports = {
         	if(err || !user){
         		return res.ok();
         	}
- 			var today = new Date();
- 			today.setMonth(today.getMonth() + 1);
- 			today.setHours(0,0,0,0);
+     			var today = new Date();
+     			today.setMonth(today.getMonth() + 1);
+     			today.setHours(0,0,0,0);
         	if(user.subscribedUntil.valueOf() !== today.valueOf()){
 		        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
 		            if(err){
@@ -184,12 +183,18 @@ module.exports = {
 	          return res.ok();
 	        }
         });
-
       });
 
     }else{
       return res.ok();
     }
+  },
 
+  create: function(req,res,next){
+    Payment.create({user : req.param('user')},function(err,payment){
+      console.log('yes')
+      console.log(err)
+      return res.json(payment);
+    });
   }
 };

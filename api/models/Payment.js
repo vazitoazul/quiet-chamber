@@ -9,6 +9,7 @@ module.exports = {
 
   attributes: {
     user: { model: 'User', required: true },
-    billingAgreement : { type: 'string'}
+    billingAgreement : { type: 'string'},
+    confirmed : { type: 'boolean', defaultsTo : false }
   }
 };

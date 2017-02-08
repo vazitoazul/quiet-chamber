@@ -88,7 +88,8 @@
             token: authResponse.id_token,
             email: profile.getEmail(),
             familyName: profile.getFamilyName(),
-            givenName:profile.getGivenName()
+            givenName:profile.getGivenName(),
+            recommender : this.recommender
           };
           this.$.loginAjax.generateRequest();
         }

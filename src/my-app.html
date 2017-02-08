@@ -31,7 +31,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         pattern="/:page"
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
-
     <iron-pages
         selected="[[page]]"
         attr-for-selected="name"
@@ -46,6 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <lgin-view name="lgin" on-route-change="changeRoute" ></lgin-view>
       <papr-view name="papr" on-route-change="changeRoute" ></papr-view>
       <info-view name="info" on-route-change="changeRoute" ></info-view>
+      <recw-view name="recw" on-route-change="changeRoute" ></recw-view>
     </iron-pages>
   </template>
 
@@ -66,17 +66,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ],
 
       _routePageChanged: function(page) {
-
         this.page = page || 'main';
       },
 
       _pageChanged: function(page) {
-        if(page==='auth'){
+        if(page==='auth' || page === 'logout'){
           window.location = this.route.path;
           return;
         }
-        console.log(this.page);
-        console.log(this.route);
         // Load page import on demand. Show 404 page if fails
         var resolvedPageUrl = this.resolveUrl('fragments/'+ page +'-view.html');
         this.importHref(resolvedPageUrl, null, this._showPage404, true);

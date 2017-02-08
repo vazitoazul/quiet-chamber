@@ -22,11 +22,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-layout/app-grid/app-grid-style.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../elements/user-info.html">
 <link rel="import" href="../elements/paypal-integration.html">
 <link rel="import" href="../shared-styles.html">
-<link rel="import" href="../elements/acco-view-router.html">
 
 <dom-module id="acco-view">
   <template>
@@ -35,50 +45,86 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
         padding: 10px;
       }
+      div .card{
+        padding: 5rem;
+      }
+      paper-menu{
+        width: 100%;
+      }
+      a.menu-item{
+        color : #bdced7;
+      }
+      paper-card{
+        width: 18rem;
+      }
     </style>
+    <app-location route="{{route}}"></app-location>
     <iron-ajax
-    url="/getcurrentuser"
-    handle-as="json"
-    on-response="currentUserHandler"
-    id="currentUserRequester"
-    on-error="currentUserErrorHandler"></iron-ajax>
+      url="/getcurrentuser"
+      handle-as="json"
+      on-response="currentUserHandler"
+      id="currentUserRequester"
+      on-error="currentUserErrorHandler"></iron-ajax>
+    <app-route
+        route="{{route}}"
+        pattern="/:route/:section"
+        data="{{routeData}}"
+        tail="{{subroute}}"></app-route>
     <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
-    <paper-drawer-panel responsive-width="960px">
-      <div drawer>
-        <paper-menu class="row">
-            <paper-icon-item onclick="page('userInfo')"><iron-icon item-icon icon="verified-user"></iron-icon>Mi informacion</paper-icon-item> 
-            <br>
-            <paper-icon-item onclick="page('membership')"><iron-icon item-icon icon="card-membership"></iron-icon>Membresia</paper-icon-item>
-        </paper-menu> 
-      </div>
-      <paper-scroll-header-panel class="flex" main id="scroller">
-<!--         <iron-pages selected="[[section]]" attr-for-selected="section">
-          <section section="membership">
-            <div class="card">
-              <div id="paypalDiv"></div>
-              <div id="subscribedUntilDiv" hidden>
-                [[user.parsedSubscribedUntil]]
-              </div>
-            </div>
-          </section>
-          <section section="userInfo">
-            <div class="card">
-              <user-info id="userInfo"></user-info>
-            </div>
-          </section>
-        </iron-pages> -->
-        <div class="card">
-          <user-info id="userInfo"></user-info>
+    <app-drawer-layout>
+      <app-drawer align="left">
+        <div rol="listbox" class="row">
+          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="verified-user"></iron-icon>[[localize('userInfo')]]</a></paper-item>
+          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
+          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('recommended')]]</a></paper-item>
         </div>
-        <div class="card">
-          <div id="paypalDiv"></div>
-          <div id="subscribedUntilDiv" hidden>
-            [[user.parsedSubscribedUntil]]
+      </app-drawer>
+      <app-header-layout>
+        <app-header>
+         <app-toolbar>
+             <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+             <div main-title><span class="text-display-2">Dinabum</span></div>
+             <div class="hidden-sm-down">
+               <a href="/help"><paper-button>[[localize('help')]]</paper-button></a>
+             </div>
+         </app-toolbar>
+        </app-header>
+      </app-header-layuout>
+      <iron-pages selected='[[section]]' attr-for-selected="section">
+        <section section="membership">
+          <div class="card">
+            <div id="paypalDiv"></div>
+            <div id="subscribedUntilDiv" hidden>
+              [[user.parsedSubscribedUntil]]
+            </div>
           </div>
-        </div>
-      </paper-scroll-header-panel>
-    </paper-drawer-panel>
+        </section>
+        <section section="userInfo">
+          <div class="card">
+            <user-info id="userInfo"></user-info>
+          </div>
+        </section>
+        <section section="recommended">
+          <div class="card row">
+            <h4 class="col-sm-9 offset-sm-2">[[localize('for_recommend_a_user')]] https://quiet-chamber-staging.herokuapp.com/[[user.id]]</h4>
+            <h5 class="col-sm-9 offset-sm-1">[[localize('your_recommended')]]</h5>
+            <template is="dom-repeat" items="{{user.recommended}}">
+              <div class="paper-card col-sm-2">
+                <paper-card >
+                  <div class="card-content">
+                    [[item.email]]
+                    [[item.firstName]][[item.lastName]]
+                    [[item.contactInfo.telephones.0]]
+                  </div>
+                  <div class="card-actions"> Acciones </div>
+                </paper-card>
+              </div>
+            </template>
+          </div>
+        </section>
+      </iron-pages>
+    </app-drawer-layout>
     <paper-dialog modal id="credentialDialog">
       <h4 class="text-xs-left">[[localize('hello')]]</h4>
       <h4>[[localize('enter_your_credential')]]</h4>
@@ -91,28 +137,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
       </form>
     </paper-dialog>
-    <paper-toast id="toast" duration="5000" ></paper-toast>
+    <paper-toast id="toast" duration="5000"></paper-toast>
   </template>
 
   <script>
     Polymer({
       is: 'acco-view',
 
+      behaviors : [
+        Polymer.AppLocalizeBehavior
+      ],
+
       properties:{
         user :{
           type : Object
         },
+
         newCredential:{
           type : String
         },
+
         countryCode :{
           type: String,
           value: 'EC'
         },
+
         language :{
           tpye : String,
           value : 'en'
         },
+
         resources: {
                 value: function() {
                   return {
@@ -125,7 +179,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'must_enter_id' : 'you must enter your ID!',
                       'submit' : 'SUBMIT',
                       'credential_used' : 'this credential is already being used',
-                      'subscribed_until' : 'You are subscribed until {start , date , short}'
+                      'subscribed_until' : 'You are subscribed until {start , date , short}',
+                      'membership' : 'Membership',
+                      'userInfo' : 'My information',
+                      'recommended':'Recomended',
+                      'for_recommend_a_user':'In order to recommend a user it must subscribed or confirm the action on the next link :',
+                      'your_recommended' : 'Your recommended :'
                     },
                     'es': {
                       'hello' : 'Hola',
@@ -136,15 +195,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'must_enter_id' : 'debes ingresar tu identificación!',
                       'submit' : 'ENVIAR',
                       'credential_used' : 'Esta credencial ya esta siendo usada',
-                      'subscribed_until' : 'Estas subscrito hasta {start, date , short}'
-
+                      'subscribed_until' : 'Estas subscrito hasta {start, date , short}',
+                      'membership' : 'Membrecía',
+                      'userInfo' : 'Mi información',
+                      'recommended':'Recomendados',
+                      'for_recommend_a_user':'Para que un usuario este recomendado por ti debe subscribirse o aceptar por este link :',
+                      'your_recommended' : 'Tus recomendados :'
                     }
                   }
               }
           },
+
           section : {
             type: String,
-            value : 'membership'
+            observer : 'sectionChangeObserver'
+          },
+
+          route : {
+            type : Object,
+            observer : 'routeDataObserver'
           }
       },
 
@@ -152,41 +221,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         Polymer.AppLocalizeBehavior
       ],
 
-      ready : function(){
-       this.$.currentUserRequester.generateRequest();
-      },
 
       currentUserHandler : function(e){
         var user = e.detail.__data__.response;
         user.subscribedUntil = user.subscribedUntil ? new Date(user.subscribedUntil): 0;
+        console.log(user);
         if(user){
           this.set('user',user);
-          if(!this.user.intlCredential){
-            this.$.credentialDialog.open();
-          }else{
-            this.$.userInfo.user = this.user;
-            this.$.credentialDialog.close();
-            console.log(this.user);
-            if(!this.user.subscribedUntil){
-                  this.paypal = document.createElement('paypal-integration');
-                  this.$.paypalDiv.appendChild(this.paypal);
-            }else{
-                var today = new Date();
-                today.setHours(0,0,0,0);
-                if(this.user.subscribedUntil.valueOf() < today.valueOf()){
-                  console.log('aqi deberia estar');
-                  this.paypal = document.createElement('paypal-integration');
-                  this.$.paypalDiv.appendChild(this.paypal);
-                }else{
-                  console.log('esta subscrito hasta');
-                  console.log(this.user.subscribedUntil);
-                  this.set(['user','parsedSubscribedUntil'], this.localize('subscribed_until', 'start' , this.user.subscribedUntil.getTime()));
-                  this.$.subscribedUntilDiv.hidden = false;
-                }
-            }
+          if(this.routeData.section === 'undefined'){
+            this.set('route.path','acco/userInfo');
+            return ;
           }
+          this.set('section',null);
+          this.set('section',this.routeData.section ? this.routeData.section : 'userInfo');
         }else{
-          console.log('noay');
           this.fire('route-change',{route : 'forbidden'});
         }
       },
@@ -234,7 +282,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if(e.detail.__data__.status == 200){
           this.$.currentUserRequester.generateRequest();
         }else{
-          this.updateIntlCredentialResponseHandler();
+          this.updateIntlCredentialErrorHandler();
         }
       },
 
@@ -244,9 +292,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
-      section : function(section){
-        console.log(section);
-      }
+      sectionChangeObserver : function(newSection,lastSection){
+        var self = this;
+        if(!newSection){
+          return ;
+        }
+        if(!this.user.intlCredential){
+          this.$.credentialDialog.open();
+        }else{
+          this.$.userInfo.user = this.user;
+          this.$.credentialDialog.close();
+          if(newSection !== 'membership'){
+            Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
+            Polymer.dom(self.$.paypalDiv).removeChild(node);
+            });
+          }
+          switch(newSection){
+            case 'membership':
+              Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
+                Polymer.dom(self.$.paypalDiv).removeChild(node);
+              });
+              if(!this.user.subscribedUntil){
+                    this.paypal = document.createElement('paypal-integration');
+                    this.$.paypalDiv.appendChild(this.paypal);
+              }else{
+                  var today = new Date();
+                  today.setHours(0,0,0,0);
+                  if(this.user.subscribedUntil.valueOf() < today.valueOf()){
+                    this.paypal = document.createElement('paypal-integration');
+                    this.$.paypalDiv.appendChild(this.paypal);
+                  }else{
+                    this.set(['user','parsedSubscribedUntil'], this.localize('subscribed_until', 'start' , this.user.subscribedUntil.getTime()));
+                    this.$.subscribedUntilDiv.hidden = false;
+                  }
+              }
+            break;
+            case 'userInfo':
+            break;
+            }
+          }
+        },
+
+        routeDataObserver: function(newData,lastData){
+          if(this.route.path.substring(0,5) === '/acco'){
+            if(this.user){
+              if(this.routeData){
+                this.set('section',null);
+                this.set('section',this.routeData.section ? this.routeData.section : 'userInfo');
+              }else{
+                this.set('section',null);
+                this.set('section','userInfo');
+              }
+            }else{
+              this.$.currentUserRequester.generateRequest();
+            }
+          }else{
+            this.$.credentialDialog.close();
+          }
+        }
 
     });
   </script>

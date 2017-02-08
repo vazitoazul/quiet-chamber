@@ -1,0 +1,143 @@
+#!/usr/bin/env node
+require('newrelic');
+var url = require('url');
+var path= require('path'),
+    async = require('async'),
+    ObjectId = require('mongodb').ObjectID;
+process.chdir(path.resolve(__dirname,'../'));
+
+(function() {
+  var sails;
+  try {
+    sails = require('sails');
+  } catch (e) {
+    console.error('To run an app using `node app.js`, you usually need to have a version of `sails` installed in the same directory as your app.');
+    console.error('To do that, run `npm install sails`');
+    console.error('');
+    console.error('Alternatively, if you have sails installed globally (i.e. you did `npm install -g sails`), you can use `sails lift`.');
+    console.error('When you run `sails lift`, your app will still use a local `./node_modules/sails` dependency if it exists,');
+    console.error('but if it doesn\'t, the app will run with the global sails instead!');
+    return;
+  }
+
+  // Try to get `rc` dependency
+  var rc;
+  try {
+    rc = require('rc');
+  } catch (e0) {
+    try {
+      rc = require('sails/node_modules/rc');
+    } catch (e1) {
+      console.error('Could not find dependency: `rc`.');
+      console.error('Your `.sailsrc` file(s) will be ignored.');
+      console.error('To resolve this, run:');
+      console.error('npm install rc --save');
+      rc = function () { return {}; };
+    }
+  }
+  // Start server
+  sails.lift(rc('sails'),function(done){
+    var firstlvl = [],
+        secondlvl = [],
+        thirdlvl = [],
+        fourthlvl = [];
+    Payment.find({ confirmed : false}, function (err , payments){
+      if(err) throw err;
+      async.eachOfLimit(payments,10,
+        function(value,index,callback){
+          Payment.update({id : value.id},{confirmed : true}, function(err,updated){
+            if(err||!updated[0]) throw err;
+            User.findOne({id : updated[0].user},function(err,user){
+              if(err||!user) throw err;
+              if(!user.recommender){
+                return callback();
+              }
+              User.findOne({id : user.recommender},function(err,firstlvlUser){
+                if(err||!firstlvlUser) throw err;
+                firstlvl.push(firstlvlUser.id);
+                if(!firstlvlUser.recommender){
+                  return callback();
+                }
+                User.findOne({id : firstlvlUser.recommender},function(err,secondlvlUser){
+                  if(err||!secondlvlUser) throw err;
+                  secondlvl.push(secondlvlUser.id);
+                  if(!secondlvlUser.recommender){
+                    return callback();
+                  }
+                  User.findOne({id : secondlvlUser.recommender},function(err,thirdlvlUser){
+                    if(err||!thirdlvlUser) throw err;
+                    thirdlvl.push(thirdlvlUser.id);
+                    if(!thirdlvlUser.recommender){
+                      return callback();
+                    }
+                    User.findOne({id : thirdlvlUser.recommender},function(err,fourthlvlUser){
+                      if(err||!fourthlvlUser) throw err;
+                      fourthlvl.push(fourthlvlUser.id);
+                      if(!fourthlvlUser.recommender){
+                        return callback();
+                      }
+                      return callback();
+                    });
+                  });
+                });
+              });
+            });
+          });
+        },
+        function(err){
+          if(err){
+            console.log(err);
+          }
+          var result = {};
+          firstlvl.forEach(function(id){
+            if(!result[id]){
+              result[id] = 0.25;
+            }else{
+              result[id] = result[id] + 0.25;
+            }
+          });
+          secondlvl.forEach(function(id){
+            if(!result[id]){
+              result[id] = 0.50;
+            }else{
+              result[id] = result[id] + 0.50;
+            }
+          });
+          thirdlvl.forEach(function(id){
+            if(!result[id]){
+              result[id] = 0.75;
+            }else{
+              result[id] = result[id] + 0.75;
+            }
+          });
+          fourthlvl.forEach(function(id){
+            if(!result[id]){
+              result[id] = 1;
+            }else{
+              result[id] = result[id] + 1;
+            }
+          });
+          console.log(result);
+          async.eachOf(result, function (value, key, callback){
+            User.native(function(err,collection){
+              collection.update({ _id : new ObjectId(key)} , { $push : { balance : [value] }}, function(err,items){
+                console.log(key);
+                console.log(value);
+                if(err){
+                  console.log(err);
+                }
+                console.log(items);
+
+                callback();
+              });
+            });
+          } , function(err){
+                sails.lower(function(){
+                    process.exit();
+                  });
+          });
+
+        });
+    });
+  });
+})();
