@@ -1,7 +1,7 @@
 var request = require('supertest');
 var chai = require('chai')
   , should = chai.should();
-var user = request.agent('http://localhost:80');
+var user = request.agent('http://localhost:9000');
 
 
 describe('PaymentController',function(){
