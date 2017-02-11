@@ -88,7 +88,12 @@ module.exports = {
 			});
 		});
 	},
-
+	/**
+	*Recives an an id and sets the recomender for the current User.
+	*In case the user already has one, it changes it for the new one and delete the last form the lastRecommender list
+	*
+	*@param {String} recommender - The id of the new recommender for the current user.
+	*/
 	setRecommender : function(req,res,next){
 		var recommender = req.param('recommender');
 		var currentUser = req.user;
@@ -96,23 +101,24 @@ module.exports = {
 			return res.badRequest();
 		}
 		User.findOne({id : recommender},(err, newRecommender) => {
-			if(!newRecommender || Object.keys(newRecommender.recommended).length >= 4 || err){
+			if(err) return next(err);
+			if(!newRecommender || Object.keys(newRecommender.recommended).length >= 4){
 				return res.badRequest();
 			}
 			if(newRecommender.id === currentUser.id){
 				return res.badRequest();
 			}
 			User.findOne({id : req.user.recommender },(err,lastRecommender) => {
-				if(err)return res.badRequest();
+				if(err)return next(err);
 				if(lastRecommender){
 					delete lastRecommender.recommended[currentUser.id];
-					lastRecommender.save((err,saved)=>{
-						if(err)return res.badRequest();
+					User.update({id:lastRecommender.id},{recommended:lastRecommender.recommended},(err,saved)=>{
+						if(err)return next(err);
 						User.update({ id:currentUser.id},{recommender : recommender},(err,updated) => {
 							if(err||!updated[0])return res.badRequest();
 							newRecommender.recommended[currentUser.id] = true;
-							newRecommender.save((err,saved)=>{
-								if(err)return res.badRequest();
+							User.update({id:newRecommender.id},{recommended:newRecommender.recommended},(err,saved)=>{
+								if(err)return next(err);
 								return res.ok();
 							});
 						});
@@ -120,10 +126,11 @@ module.exports = {
 				}
 				else{
 					User.update({ id:currentUser.id},{recommender : recommender},(err,updated) => {
-						if(err||!updated[0])return res.badRequest();
+						if(err)return next(err);
+						if(!updated[0])return res.badRequest();
 						newRecommender.recommended[currentUser.id] = true;
 						newRecommender.save((err,saved)=>{
-							if(err)return res.badRequest();
+							if(err)return next(err);
 							return res.ok();
 						});
 					});

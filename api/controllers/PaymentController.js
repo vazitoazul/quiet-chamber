@@ -18,10 +18,10 @@ var createAndActivePayPalBillingPlan = function(next){
 			"description": "Create test plan for Regular",
 			"merchant_preferences": {
 					"auto_bill_amount": "yes",
-					"cancel_url": "https://quiet-chamber-staging.herokuapp.com/cancelPaypal",
+					"cancel_url": sail.config.appUrl+"/cancelPaypal",
 					"initial_fail_amount_action": "continue",
 					"max_fail_attempts": "2",
-					"return_url": "https://quiet-chamber-staging.herokuapp.com/returnPaypal",
+					"return_url": sail.config.appUrl+"/returnPaypal",
 					"setup_fee": {
 							"currency": "USD",
 							"value": "2"
@@ -114,7 +114,7 @@ module.exports = {
 		isoDate.toISOString().slice(0, 19) + 'Z';
 		var billingAgreementAttributes = {
 		    "name": "Subcripcion para la pagina",
-		    "description": "Acuerdo para subcripcion a la page",
+		    "description": "Acuerdo para subcripcion a la pagina",
 		    "start_date": isoDate,
 		    "plan": {
           "id": sails.config.paypal.billingPlanId
