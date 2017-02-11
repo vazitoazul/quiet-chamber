@@ -49,6 +49,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         height: 100px;
       }
     </style>
+    <app-location route="{{route}}"></app-location>
     <iron-ajax
     url="/getcurrentuser"
     handle-as="json"
@@ -63,12 +64,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
            <paper-item><a href="/rgst">Registrarme</a></paper-item>
            <paper-item id="accoPaperitem" hidden><a href="/acco">[[user.firstName]]</a></paper-item>
            <paper-item id="loginPaperitem" hidden><a href="/lgin">Ingresar</a></paper-item>
+           <paper-item id="logoutPaperitem" hidden><a href="/logout">Salir</a></paper-item>
          </div>
       </app-drawer>
       <app-header-layout>
        <app-header>
          <app-toolbar>
              <div main-title><span class="text-display-2">Dinabun</span></div>
+             <lang-selector></lang-selector>
              <div class="hidden-sm-down">
                <a href="/help"><paper-button>Ayuda</paper-button></a>
                <a href="/rgst"><paper-button>Registrarme</paper-button></a>
@@ -125,7 +128,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  </paper-material>
                </div>
              </div>
-
             <br>
             <br>
            </div>
@@ -161,11 +163,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         user :{
           type : Object
+        },
+        route : {
+          type : Object,
+          observer : 'rotueObserver'
         }
       },
 
       ready : function(){
-       this.$.currentUserRequester.generateRequest();
+      //  this.$.currentUserRequester.generateRequest();
       },
 
       currentUserHandler : function(e){
@@ -174,6 +180,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.set('user',user);
           this.$.accoButton.hidden = false;
           this.$.accoPaperitem.hidden = false;
+          this.$.logoutPaperitem.hidden = false;
         }else{
           this.$.loginButton.hidden = false;
           this.$.loginPaperitem.hidden = false;
@@ -184,13 +191,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.loadResources( this.resolveUrl('../locales/main-view.json'));
         this._setUpRecaptcha();
       },
+
       detached:function(e){
         document.body.removeChild(this.recaptcha);
       },
+
       currentUserErrorHandler : function(e){
         this.$.loginButton.hidden = false;
         this.$.loginPaperitem.hidden = false;
       },
+
       _setUpRecaptcha:function(){
         console.log('setup');
         this.recaptcha = document.createElement('re-captcha');
@@ -222,7 +232,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.$.spinner.hidden = false;
             this.$.registerForm.submit();
           }else{
-            this.$.toast.text = this.localize('not_robot');
+            this.$.toast.text = 'roboto';
             this.$.toast.open();
           }
         }
@@ -252,8 +262,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       reset : function(e){
         this.$.registerForm.reset();
       },
+
       handleThirdPartyLogin:function(e){
         this.fire('route-change',{ route : 'acco'});
+      },
+
+      rotueObserver : function(e){
+        this.$.currentUserRequester.generateRequest();
       }
     });
   </script>

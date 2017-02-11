@@ -15,7 +15,6 @@ describe('RouterController', function() {
 	        .get('/user?id=xxxx')
 	        .expect(function(res){
             res.text.should.include('<title>My App</title>')
-	        	// if(!res.text.includes("<title>My App</title>")) throw new Error('no on homepage');
 	        })
 	        .end(done)
     });
@@ -27,4 +26,3 @@ describe('RouterController', function() {
     });
   });
 });
-

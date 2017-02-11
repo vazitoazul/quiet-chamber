@@ -36,7 +36,7 @@
       </div>
     </paper-card>
     <h4>[[localize('contact_information)')]]</h4>
-    <paper-card>
+    <paper-card id="toastContainer">
       <div class="card-content">
         <paper-input name="contactFirstName" label="[[localize('names')]]" required  value="{{user.contactInfo.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
         <paper-input name="contactLastName" label="[[localize('last_name')]]" required  value="{{user.contactInfo.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
@@ -140,9 +140,9 @@
         if(response.status == 200){
           this.set('user',e.detail.__data__.response);
           this.user;
+          this.$.toast.fitInto = this.$.toastContainer;
           this.$.toast.text = this.localize('info_updated');
           this.$.toast.show();
-          // console.log(this.user);
         }
       },
 

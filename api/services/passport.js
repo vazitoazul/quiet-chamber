@@ -65,10 +65,10 @@ passport.protocols = require('./protocols');
  */
 passport.connect = function (req, query, profile, next) {
   var user = {}
-    , provider;
+    , provider
+    , recommender = req.session.recommender;
   // Get the authentication provider from the query.
   query.provider = req.param('provider');
-
   // Use profile.provider or fallback to the query.provider if it is undefined
   // as is the case for OpenID, for example
   provider = profile.provider || query.provider;
@@ -98,48 +98,92 @@ passport.connect = function (req, query, profile, next) {
   if (!user.username && !user.email) {
     return next(new Error('Neither a username nor email was available'));
   }
-  Passport.findOne({
-    provider   : provider
-  , identifier : query.identifier.toString()
-  }, function (err, passport) {
-    if (err) {
-      return next(err);
+
+  User.findOne({ id : recommender}, function(err , newRecommender){
+    if(newRecommender && Object.keys(newRecommender.recommended).length < 4 && !err){
+      user.recommender = newRecommender.id;
     }
-    if (!req.user) {
-      // Scenario: A new user is attempting to sign up using a third-party
-      //           authentication provider.
-      // Action:   Create a new user and assign them a passport.
-      if (!passport) {
-        //get information from third party
-       switch (provider){
-          case 'facebook':
-            user.mailVerified=true;
-            user.firstName=profile.first_name;
-            user.lastName=profile.last_name;
-            user.mailVerified=true;
-          break;
-          case 'google':
-            user.mailVerified=true;
-            user.firstName=profile.name.givenName;
-            user.lastName=profile.name.familyName;
-            user.mailVerified=true;
-          break;
-        }
-        User.create(user, function (err, user) {
-          if (err) {
-            if (err.code === 'E_VALIDATION') {
-              if (err.invalidAttributes.email) {
-                req.flash('error', 'Error.Passport.Email.Exists');
+    Passport.findOne({
+      provider   : provider
+    , identifier : query.identifier.toString()
+    }, function (err, passport) {
+      if (err) {
+        return next(err);
+      }
+      if (!req.user) {
+        // Scenario: A new user is attempting to sign up using a third-party
+        //           authentication provider.
+        // Action:   Create a new user and assign them a passport.
+        if (!passport) {
+          //get information from third party
+         switch (provider){
+            case 'facebook':
+              user.mailVerified=true;
+              user.firstName=profile.first_name;
+              user.lastName=profile.last_name;
+            break;
+            case 'google':
+              user.mailVerified=true;
+              user.firstName=profile.name.givenName;
+              user.lastName=profile.name.familyName;
+            break;
+          }
+          User.create(user, function (err, user) {
+            if (err) {
+              if (err.code === 'E_VALIDATION') {
+                if (err.invalidAttributes.email) {
+                  req.flash('error', 'Error.Passport.Email.Exists');
+                }
+                else {
+                  req.flash('error', 'Error.Passport.User.Exists');
+                }
               }
-              else {
-                req.flash('error', 'Error.Passport.User.Exists');
-              }
+              return next(err);
             }
 
-            return next(err);
+            query.user = user.id;
+
+            Passport.create(query, function (err, passport) {
+              // If a passport wasn't created, bail out
+              if (err) {
+                return next(err);
+              }
+              if(newRecommender && Object.keys(newRecommender.recommended).length < 4){
+                newRecommender.recommended[user.id] = true;
+                newRecommender.save(function(err,saved){
+                  next(err, user);
+                });
+              }else{
+                next(err, user);
+              }
+            });
+          });
+        }
+        // Scenario: An existing user is trying to log in using an already
+        //           connected passport.
+        // Action:   Get the user associated with the passport.
+        else {
+          // If the tokens have changed since the last session, update them
+          if (query.hasOwnProperty('tokens') && query.tokens !== passport.tokens) {
+            passport.tokens = query.tokens;
           }
 
-          query.user = user.id;
+          // Save any updates to the Passport before moving on
+          passport.save(function (err, passp) {
+            if (err) {
+              return next(err);
+            }
+
+            // Fetch the user associated with the Passport
+            User.findOne(passport.user, next);
+          });
+        }
+      } else {
+        // Scenario: A user is currently logged in and trying to connect a new
+        //           passport.
+        // Action:   Create and assign a new passport to the user.
+        if (!passport) {
+          query.user = req.user.id;
 
           Passport.create(query, function (err, passport) {
             // If a passport wasn't created, bail out
@@ -147,52 +191,19 @@ passport.connect = function (req, query, profile, next) {
               return next(err);
             }
 
-            next(err, user);
+            next(err, req.user);
           });
-        });
-      }
-      // Scenario: An existing user is trying to log in using an already
-      //           connected passport.
-      // Action:   Get the user associated with the passport.
-      else {
-        // If the tokens have changed since the last session, update them
-        if (query.hasOwnProperty('tokens') && query.tokens !== passport.tokens) {
-          passport.tokens = query.tokens;
         }
-
-        // Save any updates to the Passport before moving on
-        passport.save(function (err, passp) {
-          if (err) {
-            return next(err);
-          }
-
-          // Fetch the user associated with the Passport
-          User.findOne(passport.user, next);
-        });
+        // Scenario: The user is a nutjob or spammed the back-button.
+        // Action:   Simply pass along the already established session.
+        else {
+          next(null, req.user);
+        }
       }
-    } else {
-      // Scenario: A user is currently logged in and trying to connect a new
-      //           passport.
-      // Action:   Create and assign a new passport to the user.
-      if (!passport) {
-        query.user = req.user.id;
-
-        Passport.create(query, function (err, passport) {
-          // If a passport wasn't created, bail out
-          if (err) {
-            return next(err);
-          }
-
-          next(err, req.user);
-        });
-      }
-      // Scenario: The user is a nutjob or spammed the back-button.
-      // Action:   Simply pass along the already established session.
-      else {
-        next(null, req.user);
-      }
-    }
+    });
   });
+
+
 };
 
 /**
@@ -237,9 +248,13 @@ passport.endpoint = function (req, res) {
  * @param {Function} next
  */
 passport.callback = function (req, res, next) {
-  var provider = req.param('provider', 'local')
-    , action   = req.param('action');
 
+  var provider = req.param('provider', 'local')
+    , action   = req.param('action')
+    , recommender = req.param('recommender');
+  if(recommender){
+    req.session.recommender = recommender;
+  }
   // Passport.js wasn't really built for local user registration, but it's nice
   // having it tied into everything else.
   if (provider === 'local' && action !== undefined) {

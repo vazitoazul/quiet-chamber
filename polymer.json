@@ -9,7 +9,8 @@
     "src/fragments/servererror-view.html",
     "src/fragments/rgst-view.html",
     "src/fragments/lgin-view.html",
-    "src/fragments/info-view.html"
+    "src/fragments/info-view.html",
+    "src/fragments/recw-view.html"
   ],
   "sourceGlobs": [
    "src/**/*",

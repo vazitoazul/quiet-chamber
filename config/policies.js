@@ -29,6 +29,8 @@ module.exports.policies = {
     'verifyMail' : ['passport'],
     'getCurrentUser' : ['passport','sessionAuth'],
     'updateIntlCredential' : ['passport','sessionAuth'],
+    'getRecommenderUser' : ['passport'],
+    'setRecommender' : ['passport','sessionAuth'],
     '*' : ['passport','sessionAuth','intlCredential']
   },
 

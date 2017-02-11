@@ -29,7 +29,8 @@ var captcha = new recaptcha({secret:keys.private_key});
 exports.register = function (req, res, next) {
   var email    = req.param('email')
     , password = req.param('password')
-    , confirmation = req.param('confirmation');;
+    , confirmation = req.param('confirmation')
+    , recommenderId = req.param('recommender');
 
   if (!email) {
     return next(null,null,{message:'no_email_entered'});
@@ -50,62 +51,84 @@ exports.register = function (req, res, next) {
         }
         if(done) {
            // recaptcha verified
-           User.create({
-              email    : email
-            }, function (err, user) {
-              if (err) {
-                if (err.code === 'E_VALIDATION') {
-                  if (err.invalidAttributes.email) {
-                    return next(err,null,{message:'user_already_exists'});
-                  } else{
-                    return next(err,null,{message:'invalid_user'});
-                  }
-                }
-              }
-              // Generating accessToken for API authentication
-              var token = crypto.randomBytes(48).toString('base64');
-
-              Passport.create({
-                protocol    : 'local'
-              , password    : password
-              , user        : user.id
-              , accessToken : token
-              }, function (err, passport) {
+           User.findOne({id : recommenderId}, function(err,recommender){
+             var newUser = {
+               email : email
+             }
+             if(recommender && Object.keys(recommender.recommended).length < 4 && !err){
+               newUser['recommender'] = recommender.id;
+             }
+             User.create(newUser, function (err, user) {
                 if (err) {
+                  console.log(err);
                   if (err.code === 'E_VALIDATION') {
-                    console.log('Error on passport validation');
+                    if (err.invalidAttributes.email) {
+                      return next(err,null,{message:'user_already_exists'});
+                    } else{
+                      return next(err,null,{message:'invalid_user'});
+                    }
                   }
-                  return user.destroy(function (destroyErr) {
-                    next(destroyErr || err);
-                  });
                 }
-                var expireAt= (new Date()).add({days:7});
-                var tok={user:user.id,rol:'m',expireAt:expireAt};
-                Token.createToken(tok,(err,token)=>{
-                  if(err)return next(err);
-                  var info={
-                    url:'https://dinabun.com/verifyMail/'+token
-                  };
-                  var destination = {
-                    to:user.email,
-                    subject:'Confirmación de correo'
-                  };
-                  mailgun.send('mailVerification',info,destination,(err,result)=>{
-                    if(err) return next(err);
-                    next(null, user);
-                  });
-                });
+                // Generating accessToken for API authentication
+                var token = crypto.randomBytes(48).toString('base64');
 
+                Passport.create({
+                  protocol    : 'local'
+                , password    : password
+                , user        : user.id
+                , accessToken : token
+                }, function (err, passport) {
+                  if (err) {
+                    if (err.code === 'E_VALIDATION') {
+                      console.log('Error on passport validation');
+                    }
+                    return user.destroy(function (destroyErr) {
+                      next(destroyErr || err);
+                    });
+                  }
+                  if(recommender && Object.keys(recommender.recommended).length < 4 ){
+                    recommender.recommended[user.id] = true;
+                    recommender.save(function (err,saved) {
+                      var expireAt= (new Date()).add({days:7});
+                      var tok={user:user.id,rol:'m',expireAt:expireAt};
+                      Token.createToken(tok,(err,token)=>{
+                        if(err)return next(err);
+                        var info={
+                          url:'https://dinabun.com/verifyMail/'+token
+                        };
+                        var destination = {
+                          to:user.email,
+                          subject:'Confirmación de correo'
+                        };
+                        mailgun.send('mailVerification',info,destination,(err,result)=>{
+                          if(err) return next(err);
+                          next(null, user);
+                        });
+                      });
+                    });
+                  }else{
+                    var expireAt= (new Date()).add({days:7});
+                    var tok={user:user.id,rol:'m',expireAt:expireAt};
+                    Token.createToken(tok,(err,token)=>{
+                      if(err)return next(err);
+                      var info={
+                        url:'https://dinabun.com/verifyMail/'+token
+                      };
+                      var destination = {
+                        to:user.email,
+                        subject:'Confirmación de correo'
+                      };
+                      mailgun.send('mailVerification',info,destination,(err,result)=>{
+                        if(err) return next(err);
+                        next(null, user);
+                      });
+                    });
+                  }
+                });
               });
-            });
+           });
         }
     });
-
-
-
-
-
-
 
 };
 

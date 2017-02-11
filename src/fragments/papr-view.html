@@ -1,29 +1,76 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../shared-styles.html">
+
 <dom-module id="papr-view">
   <template>
     <style include="shared-styles">
       :host {
         display: block;
-
         padding: 10px 20px;
       }
     </style>
-
-   	<h4>TU PAGO HA SIDO EXITOSO <a href="/">Head back to home.</a></h4>
+    <iron-ajax
+      auto
+      url="/getcurrentuser"
+      handle-as="json"
+      on-response="currentUserHandler"
+      id="currentUserRequester"
+      on-error="currentUserErrorHandler"></iron-ajax>
+    <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
+    <div class="row">
+      <h4 class="col-sm-10">[[localize('pay_done')]]</h4>
+      <h5 class="col-sm-10">[[localize('subscribed_until','start', subscribedUntil)]]</h5>
+    </div>
   </template>
 
   <script>
     Polymer({
       is: 'papr-view',
 
+      behaviors : [
+        Polymer.AppLocalizeBehavior
+      ],
+
+      properties : {
+          language : {
+            type : String,
+            value : 'en'
+          },
+
+          resources : {
+            value : function(){
+              return {
+                'en' : {
+                  'pay_done' : 'Your payment has been completed succesfully',
+                  'subscribed_until' : 'you are subscribed until { start , date , short}'
+                },
+                'es' : {
+                  'pay_done' : 'Tu pago se ha completado exitosamente',
+                  'subscribed_until' : 'estás subscrito hasta { start , date , short}'
+                }
+              }
+            }
+          },
+          
+          subscribedUntil : {
+            type : Date
+          }
+      },
+
       ready : function(e){
-
       	setTimeout(function(e){
-
       		window.close();
-      	},5000);
+      	},6000);
+      },
+
+      currentUserHandler : function(e){
+        var user = e.detail.__data__.response;
+        this.set('subscribedUntil', user.subscribedUntil ? new Date(user.subscribedUntil): 0);
       }
+
     });
   </script>
 </dom-module>

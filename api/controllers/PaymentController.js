@@ -18,10 +18,10 @@ var createAndActivePayPalBillingPlan = function(next){
 			"description": "Create test plan for Regular",
 			"merchant_preferences": {
 					"auto_bill_amount": "yes",
-					"cancel_url": "https://quiet-chamber-staging.herokuapp.com/cancelPaypal",
+					"cancel_url": sail.config.appUrl+"/cancelPaypal",
 					"initial_fail_amount_action": "continue",
 					"max_fail_attempts": "2",
-					"return_url": "https://quiet-chamber-staging.herokuapp.com/returnPaypal",
+					"return_url": sail.config.appUrl+"/returnPaypal",
 					"setup_fee": {
 							"currency": "USD",
 							"value": "2"
@@ -105,8 +105,7 @@ module.exports = {
 	},
 
 	cancelPayment : function(req,res,next){
-		console.log('canceled');
-		return next();
+    return res.redirect('/acco/membership');
 	},
 
 	setExpressCheckout : function(req,res,next){
@@ -115,7 +114,7 @@ module.exports = {
 		isoDate.toISOString().slice(0, 19) + 'Z';
 		var billingAgreementAttributes = {
 		    "name": "Subcripcion para la pagina",
-		    "description": "Acuerdo para subcripcion a la page",
+		    "description": "Acuerdo para subcripcion a la pagina",
 		    "start_date": isoDate,
 		    "plan": {
           "id": sails.config.paypal.billingPlanId
@@ -158,9 +157,9 @@ module.exports = {
         	if(err || !user){
         		return res.ok();
         	}
- 			var today = new Date();
- 			today.setMonth(today.getMonth() + 1);
- 			today.setHours(0,0,0,0);
+     			var today = new Date();
+     			today.setMonth(today.getMonth() + 1);
+     			today.setHours(0,0,0,0);
         	if(user.subscribedUntil.valueOf() !== today.valueOf()){
 		        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
 		            if(err){
@@ -184,12 +183,18 @@ module.exports = {
 	          return res.ok();
 	        }
         });
-
       });
 
     }else{
       return res.ok();
     }
+  },
 
+  create: function(req,res,next){
+    Payment.create({user : req.param('user')},function(err,payment){
+      console.log('yes')
+      console.log(err)
+      return res.json(payment);
+    });
   }
 };
