@@ -1,7 +1,11 @@
 //User controller
 
 module.exports = {
-
+	/**
+    *return current logged user.
+    *
+    *@param {object} req.user - current logged user
+    */
 	getCurrentUser : function(req,res,next){
 		User.findOne(req.user.id, function(err, user){
 			if(err) return next(err);
@@ -15,7 +19,11 @@ module.exports = {
 			});
 		});
 	},
-
+	/**
+    *update the user intlCredential parameter.
+    *
+    *@param {string} newCredential - new credential to change 
+    */
 	updateIntlCredential : function(req,res,next){
 		var newCredential = req.param('newCredential');
 		if(!newCredential){
@@ -34,7 +42,16 @@ module.exports = {
 			});
 		});
 	},
-
+	/**
+    *update the user information parameter.
+    *
+    *@param {string} firstName 
+    *@param {string} lastName 
+    *@param {array} telephones 
+    *@param {string} email 
+    *@param {object} location - latitude and longitude 
+    *@param {object} contactInfo 
+    */
 	updateUserInfo : function(req,res,next){
 		var contactInfo = {
 			firstName : req.param('contactFirstName'),
@@ -54,7 +71,12 @@ module.exports = {
 			return res.ok(updated[0]);
 		});
 	},
-
+	/**
+    *returns an object with the current logged user and the user tried to set as recommender.
+    *In case recommender or current user don't exist it set the obectj as '' in order to be contrelled on front end
+    *
+    *@param {string} recommenderId 
+    */
 	getRecommenderUser : function(req,res,next){
 		var response = { user : '', recommender : ''};
 		var recommenderId = req.param('id');
@@ -93,7 +115,12 @@ module.exports = {
 			});
 		});
 	},
-
+	/**
+	*Recives an an id and sets the recomender for the current User.
+	*In case the user already has one, it changes it for the new one and delete the last form the lastRecommender list
+	*
+	*@param {String} recommender - The id of the new recommender for the current user.
+	*/
 	setRecommender : function(req,res,next){
 		var recommender = req.param('recommender');
 		var currentUser = req.user;
@@ -102,7 +129,8 @@ module.exports = {
 		}
 		User.findOne({id : recommender},(err, newRecommender) => {
 			if(err) return next(err);
-			if(!newRecommender || Object.keys(newRecommender.recommended).length >= 4 || err){
+			//verify the recommender user has less than 4 recommended already
+			if(!newRecommender || Object.keys(newRecommender.recommended).length >= 4){
 				return res.badRequest();
 			}
 			if(newRecommender.id === currentUser.id){
@@ -112,13 +140,13 @@ module.exports = {
 				if(err) return next(err);
 				if(lastRecommender){
 					delete lastRecommender.recommended[currentUser.id];
-					lastRecommender.save((err,saved)=>{
-						if(err)return res.badRequest();
+					User.update({id:lastRecommender.id},{recommended:lastRecommender.recommended},(err,saved)=>{
+						if(err)return next(err);
 						User.update({ id:currentUser.id},{recommender : recommender},(err,updated) => {
 							if(err||!updated[0])return res.badRequest();
 							newRecommender.recommended[currentUser.id] = true;
-							newRecommender.save((err,saved)=>{
-								if(err)return res.badRequest();
+							User.update({id:newRecommender.id},{recommended:newRecommender.recommended},(err,saved)=>{
+								if(err)return next(err);
 								return res.ok();
 							});
 						});
@@ -126,11 +154,11 @@ module.exports = {
 				}
 				else{
 					User.update({ id:currentUser.id},{recommender : recommender},(err,updated) => {
-						if(err) return next(err);
-						if(err||!updated[0])return res.badRequest();
+						if(err)return next(err);
+						if(!updated[0])return res.badRequest();
 						newRecommender.recommended[currentUser.id] = true;
 						newRecommender.save((err,saved)=>{
-							if(err)return res.badRequest();
+							if(err)return next(err);
 							return res.ok();
 						});
 					});

@@ -74,7 +74,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <app-drawer-layout>
       <app-drawer align="left">
-        <div rol="listbox" class="row">
+        <div>
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="verified-user"></iron-icon>[[localize('userInfo')]]</a></paper-item>
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('recommended')]]</a></paper-item>
@@ -85,7 +85,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-header>
          <app-toolbar>
              <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-             <div main-title><span class="text-display-2">Dinabum</span></div>
+             <div main-title><span class="text-display-2">Dinabun</span></div>
              <div class="hidden-sm-down">
                <a href="/help"><paper-button>[[localize('help')]]</paper-button></a>
              </div>
@@ -107,21 +107,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
         </section>
         <section section="recommended">
-          <div class="card row">
-            <h4 class="col-sm-9 offset-sm-2">[[localize('for_recommend_a_user')]] https://quiet-chamber-staging.herokuapp.com/[[user.id]]</h4>
-            <h5 class="col-sm-9 offset-sm-1">[[localize('your_recommended')]]</h5>
-            <template is="dom-repeat" items="{{user.recommended}}">
-              <div class="paper-card col-sm-2">
-                <paper-card >
-                  <div class="card-content">
-                    [[item.email]]
-                    [[item.firstName]][[item.lastName]]
-                    [[item.contactInfo.telephones.0]]
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-xs-9 offset-xs-1">
+                <paper-card class="w-100">
+                  <div class="card-content vertical layout">
+                    <span>[[localize('for_recommend_a_user')]]</span>
+                    <b>https://quiet-chamber-staging.herokuapp.com/recw/[[user.id]]</b>
                   </div>
-                  <div class="card-actions"> Acciones </div>
+                  <div class="card-actions"><paper-button raised class="primary" on-click="copyRecLink">Copiar</paper-button>
+                   </div>
                 </paper-card>
               </div>
-            </template>
+            </div>
+            <div class="row">
+              <h5 class="col-sm-9 offset-sm-1">[[localize('your_recommended')]]</h5>
+              <template is="dom-repeat" items="{{user.recommended}}">
+                <div class="paper-card col-sm-2">
+                  <paper-card >
+                    <div class="card-content">
+                      [[item.email]]
+                      [[item.firstName]] [[item.lastName]]
+                      [[item.contactInfo.telephones.0]]
+                    </div>
+                    <div class="card-actions">
+                      <paper-button raised class="primary"> Acciones</paper-button>
+
+                    </div>
+                  </paper-card>
+                </div>
+              </template>
+            </div>
           </div>
         </section>
         <section>
@@ -231,7 +247,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       behaviors: [
         Polymer.AppLocalizeBehavior
       ],
-
+      showMessage:function(message,duration){
+        this.$.toast.text = message;
+        this.$.toast.duration=duration || 3000;
+        this.$.toast.open();
+      },
 
       currentUserHandler : function(e){
         var user = e.detail.__data__.response;
@@ -285,8 +305,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       updateIntlCredentialErrorHandler : function(e){
-        this.$.toast.text = this.localize('credential_used');
-        this.$.toast.open();
+        this.showMessage(this.localize('credential_used'));
       },
 
       updateIntlCredentialResponseHandler : function(e){
@@ -360,7 +379,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }else{
             this.$.credentialDialog.close();
           }
+      },
+      
+      copyRecLink:function(){
+        var text = 'https://quiet-chamber-staging.herokuapp.com/recw/'+this.user.id;
+        var textArea = document.createElement("textarea");
+        textArea.style.position = 'fixed';
+        textArea.style.top = 0;
+        textArea.style.left = 0;
+        textArea.style.width = '2em';
+        textArea.style.height = '2em';
+        textArea.style.padding = 0;
+        textArea.style.border = 'none';
+        textArea.style.outline = 'none';
+        textArea.style.boxShadow = 'none';
+        textArea.style.background = 'transparent';
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          var successful = document.execCommand('copy');
+          var msg = successful ? 'successful' : 'unsuccessful';
+          this.showMessage('Se ha copiado el link a tu portapapeles');
+        } catch (err) {
+          this.showMessage('Lo sentimos, no tu navegador no lo permite :(');
         }
+        document.body.removeChild(textArea);
+      }
 
     });
   </script>

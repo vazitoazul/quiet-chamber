@@ -7,12 +7,14 @@
 
 
 module.exports = {
-
-
+	/**
+	* render homepage view to and it render some polymer fragment depening on the page name
+	*
+	*@param {String} page
+	*/
 	redirect:function(req,res,next){
 		var page = req.params.page;	
 		//check if page exists
-
 		if(page){
 			//check if no src is requested 
 			if(page==='src'){
