@@ -78,6 +78,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="verified-user"></iron-icon>[[localize('userInfo')]]</a></paper-item>
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('recommended')]]</a></paper-item>
+          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/bussiness"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('bussiness')]]</a></paper-item>
         </div>
       </app-drawer>
       <app-header-layout>
@@ -122,6 +123,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </div>
             </template>
           </div>
+        </section>
+        <section>
+        <div class="card row">
+          <paper-card>
+            <h4>[[localize('new_bussiness')]]</h4>
+            paper-input>
+          </paper-card>
+        </div>
         </section>
       </iron-pages>
     </app-drawer-layout>
@@ -185,6 +194,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'recommended':'Recomended',
                       'for_recommend_a_user':'In order to recommend a user it must subscribed or confirm the action on the next link :',
                       'your_recommended' : 'Your recommended :'
+                      'bussiness' : 'Bussiness'
                     },
                     'es': {
                       'hello' : 'Hola',
@@ -201,6 +211,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'recommended':'Recomendados',
                       'for_recommend_a_user':'Para que un usuario este recomendado por ti debe subscribirse o aceptar por este link :',
                       'your_recommended' : 'Tus recomendados :'
+                      'bussiness' : 'Negocio'
                     }
                   }
               }

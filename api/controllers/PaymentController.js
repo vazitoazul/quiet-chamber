@@ -81,14 +81,11 @@ module.exports = {
 	    }
 		paypal.billingAgreement.execute(req.param('token'), {}, function (error, billingAgreement) {
 		    if (error) {
-		        console.log(error);
-		        throw error;
+		        return next(error);
 		    } else {
-		        console.log("Billing Agreement Execute Response");
-		        console.log(JSON.stringify(billingAgreement));
             Payment.create({user : req.user.id, billingAgreement : billingAgreement.id},function(err,payment){
               if(err){
-                throw err;
+                return next(err);
               }
               var subscribedUntil = new Date();
               subscribedUntil.setHours(0,0,0,0);
@@ -105,7 +102,7 @@ module.exports = {
 	},
 
 	cancelPayment : function(req,res,next){
-    return res.redirect('/acco/membership');
+   		return res.redirect('/acco/membership');
 	},
 
 	setExpressCheckout : function(req,res,next){
@@ -117,7 +114,7 @@ module.exports = {
 		    "description": "Acuerdo para subcripcion a la page",
 		    "start_date": isoDate,
 		    "plan": {
-          "id": sails.config.paypal.billingPlanId
+          		"id": sails.config.paypal.billingPlanId
 		    },
 		    "payer": {
 		        "payment_method": "paypal"
@@ -125,18 +122,14 @@ module.exports = {
 		};
 		paypal.billingAgreement.create(billingAgreementAttributes, function (error, billingAgreement) {
 	      if (error) {
-	          console.log(error.response);
-	          throw error;
+	          return next(err);
 	      } else {
-	          console.log("Create Billing Agreement Response");
 	          for (var index = 0; index < billingAgreement.links.length; index++) {
 	              if (billingAgreement.links[index].rel === 'approval_url') {
 	                  var approval_url = billingAgreement.links[index].href;
-	                  console.log("For approving subscription via Paypal, first redirect user to");
-	                  console.log(approval_url);
 	                  // See billing_agreements/execute.js to see example for executing agreement
 	                  // after you have payment token
-					          return res.redirect(approval_url);
+					  return res.redirect(approval_url);
 	              }
 	          }
 	      }
@@ -144,9 +137,6 @@ module.exports = {
 	},
 
   ipnListener : function(req,res,next){
-    console.log("LISTENER");
-    console.log(req.body);
-
     if(req.body.resource.billing_agreement_id){
       Payment.find({billingAgreement : req.body.resource.billing_agreement_id},function(err,payment){
         if(err || !payment[0]){
@@ -168,8 +158,6 @@ module.exports = {
 		            var newDate = user.subscribedUntil;
 		            newDate.setHours(0,0,0,0);
 		            newDate.setMonth(newDate.getMonth() + 1);
-		            console.log('FECHA NUEVA');
-		            console.log(newDate);
 		            User.update({id : user.id}, {subscribedUntil : newDate }, function(err, updated){
 		              if(err || !updated[0]){
 		                return res.ok();

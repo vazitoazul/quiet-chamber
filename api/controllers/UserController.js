@@ -4,6 +4,7 @@ module.exports = {
 
 	getCurrentUser : function(req,res,next){
 		User.findOne(req.user.id, function(err, user){
+			if(err) return next(err);
 			if(!user){
 				return res.badRequest();
 			}
@@ -21,6 +22,7 @@ module.exports = {
 			return res.badRequest();
 		}
 		User.findOne({intlCredential : newCredential},function(err,user){
+			if(err) return next(err);
 			if(user){
 				return next(new Error("Credential in use"));
 			}
@@ -58,6 +60,7 @@ module.exports = {
 		var recommenderId = req.param('id');
 
 		User.findOne({id : recommenderId},(err,recommender) => {
+			if(err) return next(err);
 			if(!recommender||err){
 				return res.json(response);
 			}
@@ -70,6 +73,7 @@ module.exports = {
 				return res.json(response);
 			}
 			User.findOne({id: req.user.id}, (err,found) => {
+				if(err) return next(err);
 				if(err||!found){
 					return res.json(response);
 				}
@@ -78,6 +82,7 @@ module.exports = {
 					return res.json(response);
 				}else{
 					User.findOne({id : found.recommender},(err, lastRecommender) => {
+						if(err) return next(err);
 						if(err||!lastRecommender){
 							return res.json(response);
 						}
@@ -96,6 +101,7 @@ module.exports = {
 			return res.badRequest();
 		}
 		User.findOne({id : recommender},(err, newRecommender) => {
+			if(err) return next(err);
 			if(!newRecommender || Object.keys(newRecommender.recommended).length >= 4 || err){
 				return res.badRequest();
 			}
@@ -103,7 +109,7 @@ module.exports = {
 				return res.badRequest();
 			}
 			User.findOne({id : req.user.recommender },(err,lastRecommender) => {
-				if(err)return res.badRequest();
+				if(err) return next(err);
 				if(lastRecommender){
 					delete lastRecommender.recommended[currentUser.id];
 					lastRecommender.save((err,saved)=>{
@@ -120,6 +126,7 @@ module.exports = {
 				}
 				else{
 					User.update({ id:currentUser.id},{recommender : recommender},(err,updated) => {
+						if(err) return next(err);
 						if(err||!updated[0])return res.badRequest();
 						newRecommender.recommended[currentUser.id] = true;
 						newRecommender.save((err,saved)=>{
