@@ -142,7 +142,7 @@ describe('UserController',function(){
             .expect(400,done);
       });
 
-      it('should change the user recommender',function(done){
+      it('should set the user recommender',function(done){
           currentUser
             .post('/setRecommender')
             .send({'recommender' : newRecommenderId})
@@ -157,7 +157,7 @@ describe('UserController',function(){
             .send({'id' : newRecommenderId})
             .expect((res) => {
               res.body.user.recommender.should.have.property('email');
-              res.body.should.have.property('recommender').not.equal('');
+              res.body.should.have.property('status').equal('logged');
             })
             .end(done)
       });
