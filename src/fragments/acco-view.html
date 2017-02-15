@@ -16,9 +16,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
-<link rel="import" href="../../bower_components/app-storage/app-localstore/app-localstore-document.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
-<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
@@ -210,7 +209,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'userInfo' : 'My information',
                       'recommended':'Recomended',
                       'for_recommend_a_user':'In order to recommend a user it must subscribed or confirm the action on the next link :',
-                      'your_recommended' : 'Your recommended :'
+                      'your_recommended' : 'Your recommended :',
                       'bussiness' : 'Bussiness'
                     },
                     'es': {
@@ -227,7 +226,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'userInfo' : 'Mi información',
                       'recommended':'Recomendados',
                       'for_recommend_a_user':'Para que un usuario este recomendado por ti debe subscribirse o aceptar por este link :',
-                      'your_recommended' : 'Tus recomendados :'
+                      'your_recommended' : 'Tus recomendados :',
                       'bussiness' : 'Negocio'
                     }
                   }
@@ -381,7 +380,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.$.credentialDialog.close();
           }
       },
-      
+
       copyRecLink:function(){
         var text = 'https://quiet-chamber-staging.herokuapp.com/recw/'+this.user.id;
         var textArea = document.createElement("textarea");
