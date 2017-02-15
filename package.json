@@ -5,8 +5,8 @@
   "description": "Sails application to make buisness online",
   "keywords": [],
   "dependencies": {
-    "bcrypt": "^1.0.2",
     "async": "^2.1.4",
+    "bcrypt": "^1.0.2",
     "bcryptjs": "^2.3.0",
     "bower": "^1.7.9",
     "connect-redis": "^3.0.2",
@@ -16,6 +16,7 @@
     "google-auth-library": "^0.9.10",
     "google-recaptcha": "^1.0.2",
     "include-all": "~0.1.6",
+    "le_node": "^1.7.0",
     "mailgun-js": "^0.8.0",
     "newrelic": "^1.36.2",
     "passport": "^0.3.2",

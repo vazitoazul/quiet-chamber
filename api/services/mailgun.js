@@ -38,7 +38,7 @@ module.exports={
         };
         mailgun.messages().send(data, function (err, body) {
           if(err){
-            console.log(err);
+            logger.warn('Error sending email',err);
             return callback(null);
           }
           callback(null,body);
