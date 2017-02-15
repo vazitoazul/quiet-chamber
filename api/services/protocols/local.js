@@ -1,3 +1,4 @@
+require('date-utils');
 var validator = require('validator');
 var crypto    = require('crypto');
 var recaptcha = require("recaptcha_v2");
@@ -88,22 +89,46 @@ exports.register = function (req, res, next) {
                   if(recommender && Object.keys(recommender.recommended).length < 4 ){
                     recommender.recommended[user.id] = true;
                     recommender.save(function (err,saved) {
-                      next(null, user);
+                      var expireAt= (new Date()).add({days:7});
+                      var tok={user:user.id,rol:'m',expireAt:expireAt};
+                      Token.createToken(tok,(err,token)=>{
+                        if(err)return next(err);
+                        var info={
+                          url:'https://dinabun.com/verifyMail/'+token
+                        };
+                        var destination = {
+                          to:user.email,
+                          subject:'Confirmación de correo'
+                        };
+                        mailgun.send('mailVerification',info,destination,(err,result)=>{
+                          if(err) return next(err);
+                          next(null, user);
+                        });
+                      });
                     });
                   }else{
-                    next(null, user);
+                    var expireAt= (new Date()).add({days:7});
+                    var tok={user:user.id,rol:'m',expireAt:expireAt};
+                    Token.createToken(tok,(err,token)=>{
+                      if(err)return next(err);
+                      var info={
+                        url:'https://dinabun.com/verifyMail/'+token
+                      };
+                      var destination = {
+                        to:user.email,
+                        subject:'Confirmación de correo'
+                      };
+                      mailgun.send('mailVerification',info,destination,(err,result)=>{
+                        if(err) return next(err);
+                        next(null, user);
+                      });
+                    });
                   }
                 });
               });
            });
         }
     });
-
-
-
-
-
-
 
 };
 

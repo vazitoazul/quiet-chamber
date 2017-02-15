@@ -1,68 +1,78 @@
 var request = require('supertest');
 var chai = require('chai')
   , should = chai.should();
-var user = request.agent('http://localhost:9000');
-var secondUser = request.agent('http://localhost:9000');
-var user1 = request.agent('http://localhost:9000');
-var user2 = request.agent('http://localhost:9000');
+var currentUser = request.agent('http://localhost:9000');
+var extraUser = request.agent('http://localhost:9000');
+var mailNotVerifiedUser = request.agent('http://localhost:9000');
+
+//this User has all his fields already filled, and has a recommender
+var oldUser = request.agent('http://localhost:9000');
+var recaptchaResponse='03AHJ_Vuvwyf4S1GmaZsKFLFHKSh10HCtY3TrsmeCB-46UdGxNQSQyRhujfhpX2hlwVosclb2XB7qGCbGMvqU_7o_6LnXIgBuFUXizYnBrYe9B5oqsh2gxfl_DbEBqPKnjyuRQ-IhTiN9FcpJN-m7Zu46au9-1XJtU5xYUIgUxDuk_jazQ_lKCBlfCS9E5APLPboveCL9fdC8ca9jwvUxady4yVjUqpUTSU5lxFMKDu-_kl9GwxG8J7U4twbukg_hiqvoU2LSVqyWjlJBQ-WAZYJuYRTzbsBlBfr27rvVx1JxOxMCS6Nk-p5pQabr-d9uRDxWusLBWSn27QYhXNtgjH5MxVIFdI4sBfGJpAX7jYyDTabbBWh1TDLWzPAe8Iht03kmvG7k1hBaBngv3El3BGl0Rt-5EIxRh1g5G8C9cMujFbmfF7DIS3s1uCFwULNT_zFZVxw_CYhZCgFGkrIlsPKvCiV_ixSau2XgfqyXP0KUR553GFZLFfDrZ2GaAh280YR9G4SHYbBy0nLe16YNV6n6MlyOXL9Zd1Jo6DN5dp0kFHRRjKMMxPUgHLsR2HdKDkCoGgcyT81ZU'
 
 
 describe('UserController',function(){
-    var recommender;
-    var currentUser;
-    var newRecommender;
+    var currentUserId,newRecommenderId, extraUserId;
+    before(function(done){
+      var userModel =sails.models.user;
+      //get the id for a created User who is going to be the recommender
+      userModel.findOne({email:'newRecommender@dinabun.com'}).populate('passports').exec((err,usera)=>{
+        if(err)return done(err);
+        newRecommenderId=usera.id;
+        done();
+      });
+    });
 
     describe('update information', function(){
-      before(function() {
-        user
-          .post('/auth/local')
-          .send({identifier : 'test@test.com',password : 'testtest'})
-          .expect(res => {
-            currentUser = res.body.user;
-          })
-          .end(function(err,next){
-          });
+      before(function(done) {
+        //this user is going to be used all accross this tests
+         currentUser
+           .post('/auth/local')
+           .send({identifier : 'currentUser@dinabun.com',password : 'testtest'})
+           .expect((res)=>{
+             currentUserId = res.body.user;
+           })
+           .end(done);
       });
-      before(function() {
-        request(sails.hooks.http.app)
-          .post('/auth/local/register')
-          .send({email : 'test2@test.com',password : 'testtest', recommender : newRecommender ,confirmation :'testtest','g-recaptcha-response' : '03AHJ_Vuvwyf4S1GmaZsKFLFHKSh10HCtY3TrsmeCB-46UdGxNQSQyRhujfhpX2hlwVosclb2XB7qGCbGMvqU_7o_6LnXIgBuFUXizYnBrYe9B5oqsh2gxfl_DbEBqPKnjyuRQ-IhTiN9FcpJN-m7Zu46au9-1XJtU5xYUIgUxDuk_jazQ_lKCBlfCS9E5APLPboveCL9fdC8ca9jwvUxady4yVjUqpUTSU5lxFMKDu-_kl9GwxG8J7U4twbukg_hiqvoU2LSVqyWjlJBQ-WAZYJuYRTzbsBlBfr27rvVx1JxOxMCS6Nk-p5pQabr-d9uRDxWusLBWSn27QYhXNtgjH5MxVIFdI4sBfGJpAX7jYyDTabbBWh1TDLWzPAe8Iht03kmvG7k1hBaBngv3El3BGl0Rt-5EIxRh1g5G8C9cMujFbmfF7DIS3s1uCFwULNT_zFZVxw_CYhZCgFGkrIlsPKvCiV_ixSau2XgfqyXP0KUR553GFZLFfDrZ2GaAh280YR9G4SHYbBy0nLe16YNV6n6MlyOXL9Zd1Jo6DN5dp0kFHRRjKMMxPUgHLsR2HdKDkCoGgcyT81ZU'})
-          .expect(function(res){
-            newRecommender = res.body.user;
-          })
-          .end((err,ext)=>{
-          });
-      });
-
-      it('should forbid the action',function(done){
-          user
+      it('should forbid the action because no intlCredential has been configured for this user',function(done){
+          currentUser
             .post('/updateuserinfo')
             .expect(403)
             .end(done)
       });
-
-      it('should register a second user', function (done) {
-        request(sails.hooks.http.app)
-          .post('/auth/local/register')
-          .send({email : 'test1@test.com',password : 'testtest', confirmation :'testtest','g-recaptcha-response' : '03AHJ_Vuvwyf4S1GmaZsKFLFHKSh10HCtY3TrsmeCB-46UdGxNQSQyRhujfhpX2hlwVosclb2XB7qGCbGMvqU_7o_6LnXIgBuFUXizYnBrYe9B5oqsh2gxfl_DbEBqPKnjyuRQ-IhTiN9FcpJN-m7Zu46au9-1XJtU5xYUIgUxDuk_jazQ_lKCBlfCS9E5APLPboveCL9fdC8ca9jwvUxady4yVjUqpUTSU5lxFMKDu-_kl9GwxG8J7U4twbukg_hiqvoU2LSVqyWjlJBQ-WAZYJuYRTzbsBlBfr27rvVx1JxOxMCS6Nk-p5pQabr-d9uRDxWusLBWSn27QYhXNtgjH5MxVIFdI4sBfGJpAX7jYyDTabbBWh1TDLWzPAe8Iht03kmvG7k1hBaBngv3El3BGl0Rt-5EIxRh1g5G8C9cMujFbmfF7DIS3s1uCFwULNT_zFZVxw_CYhZCgFGkrIlsPKvCiV_ixSau2XgfqyXP0KUR553GFZLFfDrZ2GaAh280YR9G4SHYbBy0nLe16YNV6n6MlyOXL9Zd1Jo6DN5dp0kFHRRjKMMxPUgHLsR2HdKDkCoGgcyT81ZU'})
-          .expect(function(res){
-            recommender = res.body.user;
-            res.body.should.have.property('user');
-          })
-          .end(done)
-      });
-
-    });
-
-    describe('get recommender user',function(){
       it('should update user intlCredential',function(done){
-          user
+          currentUser
             .post('/updateintlcredential')
             .send({newCredential:'ec123412341234'})
             .expect(200)
             .end(done)
       });
+      it('should update user information',function(done){
 
+          currentUser
+            .post('/updateuserinfo')
+            .send({	userFirstName: 'Federico',
+        			userLastName: 'Contreras BB',
+        			contactFirstName : 'Federico',
+        			contactLastName : 'Contreras',
+        			telephone : '0997226768,040302038',
+        			contactEmail : 'ferediquito@contreras.com',
+        			latitude : '',
+        			longitude : '',
+        			addressLabel : 'Una descripción de la dirección'
+        		})
+            .expect(200)
+            .expect((res)=>{
+              res.body.should.have.deep.property('contactInfo.firstName','Federico');
+              res.body.should.have.deep.property('contactInfo.email','ferediquito@contreras.com');
+            })
+            .end(done);
+
+      });
+    });
+
+    describe('geting user recommender tests',function(){
+
+      //Esta es la función que tiene que pedir un badRequest
       it('should get a response with user and recommender undefined',function(done){
           request(sails.hooks.http.app)
             .post('/getRecommenderUser')
@@ -70,13 +80,13 @@ describe('UserController',function(){
               res.body.should.have.property('user').equal('');
               res.body.should.have.property('recommender').equal('');
             })
-            .end(done)
+            .end(done);
       });
-
+      //Esta también
       it('should get a response with user and recommender undefined because the id is from the same user',function(done){
-          user
+          currentUser
             .post('/getRecommenderUser')
-            .send({'id' : currentUser})
+            .send({'id' : currentUserId})
             .expect((res) => {
               res.body.should.have.property('user').equal('');
               res.body.should.have.property('recommender').equal('');
@@ -84,10 +94,10 @@ describe('UserController',function(){
             .end(done)
       });
 
-      it('should get the user aundefined and a recommender objct',function(done){
+      it('should get the user undefined and a recommender object',function(done){
           request(sails.hooks.http.app)
             .post('/getRecommenderUser')
-            .send({'id' : recommender})
+            .send({'id' : newRecommenderId})
             .expect((res) => {
               res.body.should.have.property('user').equal('');
               res.body.should.have.property('recommender').not.equal('');
@@ -97,69 +107,61 @@ describe('UserController',function(){
 
 
       it('should get the user object and a recommender object',function(done){
-          user
+          currentUser
             .post('/getRecommenderUser')
-            .send({'id' : recommender})
+            .send({'id' : newRecommenderId})
             .expect((res) => {
               res.body.should.have.property('user').not.equal('');
               res.body.should.have.property('recommender').not.equal('');
             })
             .end(done)
       });
+
     });
 
-    describe('set recommender user',function(){
-      before(function() {
-        request(sails.hooks.http.app)
-          .post('/auth/local/register')
-          .send({email : 'test3@test.com',password : 'testtest', recommender : newRecommender ,confirmation :'testtest','g-recaptcha-response' : '03AHJ_Vuvwyf4S1GmaZsKFLFHKSh10HCtY3TrsmeCB-46UdGxNQSQyRhujfhpX2hlwVosclb2XB7qGCbGMvqU_7o_6LnXIgBuFUXizYnBrYe9B5oqsh2gxfl_DbEBqPKnjyuRQ-IhTiN9FcpJN-m7Zu46au9-1XJtU5xYUIgUxDuk_jazQ_lKCBlfCS9E5APLPboveCL9fdC8ca9jwvUxady4yVjUqpUTSU5lxFMKDu-_kl9GwxG8J7U4twbukg_hiqvoU2LSVqyWjlJBQ-WAZYJuYRTzbsBlBfr27rvVx1JxOxMCS6Nk-p5pQabr-d9uRDxWusLBWSn27QYhXNtgjH5MxVIFdI4sBfGJpAX7jYyDTabbBWh1TDLWzPAe8Iht03kmvG7k1hBaBngv3El3BGl0Rt-5EIxRh1g5G8C9cMujFbmfF7DIS3s1uCFwULNT_zFZVxw_CYhZCgFGkrIlsPKvCiV_ixSau2XgfqyXP0KUR553GFZLFfDrZ2GaAh280YR9G4SHYbBy0nLe16YNV6n6MlyOXL9Zd1Jo6DN5dp0kFHRRjKMMxPUgHLsR2HdKDkCoGgcyT81ZU'})
-          .expect(function(res){
-          })
-          .end((err,ext)=>{
-          });
-      });
-      before(function() {
-        secondUser
+    describe('setting users recommender test',function(){
+      before(function(done){
+        extraUser
           .post('/auth/local')
-          .send({identifier : 'test1@test.com',password : 'testtest'})
-          .expect(res => {
+          .send({identifier : 'extraUser@dinabun.com',password : 'testtest'})
+          .expect((res)=>{
+            extraUserId = res.body.user;
           })
-          .end((err,ext)=>{
-          });
+          .end(done);
       });
-
-      it('should return a bad request response becouse no recommender id',function(done){
-          user
+      it('should return a bad request response because it has no recommender id',function(done){
+          currentUser
             .post('/setRecommender')
             .expect(400,done);
       });
 
-      it('should return a bad request response becouse the id is not from a real user',function(done){
-          user
+      it('should return a bad request response because the id is not from a real user',function(done){
+          currentUser
             .post('/setRecommender')
             .send({'recommender' : '12341234'})
             .expect(400,done);
       });
 
-      it('should return a bad request response becouse the id is from the same user',function(done){
-          user
+      it('should return a bad request response because the id is from the same user',function(done){
+          currentUser
             .post('/setRecommender')
-            .send({'recommender' : currentUser})
+            .send({'recommender' : currentUserId})
             .expect(400,done);
       });
 
       it('should change the user recommender',function(done){
-          user
+          currentUser
             .post('/setRecommender')
-            .send({'recommender' : recommender})
+            .send({'recommender' : newRecommenderId})
             .expect(200)
             .end(done);
       });
 
+      //Now that we have set a recommender we can test getRecommenderUser again to see if its working
       it('should return user object with the recommender parameter filled',function(done){
-          user
+          currentUser
             .post('/getRecommenderUser')
-            .send({'id' : recommender})
+            .send({'id' : newRecommenderId})
             .expect((res) => {
               res.body.user.recommender.should.have.property('email');
               res.body.should.have.property('recommender').not.equal('');
@@ -168,9 +170,9 @@ describe('UserController',function(){
       });
 
       it('should change the user recommender again and delete from lastone',function(done){
-          user
+          currentUser
             .post('/setRecommender')
-            .send({'recommender' : newRecommender})
+            .send({'recommender' : newRecommenderId})
             .expect(200)
             .end(done);
       });
@@ -179,27 +181,29 @@ describe('UserController',function(){
       it('should try to register a new user with a false recommender id ',function(done){
           request(sails.hooks.http.app)
             .post('/auth/local/register')
-            .send({email : 'userWithFalse@test.com',password : 'testtest', recommender : '12341234' ,confirmation :'testtest','g-recaptcha-response' : '03AHJ_Vuvwyf4S1GmaZsKFLFHKSh10HCtY3TrsmeCB-46UdGxNQSQyRhujfhpX2hlwVosclb2XB7qGCbGMvqU_7o_6LnXIgBuFUXizYnBrYe9B5oqsh2gxfl_DbEBqPKnjyuRQ-IhTiN9FcpJN-m7Zu46au9-1XJtU5xYUIgUxDuk_jazQ_lKCBlfCS9E5APLPboveCL9fdC8ca9jwvUxady4yVjUqpUTSU5lxFMKDu-_kl9GwxG8J7U4twbukg_hiqvoU2LSVqyWjlJBQ-WAZYJuYRTzbsBlBfr27rvVx1JxOxMCS6Nk-p5pQabr-d9uRDxWusLBWSn27QYhXNtgjH5MxVIFdI4sBfGJpAX7jYyDTabbBWh1TDLWzPAe8Iht03kmvG7k1hBaBngv3El3BGl0Rt-5EIxRh1g5G8C9cMujFbmfF7DIS3s1uCFwULNT_zFZVxw_CYhZCgFGkrIlsPKvCiV_ixSau2XgfqyXP0KUR553GFZLFfDrZ2GaAh280YR9G4SHYbBy0nLe16YNV6n6MlyOXL9Zd1Jo6DN5dp0kFHRRjKMMxPUgHLsR2HdKDkCoGgcyT81ZU'})
+            .send({email : 'userWithFalse@dinabun.com',password : 'testtest', recommender : '12341234' ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
+              //Aquí falta tener alguna propiedad que indique que el usuario se creó pero que no se le asignó un recommender
+              //Es el status del que hablamos
               res.body.should.have.property('user');
             })
             .end(done)
       });
 
-      it('should register a new user with same recomender ',function(done){
+      it('should register a second user with newRecommender as recommender',function(done){
           request(sails.hooks.http.app)
             .post('/auth/local/register')
-            .send({email : 'test4@test.com',password : 'testtest', recommender : newRecommender ,confirmation :'testtest','g-recaptcha-response' : '03AHJ_Vuvwyf4S1GmaZsKFLFHKSh10HCtY3TrsmeCB-46UdGxNQSQyRhujfhpX2hlwVosclb2XB7qGCbGMvqU_7o_6LnXIgBuFUXizYnBrYe9B5oqsh2gxfl_DbEBqPKnjyuRQ-IhTiN9FcpJN-m7Zu46au9-1XJtU5xYUIgUxDuk_jazQ_lKCBlfCS9E5APLPboveCL9fdC8ca9jwvUxady4yVjUqpUTSU5lxFMKDu-_kl9GwxG8J7U4twbukg_hiqvoU2LSVqyWjlJBQ-WAZYJuYRTzbsBlBfr27rvVx1JxOxMCS6Nk-p5pQabr-d9uRDxWusLBWSn27QYhXNtgjH5MxVIFdI4sBfGJpAX7jYyDTabbBWh1TDLWzPAe8Iht03kmvG7k1hBaBngv3El3BGl0Rt-5EIxRh1g5G8C9cMujFbmfF7DIS3s1uCFwULNT_zFZVxw_CYhZCgFGkrIlsPKvCiV_ixSau2XgfqyXP0KUR553GFZLFfDrZ2GaAh280YR9G4SHYbBy0nLe16YNV6n6MlyOXL9Zd1Jo6DN5dp0kFHRRjKMMxPUgHLsR2HdKDkCoGgcyT81ZU'})
+            .send({email : 'test4@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
               res.body.should.have.property('user');
             })
             .end(done)
       });
 
-      it('should register a new user with same recomender and fill it',function(done){
+      it('should register the third and last user with newRecommender as recommender',function(done){
           request(sails.hooks.http.app)
             .post('/auth/local/register')
-            .send({email : 'test5@test.com',password : 'testtest', recommender : newRecommender ,confirmation :'testtest','g-recaptcha-response' : '03AHJ_Vuvwyf4S1GmaZsKFLFHKSh10HCtY3TrsmeCB-46UdGxNQSQyRhujfhpX2hlwVosclb2XB7qGCbGMvqU_7o_6LnXIgBuFUXizYnBrYe9B5oqsh2gxfl_DbEBqPKnjyuRQ-IhTiN9FcpJN-m7Zu46au9-1XJtU5xYUIgUxDuk_jazQ_lKCBlfCS9E5APLPboveCL9fdC8ca9jwvUxady4yVjUqpUTSU5lxFMKDu-_kl9GwxG8J7U4twbukg_hiqvoU2LSVqyWjlJBQ-WAZYJuYRTzbsBlBfr27rvVx1JxOxMCS6Nk-p5pQabr-d9uRDxWusLBWSn27QYhXNtgjH5MxVIFdI4sBfGJpAX7jYyDTabbBWh1TDLWzPAe8Iht03kmvG7k1hBaBngv3El3BGl0Rt-5EIxRh1g5G8C9cMujFbmfF7DIS3s1uCFwULNT_zFZVxw_CYhZCgFGkrIlsPKvCiV_ixSau2XgfqyXP0KUR553GFZLFfDrZ2GaAh280YR9G4SHYbBy0nLe16YNV6n6MlyOXL9Zd1Jo6DN5dp0kFHRRjKMMxPUgHLsR2HdKDkCoGgcyT81ZU'})
+            .send({email : 'test5@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
               res.body.should.have.property('user');
             })
@@ -207,25 +211,96 @@ describe('UserController',function(){
       });
 
 
-      it('should return a badRequest because the recommender is with full recommended',function(done){
-        secondUser
+      it('should return a badRequest because newRecommender can\'t have more recomended users',function(done){
+        extraUser
           .post('/setRecommender')
-          .send({'recommender' : newRecommender})
+          .send({'recommender' : newRecommenderId})
           .expect((res) => {
             res.should.have.property('status').equal(400);
           })
           .end(done);
       });
 
-      it('should register a new user with no recommender becouse is full ',function(done){
+      it('should register a new user but with a blank recommender since newRecommender can\'t have more recomended users',function(done){
           request(sails.hooks.http.app)
             .post('/auth/local/register')
-            .send({email : 'noRecmonder@test.com',password : 'testtest', recommender : newRecommender ,confirmation :'testtest','g-recaptcha-response' : '03AHJ_Vuvwyf4S1GmaZsKFLFHKSh10HCtY3TrsmeCB-46UdGxNQSQyRhujfhpX2hlwVosclb2XB7qGCbGMvqU_7o_6LnXIgBuFUXizYnBrYe9B5oqsh2gxfl_DbEBqPKnjyuRQ-IhTiN9FcpJN-m7Zu46au9-1XJtU5xYUIgUxDuk_jazQ_lKCBlfCS9E5APLPboveCL9fdC8ca9jwvUxady4yVjUqpUTSU5lxFMKDu-_kl9GwxG8J7U4twbukg_hiqvoU2LSVqyWjlJBQ-WAZYJuYRTzbsBlBfr27rvVx1JxOxMCS6Nk-p5pQabr-d9uRDxWusLBWSn27QYhXNtgjH5MxVIFdI4sBfGJpAX7jYyDTabbBWh1TDLWzPAe8Iht03kmvG7k1hBaBngv3El3BGl0Rt-5EIxRh1g5G8C9cMujFbmfF7DIS3s1uCFwULNT_zFZVxw_CYhZCgFGkrIlsPKvCiV_ixSau2XgfqyXP0KUR553GFZLFfDrZ2GaAh280YR9G4SHYbBy0nLe16YNV6n6MlyOXL9Zd1Jo6DN5dp0kFHRRjKMMxPUgHLsR2HdKDkCoGgcyT81ZU'})
+            .send({email : 'noRecmonder@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
+              //Aquí también falta tener algo que te avise que el usuario se creó pero que no tiene recomendador
+              //Lo mismo se puede hacer con un status
+              //Plis pensarás bien en los nombres que le vas a poner al status para que sean descriptivos
               res.body.should.have.property('user');
             })
             .end(done)
       });
     });
 
-});
+    describe('email verification',function(){
+      var mailNotVerifiedUserId,
+          token;
+      before(function(done){
+
+        var tokensModel=sails.models.token;
+        mailNotVerifiedUser
+        .post('/auth/local')
+        .send({identifier : 'mailNotVerifiedUser@dinabun.com',password : 'testtest'})
+        .expect((res)=>{
+          mailNotVerifiedUserId = res.body.user;
+        })
+        .end((err)=>{
+          //create a token in the database to be verified later
+          tokensModel.createToken({user:mailNotVerifiedUserId,rol:'m',expireAt:(new Date()).add({days:7})},function(err,result){
+              token=result;
+              done();
+          });
+        });
+      });
+      it('should generate a token for mail verification',function(done){
+          currentUser
+            .post('/getMailVerification')
+            .send()
+            .expect((result)=>{
+              result.body.should.have.property('success').equal(true);
+              result.body.should.have.property('address').equal('currentUser@dinabun.com');
+            })
+            .end(done);
+      });
+      it('should not generate a new token and inform about that',function(done){
+          currentUser
+            .post('/getMailVerification')
+            .send()
+            .expect((result)=>{
+              result.body.should.have.property('success').equal(false);
+            })
+            .end(done);
+      });
+      //en esta parte se debe hacer algo para hacer que el usuario aparezca como si hubiese confirmado su correo
+      it('should not verify an invalid token',function(done){
+          request(sails.hooks.http.app)
+            .get('/verifyMail/asdfasdfasdfadf')
+            .send()
+            .expect('location','/mvf/failure')
+            .end(done);
+      });
+      it('should verify the token',function(done){
+          request(sails.hooks.http.app)
+            .get('/verifyMail/'+token)
+            .send()
+            .expect('location','/mvf/success')
+            .end(done);
+      });
+      it('should return the user with mailVerified set on true',function(done){
+          mailNotVerifiedUser
+            .get('/getCurrentUser')
+            .send()
+            .expect((result)=>{
+              result.body.should.have.property('mailVerified').equal(true);
+            })
+            .end(done);
+      });
+
+    });
+
+
+
+  });

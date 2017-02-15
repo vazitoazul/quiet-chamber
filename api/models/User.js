@@ -5,7 +5,7 @@ var User = {
 
   types: {
     recommended : (json) => {
-      if(Object.keys(json).length > 4){
+      if(Object.keys(json).length > 3){
         return false;
       }
       return true;
@@ -20,6 +20,7 @@ var User = {
     firstName : {type : 'string'},
     lastName : {type : 'string'},
     contactInfo: {type : 'json',defaultsTo:{firstName:null,lastName:null,telephones:[],location:{latitude:null,longitude:null},email:null,address:null}},
+    tokens : {collection:'Token',via:'user'},
     payments : { collection : 'Payment', via : 'user'},
     subscribedUntil : {type: 'date',defaultsTo:null,date:true},
     recommender : {type : 'string', defaultsTo : null},

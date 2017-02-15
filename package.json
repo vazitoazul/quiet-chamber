@@ -5,6 +5,7 @@
   "description": "Sails application to make buisness online",
   "keywords": [],
   "dependencies": {
+    "bcrypt": "^1.0.2",
     "async": "^2.1.4",
     "bcryptjs": "^2.3.0",
     "bower": "^1.7.9",
@@ -28,7 +29,8 @@
     "request": "^2.79.0",
     "sails": "~0.12.1",
     "sails-disk": "~0.10.9",
-    "sails-mongo": "^0.12.1"
+    "sails-mongo": "^0.12.1",
+    "shortid": "^2.2.6"
   },
   "scripts": {
     "postinstall": "bash ./post-install.sh",
@@ -47,9 +49,9 @@
   "author": "juanrosero",
   "license": "",
   "devDependencies": {
-    "barrels": "^1.6.4",
     "chai": "^3.5.0",
     "mocha": "^3.0.2",
+    "sails-hook-fixtures": "^0.12.2",
     "supertest": "^2.0.0"
   }
 }

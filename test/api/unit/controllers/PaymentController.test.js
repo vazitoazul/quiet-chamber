@@ -6,31 +6,15 @@ var user = request.agent('http://localhost:9000');
 
 describe('PaymentController',function(){
   describe('Create a billing ',function(){
-    before(function() {
+    before(function(done) {
        user
          .post('/auth/local')
-         .send({identifier : 'test@test.com',password : 'testtest'})
-         .end(function(err,next){
-         });
+         .send({identifier : 'buyer@dinabun.com',password : 'testtest'})
+         .end(done);
     });
 
-    it('should forbid the action',function(done){
-        user
-          .post('/updateuserinfo')
-          .expect(403)
-          .end(done)
-    });
-
-    it('should update user intlCredential',function(done){
-        user
-          .post('/updateintlcredential')
-          .send({newCredential:'ec001001001'})
-          .expect(200)
-          .end(done)
-    });
 
     it('should redirect to paypal approving url',function(done){
-        this.timeout(5000);
         user
           .get('/checkoutPayment')
           .expect(function(res,err){

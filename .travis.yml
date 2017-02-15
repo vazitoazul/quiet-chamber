@@ -1,7 +1,7 @@
 language: node_js
 sudo: required
 dist: trusty
-services: 
+services:
   - mongodb
   - redis-server
 addons:
@@ -14,7 +14,7 @@ addons:
 node_js:
   - '6'
 before_script:
-  - npm install -g bower web-component-tester 
-script: 
+  - npm install -g bower web-component-tester
+script:
   - mocha test/api/**/*.test.js
   - xvfb-run wct test/app
