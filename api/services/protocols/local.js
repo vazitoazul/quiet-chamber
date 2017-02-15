@@ -56,7 +56,7 @@ exports.register = function (req, res, next) {
              var newUser = {
                email : email
              }
-             if(recommender && Object.keys(recommender.recommended).length < 4 && !err){
+             if(recommender && Object.keys(recommender.recommended).length < 3 ){
                newUser['recommender'] = recommender.id;
              }
              User.create(newUser, function (err, user) {
@@ -103,7 +103,7 @@ exports.register = function (req, res, next) {
                         };
                         mailgun.send('mailVerification',info,destination,(err,result)=>{
                           if(err) return next(err);
-                          next(null, user);
+                          next(null, user, { recommender : user.recommender});
                         });
                       });
                     });
@@ -121,7 +121,7 @@ exports.register = function (req, res, next) {
                       };
                       mailgun.send('mailVerification',info,destination,(err,result)=>{
                         if(err) return next(err);
-                        next(null, user);
+                        next(null, user, { recommender : user.recommender});
                       });
                     });
                   }

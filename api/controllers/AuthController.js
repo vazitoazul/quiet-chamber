@@ -114,7 +114,12 @@ var AuthController = {
         if(!req.wantsJSON){
           return res.redirect('/acco');
         }else{
-          return res.json({user : user.id,success:true});
+          var response = {user : user.id,success:true};
+          if(challenges.recommender){
+            return res.json({user : user.id,success:true, recommendedUser : true});
+          }else{
+            return res.json({user : user.id,success:true,  recommendedUser : false});
+          }
         }
 
       });
