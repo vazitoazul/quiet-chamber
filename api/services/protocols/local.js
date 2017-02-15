@@ -51,6 +51,7 @@ exports.register = function (req, res, next) {
         if(done) {
            // recaptcha verified
            User.findOne({id : recommenderId}, function(err,recommender){
+             if(err) return next(err,null,{message:'error_finding_recomender'});
              var newUser = {
                email : email
              }

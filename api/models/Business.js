@@ -12,10 +12,9 @@ module.exports = {
   	name : { type : 'string' },
   	description : { type : 'string' },
   	type : { type : 'array' , required : true},
-  	location : { type : 'json'},
-  	requiredFounds : { type : 'number'},
-  	actualFounrds : { type : 'number'}, 
-  	contactInfo : { type : 'json' , defaultsTo : { email : '', telephone: ''}}
+  	city : { type : 'json'},
+  	contactInfo : { type : 'json' , defaultsTo : { email : '', telephone: []}},
+    locationReference : { type : 'string'}
   }
 };
 
