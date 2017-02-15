@@ -42,6 +42,10 @@ module.exports.routes = {
   'post /auth/:provider/callback': 'AuthController.callback',
   'post /auth/:provider/:action': 'AuthController.callback',
 
+  //Mail verification Routes
+  'post /getMailVerification': 'UserController.getMailVerification',
+  'get /verifyMail/:token': 'UserController.verifyMail',
+
 
   '/:page':'RouterController.redirect',
   '/:page/:action':'RouterController.redirect',

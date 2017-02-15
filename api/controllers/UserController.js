@@ -22,7 +22,7 @@ module.exports = {
 	/**
     *update the user intlCredential parameter.
     *
-    *@param {string} newCredential - new credential to change 
+    *@param {string} newCredential - User's new intlCredential
     */
 	updateIntlCredential : function(req,res,next){
 		var newCredential = req.param('newCredential');
@@ -45,26 +45,30 @@ module.exports = {
 	/**
     *update the user information parameter.
     *
-    *@param {string} firstName 
-    *@param {string} lastName 
-    *@param {array} telephones 
-    *@param {string} email 
-    *@param {object} location - latitude and longitude 
-    *@param {object} contactInfo 
+    *@param {string} firstName
+    *@param {string} lastName
+    *@param {array} telephones
+    *@param {string} email
+    *@param {object} location - latitude and longitude
+    *@param {object} contactInfo
     */
 	updateUserInfo : function(req,res,next){
-		var contactInfo = {
-			firstName : req.param('contactFirstName'),
-			lastName : req.param('contactLastName'),
-			telephones : req.param('telephone').split(','),
-			email : req.param('contactEmail'),
-			location : {
-				latitude : req.param('latitude'),
-				longitude : req.param('longitude'),
-			},
-			address : req.param('addressLabel')
-		}
-		User.update({id : req.user.id}, {firstName: req.param('userFirstName'), lastName: req.param('userLastName'),contactInfo : contactInfo}, function(err,updated){
+		var info = {
+			firstName:req.param('userFirstName'),
+			lastName: req.param('userLastName'),
+			contactInfo:{
+				firstName : req.param('contactFirstName'),
+				lastName : req.param('contactLastName'),
+				telephones : req.param('telephone').split(','),
+				email : req.param('contactEmail'),
+				location : {
+					latitude : req.param('latitude'),
+					longitude : req.param('longitude'),
+				},
+				address : req.param('addressLabel')
+			}
+		};
+		User.update({id : req.user.id}, info, function(err,updated){
 			if(err){
 				return next(err);
 			}
@@ -72,11 +76,65 @@ module.exports = {
 		});
 	},
 	/**
-    *returns an object with the current logged user and the user tried to set as recommender.
-    *In case recommender or current user don't exist it set the obectj as '' in order to be contrelled on front end
-    *
-    *@param {string} recommenderId 
-    */
+	*Recives a token and looks for it on the database in order to confirm user email
+	*
+	*@param {string} token - The token that the user recives on the sent email
+	*
+	*/
+	verifyMail:function(req,res,next){
+		var token = req.param('token');
+		if(!token){return res.badRequest()}
+		Token.consumeToken(token,(err,user)=>{
+			if(err){
+				if(err.tokenNotFound){
+					return res.redirect('/mvf/failure');
+				}else{
+					return next(err);
+				}
+			}
+			User.update(user.id,{mailVerified:true},(err,updated)=>{
+				if(err)return next(err);
+				res.redirect('/mvf/success');
+			});
+
+		});
+	},
+	/**
+	*Gives the authenticated user a new token for mail verification.
+	*If there is already a token issued for that user, it returns a success:false response
+	*Otherwise sends an email with the token and returns a success:true with the email address to which the email was sent
+	*/
+	getMailVerification:function(req,res,next){
+		User.findOne(req.user.id).populate('tokens',{rol:'m'}).exec((err,user)=>{
+			if(err)return next(err);
+			if(user.tokens.length>0||user.mailVerified){
+				res.ok({success:false});
+			}else{
+				var expireAt= (new Date()).add({days:7});
+				var tok={user:user.id,rol:'m',expireAt:expireAt};
+				Token.createToken(tok,(err,token)=>{
+					if(err)return next(err);
+					var info={
+						url:'https://dinabun.com/verifyMail/'+token
+					};
+					var destination = {
+						to:user.email,
+						subject:'Confirmación de correo'
+					};
+					mailgun.send('mailVerification',info,destination,(err,result)=>{
+						if(err) return next(err);
+						res.ok({success:true,address:user.email});
+					});
+				});
+			}
+		});
+	},
+	/**
+		*returns an object with the current logged user and the user tried to set as recommender.
+		*In case recommender or current user don't exist it set the obectj as '' in order to be contrelled on front end
+		*
+		*@param {string} recommenderId
+		*/
 	getRecommenderUser : function(req,res,next){
 		var response = { user : '', recommender : ''};
 		var recommenderId = req.param('id');
@@ -129,8 +187,8 @@ module.exports = {
 		}
 		User.findOne({id : recommender},(err, newRecommender) => {
 			if(err) return next(err);
-			//verify the recommender user has less than 4 recommended already
-			if(!newRecommender || Object.keys(newRecommender.recommended).length >= 4){
+			//check if no more recommended users can be added
+			if(!newRecommender || Object.keys(newRecommender.recommended).length >= 3){
 				return res.badRequest();
 			}
 			if(newRecommender.id === currentUser.id){

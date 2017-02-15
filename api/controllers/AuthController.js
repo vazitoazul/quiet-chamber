@@ -97,6 +97,7 @@ var AuthController = {
     passport.callback(req, res, function (err, user, challenges, statuses) {
       if (err || !user) {
         return tryAgain(challenges);
+
       }
 
       req.login(user, function (err) {
@@ -131,7 +132,7 @@ var AuthController = {
   },
 
   /**
-    Handle send to the client the key necesary to initialize any third party provider authenticator
+    Sends the api key necesary for the client
   */
   key:function(req,res){
     res.json({key:keys[req.param('provider')]});

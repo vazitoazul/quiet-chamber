@@ -16,5 +16,10 @@ module.exports.bootstrap = function(cb) {
 
   //load passort strategies for authentication
   sails.services.passport.loadStrategies();
-  cb();
+  sails.models.token.native(function(err,collection){
+   collection.ensureIndex({'expireAt':1},{expireAfterSeconds:0},function(){
+	     cb();
+      });
+  });
+
 };
