@@ -135,7 +135,6 @@ module.exports = {
 		};
 		paypal.billingAgreement.create(billingAgreementAttributes, function (error, billingAgreement) {
 	      if (error) {
-	      	  console.log(error);
 	          return next(error);
 	      } else {
 	          for (var index = 0; index < billingAgreement.links.length; index++) {
