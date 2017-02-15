@@ -1,12 +1,17 @@
 var Sails = require('sails');
 var path= require('path');
 var rc = require('rc');
+
   // Global before hook
   before(function (done) {
     process.chdir(path.resolve(__dirname,'../../'));
     this.timeout(10000);
     // Lift Sails with test database
-    Sails.lift(rc('sails'), function(err) {
+    var settings = rc('sails');
+    //load fixtures and set up that hook
+    settings.hooks.fixtures = require('sails-hook-fixtures');
+    settings.fixtures=require('./fixtures.js');
+    Sails.lift(settings, function(err) {
       if (err)
         return done(err);
 

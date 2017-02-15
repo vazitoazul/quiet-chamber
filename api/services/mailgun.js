@@ -1,5 +1,6 @@
 var api_key = sails.config.mailgun.api_key,
     domain = sails.config.mailgun.domain,
+    testMode= sails.config.mailgun.test,
     Mailgun = require('mailgun-js'),
     mailgun = new Mailgun({apiKey: api_key, domain: domain});
 module.exports={
@@ -32,10 +33,11 @@ module.exports={
           from:'noreply@'+domain,
           to: destination.to,
           subject:destination.subject,
-          html:result
+          html:result,
+          'o:testmode':testMode
         };
         mailgun.messages().send(data, function (err, body) {
-          if(err)return callback(err);
+          if(err)return callback(null,err);
           callback(null,body);
         });
       });

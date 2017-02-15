@@ -5,7 +5,7 @@ var User = {
 
   types: {
     recommended : (json) => {
-      if(Object.keys(json).length > 4){
+      if(Object.keys(json).length > 3){
         return false;
       }
       return true;

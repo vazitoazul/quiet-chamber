@@ -34,18 +34,22 @@ module.exports = {
 	},
 
 	updateUserInfo : function(req,res,next){
-		var contactInfo = {
-			firstName : req.param('contactFirstName'),
-			lastName : req.param('contactLastName'),
-			telephones : req.param('telephone').split(','),
-			email : req.param('contactEmail'),
-			location : {
-				latitude : req.param('latitude'),
-				longitude : req.param('longitude'),
-			},
-			address : req.param('addressLabel')
-		}
-		User.update({id : req.user.id}, {firstName: req.param('userFirstName'), lastName: req.param('userLastName'),contactInfo : contactInfo}, function(err,updated){
+		var info = {
+			firstName:req.param('userFirstName'),
+			lastName: req.param('userLastName'),
+			contactInfo:{
+				firstName : req.param('contactFirstName'),
+				lastName : req.param('contactLastName'),
+				telephones : req.param('telephone').split(','),
+				email : req.param('contactEmail'),
+				location : {
+					latitude : req.param('latitude'),
+					longitude : req.param('longitude'),
+				},
+				address : req.param('addressLabel')
+			}
+		};
+		User.update({id : req.user.id}, info, function(err,updated){
 			if(err){
 				return next(err);
 			}
@@ -144,7 +148,7 @@ module.exports = {
 		}
 		User.findOne({id : recommender},(err, newRecommender) => {
 			if(err) return next(err);
-			if(!newRecommender || Object.keys(newRecommender.recommended).length >= 4){
+			if(!newRecommender || Object.keys(newRecommender.recommended).length >= 3){
 				return res.badRequest();
 			}
 			if(newRecommender.id === currentUser.id){

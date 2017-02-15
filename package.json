@@ -49,9 +49,9 @@
   "author": "juanrosero",
   "license": "",
   "devDependencies": {
-    "barrels": "^1.6.4",
     "chai": "^3.5.0",
     "mocha": "^3.0.2",
+    "sails-hook-fixtures": "^0.12.2",
     "supertest": "^2.0.0"
   }
 }

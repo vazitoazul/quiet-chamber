@@ -21,6 +21,11 @@ module.exports = {
 		connection:'testMongo',
 		migrate: 'drop'
 	},
+	mailgun:{
+	  api_key:process.env.MAILGUN_APIKEY,
+	  domain:process.env.MAILGUN_DOMAIN,
+	  test:true
+	},
 	session:{
 		secret:'f99fc5594661102ab5055dc74a2f2ebd',
 		adapter:'connect-redis',
