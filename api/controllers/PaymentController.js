@@ -135,7 +135,7 @@ module.exports = {
 		};
 		paypal.billingAgreement.create(billingAgreementAttributes, function (error, billingAgreement) {
 	      if (error) {
-	          return next(err);
+	          return next(error);
 	      } else {
 	          for (var index = 0; index < billingAgreement.links.length; index++) {
 	              if (billingAgreement.links[index].rel === 'approval_url') {
