@@ -52,10 +52,11 @@ exports.register = function (req, res, next) {
         if(done) {
            // recaptcha verified
            User.findOne({id : recommenderId}, function(err,recommender){
+             if(err) return next(err,null,{message:'error_finding_recomender'});
              var newUser = {
                email : email
              }
-             if(recommender && Object.keys(recommender.recommended).length < 4 && !err){
+             if(recommender && Object.keys(recommender.recommended).length < 3 ){
                newUser['recommender'] = recommender.id;
              }
              User.create(newUser, function (err, user) {
@@ -102,7 +103,7 @@ exports.register = function (req, res, next) {
                         };
                         mailgun.send('mailVerification',info,destination,(err,result)=>{
                           if(err) return next(err);
-                          next(null, user);
+                          next(null, user, { recommender : user.recommender});
                         });
                       });
                     });
@@ -120,7 +121,7 @@ exports.register = function (req, res, next) {
                       };
                       mailgun.send('mailVerification',info,destination,(err,result)=>{
                         if(err) return next(err);
-                        next(null, user);
+                        next(null, user, { recommender : user.recommender});
                       });
                     });
                   }

@@ -148,7 +148,7 @@ passport.connect = function (req, query, profile, next) {
               if (err) {
                 return next(err);
               }
-              if(newRecommender && Object.keys(newRecommender.recommended).length < 4){
+              if(newRecommender && Object.keys(newRecommender.recommended).length < 3){
                 newRecommender.recommended[user.id] = true;
                 newRecommender.save(function(err,saved){
                   next(err, user);

@@ -49,7 +49,7 @@
       url="/getRecommenderUser"
       handle-as="json"
       on-response="recommendedUserhandleResponse"
-      on-error="recommendedUserhandleError"></iron-ajax>
+      on-error="getrecommendedUserhandleError"></iron-ajax>
     <iron-ajax
       id="setRecommenderRequester"
       url="/setRecommender"
@@ -174,18 +174,18 @@
         var response = e.detail.__data__.response;
         this.set('user',response.user);
         this.set('recommender',response.recommender);
-        if(response.recommender == ''){
+        if(!response.recommender){
           this.set('section','malformed');
           return;
         }
         if(!this.recommender.firstName){
           this.set(['recommender','firstName'],this.localize('recommender_no_name'));
         }
-        if(Object.keys(this.recommender.recommended).length >= 4){
+        if(Object.keys(this.recommender.recommended).length >= 3){
           this.set('section','recommendedFull');
           return;
         }
-        if(response.user == ''){
+        if(response.status == 'not logged'){
           this.set('section','noLogged');
           return;
         }
@@ -246,6 +246,10 @@
       setRecommendedHandleError : function(){
         this.showToast(this.localize('recommender_set_error'));
         this.$.getRecommenderRequester.generateRequest();
+      },
+
+      getrecommendedUserhandleError : function(){
+        this.set('section','malformed');
       }
 
     });

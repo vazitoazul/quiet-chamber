@@ -130,34 +130,35 @@ module.exports = {
 		});
 	},
 	/**
-		*returns an object with the current logged user and the user tried to set as recommender.
-		*In case recommender or current user don't exist it set the obectj as '' in order to be contrelled on front end
-		*
-		*@param {string} recommenderId
-		*/
+	*returns an object with a status [no logged, logged] and the current logged user with the user tried to set as recommender.
+	*In case recommender or current user don't exist it returns a bad reqeuest
+	*
+	*@param {string} recommenderId
+	*/
 	getRecommenderUser : function(req,res,next){
-		var response = { user : '', recommender : ''};
+		var response = {};
 		var recommenderId = req.param('id');
 
 		User.findOne({id : recommenderId},(err,recommender) => {
 			if(err) return next(err);
-			if(!recommender||err){
-				return res.json(response);
+			if(!recommender){
+				return res.badRequest();
 			}
-			response.recommender = recommender;
+			response['status'] = 'not logged';
+			response['recommender'] = recommender;
 			if(!req.user){
 				return res.json(response);
 			}
 			if(req.user.id == recommenderId){
-				response.recommender = '';
-				return res.json(response);
+				return res.badRequest();
 			}
 			User.findOne({id: req.user.id}, (err,found) => {
 				if(err) return next(err);
-				if(err||!found){
+				if(!found){
 					return res.json(response);
 				}
-				response.user = found;
+				response['user'] = found;
+				response['status'] = 'logged';
 				if(!found.recommender){
 					return res.json(response);
 				}else{

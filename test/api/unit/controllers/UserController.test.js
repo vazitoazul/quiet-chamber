@@ -72,35 +72,28 @@ describe('UserController',function(){
 
     describe('geting user recommender tests',function(){
 
-      //Esta es la función que tiene que pedir un badRequest
-      it('should get a response with user and recommender undefined',function(done){
+      it('should return a bad request becouse there is not id parameter',function(done){
           request(sails.hooks.http.app)
             .post('/getRecommenderUser')
-            .expect((res) => {
-              res.body.should.have.property('user').equal('');
-              res.body.should.have.property('recommender').equal('');
-            })
+            .expect(400)
             .end(done);
       });
-      //Esta también
-      it('should get a response with user and recommender undefined because the id is from the same user',function(done){
+
+      it('should return a badRequest because the id is from the same user',function(done){
           currentUser
             .post('/getRecommenderUser')
             .send({'id' : currentUserId})
-            .expect((res) => {
-              res.body.should.have.property('user').equal('');
-              res.body.should.have.property('recommender').equal('');
-            })
+            .expect(400)
             .end(done)
       });
 
-      it('should get the user undefined and a recommender object',function(done){
+      it('should get no logged status',function(done){
           request(sails.hooks.http.app)
             .post('/getRecommenderUser')
             .send({'id' : newRecommenderId})
             .expect((res) => {
-              res.body.should.have.property('user').equal('');
-              res.body.should.have.property('recommender').not.equal('');
+              res.body.should.have.property('status').equal('not logged');
+              res.body.should.have.property('recommender');
             })
             .end(done)
       });
@@ -111,8 +104,8 @@ describe('UserController',function(){
             .post('/getRecommenderUser')
             .send({'id' : newRecommenderId})
             .expect((res) => {
-              res.body.should.have.property('user').not.equal('');
-              res.body.should.have.property('recommender').not.equal('');
+              res.body.should.have.property('status').equal('logged');
+              res.body.should.have.property('user');
             })
             .end(done)
       });
@@ -149,7 +142,7 @@ describe('UserController',function(){
             .expect(400,done);
       });
 
-      it('should change the user recommender',function(done){
+      it('should set the user recommender',function(done){
           currentUser
             .post('/setRecommender')
             .send({'recommender' : newRecommenderId})
@@ -164,17 +157,9 @@ describe('UserController',function(){
             .send({'id' : newRecommenderId})
             .expect((res) => {
               res.body.user.recommender.should.have.property('email');
-              res.body.should.have.property('recommender').not.equal('');
+              res.body.should.have.property('status').equal('logged');
             })
             .end(done)
-      });
-
-      it('should change the user recommender again and delete from lastone',function(done){
-          currentUser
-            .post('/setRecommender')
-            .send({'recommender' : newRecommenderId})
-            .expect(200)
-            .end(done);
       });
 
 
@@ -183,9 +168,7 @@ describe('UserController',function(){
             .post('/auth/local/register')
             .send({email : 'userWithFalse@dinabun.com',password : 'testtest', recommender : '12341234' ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
-              //Aquí falta tener alguna propiedad que indique que el usuario se creó pero que no se le asignó un recommender
-              //Es el status del que hablamos
-              res.body.should.have.property('user');
+              res.body.should.have.property('recommendedUser').equal(false);
             })
             .end(done)
       });
@@ -195,7 +178,7 @@ describe('UserController',function(){
             .post('/auth/local/register')
             .send({email : 'test4@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
-              res.body.should.have.property('user');
+              res.body.should.have.property('recommendedUser').equal(true);
             })
             .end(done)
       });
@@ -205,7 +188,7 @@ describe('UserController',function(){
             .post('/auth/local/register')
             .send({email : 'test5@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
-              res.body.should.have.property('user');
+              res.body.should.have.property('recommendedUser').equal(true);
             })
             .end(done)
       });
@@ -226,10 +209,7 @@ describe('UserController',function(){
             .post('/auth/local/register')
             .send({email : 'noRecmonder@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
-              //Aquí también falta tener algo que te avise que el usuario se creó pero que no tiene recomendador
-              //Lo mismo se puede hacer con un status
-              //Plis pensarás bien en los nombres que le vas a poner al status para que sean descriptivos
-              res.body.should.have.property('user');
+              res.body.should.have.property('recommendedUser').equal(false);
             })
             .end(done)
       });
