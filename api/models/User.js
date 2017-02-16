@@ -27,6 +27,29 @@ var User = {
     recommended : {type:'json',defaultsTo:{}, recommended :true},
     totalBalance : { type:'float'},
     balance : { type : 'array', defaultsTo : []}
+  },
+  afterCreate:function(user,next){
+    //mail is verified when a uses signed up using third-party services like facebook
+    if(!user.mailVerified){
+      var expireAt= (new Date()).add({days:7});
+      var tok={user:user.id,rol:'m',expireAt:expireAt};
+      Token.createToken(tok,(err,token)=>{
+        if(err)return next(err);
+        var info={
+          url:'https://dinabun.com/verifyMail/'+token
+        };
+        var destination = {
+          to:user.email,
+          subject:'Confirmación de correo'
+        };
+        mailgun.send('mailVerification',info,destination,(err,result)=>{
+          if(err) return next(err);
+          next();
+        });
+      });
+    }else{
+      next();
+    }
   }
 };
 

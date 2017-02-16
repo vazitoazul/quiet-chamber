@@ -102,7 +102,6 @@ var AuthController = {
 
       req.login(user, function (err) {
         if (err) {
-
           return tryAgain(err);
         }
 
@@ -115,11 +114,8 @@ var AuthController = {
           return res.redirect('/acco');
         }else{
           var response = {user : user.id,success:true};
-          if(challenges.recommender){
-            return res.json({user : user.id,success:true, recommendedUser : true});
-          }else{
-            return res.json({user : user.id,success:true,  recommendedUser : false});
-          }
+          response.hasRecommender = statuses ? statuses.hasRecommender : false;
+          res.json(response);
         }
 
       });

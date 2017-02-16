@@ -4,9 +4,6 @@ var chai = require('chai')
 var currentUser = request.agent('http://localhost:9000');
 var extraUser = request.agent('http://localhost:9000');
 var mailNotVerifiedUser = request.agent('http://localhost:9000');
-
-//this User has all his fields already filled, and has a recommender
-var oldUser = request.agent('http://localhost:9000');
 var recaptchaResponse='03AHJ_Vuvwyf4S1GmaZsKFLFHKSh10HCtY3TrsmeCB-46UdGxNQSQyRhujfhpX2hlwVosclb2XB7qGCbGMvqU_7o_6LnXIgBuFUXizYnBrYe9B5oqsh2gxfl_DbEBqPKnjyuRQ-IhTiN9FcpJN-m7Zu46au9-1XJtU5xYUIgUxDuk_jazQ_lKCBlfCS9E5APLPboveCL9fdC8ca9jwvUxady4yVjUqpUTSU5lxFMKDu-_kl9GwxG8J7U4twbukg_hiqvoU2LSVqyWjlJBQ-WAZYJuYRTzbsBlBfr27rvVx1JxOxMCS6Nk-p5pQabr-d9uRDxWusLBWSn27QYhXNtgjH5MxVIFdI4sBfGJpAX7jYyDTabbBWh1TDLWzPAe8Iht03kmvG7k1hBaBngv3El3BGl0Rt-5EIxRh1g5G8C9cMujFbmfF7DIS3s1uCFwULNT_zFZVxw_CYhZCgFGkrIlsPKvCiV_ixSau2XgfqyXP0KUR553GFZLFfDrZ2GaAh280YR9G4SHYbBy0nLe16YNV6n6MlyOXL9Zd1Jo6DN5dp0kFHRRjKMMxPUgHLsR2HdKDkCoGgcyT81ZU'
 
 
@@ -168,7 +165,7 @@ describe('UserController',function(){
             .post('/auth/local/register')
             .send({email : 'userWithFalse@dinabun.com',password : 'testtest', recommender : '12341234' ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
-              res.body.should.have.property('recommendedUser').equal(false);
+              res.body.should.have.property('hasRecommender').equal(false);
             })
             .end(done)
       });
@@ -178,7 +175,7 @@ describe('UserController',function(){
             .post('/auth/local/register')
             .send({email : 'test4@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
-              res.body.should.have.property('recommendedUser').equal(true);
+              res.body.should.have.property('hasRecommender').equal(true);
             })
             .end(done)
       });
@@ -188,7 +185,7 @@ describe('UserController',function(){
             .post('/auth/local/register')
             .send({email : 'test5@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
-              res.body.should.have.property('recommendedUser').equal(true);
+              res.body.should.have.property('hasRecommender').equal(true);
             })
             .end(done)
       });
@@ -209,7 +206,7 @@ describe('UserController',function(){
             .post('/auth/local/register')
             .send({email : 'noRecmonder@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
-              res.body.should.have.property('recommendedUser').equal(false);
+              res.body.should.have.property('hasRecommender').equal(false);
             })
             .end(done)
       });
@@ -219,7 +216,6 @@ describe('UserController',function(){
       var mailNotVerifiedUserId,
           token;
       before(function(done){
-
         var tokensModel=sails.models.token;
         mailNotVerifiedUser
         .post('/auth/local')
@@ -228,12 +224,16 @@ describe('UserController',function(){
           mailNotVerifiedUserId = res.body.user;
         })
         .end((err)=>{
-          //create a token in the database to be verified later
-          tokensModel.createToken({user:mailNotVerifiedUserId,rol:'m',expireAt:(new Date()).add({days:7})},function(err,result){
-              token=result;
-              done();
-          });
+          //delete currentUser auto generated token for testing purposes
+          tokensModel.destroy({user:currentUserId},(err,deleted)=>{
+            //create a token in the database to be verified later
+            tokensModel.createToken({user:mailNotVerifiedUserId,rol:'m',expireAt:(new Date()).add({days:7})},function(err,result){
+                token=result;
+                done();
+            });
+          });  
         });
+
       });
       it('should generate a token for mail verification',function(done){
           currentUser

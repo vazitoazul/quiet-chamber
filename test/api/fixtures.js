@@ -1,6 +1,7 @@
 require('date-utils');
 module.exports ={
   order: [ 'User', 'Passport'],
+  empty:['Passport'],
   User:[
       {
       	"email" : "buyer@dinabun.com",

@@ -38,7 +38,7 @@ describe('AuthController', function(){
 
 
         it('should logout the user', function (done) {
-          request(sails.hooks.http.app)
+          user
             .get('/logout')
             .expect('location','/',done);
         });

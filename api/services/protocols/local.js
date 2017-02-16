@@ -61,7 +61,6 @@ exports.register = function (req, res, next) {
              }
              User.create(newUser, function (err, user) {
                 if (err) {
-                  console.log(err);
                   if (err.code === 'E_VALIDATION') {
                     if (err.invalidAttributes.email) {
                       return next(err,null,{message:'user_already_exists'});
@@ -81,49 +80,20 @@ exports.register = function (req, res, next) {
                 }, function (err, passport) {
                   if (err) {
                     if (err.code === 'E_VALIDATION') {
-                      console.log('Error on passport validation');
+                      logger.warning('Error on passport validation',err);
                     }
                     return user.destroy(function (destroyErr) {
                       next(destroyErr || err);
                     });
                   }
-                  if(recommender && Object.keys(recommender.recommended).length < 4 ){
+                  if(user.recommender){
                     recommender.recommended[user.id] = true;
-                    recommender.save(function (err,saved) {
-                      var expireAt= (new Date()).add({days:7});
-                      var tok={user:user.id,rol:'m',expireAt:expireAt};
-                      Token.createToken(tok,(err,token)=>{
-                        if(err)return next(err);
-                        var info={
-                          url:'https://dinabun.com/verifyMail/'+token
-                        };
-                        var destination = {
-                          to:user.email,
-                          subject:'Confirmación de correo'
-                        };
-                        mailgun.send('mailVerification',info,destination,(err,result)=>{
-                          if(err) return next(err);
-                          next(null, user, { recommender : user.recommender});
-                        });
-                      });
+                    //if the user was created using with a recommender
+                    User.update(recommender.id,{recommended:recommender.recommended},function (err,saved) {
+                      next(null, user,null,{ hasRecommender : true});
                     });
                   }else{
-                    var expireAt= (new Date()).add({days:7});
-                    var tok={user:user.id,rol:'m',expireAt:expireAt};
-                    Token.createToken(tok,(err,token)=>{
-                      if(err)return next(err);
-                      var info={
-                        url:'https://dinabun.com/verifyMail/'+token
-                      };
-                      var destination = {
-                        to:user.email,
-                        subject:'Confirmación de correo'
-                      };
-                      mailgun.send('mailVerification',info,destination,(err,result)=>{
-                        if(err) return next(err);
-                        next(null, user, { recommender : user.recommender});
-                      });
-                    });
+                    next(null, user);
                   }
                 });
               });
@@ -189,8 +159,6 @@ exports.login = function (req, identifier, password, next) {
   query.email = identifier;
 
   User.findOne(query, function (err, user) {
-    // console.log(identifier);
-    // console.log(password);
     if (err) {
       return next(err);
     }
