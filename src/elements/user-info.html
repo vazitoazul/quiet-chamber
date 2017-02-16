@@ -13,8 +13,8 @@
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../shared-styles.html">
 <dom-module id="user-info">
-  <template include="shared-styles">
-    <style>
+  <template>
+    <style include="shared-styles">
       :host {
         display: block;
         padding: 10px 20px;
@@ -24,7 +24,17 @@
       paper-card{
         width: 100%;
       }
+      paper-toast{
+        right: 0 !important;
+        left: inherit !important;
+      }
     </style>
+    <iron-ajax
+      id="mailVerifAjax"
+      url="/getMailVerification"
+      method="POST"
+      on-response="handleMailVerifResponse"></iron-ajax>
+
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
     <form is="iron-form" method="POST" action="/updateuserinfo" on-iron-form-response= "responseHandler" id="userInfoForm">
@@ -34,6 +44,24 @@
       <div class="card-content">
           <paper-input name="userFirstName" label="[[localize('names')]]" required  value="{{user.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
           <paper-input name="userLastName" label="[[localize('last_name')]]" required  value="{{user.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+      </div>
+      <div class="card-content">
+        <div hidden$="[[!user.mailVerified]]">
+          <span class="success">[[localize('your_address')]] <b>[[user.email]]</b> [[localize('has_been_verified')]]</span>
+        </div>
+        <div hidden$="[[user.mailVerified]]">
+          <div hidden$="[[mailVerifPending]]" class="vertical layout">
+            <span class="warning">[[localize('your_address')]] <b>[[user.email]]</b> [[localize('hasnt_been_verified')]] </span>
+            <div class="horizontal layout">
+              <span>[[localize('an_email_will_be_sent')]]</span>
+              <div class="flex"></div>
+              <paper-button raised class="info" on-click="askMailVerification" class="self-end">[[localize('verify')]]</paper-button>
+            </div>
+          </div>
+          <div hidden$="[[!mailVerifPending]]">
+            <span class="info">[[localize('an_email_has_been_sent_to')]]<b>[[user.email]]</b> [[localize('with_a_link_to_verify')]]</span>
+          </div>
+        </div>
       </div>
     </paper-card>
     <h4>[[localize('contact_information)')]]</h4>
@@ -71,11 +99,9 @@
       ],
 
       properties : {
-
         language : {
           value : 'en'
         },
-
         user :{
         	type : Object,
           notify : true,
@@ -84,50 +110,77 @@
         addressSearch:{
           type:Object
         },
+        mailVerifPending:{
+          type:Boolean,
+          value:false
+        },
         resources: {
             value: function() {
               return {
                 'en': {
                   'user_info' : 'User Information',
-                  'names' : 'name',
-                  'last_name' : 'last name',
-                  'must_fill_this_just_letters' : 'you must enter this field, use just letters',
-                  'must_fill_this' : 'you must enter this field',
+                  'names' : 'Name',
+                  'last_name' : 'Last name',
+                  'must_fill_this_just_letters' : 'This field is required, use just letters',
+                  'must_fill_this' : 'This field is required',
                   'update' : 'Update',
                   'contact_info' : 'User Contact Information',
-                  'telephones' : 'telephones',
-                  'mobile' : 'mobile phone',
-                  'number' : 'phone number {number}',
-                  'address' : 'address',
-                  'email' : 'email',
-                  'valid_email' : 'enter a valid email',
-                  'must_be_numbers' : 'must have just from 5 to 20 numbers',
+                  'telephones' : 'Telephones',
+                  'mobile' : 'Mobile phone',
+                  'number' : 'Phone number {number}',
+                  'address' : 'Address',
+                  'email' : 'Email',
+                  'valid_email' : 'Enter a valid email',
+                  'must_be_numbers' : 'Must have just from 5 to 20 numbers',
                   'info_updated' : 'Your information has been updated',
-                  'not_valid_address' : 'address not valid, please type and select an other one'
-                },
+                  'not_valid_address' : 'Address not valid, please type and select an other one',
+                  'email_sent':'A confirmation email has been sent to {email}.',
+                  'email_already_sent':'An email has already been sent to {email}. Check your inbox.',
+                  'your_address': 'Your address',
+                  'has_been_verified': 'has been verified.',
+                  'hasnt_been_verified' : 'hasn\'t been verified yet.',
+                  'an_email_will_be_sent': 'A confirmation email will be sent to verify it.',
+                  'verify': 'Verify',
+                  'an_email_has_been_sent_to':'An email has been sent to',
+                  'with_a_link_to_verify':'with a link to verify your address.'
+
+                 },
                 'es': {
                   'user_info' : 'Información del Usuario',
-                  'names' : 'nombres',
-                  'last_name' : 'apellidos',
-                  'must_fill_this_just_letters' : 'este campo es obligatorio, solo letras',
-                  'must_fill_this' : 'debes llenar este campo',
+                  'names' : 'Nombres',
+                  'last_name' : 'Apellidos',
+                  'must_fill_this_just_letters' : 'Este campo es obligatorio, solo letras',
+                  'must_fill_this' : 'Debes llenar este campo',
                   'update' : 'Actualizar',
                   'contact_info' : 'Información de Contacto',
-                  'telephones' : 'teléfonos',
-                  'mobile' : 'teléfono celular',
-                  'number' : 'teléfono {number}',
-                  'address' : 'dirección',
-                  'email' : 'correo electrónico',
-                  'valid_email' : 'ingrese una dirección de correo válida',
-                  'must_be_numbers' : 'debe ser solo de 5 a 20 números',
+                  'telephones' : 'Teléfonos',
+                  'mobile' : 'Teléfono celular',
+                  'number' : 'Teléfono {number}',
+                  'address' : 'Dirección',
+                  'email' : 'Correo electrónico',
+                  'valid_email' : 'Ingrese una dirección de correo válida',
+                  'must_be_numbers' : 'Debe ser solo de 5 a 20 números',
                   'info_updated' : 'Se ha actualizado tu información',
-                  'not_valid_address' : 'Dirección no válida,escribe y elije otro'
+                  'not_valid_address' : 'Dirección no válida,escribe y elije otro',
+                  'email_sent':'Un correo de confirmación ha sido enviado a {email}.',
+                  'email_already_sent':'Ya se ha enviado un correo a {email}. Revisa tu bandeja.',
+                  'your_address': 'Tu dirección',
+                  'has_been_verified': 'ha sido verificada.',
+                  'hasnt_been_verified' : 'no ha sido verificada todavía.',
+                  'an_email_will_be_sent': 'Se te enviará un correo de confirmación para verificarlo.',
+                  'verify': 'Verificar',
+                  'an_email_has_been_sent_to':'Se ha enviado un correo a',
+                  'with_a_link_to_verify':'con un link para verificar tu correo.'
                 }
               }
           }
         },
       },
-
+      showMessage:function(message,duration){
+        this.$.toast.text = message;
+        this.$.toast.duration = duration||3000;
+        this.$.toast.show();
+      },
       submit : function(e){
         if(this.$.userInfoForm.validate()){
           this.$.spinner.active = true;
@@ -142,10 +195,7 @@
         this.$.spinner.hidden = false;
         if(response.status == 200){
           this.set('user',e.detail.__data__.response);
-          this.user;
-          this.$.toast.fitInto = this.$.toastContainer;
-          this.$.toast.text = this.localize('info_updated');
-          this.$.toast.show();
+          this.showMessage(this.localize('info_updated'));
         }
       },
 
@@ -173,7 +223,7 @@
             var countryCode=this.user.intlCredential.substring(0,2);
             this.addressSearch.setComponentRestrictions({country: countryCode});
           }
-        }  
+        }
       },
       userChanged:function(newUser,lastUser){
         this._setUpAddressSearchRestrictions();
@@ -181,8 +231,18 @@
       setCurrentUser : function(newUser){
         this.set('user',newUser);
       },
-
-
+      askMailVerification:function(){
+        this.$.mailVerifAjax.generateRequest();
+      },
+      handleMailVerifResponse:function(e){
+        var response = e.detail.__data__.response;
+        if(response.success){
+          this.showMessage(this.localize('email_sent','email',this.user.email),5000);
+        }else{
+          this.showMessage(this.localize('email_already_sent','email',this.user.email),7000);
+        }
+        this.mailVerifPending=true;
+      }
     });
   </script>
 </dom-module>
