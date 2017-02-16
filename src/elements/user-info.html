@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
@@ -24,7 +25,7 @@
         width: 100%;
       }
     </style>
-    <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" ></google-maps-api>
+    <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
     <form is="iron-form" method="POST" action="/updateuserinfo" on-iron-form-response= "responseHandler" id="userInfoForm">
 
@@ -80,7 +81,9 @@
           notify : true,
           observer : 'userChanged'
         },
-
+        addressSearch:{
+          type:Object
+        },
         resources: {
             value: function() {
               return {
@@ -146,31 +149,39 @@
         }
       },
 
-      userChanged : function(newUser,lastUser){
+      handleApiLoad : function(e){
         var self = this;
-        this.async(function(){
-          var addressSearch = new google.maps.places.Autocomplete(self.$.addressInput.inputElement,{types : ['(regions)'], componentRestrictions: {country: self.user.intlCredential.substring(0,2)}});
-          google.maps.event.addListener(addressSearch,'place_changed', function(){
-            var address = addressSearch.getPlace();
-            if(!address.geometry){
-              self.$.toast.text = self.localize('not_valid_address');
-              self.$.toast.open();
-            }else{
-              self.set(['user','contactInfo','location','latitude'],address.geometry.location.lat());
-              self.set(['user','contactInfo','location','longitude'],address.geometry.location.lng());
-              self.set(['user','contactInfo','address'],address.formatted_address);
-              self.setCurrentUser(self.user);
-              console.log(self.user.contactInfo.location);
-            }
-          });
-        },500);
-
+        this.addressSearch= new google.maps.places.Autocomplete(self.$.addressInput.inputElement,{types : ['(regions)']});
+        google.maps.event.addListener(this.addressSearch,'place_changed', function(){
+          var address = addressSearch.getPlace();
+          if(!address.geometry){
+            self.$.toast.text = self.localize('not_valid_address');
+            self.$.toast.open();
+          }else{
+            self.set(['user','contactInfo','location','latitude'],address.geometry.location.lat());
+            self.set(['user','contactInfo','location','longitude'],address.geometry.location.lng());
+            self.set(['user','contactInfo','address'],address.formatted_address);
+            self.setCurrentUser(self.user);
+          }
+        });
+        this._setUpAddressSearchRestrictions();
       },
-
+      _setUpAddressSearchRestrictions:function(){
+        if(this.user){
+          if(this.user.intlCredential&&this.addressSearch){
+            //get the country code form the first two letters of user intlCredential
+            var countryCode=this.user.intlCredential.substring(0,2);
+            this.addressSearch.setComponentRestrictions({country: countryCode});
+          }
+        }  
+      },
+      userChanged:function(newUser,lastUser){
+        this._setUpAddressSearchRestrictions();
+      },
       setCurrentUser : function(newUser){
         this.set('user',newUser);
-        console.log(this.user);
-      }
+      },
+
 
     });
   </script>

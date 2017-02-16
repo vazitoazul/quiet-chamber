@@ -10,18 +10,51 @@
     <script src="../../../bower_components/web-component-tester/browser.js"></script>
 
     <!-- Import the element to test -->
-    <link rel="import" href="../../../src/elements/lang-selector.html">
+    <link rel="import" href="../../../src/elements/user-info.html">
   </head>
   <body>
     <test-fixture id="basic">
       <template>
-        <lang-selector></lang-selector>
+        <user-info></user-info>
       </template>
     </test-fixture>
     <script>
 
       describe('<user-info>', function() {
+        var view;
+        var user={
+          email : 'user@test.com',
+        	mailVerified : false,
+        	firstName : 'Pepe',
+        	lastName : 'Trueno',
+        	contactInfo : {
+        		firstName : 'Peps',
+        		lastName : 'Rayo',
+        		telephones : ['123123123123','123123123'],
+        		location : {
+        			latitude : '-0.1807',
+        			longitude : '78.4678'
+        		},
+        		email : 'pepetrueno@test.com',
+        		address : 'En la casa del rayo'
+        	},
+          intlCredential:null
+        };
+        before(function() {
+          view = fixture('basic');
+        });
+        it('should return it\'s name',function(){
+          expect(view.is).to.equal('user-info');
+        });
 
+        it('should set the new currentUser',function(){
+          view.setCurrentUser(user);
+          expect(view.user.email).to.equal('user@test.com');
+        });
+
+        it('should show the email verification controls when user.mailVerified=false',function(){
+          
+        });
       });
 
     </script>
