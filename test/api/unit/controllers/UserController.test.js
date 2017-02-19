@@ -231,7 +231,7 @@ describe('UserController',function(){
                 token=result;
                 done();
             });
-          });  
+          });
         });
 
       });
@@ -254,7 +254,6 @@ describe('UserController',function(){
             })
             .end(done);
       });
-      //en esta parte se debe hacer algo para hacer que el usuario aparezca como si hubiese confirmado su correo
       it('should not verify an invalid token',function(done){
           request(sails.hooks.http.app)
             .get('/verifyMail/asdfasdfasdfadf')
@@ -281,6 +280,92 @@ describe('UserController',function(){
 
     });
 
+    describe('getPassRecovery',function(){
+
+      it('should return a badRequest response when an invalid address is sent',function(done){
+        request(sails.hooks.http.app)
+          .post('/getPassRecovery')
+          .send('invalid@dinabun.com')
+          .expect(400)
+          .end();
+      });
+
+      it('should return a 200 response with success:true given an valid email',function(done){
+        request(sails.hooks.http.app)
+          .post('/getPassRecovery')
+          .send('currentUser@dinabun.com')
+          .expect(200)
+          .expect((res)=>{
+            res.body.succes.should.equal(true);
+          })
+          .end();
+      });
+
+      it('should return a 200 response with success:false when a token has already been created',function(done){
+        request(sails.hooks.http.app)
+          .post('/getPassRecovery')
+          .send('currentUser@dinabun.com')
+          .expect(200)
+          .expect((res)=>{
+            res.body.succes.should.equal(false);
+          })
+          .end();
+      });
+
+
+    });
+    describe('recoverPass',function(){
+      before(function(){
+        //reset the agents
+        extraUser = request.agent('http://localhost:9000');
+        var tokensModel=sails.models.token;
+        var token;
+        extraUser
+        .post('/auth/local')
+        .send({identifier : 'extraUser@dinabun.com',password : 'testtest'})
+        .expect((res)=>{
+          extraUserId = res.body.user;
+        })
+        .end((err)=>{
+          //create a token in the database to be recover the password later
+          tokensModel.createToken({user:extraUserId,rol:'p',expireAt:(new Date()).add({days:1})},function(err,result){
+              token=result;
+              done();
+          });
+        });
+      });
+      it('should return a badRequest when any of the parametes is missing',function(done){
+        request(sails.hooks.http.app)
+          .post('/recoverPass')
+          .send({confirm:'nottests'})
+          .expect(400)
+          .end();
+      });
+      it('should return a badRequest response with pass_not_match message when passwords don\'t match',function(done){
+        request(sails.hooks.http.app)
+          .post('/recoverPass')
+          .send({newPass:'testtest',confirm:'nottests',token:'asdasd'})
+          .expect(400)
+          .expect((res)=>{
+            res.body.message.should.equal('pass_not_match');
+          })
+          .end();
+      });
+      it('should return a badRequest response with token_invalid message when the token is invalid',function(done){
+        request(sails.hooks.http.app)
+          .post('/recoverPass')
+          .send({newPass:'testtest',confirm:'testtest',token:'asdasd'})
+          .expect(200)
+          .end();
+      });
+
+      it('should return a 200 response when everything is fine',function(done){
+        request(sails.hooks.http.app)
+          .send({newPass:'testtest',confirm:'testtest',token:token})
+          .expect(200)
+          .end();
+      });
+    });
 
 
   });

@@ -224,5 +224,27 @@ module.exports = {
 				}
 			});
 		});
+	},
+	/**
+	*
+	*Gets an email address and looks it up on the database, if exixts issue a token and send an email with it
+	*
+	*@param {string} email - The email address that is going to be used
+	*/
+	getPassRecovery:function(req,res,next){
+
+	},
+	/**
+	*
+	*Recives a recover password token, password and passwordConfirmation to change a user's password
+	*
+	*
+	*@param {string} token - The token to bee looked up
+	*@param {string} password - The new password
+	*@param {string} token - Password confirmation
+	*
+	*/
+	recoverPass:function(req,res,next){
+		
 	}
 }
