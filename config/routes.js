@@ -45,6 +45,9 @@ module.exports.routes = {
   //Mail verification Routes
   'post /getMailVerification': 'UserController.getMailVerification',
   'get /verifyMail/:token': 'UserController.verifyMail',
+  //Password recovery routes
+  'post /getPassRecovery': 'UserController.getPassRecovery',
+  'post /recoverPass': 'UserController.recoverPass',
 
 
   '/:page':'RouterController.redirect',

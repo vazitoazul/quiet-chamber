@@ -212,6 +212,7 @@ describe('UserController',function(){
       });
     });
 
+    //this is a unified test for getEmailVerification and verifyMail
     describe('email verification',function(){
       var mailNotVerifiedUserId,
           token;
@@ -285,41 +286,41 @@ describe('UserController',function(){
       it('should return a badRequest response when an invalid address is sent',function(done){
         request(sails.hooks.http.app)
           .post('/getPassRecovery')
-          .send('invalid@dinabun.com')
+          .send({email:'invalid@dinabun.com'})
           .expect(400)
-          .end();
+          .end(done);
       });
 
       it('should return a 200 response with success:true given an valid email',function(done){
         request(sails.hooks.http.app)
           .post('/getPassRecovery')
-          .send('currentUser@dinabun.com')
+          .send({email:'currentUser@dinabun.com'})
           .expect(200)
           .expect((res)=>{
-            res.body.succes.should.equal(true);
+            res.body.success.should.equal(true);
           })
-          .end();
+          .end(done);
       });
 
       it('should return a 200 response with success:false when a token has already been created',function(done){
         request(sails.hooks.http.app)
           .post('/getPassRecovery')
-          .send('currentUser@dinabun.com')
+          .send({email:'currentUser@dinabun.com'})
           .expect(200)
           .expect((res)=>{
-            res.body.succes.should.equal(false);
+            res.body.success.should.equal(false);
           })
-          .end();
+          .end(done);
       });
 
 
     });
     describe('recoverPass',function(){
-      before(function(){
-        //reset the agents
+      var token;
+      before(function(done){
+        //reset the agent
         extraUser = request.agent('http://localhost:9000');
         var tokensModel=sails.models.token;
-        var token;
         extraUser
         .post('/auth/local')
         .send({identifier : 'extraUser@dinabun.com',password : 'testtest'})
@@ -329,6 +330,7 @@ describe('UserController',function(){
         .end((err)=>{
           //create a token in the database to be recover the password later
           tokensModel.createToken({user:extraUserId,rol:'p',expireAt:(new Date()).add({days:1})},function(err,result){
+              console.log(result);
               token=result;
               done();
           });
@@ -339,31 +341,45 @@ describe('UserController',function(){
           .post('/recoverPass')
           .send({confirm:'nottests'})
           .expect(400)
-          .end();
+          .end(done);
       });
       it('should return a badRequest response with pass_not_match message when passwords don\'t match',function(done){
         request(sails.hooks.http.app)
           .post('/recoverPass')
-          .send({newPass:'testtest',confirm:'nottests',token:'asdasd'})
+          .send({newpass:'testtest',confirm:'nottests',token:'asdasd'})
           .expect(400)
           .expect((res)=>{
             res.body.message.should.equal('pass_not_match');
           })
-          .end();
+          .end(done);
       });
       it('should return a badRequest response with token_invalid message when the token is invalid',function(done){
         request(sails.hooks.http.app)
           .post('/recoverPass')
-          .send({newPass:'testtest',confirm:'testtest',token:'asdasd'})
-          .expect(200)
-          .end();
+          .send({newpass:'testtest',confirm:'testtest',token:'asdasd'})
+          .expect(400)
+          .expect((res)=>{
+            res.body.message.should.equal('token_invalid');
+          })
+          .end(done);
       });
 
       it('should return a 200 response when everything is fine',function(done){
         request(sails.hooks.http.app)
-          .send({newPass:'testtest',confirm:'testtest',token:token})
+          .post('/recoverPass')
+          .send({newpass:'newtesttest',confirm:'newtesttest',token:token})
           .expect(200)
-          .end();
+          .end(done);
+      });
+
+      it('should login the user with the new password',function(done){
+        request(sails.hooks.http.app)
+          .post('/auth/local')
+          .send({identifier : 'extraUser@dinabun.com',password : 'newtesttest'})
+          .expect((res)=>{
+            res.body.should.have.property('user');
+          })
+          .end(done);
       });
     });
 

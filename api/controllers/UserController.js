@@ -1,5 +1,5 @@
 //User controller
-
+var crypto    = require('crypto');
 module.exports = {
 	/**
     *return current logged user.
@@ -232,19 +232,90 @@ module.exports = {
 	*@param {string} email - The email address that is going to be used
 	*/
 	getPassRecovery:function(req,res,next){
-
+		var email = req.body.email;
+		User.findOne({email:email}).populate('tokens',{rol:'p'}).exec((err,user)=>{
+			if(err) return next(err);
+			if(!user)return res.badRequest();
+			if(user.tokens.length>0){
+				return res.ok({success:false});
+			}
+			var token={
+				user:user.id,
+				expireAt:(new Date()).add({days:1}),
+				rol:'p'
+			};
+			Token.createToken(token,(err,token)=>{
+				if(err) return next(err);
+				var info={
+					url:req.host+'/rcp/'+token
+				};
+				var destination={
+					to:user.email,
+					subject:'Recuperación de contraseña - Dinabun'
+				};
+				mailgun.send('passwordReset',info,destination,(err,body)=>{
+					if(err){
+						Token.destroy({user:user.id,rol:'p'},(delErr,deleted)=>{
+							return next(err||delErr);
+						});
+					}
+					res.send({success:true});
+				});
+			});
+		});
 	},
 	/**
 	*
 	*Recives a recover password token, password and passwordConfirmation to change a user's password
-	*
+	*If the user does not have a local passport create one (this is the case when a third-party login method was used)
 	*
 	*@param {string} token - The token to bee looked up
-	*@param {string} password - The new password
-	*@param {string} token - Password confirmation
+	*@param {string} newpass - The new password
+	*@param {string} confirm - Password confirmation
 	*
 	*/
 	recoverPass:function(req,res,next){
-		
+		var body=req.body;
+		if(!body.token||!body.newpass||!body.confirm){
+			return res.badRequest();
+		}
+		if(body.newpass!==body.confirm){
+			return res.badRequest({message:'pass_not_match'});
+		}
+		Token.consumeToken(body.token,(err,owner)=>{
+
+			if(err){
+				//if no token was found send appropiate message
+				if(err.tokenNotFound){
+					return res.badRequest({message:'token_invalid'});
+				}else{
+					return next(err);
+				}
+			}
+			Passport.findOne({user:owner.id,protocol:'local'},(err,found)=>{
+				if(err) return next(err);
+				//check if the user already has a local passport
+				if(!found){
+					//if he does not, create one with the new password
+					var token = crypto.randomBytes(48).toString('base64');
+					var newPassport={
+						protocol    : 'local',
+						password    : body.newpass,
+						user        : owner.id,
+						accessToken : token
+					};
+					Passport.create(newPassport,(err,passport)=>{
+						if(err) return next(err);
+						return res.ok();
+					});
+				}else{
+					//Otherwise just update his password
+					Passport.update(found.id,{password:body.newpass},(err,updated)=>{
+						if(err) return next(err);
+						return res.ok();
+					});
+				}
+			});
+		});
 	}
 }

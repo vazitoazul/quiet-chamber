@@ -50,7 +50,7 @@ module.exports={
 			if(err) return next(err,null);
 			if(!foundToken) return next({err:'No token were found',tokenNotFound:true});
 			foundToken.validateToken(data,function(err,success){
-				if(err) return next(err);
+				if(err) return next(err);		
 				if(success){
 					Token.destroy(id,function(err,destroyed){
 						if(err) return next(err);
