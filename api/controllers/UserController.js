@@ -247,7 +247,7 @@ module.exports = {
 			Token.createToken(token,(err,token)=>{
 				if(err) return next(err);
 				var info={
-					url:req.host+'/rcp/'+token
+					url:'https://dinabun.com/rcp/'+token
 				};
 				var destination={
 					to:user.email,

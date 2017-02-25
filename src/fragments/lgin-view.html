@@ -8,6 +8,7 @@
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
 <link rel="import" href="../my-icons.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../elements/facebook-login.html">
@@ -31,6 +32,12 @@
         border-color: #bdced7;
         border-width: 0 0 1px 0;
       }
+      paper-input.recover{
+        width: 320px;
+      }
+      paper-button.recover{
+        @apply(--layout-self-center);
+      }
     </style>
   <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
   <h2>[[localize('log_in_tittle')]]</h2>
@@ -51,6 +58,18 @@
       </div>
     </div>
   </paper-card>
+  <div class="vertical center recover">
+    <h5><a on-click="openCollapse">[[localize('pass_forgot')]]</a></h5>
+    <iron-collapse id="collapse">
+      <div class="vertical">
+        <form is="iron-form" action="/getPassRecovery" method="POST" on-iron-form-response="handleRecoverResponse" on-iron-form-error="handleRecoverError" id="recoverForm">
+          <paper-input name="email" label="[[localize('enter_your_email')]]" required auto-validate  error-message="[[localize('email_form')]]" pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" class="recover"></paper-input>
+        </form>
+        <br>
+        <paper-button raised class="secondary recover" on-click="submitRecover">[[localize('recover_pass')]]</paper-button>
+      </div>
+    </iron-collapse>
+  </div>
   <div class="output"></div>
 	<paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
@@ -78,7 +97,13 @@
                       'log_in' : 'Log in',
                       'email_form' : 'Must be a valid email',
                       'repeat_pass' : 'Repeat your password',
-                      'email_or_pass_wrong' : 'Email or password incorrect.'
+                      'email_or_pass_wrong' : 'Email or password incorrect.',
+                      'mail_sent':'An email has been sent. Check your inbox',
+                      'mail_already_sent':'An email has already been sent. Check your inbox',
+                      'email_not_found':'We don\'t have that address registered.',
+                      'pass_forgot':'Forgot your password?',
+                      'enter_your_email':'Email',
+                      'recover_pass':'Recover my password'
                     },
                     'es': {
                       'log_in_tittle' : 'Ingreso',
@@ -87,7 +112,13 @@
                       'log_in' : 'Ingresar',
                       'email_form' : 'Debe ser una direccion de correo válida',
                       'repeat_pass' : 'Repite tu contraseña',
-                      'email_or_pass_wrong' : 'Correo o contraseña incorrectos.'
+                      'email_or_pass_wrong' : 'Correo o contraseña incorrectos.',
+                      'mail_sent':'Se te ha enviado un correo de recuperación.',
+                      'mail_already_sent':'Ya has solicitado una recuperación de contraseña',
+                      'email_not_found':'No existe una cuenta con esa dirección',
+                      'pass_forgot':'Olvidé mi contraseña',
+                      'enter_your_email':'Ingresa tu correo electrónico',
+                      'recover_pass':'Recuperar contraseña'
                     }
                   }
               }
@@ -96,11 +127,21 @@
             type : String
           }
       },
-
+      showMessage:function(message,duration){
+        this.$.toast.text=message;
+        this.$.toast.duration=duration||3000;
+        this.$.toast.open();
+      },
       submit : function(e){
         this.$.spinner.active = true;
         this.$.spinner.hidden = false;
         this.$.registerForm.submit();
+      },
+      submitRecover:function(e){
+        this.$.recoverForm.submit();
+      },
+      openCollapse:function(e){
+        this.$.collapse.toggle();
       },
       responseHandler : function(e){
         var response = e.detail.__data__.response;
@@ -108,14 +149,24 @@
         this.$.spinner.hidden = true;
 
         if(response.success==false){
-          this.$.toast.text = this.localize('email_or_pass_wrong');
-          this.$.toast.open();
+          this.showMessage(this.localize('email_or_pass_wrong'));
         }else if(response.user){
           this.fire('route-change',{ route : 'acco'});
         }
       },
       handleThirdPartyLogin:function(e){
         this.fire('route-change',{ route : 'acco'});
+      },
+      handleRecoverResponse:function(e){
+        var response = e.detail.__data__.response;
+        if(response.success){
+          this.showMessage(this.localize('mail_sent'));
+        }else{
+          this.showMessage(this.localize('mail_already_sent'));
+        }
+      },
+      handleRecoverError:function(e){
+        this.showMessage(this.localize('email_not_found'));
       }
 
     });

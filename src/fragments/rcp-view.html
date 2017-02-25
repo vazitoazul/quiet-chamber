@@ -1,0 +1,164 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="rcp-view">
+  <template>
+    <style include="shared-styles ">
+      :host {
+        display: block;
+        min-width: 100%;
+      }
+      div.main *{
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+      }
+      paper-card{
+        min-width: 300px;
+        width: 40%;
+      }
+      section.full-v{
+        height: 100vh;
+      }
+    </style>
+    <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
+    <app-route
+        route="{{route}}"
+        pattern="/:token"
+        data="{{routeData}}"
+        tail="{{subroute}}"></app-route>
+    <div class="main">
+      <iron-pages selected="[[page]]" attr-for-selected="page" class="self-center">
+        <section page="main" class="full-v">
+          <div class="h-100 vertical">
+            <h3 class="mx-1 text-xs-center">[[localize('enter_new_pass')]]</h3>
+            <paper-card hero>
+              <div class="card-content">
+                <form is="iron-form" action="/recoverPass" method="POST" id="mainForm" on-iron-form-error="handleError" on-iron-form-response="handleResponse">
+                  <paper-input id="newpass" name="newpass" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
+              	  <paper-input id="confirm" name="confirm" label="[[localize('confirmation')]]" type="password" required invalid="[[!passwordsMatch]]" error-message="[[localize('pass_not_match')]]" value="{{confirm}}"></paper-input>
+                  <input type="text" name="token" value="[[routeData.token]]" hidden>
+                </form>
+              </div>
+              <div class="card-actions horizontal">
+                <div class="flex"></div>
+                <paper-button  class="secondary" on-click="sendForm">[[localize('change_pass')]]</paper-button>
+              </div>
+            </paper-card>
+          </div>
+        </section>
+        <section page="success" class="full-v">
+          <div class="h-100 vertical">
+            <paper-card>
+              <h3 class="mx-1 text-xs-center">[[localize('pass_changed')]]</h3>
+              <h4 class="mx-1 text-xs-center"><a href="/lgin">[[localize('go_to_my_acc')]]</a></h4>
+            </paper-card>
+          </div>
+        </section>
+        <section page="failure" class="full-v">
+          <div class="h-100 vertical">
+            <paper-card>
+              <h3 class="mx-1 text-xs-center">[[localize('times_up')]]</h3>
+              <h4 class="mx-1 text-xs-center"><a href="/lgin">[[localize('go_start')]]</a></h4>
+            </paper-card>
+          </div>
+        </section>
+      </iron-pages>
+
+    </div>
+    <paper-toast id="toast"></paper-toast>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'rcp-view',
+      behaviors:[
+        Polymer.AppLocalizeBehavior
+      ],
+      properties:{
+        route:{
+          type:String
+        },
+        language :{
+          type : String,
+          value : 'es'
+        },
+        passwordsMatch:{
+          type:Boolean
+        },
+        page:{
+          type:String,
+          value:'main'
+        },
+        resources:{
+          value:function(){
+            return {
+              "es":{
+                "password":"Contraseña",
+                "pass_form":"Debe tener al menos 8 caracteres, una letra mayúscula y un número",
+                "confirmation":"Repite tu contraseña",
+                "pass_not_match":"Las contraseñas no coinciden",
+                "enter_new_pass":"Ingresa tu nueva contraseña a continuanción",
+                "change_pass":"Cambiar Contraseña",
+                "pass_changed":"Se ha cambiado tu contraseña.",
+                "go_to_my_acc":"Ingresar a mi cuenta",
+                "times_up":"El tiempo para recuperar su contraseña ha expirado.",
+                "go_start":"Regresar al inicio"
+
+              },
+              "en":{
+                "password":"Password",
+                "pass_form":"Must have 8 characters, one capital letter and one number",
+                "confirmation":"Repeat your password",
+                "pass_not_match":"Passwords don't match",
+                "enter_new_pass":"Enter your new password",
+                "change_pass":"Change Password",
+                "pass_changed":"Your password has been updated.",
+                "go_to_my_acc":"Go to my Account",
+                "times_up":"The time lapse to recover your password has finished.",
+                "go_start":"Go back to the start"
+              }
+            };
+          }
+        }
+      },
+      observers: [
+        '_passwordMatch(confirm)'
+      ],
+      showMessage:function(message,duration){
+        this.$.toast.text=message;
+        this.$.toast.duration=duration||3000;
+        this.$.toast.open();
+      },
+      _routePageChanged: function(page) {
+        this.page = page || 'succes';
+      },
+      _passwordMatch:function(){
+        this.passwordsMatch=this.$.newpass.value===this.$.confirm.value;
+      },
+      sendForm:function(){
+        this.$.mainForm.submit();
+      },
+      handleResponse:function(e){
+        var response = e.detail.__data__.response;
+        this.page="success";
+      },
+      handleError:function(e){
+        var response = e.detail.request.__data__.response;
+        if(response.message!=='pass_not_match'){
+          this.page="failure";
+        }else{
+          this.showMessage(this.localize(response.message));
+        }
+      }
+    });
+  </script>
+</dom-module>
