@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>rcp-view</title>
+
+    <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../../bower_components/web-component-tester/browser.js"></script>
+
+    <!-- Import the element to test -->
+    <link rel="import" href="../../../src/fragments/rcp-view.html">
+  </head>
+  <body>
+    <test-fixture id="basic">
+      <template>
+        <rcp-view></rcp-view>
+      </template>
+    </test-fixture>
+
+    <script>
+      describe('rcp-view tests', function() {
+        var view;
+
+        before(function() {
+          view = fixture('basic');
+        });
+
+        it('should return its name', function() {
+          expect(view.is).to.equal('rcp-view');
+        });
+
+        it('confirm password field should be invalid when passwords don\'t match',function(){
+          view.$.newpass.value='testestes';
+          view.$.confirm.value='setsetset';
+          expect(view.$.confirm.invalid).to.equal(true);
+        });
+      });
+    </script>
+  </body>
+</html>
