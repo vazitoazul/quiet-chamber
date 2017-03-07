@@ -73,7 +73,7 @@
           <h5>[[localize('telephones')]]</h5>
           <paper-input required name="telephone" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('mobile')]]" value="{{user.contactInfo.telephones.0}}"></paper-input>
           <paper-input name="telephone" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','1')]]" value="{{user.contactInfo.telephones.1}}"></paper-input>
-          <paper-input name="telephone" pattern="[0-9]{5,20}"error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','2')]]" value="{{user.contactInfo.telephones.2}}"></paper-input>
+          <paper-input name="telephone" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','2')]]" value="{{user.contactInfo.telephones.2}}"></paper-input>
         </div>
         <paper-input id="addressInput" name="addressLabel" label="[[localize('address')]]" error-message="[[localize('must_enter_this')]]" value={{user.contactInfo.address}} required></paper-input>
         <input hidden name="longitude" value="{{user.contactInfo.location.longitude}}">

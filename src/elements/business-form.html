@@ -1,0 +1,87 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../elements/paper-autocomplete.html">
+<link rel="import" href="../elements/label-element.html">
+<dom-module id="business-form">
+ <style>
+ </style>
+ <template>
+ 	<label-element></label-element>
+    <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
+    <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
+ 	<paper-card>
+ 		<div class="card-content">
+ 			<form>
+ 			lolo
+ 				<paper-input name="name" label="[[localize('name')]]" required  value="{{business.name}}"></paper-input>
+				<paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required  value="{{business.cityLabel}}"></paper-input>
+				<input name="city" hidden value="{{business.city}}"></input>
+				<paper-autocomplete id="autocomplete" label="Select" ></paper-autocomplete>
+ 			</form>
+ 		</div>
+ 	</paper-card>
+ 	<paper-toast id="toast"></paper-toast>
+ </template>
+ <script>
+ 	Polymer({
+ 		is : 'business-form',
+
+		behaviors : [
+			Polymer.AppLocalizeBehavior
+		],
+
+		properties : {
+	        business :{
+	          type : Object,
+	          notify : true,
+	          observer : 'businessChanged'
+	        },
+
+	        resources : {
+
+	        	value :  function(){
+	        		return  {
+		        		'en' : {
+		        			'name' : 'name',
+		        			'city' : 'city'
+		        		} ,
+		        		'es' : {
+							'name' : 'nombre',
+		        			'city' : 'ciudad'
+		        		}
+	        		}
+	        	}
+	        }
+
+		},
+
+		handleApiLoad : function(){
+	        var self = this;
+	        var citySearch = new google.maps.places.Autocomplete(self.$.cityInput.inputElement,{types : ['(regions)']});
+	        google.maps.event.addListener(citySearch,'place_changed', function(){
+	          var city = citySearch.getPlace();
+	          if(!city.geometry){
+	            self.$.toast.text = self.localize('not_valid_city');
+	            self.$.toast.open();
+	          }else{
+	            console.log(city);
+	            self.set(['business','city'], city.place_id);
+	            self.set(['business','cityLabel'], city.formatted_address);
+	          }
+	        });
+		},
+
+		businessChanged : function(){
+
+		}
+
+ 	});
+ </script>
+</dom-module>

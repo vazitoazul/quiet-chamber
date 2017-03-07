@@ -115,7 +115,7 @@ var AuthController = {
         }else{
           var response = {user : user.id,success:true};
           response.hasRecommender = statuses ? statuses.hasRecommender : false;
-          res.json(response);
+          return res.json(response);
         }
 
       });

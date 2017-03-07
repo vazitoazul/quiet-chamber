@@ -13,6 +13,7 @@ module.exports = {
   	description : { type : 'string' },
   	type : { type : 'array' , required : true},
   	city : { type : 'json'},
+  	cityLabel : { type : 'json'},
   	contactInfo : { type : 'json' , defaultsTo : { email : '', telephone: []}},
     locationReference : { type : 'string'}
   }

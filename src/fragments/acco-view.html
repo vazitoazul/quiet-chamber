@@ -36,6 +36,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../elements/user-info.html">
 <link rel="import" href="../elements/paypal-integration.html">
+<link rel="import" href="../elements/business-form.html">
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="acco-view">
@@ -74,11 +75,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <app-drawer-layout>
       <app-drawer align="left">
-        <div>
+        <div class="row">
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="verified-user"></iron-icon>[[localize('userInfo')]]</a></paper-item>
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('recommended')]]</a></paper-item>
-          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/bussiness"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('bussiness')]]</a></paper-item>
+          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/business"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('bussiness')]]</a></paper-item>
         </div>
       </app-drawer>
       <app-header-layout>
@@ -140,13 +141,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
           </div>
         </section>
-        <section>
-        <div class="card row">
-          <paper-card>
-            <h4>[[localize('new_bussiness')]]</h4>
-            paper-input>
-          </paper-card>
-        </div>
+        <section section="business">
+          <div class="card">
+            <business-form></business-form>
+          </div>
         </section>
       </iron-pages>
     </app-drawer-layout>
