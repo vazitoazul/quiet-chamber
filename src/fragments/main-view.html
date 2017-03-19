@@ -10,6 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
 <link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
@@ -22,18 +23,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
 <link rel="import" href="../elements/facebook-login.html">
 <link rel="import" href="../elements/google-login.html">
-<link rel="import" href="../elements/lang-selector.html">
+<link rel="import" href="../elements/page-footer.html">
 <link rel="import" href="../shared-styles.html">
 <dom-module id="main-view">
   <template>
     <style include="shared-styles">
-      .first{
-        height: 90vh;
+      app-header-layout{
         background-image: url('/images/homepage/1.jpg');
         background-size: cover;
+      }
+      .first{
+        height: 90vh;
         color: white;
       }
       .second{
@@ -47,18 +52,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: white;
         height: 95vh;
       }
-      .forth{
-        background-color: white;
-      }
       .last{
         height: 70vh;
         background-color: var(--default-primary-color);
+        color: var(--light-primary-text-color);
       }
       .footer{
         height: 50vh;
         background-color: var(--dark-primary-color);
       }
-
+      app-header {
+        background-color: transparent;
+        --app-header-background-rear-layer: {
+          /* The header is blue when condensed */
+          background-color: var(--dark-primary-color);
+        };
+      }
       div.feauture iron-icon{
         height: 50px;
         width: 50px;
@@ -67,21 +76,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       div#recaptcha{
         height: 100px;
       }
-
+      paper-tab[link] a {
+       @apply(--layout-horizontal);
+       @apply(--layout-center-center);
+       color: var(--light-primary-text-color);
+       text-decoration: none;
+      }
+      paper-tabs{
+        min-width:450px;
+      }
     </style>
     <app-location route="{{route}}"></app-location>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
     <app-header-layout fullbleed>
-      <app-header collapses reveals>
+      <app-header fixed reveals effects="fade-background">
         <app-toolbar>
+            <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
             <div main-title><span class="text-display-2">Dinabun</span></div>
-            <lang-selector></lang-selector>
-            <div class="hidden-sm-down">
-              <a href="/help"><paper-button>Ayuda</paper-button></a>
-              <a href="/rgst"><paper-button>Registrarme</paper-button></a>
-              <a href="/lgin" hidden id="loginButton"><paper-button raised class="primary">Ingresar</paper-button></a>
-              <a href="/acco" hidden id="accoButton"><paper-button raised class="primary">[[user.firstName]]</paper-button></a>
-            </div>
+            <paper-tabs selected="0" align-bottom>
+              <paper-tab link>Inicio</paper-tab>
+              <paper-tab link>
+                <a href="/sytm" tabindex="-1">Cómo funciona</a>
+              </paper-tab>
+              <paper-tab link>
+                <a href="/info" tabindex="-1">Sobre Nosotros</a>
+              </paper-tab>
+            </paper-tabs>
+            <paper-button raised class="accent"><h6>Registrarme</h6></paper-button>
         </app-toolbar>
       </app-header>
       <div>
@@ -136,7 +157,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </section>
         <section>
           <app-box class="third" effects="parallax-background">
-
             <img background src="//app-layout-assets.appspot.com/assets/bg2.jpg" style="width:100%; height: 900px" />
           </app-box>
         </section>
@@ -177,10 +197,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
         </section>
         <section class="last">
-
+          <div class="container h-100 mt-2">
+            <div class="row vertical">
+              <div class="col-xs-12 horizontal center">
+                <h4>Mira un video sobre nosotros</h4>
+              </div>
+              <div class="col-xs-12 col-sm-8 offset-sm-2 col-md-8 offset-md-2 flex">
+                <paper-card class="h-100 w-100">
+                  <div class="card-content">
+                    <google-youtube
+                      video-id="d0wC-Sm280w"
+                      fluid
+                      rel="0"
+                      start="5">
+                    </google-youtube>
+                  </div>
+                </paper-card>
+              </div>
+            </div>
+          </div>
         </section>
-        <section class="footer">
-
+        <section>
+          <div class="container-fluid">
+              <page-footer></page-footer>
+          </div>
         </section>
       </div>
     </app-header-layout>

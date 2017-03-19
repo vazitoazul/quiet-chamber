@@ -1,0 +1,221 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/re-captcha/re-captcha.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../elements/facebook-login.html">
+<link rel="import" href="../elements/google-login.html">
+<link rel="import" href="../elements/page-footer.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="sytm-view">
+  <template>
+    <style include="shared-styles">
+      app-header-layout{
+        background-image: url('/images/homepage/2.jpg');
+        background-size: cover;
+      }
+      .first{
+        height: 45vh;
+        color: var(--light-primary-text-color);
+      }
+      .second{
+        background-color: #FFFFFF;
+      }
+      .third{
+        background-color: var(--default-primary-color);
+        color:var(--light-primary-text-color);
+      }
+      app-header {
+        background-color: transparent;
+        --app-header-background-rear-layer: {
+          /* The header is blue when condensed */
+          background-color: var(--dark-primary-color);
+        };
+      }
+      paper-tab[link] a {
+       @apply(--layout-horizontal);
+       @apply(--layout-center-center);
+       color: var(--light-primary-text-color);
+       text-decoration: none;
+      }
+      paper-tabs{
+        min-width:450px;
+      }
+      div.step-1{
+        background-image: url('//dummyimage.com/960x555/cccccc/949494.jpg');
+        background-size: contain;
+        height: 55vh;
+      }
+      div.step-2{
+        background-image: url('//dummyimage.com/960x555/cccccc/949494.jpg');
+        background-size: contain;
+        height: 55vh;
+      }
+      div.step-3{
+        background-image: url('//dummyimage.com/960x555/cccccc/949494.jpg');
+        background-size: contain;
+        height: 55vh;
+      }
+      div.counter-step{
+        padding-left: 4rem;
+        padding-right: 4rem;
+      }
+      paper-card.faq{
+        background-color: #FFFFFF;
+        color:var(--primary-text-color);
+        max-width: 450px;
+        margin-bottom: 20px;
+      }
+    </style>
+    <app-location route="{{route}}"></app-location>
+    <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
+    <app-header-layout fullbleed>
+      <app-header fixed reveals effects="fade-background">
+        <app-toolbar>
+            <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
+            <div main-title><span class="text-display-2">Dinabun</span></div>
+            <paper-tabs selected="1" align-bottom>
+              <paper-tab link>Inicio</paper-tab>
+              <paper-tab link>
+                <a href="/sytm" tabindex="-1">Cómo funciona</a>
+              </paper-tab>
+              <paper-tab link>
+                <a href="/info" tabindex="-1">Sobre Nosotros</a>
+              </paper-tab>
+            </paper-tabs>
+            <paper-button raised class="accent"><h6>Registrarme</h6></paper-button>
+        </app-toolbar>
+      </app-header>
+      <div>
+        <section class="first">
+          <div class="container-fluid h-100">
+            <div class="row h-100">
+              <div class="col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 vertical center">
+                <h3 class="text-center strong">Encuentra tu capital</h3>
+                <h4 class="text-center">El capital que necesitas para empezar a invertir está a tu alcance.</h4>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="second">
+          <div class="container-fluid h-100 text-center">
+            <div class="row">
+              <div class="col-12 vertical center flex mt-3">
+                <h4>Mira cómo funciona</h4>
+                <h5 class="light">A continuación te explicamos lo que debes hacer para empezar a ganar dinero</h5>
+                <br>
+                <br>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xs-0 col-sm-0 col-md-6 vertical center step-1">
+              </div>
+              <div class="col-12 col-sm-12 col-md-6 vertical counter-step">
+                <h3 class="text-right">1°</h3>
+                <h5 class="strong text-left">Regístrate y Consigue una suscripción</h5>
+                <br>
+                <span class="light text-left ">Si todavía no eres miembro de Dinabun, <a href="/rgst" target="_blank">puedes registrarte ahora.</a>  </span>
+                <span class="light text-left ">Luego, debes ir a tu <b>cuenta de usuario</b> donde encontrarás las opciones para obtener una suscripción.</span>
+                <a href="/acco/membership" target="_blank" class="horizontal py-2">
+                  <paper-button raised class="accent">Conseguir una suscripción</paper-button>
+                  <div class="flex"></div>
+                </a>
+                <span class="light text-left ">Para asegurarnos de que cada usuario es único necesitamos que registres un número de identificación después de registrarte. Si tienes dudas puedes consultar nuestos <a href="/terminos">Términos y condiciones</a></span>
+              </div>
+              <div class="col-12 col-sm-12 col-md-6 vertical counter-step">
+                <h3 class="text-left">2°</h3>
+                <h5 class="strong text-right">Recomienda Dinabun</h5>
+                <br>
+                <span class="light text-right">Ahora que ya tienes una suscripción activa puedes invitar a nuevas personas para que se unan a tu red. Recuerda que puedes tener hasta 3 personas recomendadas debajo tuyo.</span>
+                <a href="/acco/recommended" target="_blank" class="horizontal py-2">
+                  <div class="flex"></div>
+                  <paper-button raised class="accent">Invitar recomendados</paper-button>
+                </a>
+                <span class="light text-right">Una vez que paguen su suscripción, parte de ese dinero es depositado en tu cuenta. Cuando ellas empiecen a pagar su suscripción <b>tu ya recuperas la tuya</b>, es decir, ya no tienes que pagar el valor de tu suscripción.</span>
+              </div>
+              <div class="col-xs-0 col-sm-0 col-md-6 vertical center step-2">
+
+              </div>
+              <div class="col-xs-0 col-sm-0 col-md-6 vertical center step-3">
+              </div>
+              <div class="col-12 col-sm-12 col-md-6 vertical counter-step">
+                <br>
+                <h3 class="text-right">3°</h3>
+                <h5 class="strong text-left">Ayuda a tus recomendados</h5>
+                <br>
+                <span class="light text-left">Para maximizar tus ganancias necesitas que tus recomendados consigan sus propios recomendados.</span>
+                <span class="light text-left">Puedes agregar personas a tu red hasta el <b>cuarto nivel</b>.</span>
+                <span class="light text-left">Mientras tu red acaba de llenarse, recuerda que todavía seguirás acumulando beneficios de tus recomendados.</span>
+              </div>
+
+            </div>
+            <div class="row mb-3">
+              <div class="col-12 vertical center flex" >
+                <h2 class="text-accent">1100%</h2>
+                <span class="light">Este el porcentaje de ganancia que obtienes al completar tu red.</span>
+                <a href="/rgst" target="_blank" class="py-2">
+                  <paper-button raised class="primary">Empieza ahora</paper-button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="third">
+          <div class="container">
+            <div class="row">
+              <div class="col-12 horizontal center">
+                <h4>Preguntas frecuentes</h4>
+              </div>
+              <div class="col-12 horizontal center">
+                <paper-card class="faq" elevation="4">
+                  <div class="card-content vertical">
+                    <strong>¿Cómo puedo pagar una suscripción?</strong>
+                    <br>
+                    <span class="s-text">Actualmente la única manera de pagar una suscripción es mediante <a href="https://www.paypal.com/ec/home" target="_blank" ><b>PayPal</b></a>.<span>
+                    <span class="s-text">Estamos trabajando para traer nuevas maneras de obtener una suscripción.</span>
+                  </div>
+                  <div class="card-content vertical">
+                    <strong>¿Cómo puedo cobrar lo que he ganado?</strong>
+                    <br>
+                    <span class="s-text">Una vez que quieras retirar tus ganancias puedes ir a <a href="/acco" target="_blank">Tu cuenta</a> para pedir que tu saldo sea transferido a tu cuenta de PayPal.</span>
+                    <span class="s-text">Puedes aprender más sobre como recuperar tu saldo de PayPal <a href="#">Aqui</a> </span>
+                  </div>
+                  <div class="card-content vertical">
+                    <strong>¿Qué puedo hacer con el dinero?</strong>
+                    <br>
+                    <span class="s-text">Te recomendamos que inviertas tu capital en cualquiera de las oportunidades que se publican en esta misma página. El objetivo de todo esto es que más personas puedan cumplir sus sueños, así que busca alguien con quien emprender. </span>
+                  </div>
+                </paper-card>
+              </div>
+            </div>
+
+          </div>
+        </section>
+        <section>
+          <div class="container-fluid">
+              <page-footer></page-footer>
+          </div>
+        </section>
+      </div>
+    </app-header-layout>
+    <paper-toast id="toast" duration="5000" ></paper-toast>
+  </template>
+  <script>
+    Polymer({
+      is: 'sytm-view'
+    });
+  </script>
+</dom-module>

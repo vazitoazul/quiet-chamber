@@ -31,7 +31,7 @@
 		</style>
 
 		<app-localstorage-document id="localStorageLang" key="langauge" data="{{savedLang}}"></app-localstorage-document>
-		<paper-dropdown-menu label="[[localize('language')]]">
+		<paper-dropdown-menu label="[[localize('language')]]" vertical-align="[[verticalAlign]]">
 		  <paper-listbox class="dropdown-content" selected="{{language}}" attr-for-selected="value" >
 		    <paper-item value="es">Español</paper-item>
 		    <paper-item value="en">English</paper-item>
@@ -50,6 +50,10 @@
 	          Polymer.AppLocalizeBehavior
 	        ],
 			properties:{
+				verticalAlign:{
+					type:String,
+					notify:true
+				},
 				language:{
 					type:String,
 					notify:true,

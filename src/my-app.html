@@ -37,17 +37,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         fallback-selection="notfound"
         role="main">
       <main-view name="main" on-route-change="changeRoute"></main-view>
+      <sytm-view name="sytm" on-route-change="changeRoute" ></sytm-view>
       <acco-view name="acco" on-route-change="changeRoute"></acco-view>
+      <info-view name="info" on-route-change="changeRoute" ></info-view>
+
       <notfound-view name="notfound"></notfound-view>
       <forbidden-view name="forbidden"></forbidden-view>
       <servererror-view name="servererror"></servererror-view>
       <rgst-view name="rgst" on-route-change="changeRoute" ></rgst-view>
       <lgin-view name="lgin" on-route-change="changeRoute" ></lgin-view>
       <papr-view name="papr" on-route-change="changeRoute" ></papr-view>
-      <info-view name="info" on-route-change="changeRoute" ></info-view>
+
       <mvf-view name="mvf" route="[[subroute]]" ></mvf-view>
       <rcp-view name="rcp" route="[[subroute]]" ></rcp-view>
       <recw-view name="recw" on-route-change="changeRoute" ></recw-view>
+
     </iron-pages>
   </template>
 
