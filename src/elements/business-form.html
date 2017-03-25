@@ -4,30 +4,76 @@
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
-<link rel="import" href="../elements/paper-autocomplete.html">
+<link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
+<link rel="import" href="../shared-styles.html">
 <link rel="import" href="../elements/label-element.html">
+<link rel="import" href="../elements/label-chip.html">
+<link rel="import" href="../elements/post-form.html">
 <dom-module id="business-form">
- <style>
+ <style include="app-grid-style shared-styles">
+    paper-autocomplete{
+      --paper-input-container-focus-color : white;
+    }
+    label-chip paper-material{
+      background-color: white;
+    }
+    div.labels{
+      margin-top : 1.5rem
+    }
+    post-form{
+      margin-bottom: 0.5rem
+    }
  </style>
  <template>
- 	<label-element></label-element>
-    <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
-    <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
- 	<paper-card>
- 		<div class="card-content">
- 			<form>
- 			lolo
- 				<paper-input name="name" label="[[localize('name')]]" required  value="{{business.name}}"></paper-input>
-				<paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required  value="{{business.cityLabel}}"></paper-input>
-				<input name="city" hidden value="{{business.city}}"></input>
-				<paper-autocomplete id="autocomplete" label="Select" ></paper-autocomplete>
- 			</form>
- 		</div>
- 	</paper-card>
+  <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
+  <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
+  <label-element id="labelElement"></label-element>
+  <div class="row">
+    <paper-card class="col-xs-9 offset-xs-1" id="paperCard">
+      <div class="card-content">
+        <form is="iron-form" id="businessForm" action="[[ironFormAction]]" on-iron-form-response="_responseHandler" on-iron-form-error="_errorHandler" method="post">
+          <paper-input name="name" label="[[localize('name')]]" required  value="{{business.name}}" error-message="[[localize('add_name')]]"></paper-input>
+          <paper-textarea label="[[localize('description')]]" name="description" value="{{business.description}}" required error-message="[[localize('add_description')]]"></paper-textarea>
+          <paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required  value="{{business.cityLabel}}" error-message="[[localize('add_city')]]"></paper-input>
+          <input name="placesIds" hidden value="{{business.placesIds}}"></input>
+          <span>[[localize('labels')]]</span>
+          <div class="row" id="autocompleteDiv">
+            <paper-autocomplete id="autocomplete" class="col-xl-3 col-lg-4 col-md-5 col-sm-12 col-xs-12" label="Select" source="[[labelsArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
+            <div class="col-xl-9 col-lg-8 col-md-7 col-sm-12 col-xs-12  row labels">
+              <template  id="businessLabelsTemplate" is="dom-repeat" items="[[selectedLabels]]">
+                <label-chip item="[[item]]" on-closed="spliceLabel"></label-chip>
+              </template>
+            </div>
+          </div>
+          <input name="labels" hidden value="{{business.labels}}"></input>
+          <span>[[localize('telephones')]]</span>
+          <paper-input required name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('mobile')]]" value="{{business.telephones.0}}"></paper-input>
+          <paper-input name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','1')]]" value="{{business.telephones.1}}"></paper-input>
+          <gold-email-input required name="email" label="[[localize('email')]]" value="{{business.email}}" error-message="[[localize('valid_email')]]"></gold-email-input>
+        </form>
+      </div>
+    </paper-card>
+    <template is="dom-if" if="[[creating]]">
+      <div class="col-xs-6 offset-xs-1">
+        [[localize('want_add_post')]]
+        [[localize('what_is')]]
+      </div>
+      <template  is="dom-repeat" items="[[business.posts]]">
+        <post-form post="[[item]]" creatingABusiness="[[creating]]" on-remove="removePost" index="[[index]]" class="post-form col-xs-7 offset-xs-1"></post-form>
+      </template>
+      <a on-tap="addPost"class="primary col-xs-3 offset-xs-1">
+        [[localize('add_new_post')]]<paper-icon-button class="label" icon="add"></paper-icon-button>
+      </a>
+    </template>
+    <template is="dom-if" if="[[creating]]"><paper-button raised class="primary col-xs-1 offset-xs-1" on-click="submitForm">[[localize('create')]]</paper-button></template>
+    <template is="dom-if" if="[[!creating]]"><paper-button raised class="primary col-xs-1 offset-xs-1" on-click="submitForm">[[localize('update')]]</paper-button></template>
+  </div>
  	<paper-toast id="toast"></paper-toast>
+  <div id="placesServiceResult"></div>
  </template>
  <script>
  	Polymer({
@@ -40,48 +86,234 @@
 		properties : {
 	        business :{
 	          type : Object,
-	          notify : true,
-	          observer : 'businessChanged'
+            value : {
+              labels : [],
+              telephones : [],
+              posts : []
+            }
 	        },
 
-	        resources : {
-
+          resources : {
 	        	value :  function(){
 	        		return  {
 		        		'en' : {
 		        			'name' : 'name',
-		        			'city' : 'city'
-		        		} ,
+		        			'city' : 'city',
+                  'labels' : 'labels',
+                  'telephones' : 'telephones',
+                  'must_be_numbers' : 'must have just from 5 to 20 numbers',
+                  'number' : 'Phone number {number}',
+                  'email' : 'Email',
+                  'mobile' : 'Mobile phone',
+                  'create' : 'Create',
+                  'update' : 'Update',
+                  'description' : 'Description',
+                  'valid_email' : 'must be a valid email',
+                  'add_description' : 'must input the business description',
+                  'add_name' : 'must input the business name',
+                  'add_city' : 'must add the business location',
+                  'must_select_labels' : 'you must select labels',
+                  'want_add_post' : 'Do you want to add a post? You can add it later',
+                  'what_is' : 'What is this?',
+                  'add_new_post' : 'add post'
+                } ,
 		        		'es' : {
-							'name' : 'nombre',
-		        			'city' : 'ciudad'
-		        		}
+    							'name' : 'nombre',
+		        			'city' : 'ciudad',
+                  'labels' : 'etiquetas',
+                  'telephones' : 'teléfonos',
+                  'must_be_numbers' : 'debe ser solo de 5 a 20 números',
+                  'number' : 'Teléfono {number}',
+                  'email' : 'Correo electrónico',
+                  'mobile' : 'Teléfono celular',
+                  'create' : 'Crear',
+                  'update' : 'Actualizar',
+                  'description' : 'Descripción',
+                  'valid_email' : 'debe ser una direccion de correo valida',
+                  'add_description' : 'debes ingresar la descripción del negocio',
+                  'add_name' : 'debes ingresar el nombre del negocio',
+                  'add_city' : 'debe ingresar el lugar del negocio',
+                  'must_select_labels' : 'debes seleccionar las etiquetas',
+                  'want_add_post' : 'Quieres agregar una publicación? Puedes agregarlas despues',
+                  'what_is' : 'Que es esto?',
+                  'add_new_post' : 'agreagar post'
+                }
 	        		}
 	        	}
-	        }
+	        },
 
+          language : {
+            type : String,
+            value : 'en'
+          },
+
+          labelsArray :{
+            type : Object,
+            computed : 'computeLabelsArray(language)'
+          },
+
+          selectedLabels : {
+            type : Array,
+            value : []
+          },
+
+          googleMapsApiRestrictions : {
+            type : Object,
+            value : {types : ['(regions)'],componentRestrictions: {country: 'ec'}}
+          },
+
+          creating : {
+            type : Boolean,
+            value : false
+          }
 		},
+
+    observers : [
+      '_onBusinessIdChanged(business.id)'
+    ],
+    ready : function(){
+      this.$.toast.fitInto = this.$.paperCard;
+    },
 
 		handleApiLoad : function(){
-	        var self = this;
-	        var citySearch = new google.maps.places.Autocomplete(self.$.cityInput.inputElement,{types : ['(regions)']});
-	        google.maps.event.addListener(citySearch,'place_changed', function(){
-	          var city = citySearch.getPlace();
-	          if(!city.geometry){
-	            self.$.toast.text = self.localize('not_valid_city');
-	            self.$.toast.open();
-	          }else{
-	            console.log(city);
-	            self.set(['business','city'], city.place_id);
-	            self.set(['business','cityLabel'], city.formatted_address);
-	          }
-	        });
+        var self = this;
+        var cityInput = self.$.cityInput.inputElement;
+        var citySearch = new google.maps.places.Autocomplete(cityInput,this.googleMapsApiRestrictions);
+        google.maps.event.addListener(citySearch,'place_changed', function(){
+          var city = citySearch.getPlace();
+          if(!city.geometry){
+            self.$.toast.text = self.localize('not_valid_city');
+            self.$.toast.open();
+          }else{
+            self.setPlacesIdsArray(city);
+          }
+        });
+        this.$.cityInput.inputElement.addEventListener('blur',function(e){
+          var service = new google.maps.places.AutocompleteService();
+          service.getPlacePredictions({
+              input: cityInput.value,
+              componentRestrictions: self.googleMapsApiRestrictions.componentRestrictions,
+              types: self.googleMapsApiRestrictions.types
+          }, function(predictions,status){
+            if (status != google.maps.places.PlacesServiceStatus.OK) {
+                self.$.toast.text = self.localize('not_valid_city');
+                self.$.toast.open();
+                return;
+            }
+            var placesService = new google.maps.places.PlacesService(self.$.placesServiceResult);
+            placesService.getDetails({placeId:predictions[0].place_id},function(result,status){
+              if (status != google.maps.places.PlacesServiceStatus.OK) {
+                  // show that this address is an error
+                  self.$.toast.text = self.localize('not_valid_city');
+                  self.$.toast.open();
+                  return;
+              }
+              self.setPlacesIdsArray(result);
+            });
+          });
+        });
 		},
 
-		businessChanged : function(){
+    computeLabelsArray : function(){
+      return this.$.labelElement.labels;
+    },
 
-		}
+    setSelectedLabels : function(e){
+      for(var item in this.selectedLabels){
+        if(this.selectedLabels[item].value == e.detail.option.value){
+            return;
+        }
+      }
+      this.push('selectedLabels',e.detail.option);
+    },
 
+    spliceLabel : function(itemRemoving){
+      var index = 0;
+      for(var item in this.selectedLabels){
+        if(this.selectedLabels[item].value == itemRemoving.detail.value){
+            this.splice('selectedLabels',index,1);
+            return;
+        }
+        index++;
+      }
+    },
+
+    setPlacesIdsArray : function(address){
+      var self = this;
+      var service = new google.maps.places.AutocompleteService();
+      var placesService = new google.maps.places.PlacesService(self.$.placesServiceResult);
+      this.set('business.placesIds',[]);
+      this.set('business.cityLabel',address.formatted_address);
+      for(var place in address.address_components){
+        service.getPlacePredictions({
+            input: address.address_components[place].long_name,
+            componentRestrictions: self.googleMapsApiRestrictions.componentRestrictions,
+            types: self.googleMapsApiRestrictions.types
+        }, function(predictions,status){
+          if (status != google.maps.places.PlacesServiceStatus.OK) {
+              return;
+          }
+          self.push('business.placesIds',predictions[0].place_id);
+        });
+      }
+    },
+
+    validateLabels : function(){
+      if(this.selectedLabels.length == 0){
+        this.$.autocompleteDiv.focus();
+        this.$.toast.text = this.localize('must_select_labels');
+        this.$.toast.open();
+        return false;
+      }
+      return true;
+    },
+
+    _onBusinessIdChanged : function(id){
+      this.set('ironFormAction',id ? '/updateBusiness/'+id: '/createBusiness');
+      this.set('selectedLabels',this.$.labelElement.computeSelectedLabelsObjectArray(this.business.labels));
+    },
+
+    submitForm : function(e){
+      if(!this.$.businessForm.validate() || !this.validateLabels()) return;
+
+      console.log(Polymer.dom(this.$.businessPostsTemplate).children);
+      console.log(document.querySelectorAll('.post-form'));
+      console.log(document.querySelector('#businessPostsTemplate'));
+      Polymer.dom(this.$.businessPostsTemplate).children.forEach(function(node){
+        console.log(node);
+        // if(!node.validateForm())return;
+      });
+      this.setBusinessLabels();
+      this.$.businessForm.request.params = this.business;
+      // this.$.businessForm.submit();
+    },
+
+    _responseHandler : function(e){
+      this.$.toast.text = 'creado';
+      this.$.toast.open();
+      this.fire('business-added-eddited');
+    },
+
+    _errorHandler : function(e){
+      this.$.toast.text = 'error';
+      this.$.toast.open();
+    },
+
+    setBusinessLabels : function(){
+      var businessLabels = [];
+      for(var label in this.selectedLabels){
+        businessLabels.push(this.selectedLabels[label].value);
+      }
+      this.set('business.labels',businessLabels);
+    },
+
+    addPost : function(){
+      this.push('business.posts',{ business : this.businessId });
+    },
+
+    removePost : function(e){
+      this.splice('business.posts',e.detail,1);
+    }
  	});
  </script>
 </dom-module>

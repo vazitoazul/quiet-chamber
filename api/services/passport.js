@@ -66,7 +66,11 @@ passport.protocols = require('./protocols');
 passport.connect = function (req, query, profile, next) {
   var user = {}
     , provider
-    , recommender = req.session.recommender;
+    , recommender;
+
+  if(req.session){
+    recommender = req.session.recommender;
+  }
   // Get the authentication provider from the query.
   query.provider = req.param('provider');
   // Use profile.provider or fallback to the query.provider if it is undefined
@@ -100,7 +104,8 @@ passport.connect = function (req, query, profile, next) {
   }
 
   User.findOne({ id : recommender}, function(err , newRecommender){
-    if(newRecommender && Object.keys(newRecommender.recommended).length < 4 && !err){
+    if(err)console.log(err);
+    if(newRecommender && Object.keys(newRecommender.recommended).length < 4 ){
       user.recommender = newRecommender.id;
     }
     Passport.findOne({

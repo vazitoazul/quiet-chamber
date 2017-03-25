@@ -9,13 +9,12 @@ module.exports = {
 
   attributes: {
   	user : { type : 'string' , required : true },
-  	name : { type : 'string' },
+  	name : { type : 'string' , required : true},
   	description : { type : 'string' },
-  	type : { type : 'array' , required : true},
-  	city : { type : 'json'},
-  	cityLabel : { type : 'json'},
-  	contactInfo : { type : 'json' , defaultsTo : { email : '', telephone: []}},
-    locationReference : { type : 'string'}
+  	placesIds : { type : 'array', required : true},
+  	cityLabel : { type : 'json', required : true},
+    email : { type : 'string' , defaultsTo : ''},
+    telephones: { type : 'array' , defaultsTo : []},
+    labels : { type : 'array', defaultsTo : [], required : true}
   }
 };
-

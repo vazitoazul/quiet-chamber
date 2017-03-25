@@ -39,10 +39,17 @@ module.exports.policies = {
     '*' : ['passport','sessionAuth','intlCredential']
   },
 
+  'BusinessController' : {
+    'updateBusiness' : ['passport','sessionAuth','intlCredential','businessOwner'],
+    '*' : ['passport','sessionAuth','intlCredential']
+  },
+
+  'PostController' : {
+    'createPost' : ['passport','sessionAuth','intlCredential','businessOwner'],
+    '*' : ['passport','sessionAuth','intlCredential']
+  },
+
   '*' : ['passport']
-
-
-
   /***************************************************************************
   *                                                                          *
   * Here's an example of mapping some policies to run before a controller    *

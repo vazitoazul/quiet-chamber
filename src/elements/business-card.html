@@ -1,0 +1,95 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../elements/label-chip.html">
+<link rel="import" href="../elements/label-element.html">
+<dom-module id="business-card">
+  <style include="app-grid-style shared-styles"></style>
+  <template>
+    <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
+    <label-element id="labelElement"></label-element>
+    <template is="dom-if" if="[[complete]]">
+      <paper-card>
+        <div class="card-content">
+          <div class="">[[localize('name')]]</div><div class="">[[business.name]]</div>
+          <div class="">[[localize('city')]]</div><div class="">[[business.citylabel]]</div>
+          <div class="">[[localize('description')]]</div><div class="">[[business.description]]</div>
+          <div class="">[[localize('telephones')]]</div><div class="">[[business.telephones.0]]</div>
+          <div class="">[[localize('labels')]]</div>
+          <template is="dom-repeat" items="[[businessLabels]]">
+            <label-chip item="[[item]]" closeable="false"></label-chip>
+          </template>
+          <a href="/acco/business/[[business.id]]"><paper-icon-button icon="close"></paper-icon-button></a>
+        </div>
+        <div class="card-actions"></div>
+      </paper-card>
+    </template>
+    <template is="dom-if" if="[[!complete]]">
+      <paper-card>
+        <div class="card-content">
+        </div>
+        <div class="card-actions"></div>
+      </paper-card>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'business-card',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior
+      ],
+
+      properties : {
+        item : {
+          type : Object,
+          value : {}
+        },
+        complete : {
+          type : Boolean,
+          value : true
+        },
+        business : {
+          type : Object
+        },
+        businessLabels:{
+          type : Array,
+          computed : 'computeBusinessLabels(business)'
+        },
+        resources : {
+          value :  function(){
+            return  {
+              'en' : {
+                'name' : 'name',
+                'city' : 'city',
+                'labels' : 'labels',
+                'telephones' : 'telephones',
+                'number' : 'Phone number {number}',
+                'email' : 'Email',
+                'mobile' : 'Mobile phone',
+                'description' : 'Description'
+              } ,
+              'es' : {
+                'name' : 'nombre',
+                'city' : 'ciudad',
+                'labels' : 'etiquetas',
+                'telephones' : 'teléfonos',
+                'number' : 'Teléfono {number}',
+                'email' : 'Correo electrónico',
+                'mobile' : 'Teléfono celular',
+                'description' : 'Descripccion'
+              }
+            }
+          }
+        },
+      },
+
+      computeBusinessLabels : function(business){
+        return this.$.labelElement.computeSelectedLabelsObjectArray(business.labels);
+      }
+    });
+  </script>
+</dom-module>
