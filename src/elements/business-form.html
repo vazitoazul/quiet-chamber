@@ -57,18 +57,20 @@
         </form>
       </div>
     </paper-card>
+    <div id="businessPostsTemplate">
     <template is="dom-if" if="[[creating]]">
       <div class="col-xs-6 offset-xs-1">
         [[localize('want_add_post')]]
         [[localize('what_is')]]
       </div>
-      <template  is="dom-repeat" items="[[business.posts]]">
+      <template  is="dom-repeat" id="pushi" items="[[business.posts]]">
         <post-form post="[[item]]" creatingABusiness="[[creating]]" on-remove="removePost" index="[[index]]" class="post-form col-xs-7 offset-xs-1"></post-form>
       </template>
       <a on-tap="addPost"class="primary col-xs-3 offset-xs-1">
         [[localize('add_new_post')]]<paper-icon-button class="label" icon="add"></paper-icon-button>
       </a>
     </template>
+    </div>
     <template is="dom-if" if="[[creating]]"><paper-button raised class="primary col-xs-1 offset-xs-1" on-click="submitForm">[[localize('create')]]</paper-button></template>
     <template is="dom-if" if="[[!creating]]"><paper-button raised class="primary col-xs-1 offset-xs-1" on-click="submitForm">[[localize('update')]]</paper-button></template>
   </div>
@@ -171,6 +173,7 @@
     observers : [
       '_onBusinessIdChanged(business.id)'
     ],
+
     ready : function(){
       this.$.toast.fitInto = this.$.paperCard;
     },
@@ -275,17 +278,20 @@
 
     submitForm : function(e){
       if(!this.$.businessForm.validate() || !this.validateLabels()) return;
-
-      console.log(Polymer.dom(this.$.businessPostsTemplate).children);
-      console.log(document.querySelectorAll('.post-form'));
-      console.log(document.querySelector('#businessPostsTemplate'));
+      var postForm = true;
       Polymer.dom(this.$.businessPostsTemplate).children.forEach(function(node){
-        console.log(node);
-        // if(!node.validateForm())return;
+        if(node.localName == 'post-form'){
+          console.log(node.validateForm());
+          if(node.validateForm()){
+            postForm = false;
+          };
+        }
       });
+      if(!postForm)return;
       this.setBusinessLabels();
       this.$.businessForm.request.params = this.business;
-      // this.$.businessForm.submit();
+      console.log(this.business);
+      this.$.businessForm.submit();
     },
 
     _responseHandler : function(e){

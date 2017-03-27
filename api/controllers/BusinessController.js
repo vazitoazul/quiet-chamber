@@ -12,23 +12,36 @@ module.exports = {
 		*@param {string} name
 		*@param {string} description
 		*@param {string} cityLabel - a city name
-    *@param {string} placesIds - an array with the ids of each address component
+ 	    *@param {string} placesIds - an array with the ids of each address component
 																 on google search
-	  *@param {string} labels - an array of category labels
+	    *@param {string} labels - an array of category labels
 		*@param {string} email - contact email
 		*@param {string} telephone - contact telephone
 		*/
 	createBusiness : function(req,res,next){
 		req.body['user'] = req.user.id;
+		var posts = req.body.posts;
 		//set vars that are not sent on form body
 		if(req.query['placesIds']){
 			req.body['placesIds'] = req.query['placesIds'];
 			req.body['labels'] = req.query['labels'];
 			req.body['telephones'] = req.query['telephones'];
 		}
+		console.log(req.body);
 		Business.create(req.body,function(err,newBusiness){
 			if(err)return next(err);
-			return res.json(newBusiness);
+			if(posts){
+				for(var post in posts){
+					posts[post].business = newBusiness.id; 
+				}
+				Post.create(posts,function(err,posts){
+					if(err)return next(err);
+					newBusiness['posts'] = posts;
+					return res.json(newBusiness);
+				});
+			}else{
+				return res.json(newBusiness);
+			}
 		});
 	},
 

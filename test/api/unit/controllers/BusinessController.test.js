@@ -95,9 +95,10 @@ describe('BusinessController',function(){
                    'ChIJ1UuaqN2HI5ARAjecEQSvdp0',
                    'ChIJn3xCAkCa1ZERclXvWOGRuUQ' ],
                 email: 'asdf@asdf.com' ,
-                posts : [ { name : 'post 1'} , {name : 'post 2'}]
+                posts : [ { description : 'post 1' , type : 't'} , {description : 'post 2' , type : 't'}]
               })
           .expect(function(res,err){
+            console.log(res.body);
             res.body.posts[0].should.property('id');
           })
           .end(done)

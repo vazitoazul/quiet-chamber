@@ -30,7 +30,7 @@
       <div class="card-content">
         <form is="iron-form" id="postForm" method="post" action="/form/handler">
           <div class="row">
-            <paper-dropdown-menu label="[[localize('type')]]" class="col-sm-3">
+            <paper-dropdown-menu label="[[localize('type')]]" class="col-sm-3" required>
               <paper-listbox id="paperList" class="dropdown-content" selected="{{post.type}}"  attr-for-selected="value">
                 <paper-item value="f">[[localize('franchise')]]</paper-item>
                 <paper-item value="d">[[localize('donation')]]</paper-item>
