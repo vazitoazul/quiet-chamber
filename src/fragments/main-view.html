@@ -38,7 +38,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-size: cover;
       }
       .first{
-        height: 90vh;
+        height: 70vh;
         color: white;
       }
       .second{
@@ -93,16 +93,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-toolbar>
             <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
             <div main-title><span class="text-display-2">Dinabun</span></div>
-            <paper-tabs selected="0" align-bottom>
-              <paper-tab link>Inicio</paper-tab>
-              <paper-tab link>
-                <a href="/sytm" tabindex="-1">Cómo funciona</a>
+            <paper-tabs selected="[[route]]" attr-for-selected="route" align-bottom >
+              <paper-tab link route="main">
+                <a href="/main">Inicio</a>
               </paper-tab>
-              <paper-tab link>
-                <a href="/info" tabindex="-1">Sobre Nosotros</a>
+              <paper-tab link route="sytm">
+                <a href="/sytm">Cómo funciona</a>
+              </paper-tab>
+              <paper-tab link route="opo">
+                <a href="/opo">Oportunidades</a>
+              </paper-tab>
+              <paper-tab link route="abt">
+                <a href="/abt">Sobre Nosotros</a>
               </paper-tab>
             </paper-tabs>
-            <paper-button raised class="accent"><h6>Registrarme</h6></paper-button>
+            <a href="/lgin"><paper-button raised class="accent"><h6>Ingresar</h6></paper-button></a>
         </app-toolbar>
       </app-header>
       <div>
@@ -243,7 +248,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type : Object
         },
         route : {
-          type : Object
+          type : String
         }
       },
 

@@ -36,10 +36,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         attr-for-selected="name"
         fallback-selection="notfound"
         role="main">
-      <main-view name="main" on-route-change="changeRoute"></main-view>
-      <sytm-view name="sytm" on-route-change="changeRoute" ></sytm-view>
-      <acco-view name="acco" on-route-change="changeRoute"></acco-view>
-      <info-view name="info" on-route-change="changeRoute" ></info-view>
+      <main-view name="main" route="[[page]]"></main-view>
+      <sytm-view name="sytm" route="[[page]]" ></sytm-view>
+      <abt-view name="abt" route="[[page]]" ></abt-view>
+      <opo-view name="opo" route="[[page]]" ></opo-view>
+
+      <acco-view name="acco" on-route-change="changeRoute" route="[[route]]"></acco-view>
+
 
       <notfound-view name="notfound"></notfound-view>
       <forbidden-view name="forbidden"></forbidden-view>

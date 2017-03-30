@@ -14,10 +14,6 @@
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
-<link rel="import" href="../elements/facebook-login.html">
-<link rel="import" href="../elements/google-login.html">
 <link rel="import" href="../elements/page-footer.html">
 <link rel="import" href="../shared-styles.html">
 <dom-module id="sytm-view">
@@ -28,7 +24,7 @@
         background-size: cover;
       }
       .first{
-        height: 45vh;
+        height: 50vh;
         color: var(--light-primary-text-color);
       }
       .second{
@@ -80,23 +76,27 @@
         margin-bottom: 20px;
       }
     </style>
-    <app-location route="{{route}}"></app-location>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
     <app-header-layout fullbleed>
       <app-header fixed reveals effects="fade-background">
         <app-toolbar>
             <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
             <div main-title><span class="text-display-2">Dinabun</span></div>
-            <paper-tabs selected="1" align-bottom>
-              <paper-tab link>Inicio</paper-tab>
-              <paper-tab link>
-                <a href="/sytm" tabindex="-1">Cómo funciona</a>
+            <paper-tabs selected="[[route]]" attr-for-selected="route" align-bottom >
+              <paper-tab link route="main">
+                <a href="/main">Inicio</a>
               </paper-tab>
-              <paper-tab link>
-                <a href="/info" tabindex="-1">Sobre Nosotros</a>
+              <paper-tab link route="sytm">
+                <a href="/sytm">Cómo funciona</a>
+              </paper-tab>
+              <paper-tab link route="opo">
+                <a href="/opo">Oportunidades</a>
+              </paper-tab>
+              <paper-tab link route="abt">
+                <a href="/abt">Sobre Nosotros</a>
               </paper-tab>
             </paper-tabs>
-            <paper-button raised class="accent"><h6>Registrarme</h6></paper-button>
+            <a href="/lgin"><paper-button raised class="accent"><h6>Ingresar</h6></paper-button></a>
         </app-toolbar>
       </app-header>
       <div>
@@ -211,11 +211,15 @@
         </section>
       </div>
     </app-header-layout>
-    <paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
   <script>
     Polymer({
-      is: 'sytm-view'
+      is: 'sytm-view',
+      properties:{
+        route:{
+          type:String
+        }
+      }
     });
   </script>
 </dom-module>
