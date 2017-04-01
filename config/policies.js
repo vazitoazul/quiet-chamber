@@ -41,12 +41,12 @@ module.exports.policies = {
 
   'BusinessController' : {
     'updateBusiness' : ['passport','sessionAuth','intlCredential','businessOwner'],
+    'deleteBusiness' : ['passport','sessionAuth','intlCredential','businessOwner'],
     '*' : ['passport','sessionAuth','intlCredential']
   },
 
   'PostController' : {
-    'createPost' : ['passport','sessionAuth','intlCredential','businessOwner'],
-    '*' : ['passport','sessionAuth','intlCredential']
+    '*' : ['passport','sessionAuth','intlCredential','businessOwner']
   },
 
   '*' : ['passport']

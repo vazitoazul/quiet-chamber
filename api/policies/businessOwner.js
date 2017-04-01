@@ -9,7 +9,7 @@
  */
 
 module.exports = function (req, res, next) {
-  var businessId = req.param('id') || req.body['business'];
+  var businessId = req.body['business'] || req.param('id') ;
   Business.find({ user : req.user.id },function(err,found){
     if(err)return next(err);
     for(var business in found){

@@ -8,8 +8,8 @@
 module.exports = {
 
   attributes: {
-    business : { type : 'string', required : true },
+    business : { model : 'business', required : true },
     type : { type : 'string', required : true},
-    description : {type : 'string', required : true}
+    description : {type : 'string', required : true},
   }
 };

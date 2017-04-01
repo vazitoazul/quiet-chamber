@@ -8,6 +8,7 @@
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../elements/business-card.html">
 <link rel="import" href="../elements/business-form.html">
+<link rel="import" href="../elements/post-form.html">
 <dom-module id="business-section">
   <style include="app-grid-style shared-styles">
     paper-icon-button.giant{
@@ -41,6 +42,17 @@
       </section>
       <section name="new">
         <business-form creating on-business-added-eddited="_onBusinessAddedorEditted"></business-form>
+      </section>
+      <section name="edditBusiness">
+        [[localize('edditing')]]
+        <business-form business="[[currentBusiness]]" on-business-added-eddited="_onBusinessAddedorEditted"></business-form>
+      </section>
+      <section name="newPost">
+        <post-form creating on-post-added-eddited="_onBusinessAddedorEditted" business="[[currentBusiness]]"></post-form>
+      </section>
+      <section name="edditPost">
+        edditing post
+        <post-form post="[[currentPost]]" business="[[currentBusiness]]"></post-form>
       </section>
     </iron-pages>
   </template>
@@ -96,14 +108,21 @@
 
       _onBusinessChanged : function(business){
         if(!business || !business.length || business.length===0)return this.set('noBusiness',true);
-        console.log(this.route);
-        console.log(this.businessIdSubRouteData.businessId);
         this.set('noBusiness',false);
-        if(this.route.path == '/acco/business')return this.set('section','resume');
+        if(this.businessIdSubRoute.path == '')return this.set('section','resume');
         for(var current in business){
           if(this.business[current].id == this.businessIdSubRouteData.businessId){
             this.set('currentBusiness',this.business[current]);
-            return this.set('section','edditBusiness');
+            this.set('section','edditBusiness');
+            if(this.postActionSubRoute.path == '')return;
+            if(this.postActionSubRouteData.postAction == 'new')return this.set('section','newPost');
+            var posts = this.currentBusiness.posts;
+            for(var post in posts){
+              if(posts[post].id == this.postIdSubRouteData.postId){
+                this.set('currentPost',posts[post]);
+                return this.set('section','edditPost');
+              }
+            }
           }
         }
       },

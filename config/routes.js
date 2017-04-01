@@ -65,8 +65,11 @@ module.exports.routes = {
   '/createBusiness' : 'BusinessController.createBusiness',
   '/getBusiness' : 'BusinessController.getBusiness',
   '/updateBusiness/:id' : 'BusinessController.updateBusiness',
+  '/deleteBusiness/:id' : 'BusinessController.deleteBusiness',
 
-  '/createPost' : 'PostController.createPost'
+  '/createPost' : 'PostController.createPost',
+  '/updatePost/:id' : 'PostController.updatePost',
+  '/deletePost/:id' : 'PostController.deletePost',
 
   /***************************************************************************
   *                                                                          *

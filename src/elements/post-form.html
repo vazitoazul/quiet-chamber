@@ -10,6 +10,7 @@
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../elements/business-card.html">
 <link rel="import" href="../shared-styles.html">
 <dom-module id="post-form">
   <style include="shared-styles">
@@ -26,9 +27,12 @@
   </style>
   <template>
     <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
-    <paper-card>
+    <template is="dom-if" if="[[business]]">
+      <business-card business="[[business]]"></business-card>
+    </template>
+    <paper-card id="paperCard">
       <div class="card-content">
-        <form is="iron-form" id="postForm" method="post" action="/form/handler">
+        <form is="iron-form" id="postForm" method="post" action=[[ironFormAction]] on-iron-form-response="_responseHandler" on-iron-form-error="_errorHandler">
           <div class="row">
             <paper-dropdown-menu label="[[localize('type')]]" class="col-sm-3" required>
               <paper-listbox id="paperList" class="dropdown-content" selected="{{post.type}}"  attr-for-selected="value">
@@ -39,7 +43,9 @@
                 <paper-item value="a">[[localize('advertising')]]</paper-item>
               </paper-listbox>
             </paper-dropdown-menu>
-            <paper-icon-button icon="close" class="offset-sm-6" on-tap="fireRemoveEvent"></paper-icon-button>
+            <template is="dom-if" if="[[onbusiness]]">
+              <paper-icon-button icon="close" class="offset-sm-6" on-tap="fireRemoveEvent"></paper-icon-button>
+            </template>
           </div>
           <paper-textarea label="[[localize('description')]]" name="description" value="{{post.description}}" required error-message="[[localize('add_description')]]"></paper-textarea>
           <template is="dom-if" if="[[franchise]]">
@@ -57,15 +63,18 @@
           <template is="dom-if" if="[[job]]">
             [[localize('job')]]
           </template>
+          <input hidden name="type" value="[[post.type]]" hidden></input>
+          <input hidden name="business" value="[[business.id]]" hidden></input>
         </form>
       </div>
       <div class="card-actions">
-        <template is="dom-if" if="[[creatingABusiness]]">
+        <template is="dom-if" if="[[!onbusiness]]">
           <template is="dom-if" if="[[creating]]"><paper-button raised class="primary" on-click="submitForm">[[localize('create')]]</paper-button></template>
           <template is="dom-if" if="[[!creating]]"><paper-button raised class="primary" on-click="submitForm">[[localize('update')]]</paper-button></template>
         </template>
       </div>
     </paper-card>
+    <paper-toast id="toast"></paper-toast>
   </template>
   <script>
     Polymer({
@@ -77,15 +86,8 @@
 
       properties : {
         post : {
-          type : Object
-        },
-        creating : {
-          type : Boolean,
-          value : false
-        },
-        creatingABusiness : {
-          type : Boolean,
-          value : false
+          type : Object,
+          value : {}
         },
         resources : {
           value :   function(){
@@ -119,15 +121,25 @@
               }
           }
         },
-
+        onbusiness : {
+          type : Boolean,
+          value : false
+        },
+        creating : {
+          type : Boolean,
+          value : false
+        },
+        business : {
+          type : Object
+        }
       },
 
       observers : [
-        '_onPostTypeChanged(post.type)'
+        '_onPostTypeChanged(post.type)',
+        '_onPostIdChanged(post.id)'
       ],
 
       _onPostTypeChanged : function(type){
-        console.log(type);
         this.set('franchise',false);
         this.set('donation',false);
         this.set('franchise',false);
@@ -152,12 +164,36 @@
         }
       },
 
+      ready : function(){
+        this.$.toast.fitInto = this.$.paperCard;
+      },
+
       validateForm : function(){
         return this.$.postForm.validate();
       },
 
       fireRemoveEvent : function(){
         this.fire('remove',this.index);
+      },
+
+      submitForm : function(){
+        if(!this.validateForm)return;
+        this.$.postForm.submit();
+      },
+
+      _onPostIdChanged : function(id){
+        this.set('ironFormAction',id ? '/updatePost/'+id: '/createPost');
+      },
+
+      _responseHandler : function(){
+        this.$.toast.text = 'creado';
+        this.$.toast.open();
+        this.fire('post-added-eddited');
+      },
+
+      _errorHandler : function(){
+        this.$.toast.text = 'error';
+        this.$.toast.open();
       }
     });
   </script>

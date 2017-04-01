@@ -248,7 +248,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       behaviors: [
         Polymer.AppLocalizeBehavior
       ],
-      
+
       showMessage:function(message,duration){
         this.$.toast.text = message;
         this.$.toast.duration=duration || 3000;
@@ -411,6 +411,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       userBusinessHandler : function(e){
         this.set('user.business',e.detail.__data__.response);
+        console.log(this.user.business);
       }
 
     });

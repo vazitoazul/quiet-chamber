@@ -6,6 +6,7 @@ var user = request.agent('http://localhost:9000');
 
 describe('PostController',function(){
   var businessId;
+  var postId;
   before(function(done) {
      user
        .post('/auth/local')
@@ -27,10 +28,31 @@ describe('PostController',function(){
           .post('/createPost')
           .send({description : 'test@dinabun.com' , business : businessId , type: 'donation'})
           .expect(function(res,err){
-            console.log(res.body);
+            postId = res.body.id;
             res.body.should.have.deep.property('id');
           })
           .end(done)
     });
+
+    it('edit post',function(done){
+        user
+          .post('/updatePost/'+postId)
+          .send({description : 'fuking fuck eddited' , type: 'i' , business : businessId})
+          .expect(function(res,err){
+            res.body.should.have.deep.property('description').equal('fuking fuck eddited');
+          })
+          .end(done)
+    });
+
+    it('delete post',function(done){
+        user
+          .post('/deletePost/'+postId)
+          .send({description : 'fuking fuck eddited' , type: 'i', business : businessId})
+          .expect(function(res,err){
+            res.body.should.have.deep.property('id').equal(postId);
+          })
+          .end(done)
+    });
   });
+
 });

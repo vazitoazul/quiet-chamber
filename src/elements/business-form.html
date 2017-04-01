@@ -13,6 +13,7 @@
 <link rel="import" href="../elements/label-element.html">
 <link rel="import" href="../elements/label-chip.html">
 <link rel="import" href="../elements/post-form.html">
+<link rel="import" href="../elements/post-card.html">
 <dom-module id="business-form">
  <style include="app-grid-style shared-styles">
     paper-autocomplete{
@@ -45,7 +46,7 @@
             <paper-autocomplete id="autocomplete" class="col-xl-3 col-lg-4 col-md-5 col-sm-12 col-xs-12" label="Select" source="[[labelsArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
             <div class="col-xl-9 col-lg-8 col-md-7 col-sm-12 col-xs-12  row labels">
               <template  id="businessLabelsTemplate" is="dom-repeat" items="[[selectedLabels]]">
-                <label-chip item="[[item]]" on-closed="spliceLabel"></label-chip>
+                <label-chip item="[[item]]" on-closed="spliceLabel" closeable></label-chip>
               </template>
             </div>
           </div>
@@ -57,22 +58,35 @@
         </form>
       </div>
     </paper-card>
-    <div id="businessPostsTemplate">
+    </div>
+    <div id="businessPostsTemplate" class="row">
     <template is="dom-if" if="[[creating]]">
       <div class="col-xs-6 offset-xs-1">
         [[localize('want_add_post')]]
         [[localize('what_is')]]
       </div>
       <template  is="dom-repeat" id="pushi" items="[[business.posts]]">
-        <post-form post="[[item]]" creatingABusiness="[[creating]]" on-remove="removePost" index="[[index]]" class="post-form col-xs-7 offset-xs-1"></post-form>
+        <post-form post="[[item]]" onbusiness on-remove="removePost" index="[[index]]" class="post-form col-xs-7 offset-xs-1"></post-form>
       </template>
-      <a on-tap="addPost"class="primary col-xs-3 offset-xs-1">
+      <a on-tap="addPost" class="primary col-xs-3 offset-xs-1">
         [[localize('add_new_post')]]<paper-icon-button class="label" icon="add"></paper-icon-button>
       </a>
     </template>
     </div>
-    <template is="dom-if" if="[[creating]]"><paper-button raised class="primary col-xs-1 offset-xs-1" on-click="submitForm">[[localize('create')]]</paper-button></template>
-    <template is="dom-if" if="[[!creating]]"><paper-button raised class="primary col-xs-1 offset-xs-1" on-click="submitForm">[[localize('update')]]</paper-button></template>
+    <div class="row">
+      <template is="dom-if" if="[[!creating]]">
+        <template  is="dom-repeat" id="pushi" items="[[business.posts]]">
+          <post-card post="[[item]]"></post-card>
+        </template>
+        <a href="/acco/business/[[business.id]]/new" class="primary col-xs-3 offset-xs-1">
+          [[localize('add_new_post')]]<paper-icon-button class="label" icon="add"></paper-icon-button>
+        </a>
+      </template>
+    </div>
+    <div class="row">
+      <template is="dom-if" if="[[creating]]"><paper-button raised class="primary col-xs-1 offset-xs-1" on-click="submitForm">[[localize('create')]]</paper-button></template>
+      <template is="dom-if" if="[[!creating]]"><paper-button raised class="primary col-xs-1 offset-xs-1" on-click="submitForm">[[localize('update')]]</paper-button></template>
+    </div>
   </div>
  	<paper-toast id="toast"></paper-toast>
   <div id="placesServiceResult"></div>
@@ -281,8 +295,7 @@
       var postForm = true;
       Polymer.dom(this.$.businessPostsTemplate).children.forEach(function(node){
         if(node.localName == 'post-form'){
-          console.log(node.validateForm());
-          if(node.validateForm()){
+          if(!node.validateForm()){
             postForm = false;
           };
         }
@@ -290,7 +303,12 @@
       if(!postForm)return;
       this.setBusinessLabels();
       this.$.businessForm.request.params = this.business;
-      console.log(this.business);
+      var aux = [];
+      var posts = this.business.posts;
+      for(var post in posts){
+        aux.push(JSON.stringify(posts[post]));
+      }
+      this.$.businessForm.request.params['posts'] = aux;
       this.$.businessForm.submit();
     },
 

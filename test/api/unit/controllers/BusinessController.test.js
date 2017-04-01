@@ -45,6 +45,7 @@ describe('BusinessController',function(){
           .get('/getBusiness')
           .expect(function(res,err){
             res.body.should.have.property('length',1);
+            businessId = res.body[0].id;
           })
           .end(done)
     });
@@ -61,23 +62,6 @@ describe('BusinessController',function(){
                  [ 'ChIJN-TvJYNw1ZERnqEqXhutzpQ'],
                 email: 'asdf@asdf.com'})
           .expect(400)
-          .end(done)
-    });
-
-    it('should eddit the last business',function(done){
-        user
-          .post('/updateBusiness/'+businessId)
-          .send({ labels: [ 'automovile', 'plumber' ],
-                telephones: '1234,1234',
-                name: 'negocio',
-                description: 'loco loco',
-                cityLabel: 'Quito, Ecuador',
-                placesIds:
-                 ['ChIJN-TvJYNw1ZERnqEqXhutzpQ'],
-                email: 'asdf@asdf.com'})
-          .expect(function(res,err){
-            res.body.should.have.property('description').equal('loco loco');
-          })
           .end(done)
     });
 
@@ -98,10 +82,36 @@ describe('BusinessController',function(){
                 posts : [ { description : 'post 1' , type : 't'} , {description : 'post 2' , type : 't'}]
               })
           .expect(function(res,err){
-            console.log(res.body);
-            res.body.posts[0].should.property('id');
+            res.body.should.property('posts');
           })
           .end(done)
     });
+
+    it('should eddit the last business',function(done){
+        user
+          .post('/updateBusiness/'+businessId)
+          .send({ labels: [ 'automovile', 'plumber' ],
+                telephones: '1234,1234',
+                name: 'negocio',
+                description: 'loco loco',
+                cityLabel: 'Quito, Ecuador',
+                placesIds:
+                 ['ChIJN-TvJYNw1ZERnqEqXhutzpQ'],
+                email: 'asdf@asdf.com'})
+          .expect(function(res,err){
+            res.body.should.have.property('description').equal('loco loco');
+          })
+          .end(done)
+    });
+
+    it('should delete the business',function(done){
+        user
+          .post('/deleteBusiness/'+businessId)
+          .expect(function(res,err){
+            res.body.should.have.property('id').equal(businessId);
+          })
+          .end(done)
+    });
+
   });
 });
