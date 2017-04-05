@@ -26,12 +26,25 @@
   }
   </style>
   <template>
-    <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
+    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <template is="dom-if" if="[[business]]">
       <business-card business="[[business]]"></business-card>
     </template>
+    <iron-ajax
+    id="deleteBusinessRequester"
+    url="/deletePost/[[post.id]]"
+    handle-as="json"
+    method = "post"
+    body="business=[[business.id]]"
+    on-response="_responseHandler"
+    on-error="_errorHandler"></iron-ajax>
     <paper-card id="paperCard">
       <div class="card-content">
+        <template is="dom-if" if="[[!onbusiness]]">
+          <template is="dom-if" if="[[!creating]]">
+            <paper-button raised class="secondary col-xs-1 offset-xs-1" on-click="openDeleteConfirmation">Eliminar</paper-button>
+          </template>
+        </template>
         <form is="iron-form" id="postForm" method="post" action=[[ironFormAction]] on-iron-form-response="_responseHandler" on-iron-form-error="_errorHandler">
           <div class="row">
             <paper-dropdown-menu label="[[localize('type')]]" class="col-sm-3" required>
@@ -75,6 +88,16 @@
       </div>
     </paper-card>
     <paper-toast id="toast"></paper-toast>
+    <paper-dialog id="dialog">
+      <h2>Borrar [[business.name]]</h2>
+      <paper-dialog-scrollable>
+        Lorem ipsum...
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm autofocus on-click="deleteBusiness">Accept</paper-button>
+      </div>
+    </paper-dialog>
   </template>
   <script>
     Polymer({
@@ -194,6 +217,15 @@
       _errorHandler : function(){
         this.$.toast.text = 'error';
         this.$.toast.open();
+      },
+
+      openDeleteConfirmation : function(e){
+        this.$.dialog.open();
+      },
+
+      deleteBusiness : function(e){
+        // this.$.deleteBusinessRequester.body['business'] = this.business.id;
+        this.$.deleteBusinessRequester.generateRequest();
       }
     });
   </script>

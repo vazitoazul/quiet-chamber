@@ -27,13 +27,17 @@ module.exports = {
 			req.body['telephones'] = req.query['telephones'];
 			req.body['posts'] =[];
 			var posts = req.query['posts'];
-			for(var post in posts){
-				req.body['posts'].push(JSON.parse(posts[post]));
+			if(posts.length > 22){
+				req.body['posts'].push(JSON.parse(posts));
+			}else{
+				for(var post in posts){
+					req.body['posts'].push(JSON.parse(posts[post]));
+				}
 			}
 		}
 		Business.create(req.body,function(err,newBusiness){
 			if(err)return next(err);
-				return res.json(req.body);
+			return res.json(req.body);
 		});
 	},
 

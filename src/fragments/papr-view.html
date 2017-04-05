@@ -19,7 +19,7 @@
       on-response="currentUserHandler"
       id="currentUserRequester"
       on-error="currentUserErrorHandler"></iron-ajax>
-    <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
+    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <div class="row">
       <h4 class="col-sm-10">[[localize('pay_done')]]</h4>
       <h5 class="col-sm-10">[[localize('subscribed_until','start', subscribedUntil)]]</h5>

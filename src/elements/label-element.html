@@ -3,20 +3,18 @@
 
 <dom-module id="label-element">
 	<template>
-		<app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
+		<app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
 	</template>
 </dom-module>
 <script>
 	Polymer({
 		is: 'label-element',
-
 		properties : {
 	        language :{
-	          type : String,
-	          value : 'en'
+	          type : String
 	        },
 	        resources : {
-						type : Object,
+				type : Object,
 	        	value : {
         			'en' : {
         				'propaganda' : ['propaganda'],
@@ -64,25 +62,27 @@
         			}
         		}
 	        },
-					labels : {
-						type : Object,
-						computed : 'computeLabelArray(language, resources)'
-					}
+			labels : {
+				type : Object,
+				computed : 'computeLabelArray(language, resources)'
+			}
 		},
 
-    computeLabelArray : function(language, resources){
-    	var labelArray = [];
-    	var labels = resources[language];
-			var keys = Object.keys(labels);
-			var index = 0;
-			for(var item in labels){
-				for(var subitem in labels[item]){
-					labelArray.push({ text : labels[item][subitem], value : keys[index]});
+	    computeLabelArray : function(language, resources){
+	    	console.log(language,'qui')
+	    	var labelArray = [];
+	    	var labels = resources[language];
+				var keys = Object.keys(labels);
+				var index = 0;
+				for(var item in labels){
+					for(var subitem in labels[item]){
+						labelArray.push({ text : labels[item][subitem], value : keys[index]});
+					}
+					index++;
 				}
-				index++;
-			}
-    	return labelArray;
-    },
+			this.fire('labels-changed',labelArray);
+	    	return labelArray;
+	    },
 
 		computeSelectedLabelsObjectArray : function(selectedValues){
 			var labelsObjectsArray = [];
@@ -99,6 +99,22 @@
 				}
 			}
 			return labelsObjectsArray;
-		}
+		},
+
+		getLabelArray  : function(language){
+			var resources = this.resources;
+			console.log(language);
+	    	var labelArray = [];
+	    	var labels = resources[language];
+				var keys = Object.keys(labels);
+				var index = 0;
+				for(var item in labels){
+					for(var subitem in labels[item]){
+						labelArray.push({ text : labels[item][subitem], value : keys[index]});
+					}
+					index++;
+				}
+	    	return labelArray;
+	    }
 	});
 </script>

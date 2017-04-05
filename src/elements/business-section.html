@@ -19,7 +19,7 @@
     }
   </style>
   <template>
-    <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
+    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/acco/business" data="{{routeData}}" tail="{{businessIdSubRoute}}"></app-route>
     <app-route route="{{businessIdSubRoute}}" pattern="/:businessId" data="{{businessIdSubRouteData}}" tail="{{postActionSubRoute}}"></app-route>

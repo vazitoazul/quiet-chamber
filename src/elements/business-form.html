@@ -4,6 +4,8 @@
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
@@ -31,10 +33,17 @@
  </style>
  <template>
   <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
-  <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
-  <label-element id="labelElement"></label-element>
+  <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
+  <label-element id="labelElement" on-labels-changed="changeLabelsArray"></label-element>
+  <iron-ajax
+    id="deleteBusinessRequester"
+    url="/deleteBusiness/[[business.id]]"
+    handle-as="json"
+    on-response="_responseHandler"
+    on-error="_errorHandler"></iron-ajax>
   <div class="row">
     <paper-card class="col-xs-9 offset-xs-1" id="paperCard">
+      <template is="dom-if" if="[[!creating]]"><paper-button raised class="secondary col-xs-1 offset-xs-1" on-click="openDeleteConfirmation">Eliminar</paper-button></template>
       <div class="card-content">
         <form is="iron-form" id="businessForm" action="[[ironFormAction]]" on-iron-form-response="_responseHandler" on-iron-form-error="_errorHandler" method="post">
           <paper-input name="name" label="[[localize('name')]]" required  value="{{business.name}}" error-message="[[localize('add_name')]]"></paper-input>
@@ -90,6 +99,16 @@
   </div>
  	<paper-toast id="toast"></paper-toast>
   <div id="placesServiceResult"></div>
+  <paper-dialog id="dialog">
+    <h2>Borrar [[business.name]]</h2>
+    <paper-dialog-scrollable>
+      Lorem ipsum...
+    </paper-dialog-scrollable>
+    <div class="buttons">
+      <paper-button dialog-dismiss>Cancel</paper-button>
+      <paper-button dialog-confirm autofocus on-click="deleteBusiness">Accept</paper-button>
+    </div>
+  </paper-dialog>
  </template>
  <script>
  	Polymer({
@@ -165,7 +184,7 @@
 
           labelsArray :{
             type : Object,
-            computed : 'computeLabelsArray(language)'
+            value : {}
           },
 
           selectedLabels : {
@@ -231,8 +250,8 @@
         });
 		},
 
-    computeLabelsArray : function(){
-      return this.$.labelElement.labels;
+    changeLabelsArray : function(e){
+      this.set('labelsArray',e.detail);
     },
 
     setSelectedLabels : function(e){
@@ -305,6 +324,7 @@
       this.$.businessForm.request.params = this.business;
       var aux = [];
       var posts = this.business.posts;
+      console.log(JSON.stringify(posts))
       for(var post in posts){
         aux.push(JSON.stringify(posts[post]));
       }
@@ -337,6 +357,14 @@
 
     removePost : function(e){
       this.splice('business.posts',e.detail,1);
+    },
+
+    openDeleteConfirmation : function(e){
+      this.$.dialog.open();
+    },
+
+    deleteBusiness : function(e){
+      this.$.deleteBusinessRequester.generateRequest();
     }
  	});
  </script>

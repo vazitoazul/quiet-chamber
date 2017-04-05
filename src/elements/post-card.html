@@ -7,10 +7,9 @@
 <dom-module id="post-card">
   <style include="app-grid-style shared-styles"></style>
   <template>
-    <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
+    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
       <paper-card>
         <div class="card-content">
-          <!-- <div class="">[[localize('type')]]</div><div class="">[[localize('post_type','type',post.type)]]</div> -->
           <div class="">[[localize('description')]]</div><div class="">[[post.description]]</div>
           <a href="/acco/business/[[post.business]]/post/[[post.id]]"><paper-icon-button icon="close"></paper-icon-button></a>
           <template is="dom-if" if="[[franchise]]">
