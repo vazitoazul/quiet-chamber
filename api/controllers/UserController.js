@@ -1,23 +1,30 @@
 //User controller
 var crypto    = require('crypto');
 module.exports = {
+
 	/**
     *return current logged user.
     *
     *@param {object} req.user - current logged user
     */
 	getCurrentUser : function(req,res,next){
-		User.findOne(req.user.id, function(err, user){
-			if(err) return next(err);
-			if(!user){
-				return res.badRequest();
-			}
-			User.find({recommender : user.id}, (err,found) => {
-				if(err) return res.badRequest();
-				user.recommended = found;
-				return res.json(user);
+		if(req.session.authenticated){
+			User.findOne(req.user.id, function(err, user){
+				if(err) return next(err);
+				if(!user){
+					return res.badRequest();
+				}
+				User.find({recommender : user.id}, (err,found) => {
+					if(err) return res.badRequest();
+					user.recommended = found;
+					user.authenticated=true;
+					return res.json(user);
+				});
 			});
-		});
+		}else{
+			return res.json({})
+		}
+
 	},
 	/**
     *update the user intlCredential parameter.

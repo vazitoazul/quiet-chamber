@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../my-icons.html">
+<link rel="import" href="../redux/redux-store.html">
 <dom-module id="facebook-login">
   <template>
     <style>
@@ -37,14 +38,6 @@
       handle-as="json"
       method="GET"
       on-response="handleKeyResponse"></iron-ajax>
-    <iron-ajax
-      id="loginAjax"
-      url="/auth/facebook/callback"
-      method="POST"
-      handle-as="json"
-      on-response="handleResponse"
-      content-type="application/json"></iron-ajax>
-
     <paper-button raised on-click="login" class="facebook">
       <iron-icon icon="custom:facebook" class="facebook"></iron-icon>
     </paper-button>
@@ -53,6 +46,7 @@
   <script>
     Polymer({
       is: 'facebook-login',
+      behaviors:[ReduxBehavior,AuthActionsBehavior],
       properties:{
         recommender : {
           type : String
@@ -64,10 +58,12 @@
           console.log(response);
           if (response.status === 'connected') {
             // Logged into your app and Facebook.
-            self.$.loginAjax.body={
+            var body={
               token:response.authResponse.accessToken,
-              userID:response.authResponse.userID};
-            self.$.loginAjax.generateRequest();
+              userID:response.authResponse.userID,
+              recommender : this.recommender
+            };
+            self.dispatch('logIn','facebook',body);
           } else if (response.status === 'not_authorized') {
             // The person is logged into Facebook, but not your app.
             FB.login(function(response){
@@ -82,10 +78,8 @@
       },
       handleResponse:function(e){
         var response=e.detail.__data__.response;
-        console.log(response);
         if(response.success){
           this.fire('user-logged',response.user);
-          console.log('success');
         }
       },
       handleKeyResponse:function(e){
@@ -99,15 +93,16 @@
         };
       },
       callback:function(response){
+        console.log('llega el callback');
         if (response.status === 'connected') {
           // Logged into your app and Facebook.
-          this.$.loginAjax.body={
+          var body={
             token:response.authResponse.accessToken,
             userID:response.authResponse.userID,
             recommender : this.recommender
           };
           console.log(this.recommender);
-          this.$.loginAjax.generateRequest();
+          this.dispatch('logIn','facebook',body);
         } else {
           this.fire('show-message','error_log_with_fb');
         }

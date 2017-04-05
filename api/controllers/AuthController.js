@@ -113,7 +113,7 @@ var AuthController = {
         if(!req.wantsJSON){
           return res.redirect('/acco');
         }else{
-          var response = {user : user.id,success:true};
+          var response = {user : user,success:true};
           response.hasRecommender = statuses ? statuses.hasRecommender : false;
           res.json(response);
         }

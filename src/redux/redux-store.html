@@ -1,0 +1,68 @@
+<link rel="import" href="../../bower_components/polymer-redux/polymer-redux.html">
+
+<script>
+  const initialState={
+    authenticated:false,
+    loading:false,
+    lastError:null,
+    user:{},
+    route:null
+  };
+
+  const reducer = (state,action) => {
+    if(!state) return initialState;
+    switch (action.type) {
+      case 'LOG_IN':
+        switch (action.status) {
+          case 'success':
+            return Object.assign({},state,{loading:false,authenticated:true,user:action.user});
+            break;
+          case 'error':
+            return Object.assign({},state,{loading:false,authenticated:false,lastError:action.error});
+            break;
+          default:
+            return Object.assign({},state,{loading:true});
+            break;
+        }
+        break;
+    };
+  };
+
+  const store = Redux.createStore(
+    reducer,
+    Redux.applyMiddleware(ReduxThunk.default)
+  );
+  const ReduxBehavior = PolymerRedux(store);
+
+  const standardHeaders = new Headers({
+		'Content-Type': 'application/json'
+	});
+  const AuthActionsBehavior = {
+    actions:{
+      logIn:function(provider,body){
+        return function(dispatch){
+            dispatch({type:'LOG_IN'});
+            let url = '/auth/'+provider;
+            if(provider!=='local'){
+              url+='/callback'
+            }
+            let request = new Request(url,{
+              method:'POST',
+              headers: standardHeaders,
+              body: JSON.stringify(body)
+            });
+            window.fetch(request)
+            .then(response=>response.json())
+            .then((json)=>{
+              console.log(json);
+              dispatch({type:'LOG_IN',status:'success',user:{name:'juan',id:'unid'}});
+            })
+            .catch((err)=>{
+              console.log(err);
+              dispatch({type:'LOG_IN',status:'error',err:'Algo no salió bien'});
+            });
+        }
+      }
+    }
+  };
+</script>

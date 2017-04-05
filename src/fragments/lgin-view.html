@@ -147,7 +147,6 @@
         var response = e.detail.__data__.response;
         this.$.spinner.active = false;
         this.$.spinner.hidden = true;
-
         if(response.success==false){
           this.showMessage(this.localize('email_or_pass_wrong'));
         }else if(response.user){

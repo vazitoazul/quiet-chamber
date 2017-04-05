@@ -1,0 +1,92 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/redux-store.html">
+
+
+<dom-module id="login-button">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <a href="/lgin" hidden$="[[authenticated]]"><paper-button raised class="accent">[[localize('log_in')]]</paper-button></a>
+    <div hidden$="[[!authenticated]]">
+      <paper-menu-button >
+        <div class="dropdown-trigger">
+          <div class="name">
+            [[user.firstName]]
+          </div>
+          <iron-icon icon="arrow-drop-down"></iron-icon>
+        </div>
+        <paper-menu class="dropdown-content">
+          <a href="/acco"><paper-item>[[localize('account')]]</paper-item></a>
+          <a href="/logout"><paper-item>[[localize('log_out')]]</paper-item></a>
+        </paper-menu>
+      </paper-menu-button>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'login-button',
+      behaviors: [
+        ReduxBehavior,
+        Polymer.AppLocalizeBehavior
+      ],
+      properties: {
+        user:{
+          type:Object,
+          statePath:'user'
+        },
+        authenticated:{
+          type:Boolean,
+          statePath:'authenticated'
+        },
+        language:{
+          type:String,
+          value:'es'
+        },
+        resources:{
+          value:function(){
+            return {
+              'es':{
+                'log_in':'Ingresar',
+                'log_out':'Salir',
+                'account':'Mi Cuenta'
+              },
+              'en':{
+                'log_in':'Log In',
+                'log_out':'Log Out',
+                'account':'My Account'
+              }
+            }
+          }
+        }
+      },
+      actions:{
+        logIn:function(user){
+          return {
+            type:'LOG_IN',
+            user:user
+          }
+        }
+      },
+      handleResponse:function(e){
+        var response=e.detail.__data__.response;
+        if(response.authenticated){
+          var user = Object.assign({},response.user,{authenticated:true});
+          this.dispatch('logIn',user);
+        }
+      }
+    });
+  </script>
+</dom-module>

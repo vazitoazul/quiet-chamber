@@ -7,7 +7,15 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
+<!-- Polyfills -->
+<script src="../bower_components/promise-polyfill/Promise.min.js"></script>
+<script src="../bower_components/fetch/fetch.js"></script>
 
+<!-- Redux -->
+<script src="../bower_components/redux.min/index.js"></script>
+<script src="../bower_components/redux-thunk.min/index.js"></script>
+
+<!-- Elements  -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
@@ -21,10 +29,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="redux/redux-store.html">
 <link rel="import" href="my-icons.html">
 
 <dom-module id="my-app">
   <template>
+    <iron-ajax
+      id="userInfAjax"
+      url="/getcurrentuser"
+      handle-as="json"
+      on-response="_handleUserInfResponse"></iron-ajax>
+
     <app-location route="{{route}}"></app-location>
     <app-route
         route="{{route}}"
@@ -40,9 +55,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <sytm-view name="sytm" route="[[page]]" ></sytm-view>
       <abt-view name="abt" route="[[page]]" ></abt-view>
       <opo-view name="opo" route="[[page]]" ></opo-view>
-
       <acco-view name="acco" on-route-change="changeRoute" route="[[route]]"></acco-view>
-
 
       <notfound-view name="notfound"></notfound-view>
       <forbidden-view name="forbidden"></forbidden-view>
@@ -61,17 +74,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
     Polymer({
       is: 'my-app',
-
+      behaviors:[ReduxBehavior],
       properties: {
         page: {
           type: String,
           reflectToAttribute: true,
           observer: '_pageChanged'
+        },
+        authenticated:{
+          type:String,
+          statePath:'authenticated'
         }
       },
-
+      actions:{
+        loadUserInfo:function(user){
+            return {
+              type:'LOAD_USER_INFO',
+              user:user
+            }
+        }
+      },
       observers: [
-        '_routePageChanged(routeData.page)'
+        '_routePageChanged(routeData.page)',
+        '_userAuthChange(authenticated)'
       ],
 
       _routePageChanged: function(page) {
@@ -91,7 +116,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _showPage404: function() {
         this.page = 'notfound';
       },
+      _userAuthChange:function(authenticated){
+        if(authenticated){
+          this.$.userInfAjax.generateRequest();
+        }
+      },
+      _handleUserInfResponse:function(e){
 
+      },
       changeRoute : function(e){
         var newPath = e.detail.route
         this.page = newPath;

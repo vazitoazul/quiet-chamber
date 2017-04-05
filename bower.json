@@ -43,7 +43,13 @@
     "page": "visionmedia/page.js#^1.7.1",
     "google-youtube": "GoogleWebComponents/google-youtube#^1.2.1",
     "paper-tabs": "PolymerElements/paper-tabs#^1.8.0",
-    "paper-fab": "PolymerElements/paper-fab#^1.2.1"
+    "paper-fab": "PolymerElements/paper-fab#^1.2.1",
+    "polymer-redux": "^0.4.1",
+    "fetch": "^2.0.3",
+    "redux-thunk.min": "https://cdnjs.cloudflare.com/ajax/libs/redux-thunk/2.2.0/redux-thunk.min.js",
+    "redux.min": "https://cdnjs.cloudflare.com/ajax/libs/redux/3.6.0/redux.min.js",
+    "promise-polyfill": "^6.0.2",
+    "iron-ajax": "PolymerElements/iron-ajax#^1.4.3"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
