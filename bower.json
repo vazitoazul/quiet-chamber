@@ -49,7 +49,8 @@
     "redux-thunk.min": "https://cdnjs.cloudflare.com/ajax/libs/redux-thunk/2.2.0/redux-thunk.min.js",
     "redux.min": "https://cdnjs.cloudflare.com/ajax/libs/redux/3.6.0/redux.min.js",
     "promise-polyfill": "^6.0.2",
-    "iron-ajax": "PolymerElements/iron-ajax#^1.4.3"
+    "iron-ajax": "PolymerElements/iron-ajax#^1.4.3",
+    "paper-autocomplete": "^2.4.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

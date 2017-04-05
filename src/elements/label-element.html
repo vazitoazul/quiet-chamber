@@ -1,0 +1,120 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+
+<dom-module id="label-element">
+	<template>
+		<app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
+	</template>
+</dom-module>
+<script>
+	Polymer({
+		is: 'label-element',
+		properties : {
+	        language :{
+	          type : String
+	        },
+	        resources : {
+				type : Object,
+	        	value : {
+        			'en' : {
+        				'propaganda' : ['propaganda'],
+        				'automovile' : ['automovile', 'cars'],
+        				'accesories' : ['accesories'],
+        				'mechanic' : ['mechanic'],
+        				'clothes' : ['clothes'],
+        				'technology' : ['technology'],
+        				'medicine' : ['medicine'],
+        				'spiritualism' : ['spiritualism'],
+        				'computers' : ['computers'],
+        				'repairing' : ['repairing'],
+        				'souvenirs' : ['souvenirs'],
+        				'plumber' : ['plumber'],
+        				'electricity' : ['electricity'],
+        				'food' : ['food'],
+        				'cellphones' : ['cellphones'],
+	       				'potatoes' : ['potatoes'],
+	       				'construction' : ['construction'],
+	       				'art' : ['art'],
+	       				'hair' : ['hair'],
+	       				'fashion' : ['fashion']
+        			},
+        			'es' : {
+        				'propaganda' : ['propaganda'],
+        				'automovile' : ['automoviles', 'carros'],
+        				'accesories' : ['accesories'],
+        				'mechanic' : ['mecanica'],
+        				'clothes' : ['ropa'],
+        				'technology' : ['tecologia'],
+        				'medicine' : ['medicina','salud'],
+        				'spiritualism' : ['spiritualismo'],
+        				'computers' : ['computadoras'],
+        				'repairing' : ['reparacion'],
+        				'souvenirs' : ['recuerdos'],
+        				'plumber' : ['plomeria', 'tuberia', 'testing'],
+        				'electricity' : ['electricidad'],
+        				'food' : ['comida'],
+        				'cellphones' : ['celulares'],
+	       				'potatoes' : ['popas'],
+	       				'construction' : ['construccion'],
+	       				'art' : ['arte'],
+	       				'hair' : ['cabello'],
+	       				'fashion' : ['moda']
+        			}
+        		}
+	        },
+			labels : {
+				type : Object,
+				computed : 'computeLabelArray(language, resources)'
+			}
+		},
+
+	    computeLabelArray : function(language, resources){
+	    	console.log(language,'qui')
+	    	var labelArray = [];
+	    	var labels = resources[language];
+				var keys = Object.keys(labels);
+				var index = 0;
+				for(var item in labels){
+					for(var subitem in labels[item]){
+						labelArray.push({ text : labels[item][subitem], value : keys[index]});
+					}
+					index++;
+				}
+			this.fire('labels-changed',labelArray);
+	    	return labelArray;
+	    },
+
+		computeSelectedLabelsObjectArray : function(selectedValues){
+			var labelsObjectsArray = [];
+			if(selectedValues.length == 0) return labelsObjectsArray;
+			for(var label in this.labels){
+				var aux = 0;
+				for(var selectedLabel in selectedValues){
+					if(selectedValues[selectedLabel]==this.labels[label].value){
+						aux = this.labels[label].value;
+						labelsObjectsArray.push(this.labels[label]);
+						selectedValues.splice(aux,1);
+					}
+					aux++;
+				}
+			}
+			return labelsObjectsArray;
+		},
+
+		getLabelArray  : function(language){
+			var resources = this.resources;
+			console.log(language);
+	    	var labelArray = [];
+	    	var labels = resources[language];
+				var keys = Object.keys(labels);
+				var index = 0;
+				for(var item in labels){
+					for(var subitem in labels[item]){
+						labelArray.push({ text : labels[item][subitem], value : keys[index]});
+					}
+					index++;
+				}
+	    	return labelArray;
+	    }
+	});
+</script>

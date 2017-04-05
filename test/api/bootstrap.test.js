@@ -5,7 +5,7 @@ var rc = require('rc');
   // Global before hook
   before(function (done) {
     process.chdir(path.resolve(__dirname,'../../'));
-    this.timeout(10000);
+    this.timeout(145000);
     // Lift Sails with test database
     var settings = rc('sails');
     //load fixtures and set up that hook

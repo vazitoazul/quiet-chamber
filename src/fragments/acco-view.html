@@ -36,6 +36,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../elements/user-info.html">
 <link rel="import" href="../elements/paypal-integration.html">
+<link rel="import" href="../elements/business-form.html">
+<link rel="import" href="../elements/business-section.html">
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="acco-view">
@@ -65,20 +67,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       on-response="currentUserHandler"
       id="currentUserRequester"
       on-error="currentUserErrorHandler"></iron-ajax>
+    <iron-ajax
+        url="/getBusiness"
+        handle-as="json"
+        on-response="userBusinessHandler"
+        id="userBusinessRequester"></iron-ajax>
     <app-route
         route="{{route}}"
         pattern="/:route/:section"
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
-    <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
+    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <app-drawer-layout>
       <app-drawer align="left">
-        <div>
+        <div class="row">
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="verified-user"></iron-icon>[[localize('userInfo')]]</a></paper-item>
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
           <paper-item class="col-sm-7"><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('recommended')]]</a></paper-item>
-          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/bussiness"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('bussiness')]]</a></paper-item>
+          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/business"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('bussiness')]]</a></paper-item>
         </div>
       </app-drawer>
       <app-header-layout>
@@ -132,7 +139,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </div>
                     <div class="card-actions">
                       <paper-button raised class="primary"> Acciones</paper-button>
-
                     </div>
                   </paper-card>
                 </div>
@@ -140,13 +146,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
           </div>
         </section>
-        <section>
-        <div class="card row">
-          <paper-card>
-            <h4>[[localize('new_bussiness')]]</h4>
-            paper-input>
-          </paper-card>
-        </div>
+        <section section="business">
+          <business-section business="{{user.business}}"></business-section>
         </section>
       </iron-pages>
     </app-drawer-layout>
@@ -247,6 +248,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       behaviors: [
         Polymer.AppLocalizeBehavior
       ],
+
       showMessage:function(message,duration){
         this.$.toast.text = message;
         this.$.toast.duration=duration || 3000;
@@ -256,7 +258,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       currentUserHandler : function(e){
         var user = e.detail.__data__.response;
         user.subscribedUntil = user.subscribedUntil ? new Date(user.subscribedUntil): 0;
-        console.log(user);
         if(user){
           this.set('user',user);
           if(this.routeData.section === 'undefined'){
@@ -334,7 +335,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.credentialDialog.close();
           if(newSection !== 'membership'){
             Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
-            Polymer.dom(self.$.paypalDiv).removeChild(node);
+              Polymer.dom(self.$.paypalDiv).removeChild(node);
             });
           }
           switch(newSection){
@@ -357,7 +358,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   }
               }
             break;
-            case 'userInfo':
+            case 'business':
+              this.$.userBusinessRequester.generateRequest();
             break;
             }
           }
@@ -405,6 +407,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.showMessage('Lo sentimos, no tu navegador no lo permite :(');
         }
         document.body.removeChild(textArea);
+      },
+
+      userBusinessHandler : function(e){
+        this.set('user.business',e.detail.__data__.response);
+        console.log(this.user.business);
       }
 
     });

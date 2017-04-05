@@ -57,13 +57,23 @@ module.exports.routes = {
   '/getcurrentuser' : 'UserController.getCurrentUser',
   '/updateintlcredential' : 'UserController.updateIntlCredential',
   '/updateuserinfo' : 'UserController.updateUserInfo',
+  '/getRecommenderUser' : 'UserController.getRecommenderUser',
+  '/setRecommender' : 'UserController.setRecommender',
+
   '/checkoutPayment' : 'PaymentController.setExpressCheckout',
   '/cancelPaypal' : 'PaymentController.cancelPayment',
   '/returnPaypal' : 'PaymentController.returnPayment',
   '/paypalipn' : 'PaymentController.ipnListener',
-  '/getRecommenderUser' : 'UserController.getRecommenderUser',
-  '/setRecommender' : 'UserController.setRecommender',
-  '/create' : 'PaymentController.create'
+
+  '/createBusiness' : 'BusinessController.createBusiness',
+  '/getBusiness' : 'BusinessController.getBusiness',
+  '/updateBusiness/:id' : 'BusinessController.updateBusiness',
+  '/deleteBusiness/:id' : 'BusinessController.deleteBusiness',
+
+  '/createPost' : 'PostController.createPost',
+  '/updatePost/:id' : 'PostController.updatePost',
+  '/deletePost/:id' : 'PostController.deletePost',
+
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

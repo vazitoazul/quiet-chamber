@@ -1,0 +1,232 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../elements/business-card.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="post-form">
+  <style include="shared-styles">
+  :host {
+    display: block;
+  }
+  paper-toast{
+    right: 0 !important;
+    left: inherit !important;
+  }
+  paper-card{
+    width: 100%
+  }
+  </style>
+  <template>
+    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
+    <template is="dom-if" if="[[business]]">
+      <business-card business="[[business]]"></business-card>
+    </template>
+    <iron-ajax
+    id="deleteBusinessRequester"
+    url="/deletePost/[[post.id]]"
+    handle-as="json"
+    method = "post"
+    body="business=[[business.id]]"
+    on-response="_responseHandler"
+    on-error="_errorHandler"></iron-ajax>
+    <paper-card id="paperCard">
+      <div class="card-content">
+        <template is="dom-if" if="[[!onbusiness]]">
+          <template is="dom-if" if="[[!creating]]">
+            <paper-button raised class="secondary col-xs-1 offset-xs-1" on-click="openDeleteConfirmation">Eliminar</paper-button>
+          </template>
+        </template>
+        <form is="iron-form" id="postForm" method="post" action=[[ironFormAction]] on-iron-form-response="_responseHandler" on-iron-form-error="_errorHandler">
+          <div class="row">
+            <paper-dropdown-menu label="[[localize('type')]]" class="col-sm-3" required>
+              <paper-listbox id="paperList" class="dropdown-content" selected="{{post.type}}"  attr-for-selected="value">
+                <paper-item value="f">[[localize('franchise')]]</paper-item>
+                <paper-item value="d">[[localize('donation')]]</paper-item>
+                <paper-item value="i">[[localize('investment')]]</paper-item>
+                <paper-item value="j">[[localize('job')]]</paper-item>
+                <paper-item value="a">[[localize('advertising')]]</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+            <template is="dom-if" if="[[onbusiness]]">
+              <paper-icon-button icon="close" class="offset-sm-6" on-tap="fireRemoveEvent"></paper-icon-button>
+            </template>
+          </div>
+          <paper-textarea label="[[localize('description')]]" name="description" value="{{post.description}}" required error-message="[[localize('add_description')]]"></paper-textarea>
+          <template is="dom-if" if="[[franchise]]">
+            [[localize('franchise')]]
+          </template>
+          <template is="dom-if" if="[[investment]]">
+            [[localize('investment')]]
+          </template>
+          <template is="dom-if" if="[[donation]]">
+            [[localize('donation')]]
+          </template>
+          <template is="dom-if" if="[[advertising]]">
+            [[localize('advertising')]]
+          </template>
+          <template is="dom-if" if="[[job]]">
+            [[localize('job')]]
+          </template>
+          <input hidden name="type" value="[[post.type]]" hidden></input>
+          <input hidden name="business" value="[[business.id]]" hidden></input>
+        </form>
+      </div>
+      <div class="card-actions">
+        <template is="dom-if" if="[[!onbusiness]]">
+          <template is="dom-if" if="[[creating]]"><paper-button raised class="primary" on-click="submitForm">[[localize('create')]]</paper-button></template>
+          <template is="dom-if" if="[[!creating]]"><paper-button raised class="primary" on-click="submitForm">[[localize('update')]]</paper-button></template>
+        </template>
+      </div>
+    </paper-card>
+    <paper-toast id="toast"></paper-toast>
+    <paper-dialog id="dialog">
+      <h2>Borrar [[business.name]]</h2>
+      <paper-dialog-scrollable>
+        Lorem ipsum...
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm autofocus on-click="deleteBusiness">Accept</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+  <script>
+    Polymer({
+      is : 'post-form',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior
+      ],
+
+      properties : {
+        post : {
+          type : Object,
+          value : {}
+        },
+        resources : {
+          value :   function(){
+              return {
+                'en':{
+                  'franchise' : 'franchise',
+                  'type' : 'type',
+                  'donation' : 'donation',
+                  'advertising' : 'advertising',
+                  'investment' : 'investment',
+                  'job' : 'job',
+                  'create' : 'Create',
+                  'update' : 'Update',
+                  'delete' : 'delete',
+                  'description' : 'description',
+                  'add_description' : 'must input the business description'
+                },
+                'es':{
+                  'franchise' : 'franquicia',
+                  'type' : 'tipo',
+                  'donation' : 'donación',
+                  'advertising' : 'publicidad',
+                  'investment' : 'inverciones',
+                  'job' : 'trabajo',
+                  'create' : 'Crear',
+                  'update' : 'Actualizar',
+                  'delete' : 'borrar',
+                  'description' : 'descripcion',
+                  'add_description' : 'debes agregar una descripción'
+                }
+              }
+          }
+        },
+        onbusiness : {
+          type : Boolean,
+          value : false
+        },
+        creating : {
+          type : Boolean,
+          value : false
+        },
+        business : {
+          type : Object
+        }
+      },
+
+      observers : [
+        '_onPostTypeChanged(post.type)',
+        '_onPostIdChanged(post.id)'
+      ],
+
+      _onPostTypeChanged : function(type){
+        this.set('franchise',false);
+        this.set('donation',false);
+        this.set('franchise',false);
+        this.set('advertising',false);
+        this.set('job',false);
+        switch(type){
+          case 'f':
+            this.set('franchise',true);
+          break;
+          case 'i':
+            this.set('investment',true);
+          break;
+          case 'd':
+            this.set('donation',true);
+          break;
+          case 'a':
+            this.set('advertising',true);
+          break;
+          case 'j':
+            this.set('job',true);
+          break;
+        }
+      },
+
+      ready : function(){
+        this.$.toast.fitInto = this.$.paperCard;
+      },
+
+      validateForm : function(){
+        return this.$.postForm.validate();
+      },
+
+      fireRemoveEvent : function(){
+        this.fire('remove',this.index);
+      },
+
+      submitForm : function(){
+        if(!this.validateForm)return;
+        this.$.postForm.submit();
+      },
+
+      _onPostIdChanged : function(id){
+        this.set('ironFormAction',id ? '/updatePost/'+id: '/createPost');
+      },
+
+      _responseHandler : function(){
+        this.$.toast.text = 'creado';
+        this.$.toast.open();
+        this.fire('post-added-eddited');
+      },
+
+      _errorHandler : function(){
+        this.$.toast.text = 'error';
+        this.$.toast.open();
+      },
+
+      openDeleteConfirmation : function(e){
+        this.$.dialog.open();
+      },
+
+      deleteBusiness : function(e){
+        // this.$.deleteBusinessRequester.body['business'] = this.business.id;
+        this.$.deleteBusinessRequester.generateRequest();
+      }
+    });
+  </script>
+</dom-module>

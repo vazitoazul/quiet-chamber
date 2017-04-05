@@ -1,0 +1,135 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../elements/business-card.html">
+<link rel="import" href="../elements/business-form.html">
+<link rel="import" href="../elements/post-form.html">
+<dom-module id="business-section">
+  <style include="app-grid-style shared-styles">
+    paper-icon-button.giant{
+      width: 5rem;
+      height: 5rem;
+      color: var(--paper-pink-500);
+      --paper-icon-button-ink-color: var(--paper-indigo-500);
+    }
+  </style>
+  <template>
+    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="/acco/business" data="{{routeData}}" tail="{{businessIdSubRoute}}"></app-route>
+    <app-route route="{{businessIdSubRoute}}" pattern="/:businessId" data="{{businessIdSubRouteData}}" tail="{{postActionSubRoute}}"></app-route>
+    <app-route route="{{postActionSubRoute}}" pattern="/:postAction" data="{{postActionSubRouteData}}" tail="{{postIdSubRoute}}"></app-route>
+    <app-route route="{{postIdSubRoute}}" pattern="/:postId" data="{{postIdSubRouteData}}"></app-route>
+    <iron-pages selected="{{section}}" attr-for-selected="name">
+      <section name="resume" class="row">
+        <h4 class="col-sm-12">[[localize('your_business')]]</h4>
+        <template is="dom-repeat" items="[[business]]">
+          <business-card business="[[item]]"></business-card>
+        </template>
+        <template is="dom-if" if="[[noBusiness]]">
+          <h5 class="giant offset-sm-3 col-sm-8">[[localize('no_business')]]</h5>
+        </template>
+        <a class="offset-sm-4 col-sm-7" href="/acco/business/new"><paper-icon-button icon="add" class="giant"></paper-icon-button></a>
+      </section>
+      <section name="edditBusiness">
+        [[localize('edditing')]]
+        <business-form business="[[currentBusiness]]" on-business-added-eddited="_onBusinessAddedorEditted"></business-form>
+      </section>
+      <section name="new">
+        <business-form creating on-business-added-eddited="_onBusinessAddedorEditted"></business-form>
+      </section>
+      <section name="edditBusiness">
+        [[localize('edditing')]]
+        <business-form business="[[currentBusiness]]" on-business-added-eddited="_onBusinessAddedorEditted"></business-form>
+      </section>
+      <section name="newPost">
+        <post-form creating on-post-added-eddited="_onBusinessAddedorEditted" business="[[currentBusiness]]"></post-form>
+      </section>
+      <section name="edditPost">
+        edditing post
+        <post-form post="[[currentPost]]" business="[[currentBusiness]]"></post-form>
+      </section>
+    </iron-pages>
+  </template>
+  <script>
+    Polymer({
+      is : 'business-section',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior
+      ],
+
+      properties : {
+        business : {
+          type : Array,
+          value : [ ],
+          observer : '_onBusinessChanged'
+        },
+        section : {
+          type: String,
+          value : 'resume'
+        },
+        resources : {
+          value :  function(){
+            return  {
+              'en' : {
+                'your_business' : 'Your business',
+                'no_business' : 'You do not have business yet',
+                'more_info' : 'More info',
+                'edditing' : 'Edditing',
+              } ,
+              'es' : {
+                'your_business' : 'Tus negocios',
+                'no_business' : 'Aun no tienes negocios',
+                'more_info' : 'Más información',
+                'edditing' : 'Editando',
+              }
+            }
+          }
+        },
+        noBusiness : {
+          type : Boolean,
+          value : false
+        }
+      },
+
+      observers : [
+        '_onBusinessIdChanged(businessIdSubRouteData.businessId)'
+      ],
+
+      _onBusinessIdChanged : function(currentBusinessId){
+        if(currentBusinessId == 'new')return this.set('section','new');
+      },
+
+      _onBusinessChanged : function(business){
+        if(!business || !business.length || business.length===0)return this.set('noBusiness',true);
+        this.set('noBusiness',false);
+        if(this.businessIdSubRoute.path == '')return this.set('section','resume');
+        for(var current in business){
+          if(this.business[current].id == this.businessIdSubRouteData.businessId){
+            this.set('currentBusiness',this.business[current]);
+            this.set('section','edditBusiness');
+            if(this.postActionSubRoute.path == '')return;
+            if(this.postActionSubRouteData.postAction == 'new')return this.set('section','newPost');
+            var posts = this.currentBusiness.posts;
+            for(var post in posts){
+              if(posts[post].id == this.postIdSubRouteData.postId){
+                this.set('currentPost',posts[post]);
+                return this.set('section','edditPost');
+              }
+            }
+          }
+        }
+      },
+
+      _onBusinessAddedorEditted : function(){
+        window.location = '/acco/business';
+      }
+    });
+  </script>
+</dom-module>

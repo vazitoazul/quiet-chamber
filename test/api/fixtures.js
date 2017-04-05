@@ -60,6 +60,5 @@ module.exports ={
   					"user" : {email:"mailNotVerifiedUser@dinabun.com"}
   			}
   		}
-
   ]
 };
