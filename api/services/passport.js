@@ -79,7 +79,7 @@ passport.connect = function (req, query, profile, next) {
   // If the provider cannot be identified we cannot match it to a passport so
   // throw an error and let whoever's next in line take care of it.
   if (!provider){
-    return next(new Error('No authentication provider was identified.'));
+    return next(null,null,{message:'no_provider_selected'});
   }
 
   // If the profile object contains a list of emails, grab the first one and
@@ -100,12 +100,12 @@ passport.connect = function (req, query, profile, next) {
   // have a way of identifying the user in the future. Throw an error and let
   // whoever's next in the line take care of it.
   if (!user.username && !user.email) {
-    return next(new Error('Neither a username nor email was available'));
+    return next(null,false,{message:'no_username_or_email_provided'});
   }
 
   User.findOne({ id : recommender}, function(err , newRecommender){
-    if(err)console.log(err);
-    if(newRecommender && Object.keys(newRecommender.recommended).length < 4 ){
+    if(err)return next(err,false);
+    if(newRecommender && newRecommender.canRecomend() ){
       user.recommender = newRecommender.id;
     }
     Passport.findOne({
@@ -113,7 +113,7 @@ passport.connect = function (req, query, profile, next) {
     , identifier : query.identifier.toString()
     }, function (err, passport) {
       if (err) {
-        return next(err);
+        return next(err,false);
       }
       if (!req.user) {
         // Scenario: A new user is attempting to sign up using a third-party
@@ -136,14 +136,15 @@ passport.connect = function (req, query, profile, next) {
           User.create(user, function (err, user) {
             if (err) {
               if (err.code === 'E_VALIDATION') {
+                let info;
                 if (err.invalidAttributes.email) {
-                  req.flash('error', 'Error.Passport.Email.Exists');
+                  info={message:'user_already_exists'};
                 }
                 else {
-                  req.flash('error', 'Error.Passport.User.Exists');
+                  info={message:'invalid_user'};
                 }
               }
-              return next(err);
+              return next(err,false,info);
             }
 
             query.user = user.id;
@@ -151,15 +152,18 @@ passport.connect = function (req, query, profile, next) {
             Passport.create(query, function (err, passport) {
               // If a passport wasn't created, bail out
               if (err) {
-                return next(err);
+                return user.destroy(function (destroyErr) {
+                  next(destroyErr || err,false);
+                });
               }
-              if(newRecommender && Object.keys(newRecommender.recommended).length < 3){
+              if(newRecommender && newRecommender.canRecomend()){
                 newRecommender.recommended[user.id] = true;
                 newRecommender.save(function(err,saved){
-                  next(err, user);
+                  if(err) return next(err,user,{message:'recommender_not_updated'});
+                  next(null, user);
                 });
               }else{
-                next(err, user);
+                next(null, user);
               }
             });
           });
@@ -228,7 +232,7 @@ passport.endpoint = function (req, res) {
   // If a provider doesn't exist for this endpoint, send the user back to the
   // login page
   if (!strategies.hasOwnProperty(provider)) {
-    return res.redirect('/lgn');
+    return res.redirect('/lgin');
   }
 
   // Attach scope if it has been set in the config
@@ -273,7 +277,7 @@ passport.callback = function (req, res, next) {
       this.disconnect(req, res, next);
     }
     else {
-      next(new Error('Invalid action'));
+      next(new Error('Invalid action'),null,null);
     }
   } else {
     if (action === 'disconnect' && req.user) {

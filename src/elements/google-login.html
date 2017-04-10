@@ -27,17 +27,11 @@
       }
     </style>
     <iron-ajax
+      auto
       url="/auth/key/google"
       handle-as="json"
       method="GET"
       on-response="handleKeyResponse"></iron-ajax>
-    <iron-ajax
-      id="loginAjax"
-      url="/auth/google/callback"
-      method="POST"
-      handle-as="json"
-      on-response="handleResponse"
-      content-type="application/json"></iron-ajax>
       <google-signin need-additional-auth id="signIn" scopes="profile email" on-google-signin-success="signInSuccess" raised width="iconOnly"></google-signin>
       <paper-button raised on-click="login" class="google">
         <iron-icon icon="custom:google-plus" class="google"></iron-icon>
@@ -53,29 +47,22 @@
           value:false
         }
       },
-
       login:function(e){
         if(this.$.signIn.signedIn){
           e.preventDefault();
           var user = gapi.auth2.getAuthInstance()['currentUser'].get();
           var authResponse = user.getAuthResponse();
           var profile = user.getBasicProfile();
-          this.$.loginAjax.body={
+          var body={
             token: authResponse.id_token,
             email: profile.getEmail(),
             familyName: profile.getFamilyName(),
             givenName:profile.getGivenName()
           };
-          this.$.loginAjax.generateRequest();
+          this.dispatch('logIn','google',body);
         }else{
           this.$.signIn.signIn();
           this.wantsLogin=true;
-        }
-      },
-      handleResponse:function(e){
-        var response=e.detail.__data__.response;
-        if(response.success){
-          this.dispatch('logIn');
         }
       },
       handleKeyResponse:function(e){
@@ -86,14 +73,14 @@
           var user = gapi.auth2.getAuthInstance()['currentUser'].get();
           var authResponse = user.getAuthResponse();
           var profile = user.getBasicProfile();
-          this.$.loginAjax.body={
+          var body={
             token: authResponse.id_token,
             email: profile.getEmail(),
             familyName: profile.getFamilyName(),
             givenName:profile.getGivenName(),
             recommender : this.recommender
           };
-          this.$.loginAjax.generateRequest();
+          this.dispatch('logIn','google',body);
         }
 
       }

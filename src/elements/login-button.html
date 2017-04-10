@@ -16,18 +16,24 @@
       :host {
         display: block;
       }
+      paper-material.dropdown{
+        background-color: var(--primary-background-color);
+        border-radius: 3px;
+        color: var(--primary-text-color);
+        padding: 8px;
+      }
     </style>
-    
+
     <a href="/lgin" hidden$="[[authenticated]]"><paper-button raised class="accent">[[localize('log_in')]]</paper-button></a>
     <div hidden$="[[!authenticated]]">
-      <paper-menu-button >
-        <div class="dropdown-trigger">
+      <paper-menu-button horizontal-align="right">
+        <paper-material class="dropdown-trigger horizontal dropdown">
           <div class="name">
             [[user.firstName]]
           </div>
           <iron-icon icon="arrow-drop-down"></iron-icon>
-        </div>
-        <paper-menu class="dropdown-content">
+        </paper-material>
+        <paper-menu class="dropdown-content" >
           <a href="/acco"><paper-item>[[localize('account')]]</paper-item></a>
           <a href="/logout"><paper-item>[[localize('log_out')]]</paper-item></a>
         </paper-menu>
@@ -45,11 +51,11 @@
       properties: {
         user:{
           type:Object,
-          statePath:'user'
+          statePath:'user.info'
         },
         authenticated:{
           type:Boolean,
-          statePath:'authenticated'
+          statePath:'user.authenticated'
         },
         language:{
           type:String,
@@ -70,21 +76,6 @@
               }
             }
           }
-        }
-      },
-      actions:{
-        logIn:function(user){
-          return {
-            type:'LOG_IN',
-            user:user
-          }
-        }
-      },
-      handleResponse:function(e){
-        var response=e.detail.__data__.response;
-        if(response.authenticated){
-          var user = Object.assign({},response.user,{authenticated:true});
-          this.dispatch('logIn',user);
         }
       }
     });

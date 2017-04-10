@@ -28,6 +28,7 @@ var AuthController = {
     req.logout();
     // mark the user as logged out for auth purposes
     req.session.authenticated = false;
+    res.clearCookie('authenticated');
     res.redirect('/');
   },
 
@@ -58,16 +59,15 @@ var AuthController = {
    * @param {Object} res
    */
   callback: function (req, res) {
-    function tryAgain (challenges) {
-
+    function tryAgain (info,code) {
       // If an error was thrown, redirect the user to the
       // login, register or disconnect action initiator view.
       // These views should take care of rendering the error messages.
       var action = req.param('action');
 
       //set default when nothing comes up
-      challenges = challenges || {message:'login_error'};
-
+      info = info || {message:'login_error'};
+      res.status(code);
       switch (action) {
         case 'register':
       // if the request is waiting for a jsno response it gets
@@ -75,10 +75,10 @@ var AuthController = {
          if(!req.wantsJSON){
             res.redirect('/');
          }else{
-            if(challenges.message){
-              res.json({success:false, error: challenges.message});
+            if(info.message){
+              res.json({error: info.message});
             }else{
-              res.json({success:false, error: challenges});
+              res.json({error: info});
             }
          }
         break;
@@ -87,35 +87,39 @@ var AuthController = {
         break;
         default:
           if(req.wantsJSON){
-            res.json({success:false, error: challenges});
+            res.json({error: info.message});
           }else{
             res.redirect('/');
           }
 
       }
     }
-    passport.callback(req, res, function (err, user, challenges, statuses) {
+    passport.callback(req, res, function (err, user, info) {
       if (err || !user) {
-        return tryAgain(challenges);
-
+        var code=409;
+        if(err){
+          code=500;
+        }
+        return tryAgain(info,code);
       }
 
       req.login(user, function (err) {
         if (err) {
-          return tryAgain(err);
+          var code=409;
+          return tryAgain(err,code);
         }
 
         // Mark the session as authenticated to work with default Sails sessionAuth.js policy
         req.session.authenticated = true;
-
+        res.cookie('authenticated', '1', { maxAge: 2 * 24 * 60 * 60 * 1000});
         // Upon successful login, return the user id
 
         if(!req.wantsJSON){
           return res.redirect('/acco');
         }else{
-          var response = {user : user,success:true};
-          response.hasRecommender = statuses ? statuses.hasRecommender : false;
-          return res.json(response);
+          var response = {user:user.id};
+          response.hasRecommender= info ? info.hasRecommender : false;
+          return res.ok(response);
         }
 
       });

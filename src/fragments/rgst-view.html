@@ -11,6 +11,7 @@
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../redux/redux-store.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../my-icons.html">
 <link rel="import" href="../elements/facebook-login.html">
@@ -36,6 +37,14 @@
       div#recaptchaDiv{
         height: 5rem;
       }
+      div.top{
+        background: var(--dark-primary-color);
+        color:var(--light-primary-text-color);
+      }
+      div.top h2{
+        margin: 0;
+        text-align: center;
+      }
     </style>
     <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <app-location route="{{route}}"></app-location>
@@ -45,17 +54,23 @@
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
     <div class="container vertical center h-100">
-      <h2>Regístrate</h2>
       <paper-card>
+        <div class="card-content top">
+          <h2>Regístrate</h2>
+        </div>
         <div class="card-content">
-          <div class="row flex-items-xs-center">
+          <div class="text-center">
+            <span class="s-text">Puedes utilizar:</span>
+          </div>
+          <div class="row horizontal center">
             <facebook-login recommender=[[recommender]] on-user-logged="routeChangedHandler" on-show-message="showMessage"></facebook-login>
             <google-login recommender=[[recommender]] on-user-logged="routeChangedHandler" on-show-message="showMessage"></google-login>
           </div>
-          <div class="divider text-xs-center">
-            <span>[[localize('or')]]</span>
+          <div class="text-center">
+            <br>
+            <span class="s-text">O tu dirección de correo electrónico:</span>
           </div>
-          <form is="iron-form" method="POST" action="/auth/local/register" on-iron-form-response= "responseHandler" id="registerForm" on-change="validateForm">
+          <form is="iron-form" id="registerForm" on-change="validateForm">
         	  <paper-input name="email" label="[[localize('email')]]" required auto-validate pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" error-message="[[localize('email_form')]]"></paper-input>
             <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
         	  <paper-input name="confirmation" id="confirmation" label="[[localize('confirmation')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('repeat_pass')]]"></paper-input>
@@ -70,12 +85,11 @@
           </div>
           <paper-button on-click="reset" class="secondary">[[localize('reset')]]</paper-button>
           <paper-button raised on-click="submit" disabled id="submitButton" class="secondary">
-          <paper-spinner id="spinner" hidden></paper-spinner>[[localize('submit')]]</paper-button>
+          [[localize('submit')]]</paper-button>
+          <paper-spinner active="[[user.loading]]" ></paper-spinner>
         </div>
       </paper-card>
       <div class="output"></div>
-      <h4><a href="/lgin">[[localize('or_login')]]</a></h4>
-      <lgin-view recommender="[[recommender]]" on-route-change="routeChangedHandler"></lgin-view>
     </div>
 	  <paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
@@ -85,15 +99,20 @@
       is: 'rgst-view',
 
       behaviors : [
-        Polymer.AppLocalizeBehavior
+        Polymer.AppLocalizeBehavior,
+        ReduxBehavior,
+        AuthActionsBehavior
       ],
 
       properties : {
-
+        user:{
+          type:Object,
+          statePath:'user',
+          observer:'_userChange'
+        },
         language : {
           value : 'es'
         },
-
         resources: {
                 value: function() {
                   return {
@@ -176,9 +195,9 @@
           this.$.toast.open();
         }else{
           if(this.recaptchaResponse){
-            this.$.spinner.active = true;
-            this.$.spinner.hidden = false;
-            this.$.registerForm.submit();
+            if(this.$.registerForm.validate()){
+              this.dispatch('register',this.$.registerForm.serialize());
+            }
           }else{
             this.$.toast.text = this.localize('not_robot');
             this.$.toast.open();
@@ -187,20 +206,13 @@
 
       },
 
-      responseHandler : function(e){
-        var response = e.detail.__data__.response;
-        this.$.spinner.active = false;
-        this.$.spinner.hidden = true;
-        if(!response.success){
-          this.$.toast.text = response.error;
+      _userChange : function(newValue){
+        if(newValue.lastError){
+          this.$.toast.text = this.localize(newValue.lastError);
           this.$.toast.open();
           this.recaptcha.reload();
           this.set('recaptchaResponse',false);
-        }else if(response.user){
-          //fire app route change event
-          this.changeRoute();
         }
-
       },
 
       validateForm : function(e){

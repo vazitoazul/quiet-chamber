@@ -55,7 +55,6 @@
       login:function(){
         self=this;
         FB.getLoginStatus(function(response){
-          console.log(response);
           if (response.status === 'connected') {
             // Logged into your app and Facebook.
             var body={

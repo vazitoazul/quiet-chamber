@@ -257,6 +257,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       currentUserHandler : function(e){
         var user = e.detail.__data__.response;
+        console.log(user);
         user.subscribedUntil = user.subscribedUntil ? new Date(user.subscribedUntil): 0;
         if(user){
           this.set('user',user);

@@ -29,7 +29,7 @@ module.exports.policies = {
     'verifyMail' : ['passport'],
     'getPassRecovery' : ['passport'],
     'recoverPass' : ['passport'],
-    'getCurrentUser' : ['passport'],
+    'getCurrentUser' : ['passport','sessionAuth'],
     'updateIntlCredential' : ['passport','sessionAuth'],
     'getRecommenderUser' : ['passport'],
     'setRecommender' : ['passport','sessionAuth'],

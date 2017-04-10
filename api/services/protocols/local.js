@@ -33,13 +33,13 @@ exports.register = function (req, res, next) {
     , recommenderId = req.param('recommender');
 
   if (!email) {
-    return next(null,null,{message:'no_email_entered'});
+    return next(null,false,{message:'no_email_entered'});
   }
   if (!password) {
-    return next(null,null,{message:'no_pass_entered'});
+    return next(null,false,{message:'no_pass_entered'});
   }
   if (password!==confirmation){
-    return next(null,null,{message:'pass_not_match'});
+    return next(null,false,{message:'pass_not_match'});
   }
   //set recaptcha response to captcha library
   captcha.response = req.body['g-recaptcha-response'];
@@ -47,25 +47,25 @@ exports.register = function (req, res, next) {
   captcha.verify(function(err,done){
         //Error will finish proccess if exists
         if(err) {
-            return next(err,null,{message:'recaptcha_error'});
+            return next(err,false,{message:'recaptcha_error'});
         }
         if(done) {
            // recaptcha verified
            User.findOne({id : recommenderId}, function(err,recommender){
-             if(err) return next(err,null,{message:'error_finding_recomender'});
+             if(err) return next(err,false,{message:'error_finding_recomender'});
              var newUser = {
                email : email
              }
-             if(recommender && Object.keys(recommender.recommended).length < 3 ){
+             if(recommender && recommender.canRecomend() ){
                newUser['recommender'] = recommender.id;
              }
              User.create(newUser, function (err, user) {
                 if (err) {
                   if (err.code === 'E_VALIDATION') {
                     if (err.invalidAttributes.email) {
-                      return next(err,null,{message:'user_already_exists'});
+                      return next(err,false,{message:'user_already_exists'});
                     } else{
-                      return next(err,null,{message:'invalid_user'});
+                      return next(err,false,{message:'invalid_user'});
                     }
                   }
                 }
@@ -83,14 +83,18 @@ exports.register = function (req, res, next) {
                       logger.warning('Error on passport validation',err);
                     }
                     return user.destroy(function (destroyErr) {
-                      next(destroyErr || err);
+                      next(destroyErr || err,false);
                     });
                   }
                   if(user.recommender){
                     recommender.recommended[user.id] = true;
-                    //if the user was created using with a recommender
+                    //if the user was created with a recommender update the recommender
+                    //so it has registered his new child
                     User.update(recommender.id,{recommended:recommender.recommended},function (err,saved) {
-                      next(null, user,null,{ hasRecommender : true});
+                      if(err){
+                        return next(err,false,{message:'recommender_not_updated',hasRecommender:false});
+                      }
+                      next(null,user,{ hasRecommender : true});
                     });
                   }else{
                     next(null, user);
@@ -160,10 +164,10 @@ exports.login = function (req, identifier, password, next) {
 
   User.findOne(query, function (err, user) {
     if (err) {
-      return next(err);
+      return next(err,false);
     }
     if (!user) {
-      return next(null, false);
+      return next(null,false,{message:'email_or_pass_invalid'});
     }
 
     Passport.findOne({
@@ -175,15 +179,16 @@ exports.login = function (req, identifier, password, next) {
           if (err) {
             return next(err);
           }
+
           if (!res) {
-            return next(null, false);
+            return next(null, false,{message:'email_or_pass_invalid'});
           } else {
             return next(null, user);
           }
         });
       }
       else {
-        return next(null, false);
+        return next(null, false,{message:'email_or_pass_invalid'});
       }
     });
   });

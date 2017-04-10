@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../redux/redux-store.html">
 <link rel="import" href="../shared-styles.html">
 
 
@@ -15,39 +16,38 @@
     <style include="shared-styles">
       :host {
         display: block;
+        height: 100vh;
       }
       paper-material{
         min-width: 300px;
+        max-width: 500px;
+        padding: 10px;
       }
-
+      paper-toast{
+        max-width: 100% !important;
+      }
     </style>
-    <iron-ajax
-      id="ajax"
-      url="/getMailVerification"
-      handle-as="json"
-      method="POST"
-      on-response="handleResponse">
-    </iron-ajax>
     <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <app-route
         route="{{route}}"
         pattern="/:page"
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
-    <div class="layout vertical">
-      <paper-material elevation="3" hero class="container">
+    <div class="layout vertical center h-100">
+      <paper-material elevation="3">
         <iron-pages selected="[[page]]" attr-for-selected="name">
           <section name="success">
             <div class="vertical layout">
-              <h2>Has confirmado tu correo exitosamente</h2>
-              <span>Puedes regresar a tu cuenta haciendo click <a href="/acco">Aquí</a> </span>
+              <h4>Has confirmado tu correo exitosamente</h4>
+              <span class="s-text">Puedes regresar a tu cuenta haciendo click <a href="/acco">Aquí</a> </span>
             </div>
           </section>
           <section name="failure">
             <div class="vertical layout">
-              <h2>El tiempo para verificar tu correo ha expirado</h2>
-              <span>Puedes solicitar otro correo de verificación a continuación</span>
-              <paper-button raised class="secondary" on-click="send">Solicitar verificación</paper-button>
+              <h4>El tiempo para verificar tu correo ha expirado</h4>
+              <span class="s-text">Puedes solicitar otro correo de verificación a continuación</span>
+              <br>
+              <paper-button raised class="primary" on-click="send" disabled="[[mailVerification.loading]]">Solicitar verificación</paper-button>
             </div>
           </section>
         </iron-pages>
@@ -61,11 +61,20 @@
   <script>
     Polymer({
       is: 'mvf-view',
-
+      behaviors:[
+        Polymer.AppLocalizeBehavior,
+        ReduxBehavior,
+        AuthActionsBehavior
+      ],
       properties:{
         page:{
           type:String,
           reflectToAttribute: true
+        },
+        mailVerification:{
+          type:Object,
+          statePath:'mailVerification',
+          observer:'_mailVerifChange'
         },
         language :{
           tpye : String,
@@ -86,9 +95,6 @@
           }
         }
       },
-      behaviors : [
-        Polymer.AppLocalizeBehavior
-      ],
       observers: [
         '_routePageChanged(routeData.page)'
       ],
@@ -97,16 +103,17 @@
         this.page = page || 'succes';
       },
       send:function(){
-        this.$.ajax.generateRequest();
+        this.dispatch('requestMailVerif')
       },
-      handleResponse:function(e){
-        var response = e.detail.__data__.response;
-        if(response.success){
-          this.$.toast.text=this.localize('success','address',response.address);
-        }else{
+      _mailVerifChange:function(newVal){
+        if(newVal.success){
+          this.$.toast.text=this.localize('success','address',newVal.addressUsed);
+          this.$.toast.show();
+        }else if(newVal.lastError){
           this.$.toast.text=this.localize('failure');
+          this.$.toast.show();
         }
-        this.$.toast.show();
+
       },
       closeToast:function(){
         this.$.toast.close();

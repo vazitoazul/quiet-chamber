@@ -10,6 +10,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/redux-store.html">
 <dom-module id="rcp-view">
   <template>
     <style include="shared-styles ">
@@ -42,7 +43,7 @@
             <h3 class="mx-1 text-xs-center">[[localize('enter_new_pass')]]</h3>
             <paper-card hero>
               <div class="card-content">
-                <form is="iron-form" action="/recoverPass" method="POST" id="mainForm" on-iron-form-error="handleError" on-iron-form-response="handleResponse">
+                <form is="iron-form" id="mainForm">
                   <paper-input id="newpass" name="newpass" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
               	  <paper-input id="confirm" name="confirm" label="[[localize('confirmation')]]" type="password" required invalid="[[!passwordsMatch]]" error-message="[[localize('pass_not_match')]]" value="{{confirm}}"></paper-input>
                   <input type="text" name="token" value="[[routeData.token]]" hidden>
@@ -81,7 +82,9 @@
     Polymer({
       is: 'rcp-view',
       behaviors:[
-        Polymer.AppLocalizeBehavior
+        Polymer.AppLocalizeBehavior,
+        ReduxBehavior,
+        AuthActionsBehavior
       ],
       properties:{
         route:{
@@ -97,6 +100,11 @@
         page:{
           type:String,
           value:'main'
+        },
+        passRecovery:{
+          type:Object,
+          statePath:'passRecovery',
+          observer:'_passRecoverChange'
         },
         resources:{
           value:function(){
@@ -145,18 +153,19 @@
         this.passwordsMatch=this.$.newpass.value===this.$.confirm.value;
       },
       sendForm:function(){
-        this.$.mainForm.submit();
+        if(this.$.mainForm.validate()){
+          this.dispatch('changePassword',this.$.mainForm.serialize());
+        }
       },
-      handleResponse:function(e){
-        var response = e.detail.__data__.response;
-        this.page="success";
-      },
-      handleError:function(e){
-        var response = e.detail.request.__data__.response;
-        if(response.message!=='pass_not_match'){
-          this.page="failure";
-        }else{
-          this.showMessage(this.localize(response.message));
+      _passRecoverChange:function(newVal,oldVal){
+        if(newVal.passChanged){
+          this.page="success";
+        }else if(newVal.lastError){
+          if(newVal.lastError!=='pass_not_match'){
+            this.page="failure";
+          }else{
+            this.showMessage(this.localize(newVal.lastError));
+          }
         }
       }
     });

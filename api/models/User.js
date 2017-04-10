@@ -26,7 +26,20 @@ var User = {
     recommender : {type : 'string', defaultsTo : null},
     recommended : {type:'json',defaultsTo:{}, recommended :true},
     totalBalance : { type:'float'},
-    balance : { type : 'array', defaultsTo : []}
+    balance : { type : 'array', defaultsTo : []},
+    toShort:function(){
+      return {
+        firstName:this.firstName,
+        lastName:this.lastName,
+        email:this.email,
+        intlCredential:this.intlCredential,
+        mailVerified:this.mailVerified,
+        recommender:this.recommender
+      };
+    },
+    canRecomend:function(){
+      return Object.keys(this.recommended).length < 3;
+    }
   },
   afterCreate:function(user,next){
     //mail is verified when a uses signed up using third-party services like facebook

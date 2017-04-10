@@ -1,27 +1,138 @@
 <link rel="import" href="../../bower_components/polymer-redux/polymer-redux.html">
 
 <script>
+
   const initialState={
-    authenticated:false,
-    loading:false,
-    lastError:null,
-    user:{},
+    user:{
+      loading:false,
+      lastError:null,
+      authenticated:false,
+      info:{
+        buisnesses: [],
+        posts:[],
+        payments:[],
+        contactInfo:{}
+      }
+
+    },
+    entities: {
+      businesses:{},
+      posts:{},
+      payments: {}
+    },
+    passRecovery:{
+      loading:false,
+      lastError:null,
+      recoveryRequested:false,
+      passChanged:false
+    },
+    mailVerification:{
+      loading:false,
+      lastError:null,
+      success:false,
+      addressUsed:null
+    },
     route:null
   };
 
   const reducer = (state,action) => {
+    let newState;
     if(!state) return initialState;
     switch (action.type) {
       case 'LOG_IN':
         switch (action.status) {
           case 'success':
-            return Object.assign({},state,{loading:false,authenticated:true,user:action.user});
+            newState = Object.assign(initialState.user,state.user,{loading:false,authenticated:true});
+            return Object.assign({},state,{user:newState});
             break;
           case 'error':
-            return Object.assign({},state,{loading:false,authenticated:false,lastError:action.error});
+            newState = Object.assign(initialState.user,state.user,{loading:false,lastError:action.error});
+            return Object.assign({},state,{user:newState});
             break;
           default:
+            newState = Object.assign(initialState.user,state.user,{loading:true});
             return Object.assign({},state,{loading:true});
+            break;
+        }
+        break;
+      case 'REGISTER':
+        switch (action.status) {
+          case 'success':
+            newState = Object.assign(initialState.user,state.user,{loading:false,authenticated:true});
+            return Object.assign({},state,{user:newState});
+            break;
+          case 'error':
+            newState = Object.assign(initialState.user,state.user,{loading:false,lastError:action.error});
+            return Object.assign({},state,{user:newState});
+            break;
+          default:
+            newState = Object.assign(initialState.user,state.user,{loading:true});
+            return Object.assign({},state,{loading:true});
+            break;
+        }
+        break;
+      case 'REQ_RECOVER_PASS':
+        switch (action.status) {
+          case 'success':
+            newState= Object.assign({},state.passRecovery,{recoveryRequested:true,loading:false});
+            return Object.assign({},state,{passRecovery:newState});
+            break;
+          case 'error':
+            newState= Object.assign({},state.passRecovery,{lastError:action.error,loading:false});
+            return Object.assign({},state,{passRecovery:newState});
+            break;
+          default:
+            newState= Object.assign({},state.passRecovery,{loading:true});
+            return Object.assign({},state,{passRecovery:newState});
+            break;
+        }
+        break;
+      case 'CHANGE_PASS':
+        switch (action.status) {
+          case 'success':
+            newState= Object.assign({},state.passRecovery,{passChanged:true,loading:false});
+            return Object.assign({},state,{passRecovery:newState});
+            break;
+          case 'error':
+            newState= Object.assign({},state.passRecovery,{lastError:action.error,loading:false});
+            return Object.assign({},state,{passRecovery:newState});
+            break;
+          default:
+            newState= Object.assign({},state.passRecovery,{loading:true});
+            return Object.assign({},state,{passRecovery:newState});
+            break;
+        }
+        break;
+      case 'REQ_MAIL_VERIF':
+        switch (action.status) {
+          case 'success':
+            newState= Object.assign({},state.mailVerification,{success:true,loading:false,addressUsed:action.address});
+            return Object.assign({},state,{mailVerification:newState});
+            break;
+          case 'error':
+            newState= Object.assign({},state.mailVerification,{lastError:action.error,loading:false});
+            return Object.assign({},state,{mailVerification:newState});
+            break;
+          default:
+            newState= Object.assign({},state.mailVerification,{loading:true});
+            return Object.assign({},state,{mailVerification:newState});
+            break;
+        }
+        break;
+      case 'LOAD_USER':
+        switch (action.status) {
+          case 'success':
+            newState= Object.assign({},state.user,{loading:false,info:action.info,authenticated:true});
+            console.log(newState);
+            return Object.assign({},state,{user:newState});
+            break;
+          case 'error':
+            newState= Object.assign({},state.user,{loading:false,lastError:action.error});
+            return Object.assign({},state,{user:newState});
+            break;
+          default:
+            newState= Object.assign({},state.user,{loading:true});
+            return Object.assign({},state,{user:newState});
             break;
         }
         break;
@@ -37,6 +148,15 @@
   const standardHeaders = new Headers({
 		'Content-Type': 'application/json'
 	});
+  function handleReqError(response) {
+    if (response.ok) {
+      return Promise.resolve(response)
+    }
+    return response.json().then(json => {
+      const error = new Error(json.error || response.statusText)
+      return Promise.reject(Object.assign(error, { response }))
+    })
+  };
   const AuthActionsBehavior = {
     actions:{
       logIn:function(provider,body){
@@ -49,20 +169,137 @@
             let request = new Request(url,{
               method:'POST',
               headers: standardHeaders,
-              body: JSON.stringify(body)
+              body: JSON.stringify(body),
+              credentials: 'include'
             });
             window.fetch(request)
-            .then(response=>response.json())
-            .then((json)=>{
-              console.log(json);
-              dispatch({type:'LOG_IN',status:'success',user:{name:'juan',id:'unid'}});
+            .then(handleReqError)
+            .then((response)=>{
+              dispatch({type:'LOG_IN',status:'success'});
             })
-            .catch((err)=>{
-              console.log(err);
-              dispatch({type:'LOG_IN',status:'error',err:'Algo no salió bien'});
+            .catch((e)=>{
+              dispatch({type:'LOG_IN',status:'error',error:e.message});
             });
         }
+      },
+      register:function(body){
+        return function(dispatch){
+            dispatch({type:'LOG_IN'});
+            let url = '/auth/local/register';
+            let request = new Request(url,{
+              method:'POST',
+              headers: standardHeaders,
+              body: JSON.stringify(body),
+              credentials: 'include'
+            });
+            window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              dispatch({type:'LOG_IN',status:'success'});
+            })
+            .catch((e)=>{
+              dispatch({type:'LOG_IN',status:'error',error:e.message});
+            });
+        }
+      },
+      recoverPassword:function(body){
+        return function(dispatch){
+          dispatch({type:'REQ_RECOVER_PASS'});
+          let request = new Request(
+            '/getPassRecovery',
+            {
+              method:'POST',
+              headers:standardHeaders,
+              body:JSON.stringify(body),
+              credentials: 'include'
+            }
+          );
+          window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              dispatch({type:'REQ_RECOVER_PASS',status:'success'});
+            })
+            .catch((e)=>{
+              dispatch({type:'REQ_RECOVER_PASS',status:'error',error:e.message});
+            });
+        };
+      },
+      requestMailVerif:function(){
+        return function(dispatch){
+          dispatch({type:'REQ_MAIL_VERIF'});
+          let request = new Request(
+            '/getMailVerification',
+            {
+              method:'POST',
+              headers:standardHeaders,
+              credentials: 'include'
+            }
+          );
+          window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              response.json().then((json)=>dispatch({type:'REQ_MAIL_VERIF',status:'success',address:json.address}));
+            })
+            .catch((e)=>{
+              dispatch({type:'REQ_MAIL_VERIF',status:'error',error:e.message});
+            });
+        };
+      },
+      changePassword:function(body){
+        return function(dispatch){
+          dispatch({type:'CHANGE_PASS'});
+          let request = new Request(
+            '/recoverPass',
+            {
+              method:'POST',
+              headers:standardHeaders,
+              body:JSON.stringify(body),
+              credentials: 'include'
+            }
+          );
+          window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              dispatch({type:'CHANGE_PASS',status:'success'});
+            })
+            .catch((e)=>{
+              dispatch({type:'CHANGE_PASS',status:'error',error:e.message});
+            });
+        };
+      },
+      loadUserInfo:function(){
+        return function(dispatch){
+          dispatch({type:'LOAD_USER'});
+          let request = new Request(
+            '/getcurrentuser',
+            {
+              method:'GET',
+              headers:standardHeaders,
+              credentials: 'include'
+            }
+          );
+          window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              response.json().then((json)=>{
+                dispatch({type:'LOAD_USER',status:'success',info:json});
+              });
+            })
+            .catch((e)=>{
+              dispatch({type:'LOAD_USER',status:'error',error:e.message})
+            });
+        };
       }
+    },
+    checkLogIn:function(){
+      var found = false,name='authenticated',value='1';
+      document.cookie.split(";").forEach(function(e) {
+          var cookie = e.split("=");
+          if(name == cookie[0].trim() && (!value || value == cookie[1].trim())) {
+              found = true;
+          }
+      })
+      return found;
     }
   };
 </script>

@@ -240,8 +240,8 @@ describe('UserController',function(){
           currentUser
             .post('/getMailVerification')
             .send()
+            .expect(200)
             .expect((result)=>{
-              result.body.should.have.property('success').equal(true);
               result.body.should.have.property('address').equal('currentUser@dinabun.com');
             })
             .end(done);
@@ -250,9 +250,7 @@ describe('UserController',function(){
           currentUser
             .post('/getMailVerification')
             .send()
-            .expect((result)=>{
-              result.body.should.have.property('success').equal(false);
-            })
+            .expect(409)
             .end(done);
       });
       it('should not verify an invalid token',function(done){
@@ -291,25 +289,19 @@ describe('UserController',function(){
           .end(done);
       });
 
-      it('should return a 200 response with success:true given an valid email',function(done){
+      it('should return a 200 response given an valid email',function(done){
         request(sails.hooks.http.app)
           .post('/getPassRecovery')
           .send({email:'currentUser@dinabun.com'})
           .expect(200)
-          .expect((res)=>{
-            res.body.success.should.equal(true);
-          })
           .end(done);
       });
 
-      it('should return a 200 response with success:false when a token has already been created',function(done){
+      it('should return a 409 response when a token has already been created',function(done){
         request(sails.hooks.http.app)
           .post('/getPassRecovery')
           .send({email:'currentUser@dinabun.com'})
-          .expect(200)
-          .expect((res)=>{
-            res.body.success.should.equal(false);
-          })
+          .expect(409)
           .end(done);
       });
 
@@ -343,13 +335,13 @@ describe('UserController',function(){
           .expect(400)
           .end(done);
       });
-      it('should return a badRequest response with pass_not_match message when passwords don\'t match',function(done){
+      it('should return a 409 response with pass_not_match error when passwords don\'t match',function(done){
         request(sails.hooks.http.app)
           .post('/recoverPass')
           .send({newpass:'testtest',confirm:'nottests',token:'asdasd'})
-          .expect(400)
+          .expect(409)
           .expect((res)=>{
-            res.body.message.should.equal('pass_not_match');
+            res.body.error.should.equal('pass_not_match');
           })
           .end(done);
       });
@@ -359,7 +351,7 @@ describe('UserController',function(){
           .send({newpass:'testtest',confirm:'testtest',token:'asdasd'})
           .expect(400)
           .expect((res)=>{
-            res.body.message.should.equal('token_invalid');
+            res.body.error.should.equal('token_invalid');
           })
           .end(done);
       });
@@ -376,9 +368,7 @@ describe('UserController',function(){
         request(sails.hooks.http.app)
           .post('/auth/local')
           .send({identifier : 'extraUser@dinabun.com',password : 'newtesttest'})
-          .expect((res)=>{
-            res.body.should.have.property('user');
-          })
+          .expect(200)
           .end(done);
       });
     });

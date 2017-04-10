@@ -8,22 +8,17 @@ module.exports = {
     *@param {object} req.user - current logged user
     */
 	getCurrentUser : function(req,res,next){
-		if(req.session.authenticated){
-			User.findOne(req.user.id, function(err, user){
-				if(err) return next(err);
-				if(!user){
-					return res.badRequest();
-				}
-				User.find({recommender : user.id}, (err,found) => {
-					if(err) return res.badRequest();
-					user.recommended = found;
-					user.authenticated=true;
-					return res.json(user);
-				});
+		User.findOne(req.user.id, function(err, user){
+			if(err) return next(err);
+			if(!user){
+				return res.badRequest();
+			}
+			User.find({recommender : user.id}, (err,found) => {
+				if(err) return res.badRequest();
+				user.recommended = found;
+				return res.json(user);
 			});
-		}else{
-			return res.json({})
-		}
+		});
 
 	},
 	/**
@@ -115,7 +110,7 @@ module.exports = {
 		User.findOne(req.user.id).populate('tokens',{rol:'m'}).exec((err,user)=>{
 			if(err)return next(err);
 			if(user.tokens.length>0||user.mailVerified){
-				res.ok({success:false});
+				res.json(409,{error:'user_cant_request_mail_verification'});
 			}else{
 				var expireAt= (new Date()).add({days:7});
 				var tok={user:user.id,rol:'m',expireAt:expireAt};
@@ -130,7 +125,7 @@ module.exports = {
 					};
 					mailgun.send('mailVerification',info,destination,(err,result)=>{
 						if(err) return next(err);
-						res.ok({success:true,address:user.email});
+						res.ok({address:user.email});
 					});
 				});
 			}
@@ -242,9 +237,9 @@ module.exports = {
 		var email = req.body.email;
 		User.findOne({email:email}).populate('tokens',{rol:'p'}).exec((err,user)=>{
 			if(err) return next(err);
-			if(!user)return res.badRequest();
+			if(!user)return res.badRequest({error:'user_does_not_exists'});
 			if(user.tokens.length>0){
-				return res.ok({success:false});
+				return res.json(409,{error:'token_already_issued'});
 			}
 			var token={
 				user:user.id,
@@ -266,7 +261,7 @@ module.exports = {
 							return next(err||delErr);
 						});
 					}
-					res.send({success:true});
+					res.ok();
 				});
 			});
 		});
@@ -284,19 +279,19 @@ module.exports = {
 	recoverPass:function(req,res,next){
 		var body=req.body;
 		if(!body.token||!body.newpass||!body.confirm){
-			return res.badRequest();
+			return res.badRequest({error:'missing_parameters'});
 		}
 		if(body.newpass!==body.confirm){
-			return res.badRequest({message:'pass_not_match'});
+			return res.json(409,{error:'pass_not_match'});
 		}
 		Token.consumeToken(body.token,(err,owner)=>{
 
 			if(err){
 				//if no token was found send appropiate message
 				if(err.tokenNotFound){
-					return res.badRequest({message:'token_invalid'});
+					return res.badRequest({error:'token_invalid'});
 				}else{
-					return next(err);
+					return next({error:'token_invalid'});
 				}
 			}
 			Passport.findOne({user:owner.id,protocol:'local'},(err,found)=>{
