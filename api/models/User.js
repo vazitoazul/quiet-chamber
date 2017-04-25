@@ -20,6 +20,7 @@ var User = {
     firstName : {type : 'string'},
     lastName : {type : 'string'},
     contactInfo: {type : 'json',defaultsTo:{firstName:null,lastName:null,telephones:[],location:{latitude:null,longitude:null},email:null,address:null}},
+    billingInfo:{type:'json'},
     tokens : {collection:'Token',via:'user'},
     payments : { collection : 'Payment', via : 'user'},
     subscribedUntil : {type: 'date',defaultsTo:null,date:true},
