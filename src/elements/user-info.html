@@ -12,6 +12,7 @@
 <link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/redux-store.html">
 <dom-module id="user-info">
   <template>
     <style include="shared-styles">
@@ -34,10 +35,9 @@
       url="/getMailVerification"
       method="POST"
       on-response="handleMailVerifResponse"></iron-ajax>
-
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
     <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
-    <form is="iron-form" method="POST" action="/updateuserinfo" on-iron-form-response= "responseHandler" id="userInfoForm">
+    <form is="iron-form" method="POST" action="/updateuserinfo" id="userInfoForm">
     <h4>[[localize('user_info')]]</h4>
     <paper-card>
       <div class="card-content">
@@ -94,7 +94,9 @@
       is: 'user-info',
 
       behaviors : [
-        Polymer.AppLocalizeBehavior
+        Polymer.AppLocalizeBehavior,
+        ReduxBehavior,
+        UserInfoActionsBehavior
       ],
 
       properties : {
@@ -103,8 +105,8 @@
         },
         user :{
         	type : Object,
-          notify : true,
-          observer : 'userChanged'
+          observer : 'userChanged',
+          statePath : 'user.info'
         },
         addressSearch:{
           type:Object
@@ -184,25 +186,14 @@
         if(this.$.userInfoForm.validate()){
           this.$.spinner.active = true;
           this.$.spinner.hidden = false;
-          this.$.userInfoForm.submit();
+          this.dispatch('updateUserInfo',this.$.userInfoForm.serialize());
         }
       },
-
-      responseHandler : function(e){
-        var response = e.detail.__data__;
-        this.$.spinner.active = false;
-        this.$.spinner.hidden = false;
-        if(response.status == 200){
-          this.set('user',e.detail.__data__.response);
-          this.showMessage(this.localize('info_updated'));
-        }
-      },
-
       handleApiLoad : function(e){
         var self = this;
         this.addressSearch= new google.maps.places.Autocomplete(self.$.addressInput.inputElement,{types : ['(regions)']});
         google.maps.event.addListener(this.addressSearch,'place_changed', function(){
-          var address = addressSearch.getPlace();
+          var address = self.addressSearch.getPlace();
           if(!address.geometry){
             self.$.toast.text = self.localize('not_valid_address');
             self.$.toast.open();
@@ -226,6 +217,9 @@
       },
       userChanged:function(newUser,lastUser){
         this._setUpAddressSearchRestrictions();
+        this.$.spinner.active = false;
+        this.$.spinner.hidden = false;
+        console.log(newUser);
       },
       setCurrentUser : function(newUser){
         this.set('user',newUser);

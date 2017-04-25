@@ -44,14 +44,13 @@ describe('UserController',function(){
             .end(done)
       });
       it('should update user information',function(done){
-
           currentUser
             .post('/updateuserinfo')
             .send({	userFirstName: 'Federico',
         			userLastName: 'Contreras BB',
         			contactFirstName : 'Federico',
         			contactLastName : 'Contreras',
-        			telephone : '0997226768,040302038',
+        			telephone : ['0997226768','040302038'],
         			contactEmail : 'ferediquito@contreras.com',
         			latitude : '',
         			longitude : '',
@@ -80,29 +79,16 @@ describe('UserController',function(){
           currentUser
             .post('/getRecommenderUser')
             .send({'id' : currentUserId})
-            .expect(400)
+            .expect(409)
             .end(done)
       });
 
-      it('should get no logged status',function(done){
-          request(sails.hooks.http.app)
-            .post('/getRecommenderUser')
-            .send({'id' : newRecommenderId})
-            .expect((res) => {
-              res.body.should.have.property('status').equal('not logged');
-              res.body.should.have.property('recommender');
-            })
-            .end(done)
-      });
-
-
-      it('should get the user object and a recommender object',function(done){
+      it('should get the recommender in response',function(done){
           currentUser
             .post('/getRecommenderUser')
             .send({'id' : newRecommenderId})
             .expect((res) => {
-              res.body.should.have.property('status').equal('logged');
-              res.body.should.have.property('user');
+              res.body.recommender.should.have.property('email');
             })
             .end(done)
       });
@@ -132,11 +118,11 @@ describe('UserController',function(){
             .expect(400,done);
       });
 
-      it('should return a bad request response because the id is from the same user',function(done){
+      it('should return conflict request response because the id is from the same user',function(done){
           currentUser
             .post('/setRecommender')
             .send({'recommender' : currentUserId})
-            .expect(400,done);
+            .expect(409,done);
       });
 
       it('should set the user recommender',function(done){
@@ -150,11 +136,9 @@ describe('UserController',function(){
       //Now that we have set a recommender we can test getRecommenderUser again to see if its working
       it('should return user object with the recommender parameter filled',function(done){
           currentUser
-            .post('/getRecommenderUser')
-            .send({'id' : newRecommenderId})
+            .post('/getCurrentUser')
             .expect((res) => {
-              res.body.user.recommender.should.have.property('email');
-              res.body.should.have.property('status').equal('logged');
+              res.body.recommender.should.have.property('email');
             })
             .end(done)
       });
@@ -191,13 +175,11 @@ describe('UserController',function(){
       });
 
 
-      it('should return a badRequest because newRecommender can\'t have more recomended users',function(done){
+      it('should return a conflict request because newRecommender can\'t have more recomended users',function(done){
         extraUser
           .post('/setRecommender')
           .send({'recommender' : newRecommenderId})
-          .expect((res) => {
-            res.should.have.property('status').equal(400);
-          })
+          .expect(409)
           .end(done);
       });
 
@@ -322,7 +304,6 @@ describe('UserController',function(){
         .end((err)=>{
           //create a token in the database to be recover the password later
           tokensModel.createToken({user:extraUserId,rol:'p',expireAt:(new Date()).add({days:1})},function(err,result){
-              console.log(result);
               token=result;
               done();
           });

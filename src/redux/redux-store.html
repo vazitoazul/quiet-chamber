@@ -11,14 +11,20 @@
         buisnesses: [],
         posts:[],
         payments:[],
-        contactInfo:{}
+        contactInfo:{},
+        recommended : []
       }
-
     },
     entities: {
       businesses:{},
       posts:{},
-      payments: {}
+      payments:{},
+    },
+    recommender:{
+      exists:false,
+      loading:false,
+      lastError:null,
+      info:{}
     },
     passRecovery:{
       loading:false,
@@ -123,6 +129,39 @@
         switch (action.status) {
           case 'success':
             newState= Object.assign({},state.user,{loading:false,info:action.info,authenticated:true});
+            return Object.assign({},state,{user:newState});
+            break;
+          case 'error':
+            newState= Object.assign({},state.user,{loading:false,lastError:action.error});
+            return Object.assign({},state,{user:newState});
+            break;
+          default:
+            newState= Object.assign({},state.user,{loading:true});
+            return Object.assign({},state,{user:newState});
+            break;
+        }
+        break;
+      case 'GET_RECO':
+        switch (action.status) {
+          case 'success':
+            newState= Object.assign({},state.recommender,{loading:false,info:action.info,exists:true});
+            return Object.assign({},state,{recommender:newState});
+            break;
+          case 'error':
+            newState= Object.assign({},state.recommender,{loading:false,lastError:action.error});
+            return Object.assign({},state,{recommender:newState});
+            break;
+          default:
+            newState= Object.assign({},state.recommender,{loading:true});
+            return Object.assign({},state,{recommender:newState});
+            break;
+        }
+        break;
+      case 'SET_USER_INF':
+        switch (action.status) {
+          case 'success':
+            var newInfo = Object.assign({},state.user.info,action.info);
+            newState= Object.assign({},state.user,{loading:false,info:newInfo});
             console.log(newState);
             return Object.assign({},state,{user:newState});
             break;
@@ -136,6 +175,24 @@
             break;
         }
         break;
+        case 'SET_USER_INCRE':
+          switch (action.status) {
+            case 'success':
+              var newInfo = Object.assign({},state.user.info,action.info);
+              newState= Object.assign({},state.user,{loading:false,info:newInfo});
+              console.log(newState);
+              return Object.assign({},state,{user:newState});
+              break;
+            case 'error':
+              newState= Object.assign({},state.user,{loading:false,lastError:action.error});
+              return Object.assign({},state,{user:newState});
+              break;
+            default:
+              newState= Object.assign({},state.user,{loading:true});
+              return Object.assign({},state,{user:newState});
+              break;
+          }
+          break;
     };
   };
 
@@ -289,6 +346,31 @@
               dispatch({type:'LOAD_USER',status:'error',error:e.message})
             });
         };
+      },
+      loadRecommender:function(id){
+        return function(dispatch){
+          dispatch({type:'GET_RECO'});
+          let request = new Request(
+            '/getRecommenderUser',
+            {
+              method:'POST',
+              headers:standardHeaders,
+              credentials: 'include',
+              body: JSON.stringify(id)
+            }
+          );
+          window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              response.json().then((json)=>{
+                console.log(json);
+                dispatch({type:'GET_RECO',status:'success',info:json.recommender});
+              });
+            })
+            .catch((e)=>{
+              dispatch({type:'GET_RECO',status:'error',error:e.message})
+            });
+        };
       }
     },
     checkLogIn:function(){
@@ -302,4 +384,55 @@
       return found;
     }
   };
+  const UserInfoActionsBehavior = {
+    actions : {
+      updateUserInfo:function(contactInfo){
+        return function(dispatch){
+            dispatch({type:'SET_USER_INF'});
+            let request = new Request(
+              '/updateuserinfo',{
+              method:'POST',
+              headers: standardHeaders,
+              body: JSON.stringify(contactInfo),
+              credentials: 'include'
+            });
+            window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              response.json().then((json)=>{
+                dispatch({type:'SET_USER_INF',status:'success',info:json});
+              });
+            })
+            .catch((e)=>{
+              dispatch({type:'SET_USER_INF',status:'error',error:e.message});
+            });
+        }
+      },
+      updateIntlCredential:function(newCredential){
+        return function(dispatch){
+          dispatch({type:'SET_USER_INCRE'});
+          let request = new Request(
+            '/updateintlcredential',{
+            method:'POST',
+            headers: standardHeaders,
+            credentials: 'include',
+            body: JSON.stringify(newCredential),
+          });
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            response.json().then((json)=>{
+              dispatch({type:'SET_USER_INF',status:'success',info:json});
+            });
+          })
+          .catch((e)=>{
+            dispatch({type:'SET_USER_INCRE',status:'error',error:e.message});
+          });
+        }
+      }
+    },
+    _getArrayFromObj:function(obj){
+      return ;
+    }
+  }
 </script>

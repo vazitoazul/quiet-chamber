@@ -16,7 +16,11 @@ module.exports = {
 			User.find({recommender : user.id}, (err,found) => {
 				if(err) return res.badRequest();
 				user.recommended = found;
-				return res.json(user);
+				User.findOne({id : user.recommender}, (err,recommender) => {
+					if(err) return res.badRequest();
+					user.recommender = recommender;
+					return res.json(user);
+				});
 			});
 		});
 
@@ -29,18 +33,18 @@ module.exports = {
 	updateIntlCredential : function(req,res,next){
 		var newCredential = req.param('newCredential');
 		if(!newCredential){
-			return res.badRequest();
+			return res.badRequest({error : "No credential "});
 		}
 		User.findOne({intlCredential : newCredential},function(err,user){
 			if(err) return next(err);
 			if(user){
-				return next(new Error("Credential in use"));
+				return res.json(409,{error : "Credential in use"});
 			}
 			User.update({id : req.user.id}, {intlCredential : newCredential}, function(err,updated){
 				if(err){
 					return next(err);
 				}
-				return res.ok();
+				return res.ok({intlCredential : updated[0].intlCredential});
 			});
 		});
 	},
@@ -61,7 +65,7 @@ module.exports = {
 			contactInfo:{
 				firstName : req.param('contactFirstName'),
 				lastName : req.param('contactLastName'),
-				telephones : req.param('telephone').split(','),
+				telephones : req.param('telephone'),
 				email : req.param('contactEmail'),
 				location : {
 					latitude : req.param('latitude'),
@@ -144,36 +148,17 @@ module.exports = {
 		User.findOne({id : recommenderId},(err,recommender) => {
 			if(err) return next(err);
 			if(!recommender){
-				return res.badRequest();
+				return res.badRequest({error:'user_does_not_exists'});
 			}
-			response['status'] = 'not logged';
+			var canRecomend = recommender.canRecomend();
 			response['recommender'] = recommender;
 			if(!req.user){
-				return res.json(response);
+				return res.json(200,response);
 			}
 			if(req.user.id == recommenderId){
-				return res.badRequest();
+				return res.json(409,{error:'same_user'});
 			}
-			User.findOne({id: req.user.id}, (err,found) => {
-				if(err) return next(err);
-				if(!found){
-					return res.json(response);
-				}
-				response['user'] = found;
-				response['status'] = 'logged';
-				if(!found.recommender){
-					return res.json(response);
-				}else{
-					User.findOne({id : found.recommender},(err, lastRecommender) => {
-						if(err) return next(err);
-						if(err||!lastRecommender){
-							return res.json(response);
-						}
-						response.user['recommender'] = lastRecommender;
-						return res.json(response);
-					});
-				}
-			});
+			return res.json(200,response);
 		});
 	},
 	/**
@@ -185,21 +170,16 @@ module.exports = {
 	setRecommender : function(req,res,next){
 		var recommender = req.param('recommender');
 		var currentUser = req.user;
-		if(!req.param('recommender')){
-			return res.badRequest();
-		}
+		if(!req.param('recommender'))return res.badRequest();
 		User.findOne({id : recommender},(err, newRecommender) => {
 			if(err) return next(err);
-			//check if no more recommended users can be added
-			if(!newRecommender || Object.keys(newRecommender.recommended).length >= 3){
-				return res.badRequest();
-			}
-			if(newRecommender.id === currentUser.id){
-				return res.badRequest();
-			}
+			if(!newRecommender)return res.badRequest({error : 'user_does_not_exists'});
+			if(!newRecommender.canRecomend())return res.json(409,{error : 'user_can_not_recommend'});
+			if(newRecommender.id === currentUser.id)return res.json(409,{error : 'same_user'});
 			User.findOne({id : req.user.recommender },(err,lastRecommender) => {
 				if(err) return next(err);
 				if(lastRecommender){
+					if(lastRecommender.id == newRecommender.id)return res.ok();
 					delete lastRecommender.recommended[currentUser.id];
 					User.update({id:lastRecommender.id},{recommended:lastRecommender.recommended},(err,saved)=>{
 						if(err)return next(err);

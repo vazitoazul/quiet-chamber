@@ -44,7 +44,7 @@
       pattern="/:page/:recommenderId"
       data="{{data}}"
       tail="{{tail}}"></app-route>
-    <iron-ajax
+    <!-- <iron-ajax
       id="getRecommenderRequester"
       url="/getRecommenderUser"
       handle-as="json"
@@ -55,7 +55,7 @@
       url="/setRecommender"
       handle-as="json"
       on-response="setRecommendedHandleResponse"
-      on-error="setRecommendedHandleError"></iron-ajax>
+      on-error="setRecommendedHandleError"></iron-ajax> -->
     <app-drawer-layout>
       <main-toolbar></main-toolbar>
       <iron-pages selected="[[section]]" attr-for-selected="section">
@@ -103,7 +103,9 @@
       is : 'recw-view',
 
       behaviors : [
-        Polymer.AppLocalizeBehavior
+        Polymer.AppLocalizeBehavior,
+        ReduxBehavior,
+        AuthActionsBehavior
       ],
 
       properties : {
@@ -116,10 +118,12 @@
           observer : 'routeObserver'
         },
         user : {
-          type : Object
+          type : Object,
+          statePath : 'user'
         },
         recommender : {
-          type : Object
+          type : Object,
+          statePath : 'recommender'
         },
         resources : {
           value : function(){
@@ -159,46 +163,37 @@
           tpye : String,
           value : 'en'
         },
+
       },
+
+      observers : [
+        'errorChanged(recommender.lastError)',
+        '_recommenderExists(recommender.exists)'
+      ],
 
       routeObserver : function(newPage,lastPage){
         if(this.data && this.data.recommenderId){
-          this.$.getRecommenderRequester.params = { id : this.data.recommenderId};
-          this.$.getRecommenderRequester.generateRequest();
+          this.dispatch('loadRecommender',{ id : this.data.recommenderId});
         }else{
           this.set('section','malformed');
         }
       },
 
-      recommendedUserhandleResponse : function(e){
-        var response = e.detail.__data__.response;
-        this.set('user',response.user);
-        this.set('recommender',response.recommender);
-        if(!response.recommender){
-          this.set('section','malformed');
-          return;
-        }
-        if(!this.recommender.firstName){
+      _recommenderExists : function(exists){
+        console.log(this.info);
+        if(!exists)return this.set('section','malformed');
+        if(!this.recommender.info.firstName){
           this.set(['recommender','firstName'],this.localize('recommender_no_name'));
         }
-        if(Object.keys(this.recommender.recommended).length >= 3){
-          this.set('section','recommendedFull');
-          return;
-        }
-        if(response.status == 'not logged'){
-          this.set('section','noLogged');
-          return;
-        }
-        if(!response.user.recommender){
+        if(Object.keys(this.recommender.info.recommended).length >= 3)return this.set('section','recommendedFull');
+        if(!this.user.authenticated)return this.set('section','noLogged');
+        if(!this.user.recommender){
           this.set('section','setRecommender');
         }else{
           if(!response.user.recommender.firstName){
             this.set(['user','recommender','firstName'],this.localize('recommender_no_name'));
           }
-          if(response.user.recommender.id == this.recommender.id){
-            this.set('section','sameRecommenderThanBefore');
-            return;
-          }
+          if(this.user.recommender.id == this.recommender.info.id)return this.set('section','sameRecommenderThanBefore');
           this.set('section','changeRecommender');
         }
       },
@@ -206,7 +201,7 @@
       sectionObserver : function(newSection,lastSection){
         switch(newSection){
             case 'noLogged':
-              this.$.registerView.recommender = this.recommender.id;
+              this.$.registerView.recommender = this.recommender.info.id;
               this.$.registerView._setUpRecaptcha();
             break;
             default :
@@ -222,7 +217,7 @@
 
       changeRecommender : function(){
         this.$.setRecommenderRequester.params = {
-          recommender : this.recommender.id
+          recommender : this.recommender.info.id
         }
         this.$.setRecommenderRequester.generateRequest();
       },
@@ -235,7 +230,7 @@
       setRecommendedHandleResponse : function(e){
         console.log(e);
         if(e.detail.__data__.status == 200){
-          this.showToast(this.localize('recommender_set','recommender',this.recommender.firstName));
+          this.showToast(this.localize('recommender_set','recommender',this.recommender.info.firstName));
           this.$.getRecommenderRequester.generateRequest();
         }else{
           this.showToast(this.localize('recommender_set_error'));

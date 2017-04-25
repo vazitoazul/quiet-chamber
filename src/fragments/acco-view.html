@@ -39,6 +39,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../elements/business-form.html">
 <link rel="import" href="../elements/business-section.html">
 <link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/redux-store.html">
 
 <dom-module id="acco-view">
   <template>
@@ -62,21 +63,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
     <app-location route="{{route}}"></app-location>
     <iron-ajax
-      url="/getcurrentuser"
-      handle-as="json"
-      on-response="currentUserHandler"
-      id="currentUserRequester"
-      on-error="currentUserErrorHandler"></iron-ajax>
-    <iron-ajax
         url="/getBusiness"
         handle-as="json"
         on-response="userBusinessHandler"
         id="userBusinessRequester"></iron-ajax>
     <app-route
         route="{{route}}"
-        pattern="/:route/:section"
-        data="{{routeData}}"
+        pattern="/acco"
         tail="{{subroute}}"></app-route>
+    <app-route
+        route="{{subroute}}"
+        pattern="/:section"
+        data="{{routeData}}"
+        ></app-route>
     <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <app-drawer-layout>
@@ -129,7 +128,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="row">
               <h5 class="col-sm-9 offset-sm-1">[[localize('your_recommended')]]</h5>
-              <template is="dom-repeat" items="{{user.recommended}}">
+              <template is="dom-repeat" items="[[user.recommended]]">
                 <div class="paper-card col-sm-2">
                   <paper-card >
                     <div class="card-content">
@@ -151,13 +150,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </section>
       </iron-pages>
     </app-drawer-layout>
-    <paper-dialog modal id="credentialDialog">
+    <paper-dialog modal id="credentialDialog" class="userCredential">
       <h4 class="text-xs-left">[[localize('hello')]]</h4>
       <h4>[[localize('enter_your_credential')]]</h4>
-      <form id="userIntlCredentialForm" is="iron-form" action="/updateintlcredential" method="post" on-iron-form-error="updateIntlCredentialErrorHandler" on-iron-form-response="updateIntlCredentialResponseHandler">
+      <form id="userIntlCredentialForm" is="iron-form" action="/updateintlcredential" method="post">
         <paper-input id="countryInput" label="[[localize('enter_country')]]" value="Ecuador"></paper-input>
         <paper-input required auto-validate id="credentialNumber" label="[[localize('enter_credential_number')]]" error-message="[[localize('must_enter_id')]]"></paper-input>
-        <input hidden name="newCredential" value="{{newCredential}}">
         <div class="buttons">
           <paper-button on-click="updateIntlCredential" class="secondary">[[localize('submit')]]</paper-button>
         </div>
@@ -171,28 +169,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       is: 'acco-view',
 
       behaviors : [
-        Polymer.AppLocalizeBehavior
+        Polymer.AppLocalizeBehavior,
+        ReduxBehavior,
+        UserInfoActionsBehavior
       ],
 
       properties:{
         user :{
-          type : Object
+          type : Object,
+          statePath : 'user.info',
+          observer : 'userObserver'
         },
-
-        newCredential:{
-          type : String
+        authenticated:{
+          type:String,
+          statePath:'user.authenticated',
+          observer:'_userAuthChange'
         },
-
+        entities:{
+          type:Object,
+          statePath:'entities'
+        },
+        recommended:{
+          type:String,
+          computed:'_getArrayFromObj(entities.recommended)'
+        },
         countryCode :{
           type: String,
           value: 'EC'
         },
-
         language :{
           tpye : String,
           value : 'en'
         },
-
+        lastError :{
+          type : String,
+          statePath : 'user.lastError',
+          observer : '_lastErrorChanged'
+        },
         resources: {
                 value: function() {
                   return {
@@ -232,21 +245,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                   }
               }
-          },
+        },
 
-          section : {
-            type: String,
-            observer : 'sectionChangeObserver'
-          },
-
-          route : {
-            type : Object,
-            observer : 'routeDataObserver'
-          }
+        section : {
+          type : String,
+          computed : 'computeSection(routeData.section)',
+          observer : '_sectionChanged'
+        }
       },
 
-      behaviors: [
-        Polymer.AppLocalizeBehavior
+      observers : [
+          '_routeChanged(route)'
       ],
 
       showMessage:function(message,duration){
@@ -300,22 +309,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       updateIntlCredential : function(e){
         var form = this.$.userIntlCredentialForm;
-        this.set('newCredential',this.countryCode.concat(this.$.credentialNumber.value));
+        var newCredential = this.countryCode.concat(this.$.credentialNumber.value);
         if(form.validate()){
-          form.submit();
+          this.dispatch('updateIntlCredential',{newCredential : newCredential});
         }
       },
 
       updateIntlCredentialErrorHandler : function(e){
         this.showMessage(this.localize('credential_used'));
-      },
-
-      updateIntlCredentialResponseHandler : function(e){
-        if(e.detail.__data__.status == 200){
-          this.$.currentUserRequester.generateRequest();
-        }else{
-          this.updateIntlCredentialErrorHandler();
-        }
       },
 
       detached : function(e){
@@ -324,63 +325,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
-      sectionChangeObserver : function(newSection,lastSection){
+      _sectionChanged : function(){
         var self = this;
-        if(!newSection){
-          return ;
-        }
-        if(!this.user.intlCredential){
-          this.$.credentialDialog.open();
-        }else{
-          this.$.userInfo.user = this.user;
-          this.$.credentialDialog.close();
-          if(newSection !== 'membership'){
-            Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
-              Polymer.dom(self.$.paypalDiv).removeChild(node);
-            });
-          }
-          switch(newSection){
-            case 'membership':
-              Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
-                Polymer.dom(self.$.paypalDiv).removeChild(node);
-              });
-              if(!this.user.subscribedUntil){
-                    this.paypal = document.createElement('paypal-integration');
-                    this.$.paypalDiv.appendChild(this.paypal);
-              }else{
-                  var today = new Date();
-                  today.setHours(0,0,0,0);
-                  if(this.user.subscribedUntil.valueOf() < today.valueOf()){
-                    this.paypal = document.createElement('paypal-integration');
-                    this.$.paypalDiv.appendChild(this.paypal);
-                  }else{
-                    this.set(['user','parsedSubscribedUntil'], this.localize('subscribed_until', 'start' , this.user.subscribedUntil.getTime()));
-                    this.$.subscribedUntilDiv.hidden = false;
-                  }
-              }
-            break;
-            case 'business':
-              this.$.userBusinessRequester.generateRequest();
-            break;
-            }
-          }
-        },
-
-        routeDataObserver: function(newData,lastData){
-          if(this.route.path.substring(0,5) === '/acco'){
-            if(this.user){
-              if(this.routeData){
-                this.set('section',null);
-                this.set('section',this.routeData.section ? this.routeData.section : 'userInfo');
-              }else{
-                this.set('section',null);
-                this.set('section','userInfo');
-              }
+        if(!this.checkIntialCredential())return;
+        Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
+          Polymer.dom(self.$.paypalDiv).removeChild(node);
+        });
+        switch(this.section){
+          case 'membership':
+            if(!this.user.subscribedUntil){
+                  this.paypal = document.createElement('paypal-integration');
+                  this.$.paypalDiv.appendChild(this.paypal);
             }else{
-              this.$.currentUserRequester.generateRequest();
+                var today = new Date();
+                today.setHours(0,0,0,0);
+                if(this.user.subscribedUntil.valueOf() < today.valueOf()){
+                  this.paypal = document.createElement('paypal-integration');
+                  this.$.paypalDiv.appendChild(this.paypal);
+                }else{
+                  this.set(['user','parsedSubscribedUntil'], this.localize('subscribed_until', 'start' , this.user.subscribedUntil.getTime()));
+                  this.$.subscribedUntilDiv.hidden = false;
+                }
             }
-          }else{
+          break;
+          case 'business':
+            this.$.userBusinessRequester.generateRequest();
+          break;
+        }
+      },
+
+      _routeChanged: function(route){
+          if(route.path.substring(0,5) !== '/acco'){
             this.$.credentialDialog.close();
+          }else{
+            this.checkIntialCredential();
           }
       },
 
@@ -412,9 +390,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       userBusinessHandler : function(e){
         this.set('user.business',e.detail.__data__.response);
-        console.log(this.user.business);
-      }
+      },
 
+      userObserver : function(newVal,oldVal){
+        this._sectionChanged();
+      },
+
+      computeSection : function(section){
+        if(!section){
+          this.set('route.path','acco/userInfo');
+          return 'userInfo';
+        }
+        return section;
+      },
+
+      removePayPalButton : function(){
+        let self = this;
+        Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
+          Polymer.dom(self.$.paypalDiv).removeChild(node);
+        });
+      },
+
+      _userAuthChange : function(auth){
+        if(!auth){
+          this.fire('route-change',{route : 'forbidden'})
+          this.$.credentialDialog.close();
+        };
+      },
+
+      _lastErrorChanged : function(error){
+        if(error) this.showMessage(error);
+      },
+
+      checkIntialCredential : function(){
+        if(!this.user)return;
+          if(!this.user.intlCredential){
+            this.$.credentialDialog.open();
+            return false;
+          }else {
+            this.$.credentialDialog.close();
+            return true;
+          }
+      }
     });
   </script>
 </dom-module>
