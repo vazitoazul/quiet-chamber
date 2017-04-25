@@ -31,7 +31,11 @@ module.exports.routes = {
   * `assets` directory)                                                      *
   *                                                                          *
   ***************************************************************************/
-
+  //bills related routes
+  'get /testbills' : 'BillController.test',
+  'get /testbills/:id' : 'BillController.auttest',
+  'get /billxml/:id' : 'BillController.getXml',
+  'get /billpdf/:id' : 'BillController.getPdf',
   //authentication routes
   'get /logout': 'AuthController.logout',
   'get /auth/key/:provider': 'AuthController.key',
