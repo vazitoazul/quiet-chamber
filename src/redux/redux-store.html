@@ -16,7 +16,9 @@
       }
     },
     entities: {
-      businesses:{},
+      loading:false,
+      lastError:null,
+      businesses:[],
       posts:{},
       payments:{},
     },
@@ -175,24 +177,40 @@
             break;
         }
         break;
-        case 'SET_USER_INCRE':
-          switch (action.status) {
-            case 'success':
-              var newInfo = Object.assign({},state.user.info,action.info);
-              newState= Object.assign({},state.user,{loading:false,info:newInfo});
-              console.log(newState);
-              return Object.assign({},state,{user:newState});
-              break;
-            case 'error':
-              newState= Object.assign({},state.user,{loading:false,lastError:action.error});
-              return Object.assign({},state,{user:newState});
-              break;
-            default:
-              newState= Object.assign({},state.user,{loading:true});
-              return Object.assign({},state,{user:newState});
-              break;
-          }
-          break;
+      case 'SET_USER_RECO':
+        switch (action.status) {
+          case 'success':
+            newState= Object.assign({},state.user,{loading:false,info:{recommender : state.recommender.info}});
+            return Object.assign({},state,{user:newState});
+            break;
+          case 'error':
+            newState= Object.assign({},state.user,{loading:false,lastError:action.error});
+            return Object.assign({},state,{user:newState});
+            break;
+          default:
+            newState= Object.assign({},state.user,{loading:true});
+            return Object.assign({},state,{user:newState});
+            break;
+        }
+        break;
+      case 'SET_BUSS':
+        switch (action.status) {
+          case 'success':
+            var business = state.entities.business;
+            business.push(action.business);
+            newState= Object.assign({},state.entities,{loading:false,business:business});
+            return Object.assign({},state,{entities:newState});
+            break;
+          case 'error':
+            newState= Object.assign({},state.entities,{loading:false,lastError:action.error});
+            return Object.assign({},state,{entities:newState});
+            break;
+          default:
+            newState= Object.assign({},state.entities,{loading:true});
+            return Object.assign({},state,{entities:newState});
+            break;
+        }
+        break;
     };
   };
 
@@ -410,7 +428,7 @@
       },
       updateIntlCredential:function(newCredential){
         return function(dispatch){
-          dispatch({type:'SET_USER_INCRE'});
+          dispatch({type:'SET_USER_INF'});
           let request = new Request(
             '/updateintlcredential',{
             method:'POST',
@@ -426,13 +444,54 @@
             });
           })
           .catch((e)=>{
-            dispatch({type:'SET_USER_INCRE',status:'error',error:e.message});
+            dispatch({type:'SET_USER_INF',status:'error',error:e.message});
+          });
+        }
+      },
+      updateUserRecommender : function(recommender){
+        return function(dispatch){
+          dispatch({type:'SET_USER_RECO'});
+          let request = new Request(
+            '/setRecommender',{
+            method:'POST',
+            headers: standardHeaders,
+            credentials: 'include',
+            body: JSON.stringify(recommender),
+          });
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            dispatch({type:'SET_USER_RECO',status:'success'});
+          })
+          .catch((e)=>{
+            dispatch({type:'SET_USER_RECO',status:'error',error:e.message});
           });
         }
       }
-    },
-    _getArrayFromObj:function(obj){
-      return ;
+    }
+  },
+  const BusinessActionsBehavior = {
+    createBusiness = function(business){
+      return function(dispatch){
+        dispatch('SET_BUSS');
+        let request = new Request(
+          '/createBusiness',{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include',
+          body: JSON.stringify(business),
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'SET_BUSS',status:'success',business:json});
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'SET_BUSS',status:'error',error:e.message});
+        });
+      }
     }
   }
 </script>

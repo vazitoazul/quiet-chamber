@@ -174,7 +174,6 @@ describe('UserController',function(){
             .end(done)
       });
 
-
       it('should return a conflict request because newRecommender can\'t have more recomended users',function(done){
         extraUser
           .post('/setRecommender')

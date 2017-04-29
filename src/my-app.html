@@ -108,9 +108,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
       _userAuthChange:function(newVal,oldVal){
         if(newVal&&!oldVal){
+          this.dispatch('loadUserInfo');
           if(this.page==='lgin'||this.page==='rsgt'){
             this.set('route.path','/');
-            this.dispatch('loadUserInfo');
           }
         }
       },
