@@ -158,8 +158,7 @@ module.exports={
   		xmlComprobante=xmlComprobante.replace('</'+tipo+'>',signature+'</'+tipo+'>');
   		return next(null,xmlComprobante);
     }catch(e){
-
-      console.log('este error',e);
+      
       return next(e,null)
     }
 

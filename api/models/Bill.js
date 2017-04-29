@@ -79,16 +79,13 @@ function pad(n, width, z=0) {
 *@property {string} autNumber - Authorization number returned when the SRI soap service authorizes this bill
 *@property {Detail} detail - Detail for the objects for the corresponding purchase
 *@property {string} signedVersion - A string containing the corresponding signed version
+*@property {array} payments - An array containing the corresponding payments
+*@property {string} user - The owner's id
 */
 module.exports={
   types:{
     billingInfo:function(info){
-      if(info.name&&info.address&&info.identifier&&info.idType&&info.email){
-        if(info.idType==='04'||info.idType==='05'||info.idType==='06'||info.idType==='07'){
-          return true;
-        }
-      }
-      return false;
+      return validate.billingInfo(info);
     }
   },
   attributes:{
@@ -101,6 +98,8 @@ module.exports={
     sent:{type:'boolean',defaultsTo:false},
     detail:{type:'object',required:true},
     signedVersion: {type:'string'},
+    payments: {collection:'payment',via:'bill'},
+    user: {model:'user',required:true},
     //this function returns the bill on a JSON format compatible with the SRI's Factura standard and ready to be parsed for the xml2js module
     toSRIFormat: function(){
       var bill = this.toObject();
@@ -174,7 +173,7 @@ module.exports={
 							totalImpuesto:taxArr
 						},
 						propina:0,
-						importeTotal:bill.detail.total
+						importeTotal:(bill.detail.total).toFixed(2)
 					},
 					detalles:{
 						detalle:detalles
@@ -187,6 +186,9 @@ module.exports={
 					}
 				}
 			};
+      if(!bill.billingInfo.email||!bill.billingInfo.address){
+        delete factura['factura'].infoAdicional;
+      }
       return factura;
     }
   },
@@ -247,6 +249,9 @@ module.exports={
   },
   /**
   *
+  *Send determined bill to authorize in the SRI server
+  *
+  *@param {string} id - The id of the bill to be authorized
   */
   authorizeBill:function(id,next){
     Bill.findOne(id,(err,found)=>{

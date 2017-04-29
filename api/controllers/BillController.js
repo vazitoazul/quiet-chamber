@@ -1,4 +1,9 @@
 var fs = require('fs');
+const finalConsBI={
+  name:'Consumidor Final',
+  identifier: '9999999999',
+  idType:'07'
+};
 module.exports={
     test: function(req,res,next){
       var detail= {
@@ -50,6 +55,7 @@ module.exports={
     getXml:function(req,res,next){
       Bill.findOne(req.param('id'),(err,found)=>{
         if(err)return next(err);
+        if(!found) return res.badRequest();
         if(!found.autNumber) return res.badRequest();
         var name= found.billingInfo.name+found.createdAt+'.xml';
 				res.setHeader('Content-disposition', 'attachment; filename=' + name );
@@ -66,6 +72,7 @@ module.exports={
     getPdf:function(req,res,next){
       Bill.findOne(req.param('id'),(err,found)=>{
         if(err)return next(err);
+        if(!found) return res.badRequest();
         if(!found.autNumber) return res.badRequest();
         var data={};
         data.bill=found.toSRIFormat().factura;
@@ -89,5 +96,70 @@ module.exports={
         	});
         });
       });
+    },
+    /**
+    *
+    *Gets all the bills for currently logged user
+    *
+    */
+    getAll:function(req,res,next){
+      Bill.find({user:req.user.id},(err,found)=>{
+        if(err)return next(err);
+        res.ok({bills:found});
+      });
+    },
+    /**
+    *
+    *Creates a new bill from a list of payments. This are supposed to belong to a plan payment (SUB01)
+    *The bill gets created with the current user paymentInfo. In case of missing this info, final cosumer info is used.
+    *
+    *@param {array} payments - The payments
+    *
+    */
+    createBillForPlanPayments:function(req,res,next){
+      Payment.find(req.body.payments,(err,found)=>{
+
+        if(err) return next(err);
+        if(found.length!==req.body.payments.length) return res.json(409,{error:'nonexisting_payments'});
+        User.findOne(req.user.id,(err,user)=>{
+          if(err) return next(err);
+          var newBill={};
+          if(user.hasBillingInfo()){
+            newBill.billingInfo=user.billingInfo;
+          }else{
+            newBill.billingInfo=finalConsBI;
+          }
+          newBill.detail= {
+            items:[
+              {qty:found.length,
+              description:'Subscripción Dinabun',
+              code:'SUB01',
+              unitPrice:15.00,
+              discount:0,
+              total:15.00*found.length,
+              taxes:[
+                {rate:0.14,
+                 name:'IVA',
+                 code:'2',
+                 rateCode:'3'
+                }
+                ]
+              }
+            ],
+          total: 1.14*(15.00*found.length)
+          };
+          newBill.user=req.user.id;
+          Bill.create(newBill,(err,created)=>{
+            console.log(`err${err}`);
+            if(err) return next(err);
+            Payment.update(req.body.payments,{bill:created.id},(err,updatedPays)=>{
+              if(err) return next(err);
+              console.log(`llega4`);
+              res.ok({bill:created});
+            });
+          });
+        });
+      });
+
     }
 }

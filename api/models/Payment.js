@@ -10,6 +10,7 @@ module.exports = {
   attributes: {
     user: { model: 'User', required: true },
     billingAgreement : { type: 'string'},
-    confirmed : { type: 'boolean', defaultsTo : false }
+    confirmed : { type: 'boolean', defaultsTo : false },
+    bill : { model: 'bill'}
   }
 };

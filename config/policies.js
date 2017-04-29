@@ -50,6 +50,9 @@ module.exports.policies = {
   'PostController' : {
     '*' : ['passport','sessionAuth','intlCredential','businessOwner']
   },
+  'BillController' : {
+    '*' : ['passport','sessionAuth','intlCredential']
+  },
 
   '*' : ['passport']
   /***************************************************************************

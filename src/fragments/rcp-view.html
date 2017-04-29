@@ -10,7 +10,8 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../shared-styles.html">
-<link rel="import" href="../redux/redux-store.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
 <dom-module id="rcp-view">
   <template>
     <style include="shared-styles ">
@@ -83,7 +84,7 @@
       is: 'rcp-view',
       behaviors:[
         Polymer.AppLocalizeBehavior,
-        ReduxBehavior,
+        GlobalStoreBehavior,
         AuthActionsBehavior
       ],
       properties:{

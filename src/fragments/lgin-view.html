@@ -11,7 +11,8 @@
 <link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
 <link rel="import" href="../my-icons.html">
 <link rel="import" href="../shared-styles.html">
-<link rel="import" href="../redux/redux-store.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
 <link rel="import" href="../elements/facebook-login.html">
 <link rel="import" href="../elements/google-login.html">
 
@@ -40,45 +41,45 @@
         @apply(--layout-self-center);
       }
     </style>
-  <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
-  <h2>[[localize('log_in_tittle')]]</h2>
-  <paper-card>
-    <div class="card-content">
-      <div class="row horizontal center">
-        <facebook-login recommender="[[recommender]]" on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></facebook-login>
-        <google-login recommender="[[recommender]]" on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></google-login>
-      </div>
-      <form is="iron-form" id="loginForm">
-      	  <paper-input name="identifier" label="[[localize('email')]]" required auto-validate  error-message="[[localize('email_form')]]"></paper-input>
-          <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate ></paper-input>
-    	</form>
-      <br>
-      <div class="flex-items-xs-center row">
-        <paper-button raised class="secondary" on-click="submit" disabled="[[userLoading]]">
-          <span>[[localize('log_in')]]</span>
-        </paper-button>
-        <paper-spinner active="[[userLoading]]"></paper-spinner>
-      </div>
-    </div>
-  </paper-card>
-  <div class="vertical center recover">
-    <h5><a on-click="openCollapse">[[localize('pass_forgot')]]</a></h5>
-    <iron-collapse id="collapse">
-      <div class="vertical">
-        <form is="iron-form" id="recoverForm">
-          <paper-input name="email" label="[[localize('enter_your_email')]]" required auto-validate  error-message="[[localize('email_form')]]" pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" class="recover"></paper-input>
-        </form>
+    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
+    <h2>[[localize('log_in_tittle')]]</h2>
+    <paper-card>
+      <div class="card-content">
+        <div class="row horizontal center">
+          <facebook-login recommender="[[recommender]]" on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></facebook-login>
+          <google-login recommender="[[recommender]]" on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></google-login>
+        </div>
+        <form is="iron-form" id="loginForm">
+        	  <paper-input name="identifier" label="[[localize('email')]]" required auto-validate  error-message="[[localize('email_form')]]"></paper-input>
+            <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate ></paper-input>
+      	</form>
         <br>
-        <div class="horizontal">
-          <paper-button raised class="secondary recover" on-click="submitRecover" disabled="[[passRecoveryLoading]]">
-            <span>[[localize('recover_pass')]]</span>
+        <div class="flex-items-xs-center row">
+          <paper-button raised class="secondary" on-click="submit" disabled="[[userLoading]]">
+            <span>[[localize('log_in')]]</span>
           </paper-button>
-          <paper-spinner active="[[passRecoveryLoading]]"></paper-spinner>
+          <paper-spinner active="[[userLoading]]"></paper-spinner>
         </div>
       </div>
-    </iron-collapse>
-  </div>
-	<paper-toast id="toast" duration="5000" ></paper-toast>
+    </paper-card>
+    <div class="vertical center recover">
+      <h5><a on-click="openCollapse">[[localize('pass_forgot')]]</a></h5>
+      <iron-collapse id="collapse">
+        <div class="vertical">
+          <form is="iron-form" id="recoverForm">
+            <paper-input name="email" label="[[localize('enter_your_email')]]" required auto-validate  error-message="[[localize('email_form')]]" pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" class="recover"></paper-input>
+          </form>
+          <br>
+          <div class="horizontal">
+            <paper-button raised class="secondary recover" on-click="submitRecover" disabled="[[passRecoveryLoading]]">
+              <span>[[localize('recover_pass')]]</span>
+            </paper-button>
+            <paper-spinner active="[[passRecoveryLoading]]"></paper-spinner>
+          </div>
+        </div>
+      </iron-collapse>
+    </div>
+  	<paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
 
   <script>
@@ -87,7 +88,7 @@
 
       behaviors : [
         Polymer.AppLocalizeBehavior,
-        ReduxBehavior,
+        GlobalStoreBehavior,
         AuthActionsBehavior
       ],
 

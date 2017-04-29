@@ -197,12 +197,16 @@ module.exports = {
 		  return res.ok();
 		}
 	},
-
-	create: function(req,res,next){
-		Payment.create({user : req.param('user')},function(err,payment){
-		  console.log('yes')
-		  console.log(err)
-		  return res.json(payment);
-	});
+	/**
+	*
+	*Gets all the payments for the current user
+	*
+	*
+	*/
+	getAll: function(req,res,next){
+		Payment.find({user:req.user.id},(err,found)=>{
+			if(err)return next(err);
+			res.ok({payments:found});
+		});
 	}
 };

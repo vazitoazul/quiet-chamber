@@ -31,9 +31,10 @@ module.exports.routes = {
   * `assets` directory)                                                      *
   *                                                                          *
   ***************************************************************************/
+
   //bills related routes
-  'get /testbills' : 'BillController.test',
-  'get /testbills/:id' : 'BillController.auttest',
+  'post /requestBill' : 'BillController.createBillForPlanPayments',
+  'get /allBills' : 'BillController.getAll',
   'get /billxml/:id' : 'BillController.getXml',
   'get /billpdf/:id' : 'BillController.getPdf',
   //authentication routes
@@ -64,10 +65,13 @@ module.exports.routes = {
   '/getRecommenderUser' : 'UserController.getRecommenderUser',
   '/setRecommender' : 'UserController.setRecommender',
 
+  //PayPal Payments related routes
   '/checkoutPayment' : 'PaymentController.setExpressCheckout',
   '/cancelPaypal' : 'PaymentController.cancelPayment',
   '/returnPaypal' : 'PaymentController.returnPayment',
   '/paypalipn' : 'PaymentController.ipnListener',
+  //General Payments related routes
+  'get /allPayments' : 'PaymentController.getAll',
 
   '/createBusiness' : 'BusinessController.createBusiness',
   '/getBusiness' : 'BusinessController.getBusiness',

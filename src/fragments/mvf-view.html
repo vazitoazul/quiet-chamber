@@ -7,7 +7,8 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../redux/redux-store.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
 <link rel="import" href="../shared-styles.html">
 
 
@@ -63,7 +64,7 @@
       is: 'mvf-view',
       behaviors:[
         Polymer.AppLocalizeBehavior,
-        ReduxBehavior,
+        GlobalStoreBehavior,
         AuthActionsBehavior
       ],
       properties:{

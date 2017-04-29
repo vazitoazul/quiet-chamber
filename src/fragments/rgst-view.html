@@ -11,13 +11,13 @@
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
-<link rel="import" href="../redux/redux-store.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../my-icons.html">
 <link rel="import" href="../elements/facebook-login.html">
 <link rel="import" href="../elements/google-login.html">
 <link rel="import" href="../fragments/lgin-view.html">
-
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
 <dom-module id="rgst-view">
   <template>
     <style include="shared-styles">
@@ -100,7 +100,7 @@
 
       behaviors : [
         Polymer.AppLocalizeBehavior,
-        ReduxBehavior,
+        GlobalStoreBehavior,
         AuthActionsBehavior
       ],
 

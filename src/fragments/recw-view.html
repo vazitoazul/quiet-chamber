@@ -19,6 +19,9 @@
 <link rel="import" href="../elements/main-toolbar.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../fragments/rgst-view.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
+<link rel="import" href="../redux/global-store.html">
+
 
 <dom-module id="recw-view">
   <style include="app-grid-style shared-styles">
@@ -104,7 +107,7 @@
 
       behaviors : [
         Polymer.AppLocalizeBehavior,
-        ReduxBehavior,
+        GlobalStoreBehavior,
         AuthActionsBehavior
       ],
 

@@ -1,0 +1,154 @@
+
+<script>
+
+const {user:userInit} = GlobalState;
+const user = (state=userInit,action)=>{
+  switch (action.type) {
+    case 'LOG_IN':
+      switch (action.status) {
+        case 'success':
+          return Object.assign({},state,{loading:false,authenticated:true});
+          break;
+        case 'error':
+          return Object.assign({},state,{loading:false,lastError:action.error});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    case 'REGISTER':
+      switch (action.status) {
+        case 'success':
+          return Object.assign({},state,{loading:false,authenticated:true});
+          break;
+        case 'error':
+          return Object.assign({},state,{loading:false,lastError:action.error});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    case 'LOAD_USER':
+      switch (action.status) {
+        case 'success':
+
+          return Object.assign({},state,{loading:false,info:action.info,authenticated:true});
+          break;
+        case 'error':
+          return Object.assign({},state,{loading:false,lastError:action.error});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    case 'SET_USER_INF':
+      switch (action.status) {
+        case 'success':
+          var newInfo = Object.assign({},state.info,action.info);
+          return Object.assign({},state,{loading:false,info:newInfo});
+          break;
+        case 'error':
+          return Object.assign({},state,{loading:false,lastError:action.error});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    case 'SET_USER_INCRE':
+      switch (action.status) {
+        case 'success':
+          var newInfo = Object.assign({},state.info,action.info);
+          return Object.assign({},state,{loading:false,info:newInfo});
+          break;
+        case 'error':
+          return Object.assign({},state,{loading:false,lastError:action.error});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    default:
+      return state;
+  }
+};
+const {recommender:recoInit} = GlobalState;
+const recommender = (state=recoInit,action) => {
+  switch (action.type) {
+    case 'GET_RECO':
+      switch (action.status) {
+        case 'success':
+          return Object.assign({},state,{loading:false,info:action.info,exists:true});
+          break;
+        case 'error':
+          return Object.assign({},state,{loading:false,lastError:action.error});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+
+    default:
+      return state;
+  };
+};
+const {passRecovery:passInit} = GlobalState;
+const passRecovery =(state=passInit,action)=>{
+  switch (action.type) {
+    case 'REQ_RECOVER_PASS':
+      switch (action.status) {
+        case 'success':
+          return Object.assign({},state,{recoveryRequested:true,loading:false});
+          break;
+        case 'error':
+          return Object.assign({},state,{lastError:action.error,loading:false});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    case 'CHANGE_PASS':
+      switch (action.status) {
+        case 'success':
+          return Object.assign({},state,{passChanged:true,loading:false});
+          break;
+        case 'error':
+          return Object.assign({},state,{lastError:action.error,loading:false});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    default:
+      return state;
+  }
+};
+const {mailVerification:mailInit} = GlobalState;
+const mailVerification = (state=mailInit,action)=>{
+  switch (action.type) {
+    case 'REQ_MAIL_VERIF':
+      switch (action.status) {
+        case 'success':
+          return Object.assign({},state,{success:true,loading:false,addressUsed:action.address});
+          break;
+        case 'error':
+          return Object.assign({},state,{lastError:action.error,loading:false});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    default:
+      return state;
+  }
+};
+
+</script>

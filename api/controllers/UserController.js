@@ -13,6 +13,7 @@ module.exports = {
 			if(!user){
 				return res.badRequest();
 			}
+			user.isSuscribed=user.isSuscribed();
 			User.find({recommender : user.id}, (err,found) => {
 				if(err) return res.badRequest();
 				user.recommended = found;

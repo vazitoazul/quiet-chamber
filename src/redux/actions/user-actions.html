@@ -1,0 +1,55 @@
+
+<script>
+  const UserActionsBehavior = {
+    actions : {
+      updateUserInfo:function(contactInfo){
+        return function(dispatch){
+            dispatch({type:'SET_USER_INF'});
+            let request = new Request(
+              '/updateuserinfo',{
+              method:'POST',
+              headers: standardHeaders,
+              body: JSON.stringify(contactInfo),
+              credentials: 'include'
+            });
+            window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              response.json().then((json)=>{
+                dispatch({type:'SET_USER_INF',status:'success',info:json});
+              });
+            })
+            .catch((e)=>{
+              dispatch({type:'SET_USER_INF',status:'error',error:e.message});
+            });
+        }
+      },
+      updateIntlCredential:function(newCredential){
+        return function(dispatch){
+          dispatch({type:'SET_USER_INCRE'});
+          let request = new Request(
+            '/updateintlcredential',{
+            method:'POST',
+            headers: standardHeaders,
+            credentials: 'include',
+            body: JSON.stringify(newCredential),
+          });
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            response.json().then((json)=>{
+              dispatch({type:'SET_USER_INF',status:'success',info:json});
+            });
+          })
+          .catch((e)=>{
+            dispatch({type:'SET_USER_INCRE',status:'error',error:e.message});
+          });
+        }
+      },
+
+    },
+    _getArrayFromObj:function(obj){
+      return ;
+    }
+  }
+</script>

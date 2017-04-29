@@ -4,7 +4,8 @@
 <link rel="import" href="../../bower_components/google-signin/google-signin.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../my-icons.html">
-<link rel="import" href="../redux/redux-store.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
 <dom-module id="google-login">
   <template>
     <style>
@@ -40,7 +41,7 @@
   <script>
     Polymer({
       is: 'google-login',
-      behaviors:[ReduxBehavior,AuthActionsBehavior],
+      behaviors:[GlobalStoreBehavior,AuthActionsBehavior],
       properties:{
         wantsLogin:{
           type:Boolean,

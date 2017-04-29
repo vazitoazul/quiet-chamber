@@ -29,7 +29,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="redux/redux-store.html">
+<link rel="import" href="redux/global-store.html">
+<link rel="import" href="redux/actions/auth-actions.html">
 <link rel="import" href="my-icons.html">
 
 <dom-module id="my-app">
@@ -68,7 +69,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
     Polymer({
       is: 'my-app',
-      behaviors:[ReduxBehavior,AuthActionsBehavior],
+      behaviors:[GlobalStoreBehavior,AuthActionsBehavior],
       properties: {
         page: {
           type: String,

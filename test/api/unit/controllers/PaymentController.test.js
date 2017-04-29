@@ -23,4 +23,22 @@ describe('PaymentController',function(){
           .end(done)
     });
   });
+  describe('Getting payments',function(){
+    before(function(done) {
+       user
+         .post('/auth/local')
+         .send({identifier : 'buyer@dinabun.com',password : 'testtest'})
+         .end(done);
+    });
+    it('should get all the payments',function(done){
+        user
+          .get('/allPayments')
+          .expect(200)
+          .expect((res)=>}{
+            res.body.should.have.property('payments');
+            
+          })
+          .end(done);
+    });
+  });
 });

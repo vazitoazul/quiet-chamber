@@ -9,6 +9,9 @@ var User = {
         return false;
       }
       return true;
+    },
+    billingInfo:function(info){
+      return validate.billingInfo(info);
     }
   },
 
@@ -20,14 +23,19 @@ var User = {
     firstName : {type : 'string'},
     lastName : {type : 'string'},
     contactInfo: {type : 'json',defaultsTo:{firstName:null,lastName:null,telephones:[],location:{latitude:null,longitude:null},email:null,address:null}},
-    billingInfo:{type:'json'},
+    billingInfo:{type:'json',billingInfo:true},
     tokens : {collection:'Token',via:'user'},
     payments : { collection : 'Payment', via : 'user'},
+    bills : { collection : 'bill', via : 'user'},
     subscribedUntil : {type: 'date',defaultsTo:null,date:true},
     recommender : {type : 'string', defaultsTo : null},
     recommended : {type:'json',defaultsTo:{}, recommended :true},
     totalBalance : { type:'float'},
     balance : { type : 'array', defaultsTo : []},
+    hasBillingInfo:function(){
+      var info = this.toObject().billingInfo;
+      return validate.billingInfo(info);
+    },
     toShort:function(){
       return {
         firstName:this.firstName,
@@ -40,6 +48,9 @@ var User = {
     },
     canRecomend:function(){
       return Object.keys(this.recommended).length < 3;
+    },
+    isSuscribed:function(){
+      return this.plusUntil==null ? false :  Date.compare(this.subscribedUntil, Date.today()) >= 0;
     }
   },
   afterCreate:function(user,next){

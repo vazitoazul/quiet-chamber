@@ -3,7 +3,8 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../my-icons.html">
-<link rel="import" href="../redux/redux-store.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
 <dom-module id="facebook-login">
   <template>
     <style>
@@ -46,7 +47,7 @@
   <script>
     Polymer({
       is: 'facebook-login',
-      behaviors:[ReduxBehavior,AuthActionsBehavior],
+      behaviors:[GlobalStoreBehavior,AuthActionsBehavior],
       properties:{
         recommender : {
           type : String

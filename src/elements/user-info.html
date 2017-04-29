@@ -12,7 +12,9 @@
 <link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../shared-styles.html">
-<link rel="import" href="../redux/redux-store.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/user-actions.html">
+
 <dom-module id="user-info">
   <template>
     <style include="shared-styles">
@@ -95,8 +97,8 @@
 
       behaviors : [
         Polymer.AppLocalizeBehavior,
-        ReduxBehavior,
-        UserInfoActionsBehavior
+        GlobalStoreBehavior,
+        UserActionsBehavior
       ],
 
       properties : {
@@ -219,7 +221,6 @@
         this._setUpAddressSearchRestrictions();
         this.$.spinner.active = false;
         this.$.spinner.hidden = false;
-        console.log(newUser);
       },
       setCurrentUser : function(newUser){
         this.set('user',newUser);

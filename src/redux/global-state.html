@@ -1,0 +1,51 @@
+<script>
+
+const GlobalState={
+  user:{
+    loading:false,
+    lastError:null,
+    authenticated:false,
+    info:{
+      buisnesses: [],
+      posts:[],
+      payments:[],
+      contactInfo:{},
+      recommended : []
+    }
+  },
+  entities: {
+    businesses:{},
+    posts:[],
+    payments:{},
+  },
+  recommender:{
+    exists:false,
+    loading:false,
+    lastError:null,
+    info:{}
+  },
+  passRecovery:{
+    loading:false,
+    lastError:null,
+    recoveryRequested:false,
+    passChanged:false
+  },
+  mailVerification:{
+    loading:false,
+    lastError:null,
+    success:false,
+    addressUsed:null
+  },
+  route:null,
+  bills:{
+    entities:[],
+    loading:false,
+    lastError:null
+  },
+  payments:{
+    entities:[],
+    loading:false,
+    lastError:null
+  }
+};
+</script>

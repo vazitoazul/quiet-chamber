@@ -1,0 +1,47 @@
+<script>
+  const PaymentsActionsBehavior={
+    actions:{
+      getPayments:function(){
+        return function(dispatch){
+          dispatch({type:'GET_PAYMENTS'});
+          let request = new Request('/allPayments',{
+            method:'GET',
+            headers: standardHeaders,
+            credentials: 'include'
+          });
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            response.json().then((json)=>{
+              dispatch({type:'GET_PAYMENTS',status:'success',payments:json.payments});
+            });
+          })
+          .catch((e)=>{
+            dispatch({type:'GET_PAYMENTS',status:'error',error:e.message});
+          });
+        }
+      },
+      getBills:function(){
+        return function(dispatch){
+          dispatch({type:'GET_BILLS'});
+          let request = new Request('/allBills',{
+            method:'GET',
+            headers: standardHeaders,
+            credentials: 'include'
+          });
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            response.json().then((json)=>{
+
+              dispatch({type:'GET_BILLS',status:'success',bills:json.bills});
+            });
+          })
+          .catch((e)=>{
+            dispatch({type:'GET_BILLS',status:'error',error:e.message});
+          });
+        }
+      }
+    }
+  };
+</script>

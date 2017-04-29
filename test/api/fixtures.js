@@ -1,6 +1,6 @@
 require('date-utils');
 module.exports ={
-  order: [ 'User', 'Passport'],
+  order: [ 'User', 'Passport','Payment'],
   empty:['Passport'],
   User:[
       {
@@ -60,5 +60,31 @@ module.exports ={
   					"user" : {email:"mailNotVerifiedUser@dinabun.com"}
   			}
   		}
+  ],
+  Payment:[
+    {
+      confirmed:false,
+      models:{
+        user: {email:'buyer@dinabun.com'}
+      }
+    },
+    {
+      confirmed:false,
+      models:{
+        user: {email:'buyer@dinabun.com'}
+      }
+    },
+    {
+      confirmed:false,
+      models:{
+        user: {email:'buyer@dinabun.com'}
+      }
+    },
+    {
+      confirmed:false,
+      models:{
+        user: {email:'buyer@dinabun.com'}
+      }
+    }
   ]
 };

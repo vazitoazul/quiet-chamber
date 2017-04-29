@@ -1,0 +1,45 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/payments-actions.html">
+
+<dom-module id="payments-grid">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+    <template is="dom-repeat" items="[[payments]]">
+      <div class="">
+        [[item.createdAt]]
+      </div>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'payments-grid',
+      behaviors:[
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        PaymentsActionsBehavior
+      ],
+      properties:{
+        payments:{
+          type:Array,
+          statePath:'payments.entities',
+          observer:'_paymentsChange'
+        }
+      },
+      attached:function(){
+        this.dispatch('getPayments');
+      },
+      _paymentsChange:function(lv,nv){
+        console.log(lv,nv);
+      }
+    });
+  </script>
+</dom-module>

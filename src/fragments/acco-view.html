@@ -13,6 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
@@ -38,8 +39,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../elements/paypal-integration.html">
 <link rel="import" href="../elements/business-form.html">
 <link rel="import" href="../elements/business-section.html">
+<link rel="import" href="../elements/payments-grid.html">
 <link rel="import" href="../shared-styles.html">
-<link rel="import" href="../redux/redux-store.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/user-actions.html">
 
 <dom-module id="acco-view">
   <template>
@@ -59,6 +62,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       paper-card{
         width: 18rem;
+      }
+      div#paypalDiv{
+        height: 150px;
       }
     </style>
     <app-location route="{{route}}"></app-location>
@@ -80,12 +86,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <app-drawer-layout>
       <app-drawer align="left">
-        <div class="row">
-          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="verified-user"></iron-icon>[[localize('userInfo')]]</a></paper-item>
-          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
-          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('recommended')]]</a></paper-item>
-          <paper-item class="col-sm-7"><a class="menu-item" href="/acco/business"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('bussiness')]]</a></paper-item>
-        </div>
+        <h5>Menu</h5>
+        <paper-menu>
+          <paper-item><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="verified-user"></iron-icon>[[localize('userInfo')]]</a></paper-item>
+          <paper-item><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
+          <paper-item><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('recommended')]]</a></paper-item>
+          <paper-item><a class="menu-item" href="/acco/business"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('bussiness')]]</a></paper-item>
+          <paper-item><a class="menu-item" href="/acco/payments"><iron-icon item-icon icon="card-membership"></iron-icon>Pagos y Facturas</a></paper-item>
+        </paper-menu>
       </app-drawer>
       <app-header-layout>
         <app-header>
@@ -100,10 +108,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </app-header-layuout>
       <iron-pages selected='[[section]]' attr-for-selected="section">
         <section section="membership">
+          <div class="vertical">
+            <div class="horizontal ">
+              <paper-card hidden$="[[user.isSuscribed]]" class="flex vertical subscription">
+                <div class="card-content">
+                  <h3>No tienes una suscripción activa</h3>
+                  <span>Encuentra todos los beneficios de suscribirte <a href="#">Aquí</a> </span>
+                </div>
+                <div class="card-actions">
+                  <span>Utiliza PayPal para pagar tu suscripción de manera segura</span>
+                  <div id="paypalDiv"></div>
+                </div>
+              </paper-card>
+              <paper-card hidden$="[[!user.isSuscribed]]" class="flex vertical subscription">
+                <div class="card-content">
+                  <h3>Tienes una suscripción activa</h3>
+                  <span>Tu suscripción se encuentra activa hasta el: [[user.subscribedUntil]]</span>
+                </div>
+              </paper-card>
+            </div>
+          </div>
+
           <div class="card">
-            <div id="paypalDiv"></div>
+
             <div id="subscribedUntilDiv" hidden>
               [[user.parsedSubscribedUntil]]
+            </div>
+          </div>
+        </section>
+        <section section="payments">
+          <div class="vertical">
+            <div class="horizontal">
+              <payments-grid></payments-grid>
+            </div>
+            <div class="horizontal">
+              <h3>Aqui van las facturas</h3>
             </div>
           </div>
         </section>
@@ -170,8 +209,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       behaviors : [
         Polymer.AppLocalizeBehavior,
-        ReduxBehavior,
-        UserInfoActionsBehavior
+        GlobalStoreBehavior,
+        UserActionsBehavior
       ],
 
       properties:{
@@ -333,19 +372,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
         switch(this.section){
           case 'membership':
-            if(!this.user.subscribedUntil){
-                  this.paypal = document.createElement('paypal-integration');
-                  this.$.paypalDiv.appendChild(this.paypal);
-            }else{
-                var today = new Date();
-                today.setHours(0,0,0,0);
-                if(this.user.subscribedUntil.valueOf() < today.valueOf()){
-                  this.paypal = document.createElement('paypal-integration');
-                  this.$.paypalDiv.appendChild(this.paypal);
-                }else{
-                  this.set(['user','parsedSubscribedUntil'], this.localize('subscribed_until', 'start' , this.user.subscribedUntil.getTime()));
-                  this.$.subscribedUntilDiv.hidden = false;
-                }
+            if(!this.user.isSuscribed){
+                this.paypal = document.createElement('paypal-integration');
+                this.$.paypalDiv.appendChild(this.paypal);
             }
           break;
           case 'business':
