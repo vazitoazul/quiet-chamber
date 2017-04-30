@@ -11,5 +11,17 @@ module.exports = {
     business : { model : 'business', required : true },
     type : { type : 'string', required : true},
     description : {type : 'string', required : true},
+    labels : { type : 'array', defaultsTo : []},
+    placesIds : { type : 'array'}
+  },
+
+  beforeCreate : function(values,next){
+    console.log(values)
+    Business.findOne(values.business,function(err,business){
+      if(err) return next(err);
+      values.labels = business.labels;
+      values.placesIds = business.placesIds;
+      return next();
+    });
   }
 };

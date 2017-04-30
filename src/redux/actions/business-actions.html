@@ -1,0 +1,29 @@
+<script>
+const BusinessActionsBehavior = {
+  actions:{
+    createBusiness = function(business){
+      return function(dispatch){
+        dispatch('SET_BUSS');
+        let request = new Request(
+          '/createBusiness',{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include',
+          body: JSON.stringify(business)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'SET_BUSS',status:'success',business:json});
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'SET_BUSS',status:'error',error:e.message});
+        });
+      }
+      }
+    }
+}
+</script>

@@ -18,6 +18,9 @@
 <link rel="import" href="../elements/post-card.html">
 <dom-module id="business-form">
  <style include="app-grid-style shared-styles">
+    host {
+      padding : 100px
+    }
     paper-autocomplete{
       --paper-input-container-focus-color : white;
     }
@@ -42,7 +45,7 @@
     on-response="_responseHandler"
     on-error="_errorHandler"></iron-ajax>
   <div class="row">
-    <paper-card class="col-xs-9 offset-xs-1" id="paperCard">
+    <paper-card class="col-sm-5 offset-sm-1" id="paperCard">
       <template is="dom-if" if="[[!creating]]"><paper-button raised class="secondary col-xs-1 offset-xs-1" on-click="openDeleteConfirmation">Eliminar</paper-button></template>
       <div class="card-content">
         <form is="iron-form" id="businessForm" action="[[ironFormAction]]" on-iron-form-response="_responseHandler" on-iron-form-error="_errorHandler" method="post">
@@ -70,14 +73,14 @@
     </div>
     <div id="businessPostsTemplate" class="row">
     <template is="dom-if" if="[[creating]]">
-      <div class="col-xs-6 offset-xs-1">
+      <div class="col-sm-6 offset-sm-1">
         [[localize('want_add_post')]]
         [[localize('what_is')]]
       </div>
       <template  is="dom-repeat" id="pushi" items="[[business.posts]]">
-        <post-form post="[[item]]" onbusiness on-remove="removePost" index="[[index]]" class="post-form col-xs-7 offset-xs-1"></post-form>
+        <post-form post="[[item]]" onbusiness on-remove="removePost" index="[[index]]" class="post-form col-sm-7 offset-sm-1"></post-form>
       </template>
-      <a on-tap="addPost" class="primary col-xs-3 offset-xs-1">
+      <a on-tap="addPost" class="primary col-sm-5">
         [[localize('add_new_post')]]<paper-icon-button class="label" icon="add"></paper-icon-button>
       </a>
     </template>
@@ -87,14 +90,14 @@
         <template  is="dom-repeat" id="pushi" items="[[business.posts]]">
           <post-card post="[[item]]"></post-card>
         </template>
-        <a href="/acco/business/[[business.id]]/new" class="primary col-xs-3 offset-xs-1">
+        <a href="/acco/business/[[business.id]]/new" class="primary col-sm-3 offset-sm-1">
           [[localize('add_new_post')]]<paper-icon-button class="label" icon="add"></paper-icon-button>
         </a>
       </template>
     </div>
     <div class="row">
-      <template is="dom-if" if="[[creating]]"><paper-button raised class="primary col-xs-1 offset-xs-1" on-click="submitForm">[[localize('create')]]</paper-button></template>
-      <template is="dom-if" if="[[!creating]]"><paper-button raised class="primary col-xs-1 offset-xs-1" on-click="submitForm">[[localize('update')]]</paper-button></template>
+      <template is="dom-if" if="[[creating]]"><paper-button raised class="primary col-sm-1 offset-sm-1" on-click="submitForm">[[localize('create')]]</paper-button></template>
+      <template is="dom-if" if="[[!creating]]"><paper-button raised class="primary col-sm-1 offset-sm-1" on-click="submitForm">[[localize('update')]]</paper-button></template>
     </div>
   </div>
  	<paper-toast id="toast"></paper-toast>

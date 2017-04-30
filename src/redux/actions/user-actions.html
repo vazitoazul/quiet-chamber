@@ -46,6 +46,26 @@
           });
         }
       },
+      updateUserRecommender : function(recommender){
+        return function(dispatch){
+          dispatch({type:'SET_USER_RECO'});
+          let request = new Request(
+            '/setRecommender',{
+            method:'POST',
+            headers: standardHeaders,
+            credentials: 'include',
+            body: JSON.stringify(recommender),
+          });
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            dispatch({type:'SET_USER_RECO',status:'success'});
+          })
+          .catch((e)=>{
+            dispatch({type:'SET_USER_RECO',status:'error',error:e.message});
+          });
+        }
+      }
 
     },
     _getArrayFromObj:function(obj){
