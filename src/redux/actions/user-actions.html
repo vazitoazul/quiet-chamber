@@ -26,7 +26,7 @@
       },
       updateIntlCredential:function(newCredential){
         return function(dispatch){
-          dispatch({type:'SET_USER_INCRE'});
+          dispatch({type:'SET_USER_INF'});
           let request = new Request(
             '/updateintlcredential',{
             method:'POST',
@@ -42,7 +42,7 @@
             });
           })
           .catch((e)=>{
-            dispatch({type:'SET_USER_INCRE',status:'error',error:e.message});
+            dispatch({type:'SET_USER_INF',status:'error',error:e.message});
           });
         }
       },
@@ -63,6 +63,28 @@
           })
           .catch((e)=>{
             dispatch({type:'SET_USER_RECO',status:'error',error:e.message});
+          });
+        }
+      },
+      updateUserBillingInfo : function(info){
+        return function(dispatch){
+          dispatch({type:'SET_USER_BILLING_INFO'});
+          let request = new Request(
+            '/updatebillinginfo',{
+            method:'POST',
+            headers: standardHeaders,
+            credentials: 'include',
+            body: JSON.stringify(info),
+          });
+          window.fetch(request)
+          .then(handleReqError)
+          .then((res)=>{
+            res.json().then((json)=>{
+              dispatch({type:'SET_USER_BILLING_INFO',status:'success',info:json.info});
+            });
+          })
+          .catch((e)=>{
+            dispatch({type:'SET_USER_BILLING_INFO',status:'error',error:e.message});
           });
         }
       }

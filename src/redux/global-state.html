@@ -6,17 +6,37 @@ const GlobalState={
     lastError:null,
     authenticated:false,
     info:{
+      email:null,
+      mailVerified:false,
+      intlCredential:null,
+      firstName:null,
+      lastName:null,
+      totalBalance:0,
       buisnesses: [],
       posts:[],
-      payments:[],
-      contactInfo:{},
-      recommended : []
+      recommended : [],
+      contactInfo:{
+        firstName:null,
+        lastName:null,
+        telephones:[],
+        location:{},
+        email:null,
+        address:null
+      },
+      billingInfo:{
+        idType:'05',
+        name:'',
+        identifier:'',
+        address:'',
+        email:''
+      }
     }
   },
   entities: {
     businesses:{},
     posts:[],
-    payments:{},
+    payments:[],
+    recommended:[]
   },
   recommender:{
     exists:false,
@@ -40,10 +60,17 @@ const GlobalState={
   bills:{
     entities:[],
     loading:false,
-    lastError:null
+    lastError:null,
+    lastAction:null
   },
   payments:{
     entities:[],
+    loading:false,
+    lastError:null,
+    lastAction:null
+  },
+  payouts:{
+    canRequest:false,
     loading:false,
     lastError:null
   },

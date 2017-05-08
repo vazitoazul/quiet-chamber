@@ -27,10 +27,12 @@ var User = {
     tokens : {collection:'Token',via:'user'},
     payments : { collection : 'Payment', via : 'user'},
     bills : { collection : 'bill', via : 'user'},
+    payouts : {collection : 'payout',via : 'user'},
     subscribedUntil : {type: 'date',defaultsTo:null,date:true},
     recommender : {type : 'string', defaultsTo : null},
     recommended : {type:'json',defaultsTo:{}, recommended :true},
     totalBalance : { type:'float'},
+    payPalInfo: {type:'json',defaultsTo:null},
     balance : { type : 'array', defaultsTo : []},
     hasBillingInfo:function(){
       var info = this.toObject().billingInfo;
@@ -50,7 +52,7 @@ var User = {
       return Object.keys(this.recommended).length < 3;
     },
     isSuscribed:function(){
-      return this.plusUntil==null ? false :  Date.compare(this.subscribedUntil, Date.today()) >= 0;
+      return this.subscribedUntil==null ? false :  Date.compare(this.subscribedUntil, Date.today()) >= 0;
     }
   },
   afterCreate:function(user,next){
@@ -75,6 +77,34 @@ var User = {
     }else{
       next();
     }
+  },
+  /**
+  *
+  *Extends a user susbscription for a determined ammount of months
+  *
+  *@param {string} id - The user's id
+  *@param {number} months - Number of months to be added
+  *@param {function} next - The function to be executed at the end. Will carry error if is the case
+  *
+  *
+  */
+  extendSubscription:function(id,months,next){
+    sails.models.user.findOne(id,(err,user)=>{
+      if(err)return next(err);
+      if(!user) return next(new Error('User does not exiss'));
+      var subscribedUntil;
+      if(!user.subscribedUntil){
+        subscribedUntil= new Date();
+
+      }else{
+        subscribedUntil= new Date(user.subscribedUntil);
+      }
+      subscribedUntil.add({months:months});
+      sails.models.user.update(user.id,{subscribedUntil:subscribedUntil},(err,updated)=>{
+        if(err)return next(err);
+        return next();
+      });
+    });
   }
 };
 

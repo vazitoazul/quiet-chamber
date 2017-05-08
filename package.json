@@ -26,6 +26,7 @@
     "paypal-rest-sdk": "^1.7.0",
     "pem": "^1.9.4",
     "polymer-cli": "^0.16.0",
+    "pp-ipn": "^1.0.5",
     "randomstring": "^1.1.5",
     "rc": "1.0.1",
     "recaptcha-v2": "^0.1.3",

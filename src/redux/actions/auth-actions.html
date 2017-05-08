@@ -112,7 +112,7 @@
       },
       loadUserInfo:function(){
         return function(dispatch){
-          dispatch({type:'LOAD_USER'});
+          dispatch({type:'SET_USER_INF'});
           let request = new Request(
             '/getcurrentuser',
             {
@@ -125,12 +125,12 @@
             .then(handleReqError)
             .then((response)=>{
               response.json().then((json)=>{
-                console.log(json);
-                dispatch({type:'LOAD_USER',status:'success',info:json});
+                dispatch({type:'LOG_IN',status:'success'});
+                dispatch({type:'SET_USER_INF',status:'success',info:json});
               });
             })
             .catch((e)=>{
-              dispatch({type:'LOAD_USER',status:'error',error:e.message})
+              dispatch({type:'SET_USER_INF',status:'error',error:e.message})
             });
         };
       },

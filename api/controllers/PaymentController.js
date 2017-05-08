@@ -4,9 +4,28 @@
  * @description :: Server-side logic for managing payments
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
-var paypal = require('paypal-rest-sdk');
+var paypal = require('paypal-rest-sdk'),
+		random = require('randomstring');
 paypal.configure(sails.config.paypal);
+var ipn = require('pp-ipn');
 
+/**
+*
+* Gets a url and parses it's parameters
+*
+*@param {string} qstr - Url that contains the query
+*@returns {object[]}  objects with the form {key : value}
+*
+*/
+function parseQuery(qstr) {
+	var query = {};
+  var a = qstr.substr(1).split('&');
+  for (var i = 0; i < a.length; i++) {
+      var b = a[i].split('=');
+      query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
+  }
+  return query;
+}
 /**
 *Creates and activates a billing plan using papal rest api.
 *
@@ -18,10 +37,8 @@ var createAndActivePayPalBillingPlan = function(next){
 			"description": "Create test plan for Regular",
 			"merchant_preferences": {
 					"auto_bill_amount": "yes",
-					"cancel_url": sail.config.appUrl+"/cancelPaypal",
 					"initial_fail_amount_action": "continue",
 					"max_fail_attempts": "2",
-					"return_url": sail.config.appUrl+"/returnPaypal",
 					"setup_fee": {
 							"currency": "USD",
 							"value": "2"
@@ -80,21 +97,34 @@ module.exports = {
 	*@param {String} token - paypal token.
 	*/
 	returnPayment : function(req,res,next){
-	    if(!req.param('token')){
-	      return res.badRequest();
-	    }
-		paypal.billingAgreement.execute(req.param('token'), {}, function (error, billingAgreement) {
+		var token = req.param('token')||req.body.payToken;
+    if(!token){
+      return res.badRequest();
+    }
+		paypal.billingAgreement.execute(token, {}, function (error, billingAgreement) {
 		    if (error) {
 		        return next(error);
 		    } else {
-            Payment.create({user : req.user.id, billingAgreement : billingAgreement.id},function(err,payment){
+					console.log(JSON.stringify(billingAgreement,null,4));
+						var amount = 0;
+						billingAgreement.plan.payment_definitions.forEach((item)=>{
+							amount+= parseFloat(item.amount.value);
+							if(item.charge_models){
+								item.charge_models.forEach((model)=>{
+									amount+= parseFloat(model.amount.value);
+								});
+							}
+						});
+						amount = parseFloat(amount.toFixed(2));
+						console.log(typeof amount);
+            Payment.create({user : req.user.id, billingAgreement : billingAgreement.id,amount:amount},function(err,payment){
               if(err){
                 return next(err);
               }
               var subscribedUntil = new Date();
               subscribedUntil.setHours(0,0,0,0);
               subscribedUntil.setMonth(subscribedUntil.getMonth() + 1);
-              User.update(req.user.id, {subscribedUntil : subscribedUntil }, function(err, updated){
+              User.update(req.user.id, {subscribedUntil : subscribedUntil,paypalInfo:billingAgreement.payer.payer_info}, function(err, updated){
                 if(err){
                   throw err;
                 }
@@ -135,17 +165,15 @@ module.exports = {
 		};
 		paypal.billingAgreement.create(billingAgreementAttributes, function (error, billingAgreement) {
 	      if (error) {
-	          return next(error);
-	      } else {
-	          for (var index = 0; index < billingAgreement.links.length; index++) {
-	              if (billingAgreement.links[index].rel === 'approval_url') {
-	                  var approval_url = billingAgreement.links[index].href;
-	                  // See billing_agreements/execute.js to see example for executing agreement
-	                  // after you have payment token
-					  return res.redirect(approval_url);
-	              }
-	          }
+	        return next(error);
 	      }
+				if (billingAgreement.links[0].rel === 'approval_url') {
+          var url = billingAgreement.links[0].href;
+          var params = parseQuery(url);
+          res.ok({payToken: params['token']});
+        }else{
+					res.badRequest();
+				}
 	  	});
 	},
 	/**
@@ -156,46 +184,44 @@ module.exports = {
 	*@param {String} token - paypal token.
 	*/
 	ipnListener : function(req,res,next){
-		if(req.body.resource.billing_agreement_id){
-		  Payment.find({billingAgreement : req.body.resource.billing_agreement_id},function(err,payment){
-		    if(err || !payment[0]){
-		      console.log(err);
-		      return res.ok();
-		    }
-		    User.findOne(payment[0].user).populate('payments').exec(function(err,user){
-		    	if(err || !user){
-				    console.log(err);
-		    		return res.ok();
-		    	}
-		 			var today = new Date();
-		 			today.setMonth(today.getMonth() + 1);
-		 			today.setHours(0,0,0,0);
-		    	if(user.subscribedUntil.valueOf() !== today.valueOf()){
-			        Payment.create({user : user.id, billingAgreement :req.body.resource.billing_agreement_id},function(err,payment){
-			            if(err){
-			              console.log(err);
-			              return res.ok();
-			            }
-			            var newDate = user.subscribedUntil;
-			            newDate.setHours(0,0,0,0);
-			            newDate.setMonth(newDate.getMonth() + 1);
-			            User.update({id : user.id}, {subscribedUntil : newDate }, function(err, updated){
-			              if(err || !updated[0]){
-			              	console.log(err);
-			                return res.ok();
-			              }
-			              return res.ok();
-			            });
-			        });
-		        }else{
-		          return res.ok();
-		        }
-		    });
-		  });
+		console.log(req.body);
+		res.ok();
+		ipn.verify(req.body, {'allow_sandbox': true}, function callback(err, mes) {
+		  if(err){
+				logger.error({message:'IPN not verified',err:err,verifMessage:mes,body:req.body});
+			}else{
+				console.log(mes);
+				console.log('IPNACCEPTED');
+				switch (req.body.txn_type) {
+					case 'recurring_payment':
+						//Find another payment with this recurring_payment_id to get the user that made this payment
+						Payment.findOne({billingAgreement:req.body.recurring_payment_id},function(err,payment){
+							if(err){
+								logger.error({message:'IPN Failed to complete',err:err,body:req.body});
+							}else{
+								if(!payment){
+									logger.error({message:'IPN listener failed to find last payment',err:err,body:req.body})
+								}else{
+									User.extendSubscription(payment.user,1,(err)=>{
+										if(err){
+											logger.error({message:'IPN Failed to extend users subscription',err:err,body:req.body});
+										}else{
+											Payment.create({user:payment.user,amount:parseFloat(req.body.amount),billingAgreement:req.body.recurring_payment_id},(err,newPayment)=>{
+												if(err){
+													logger.error({message:'IPN listener Failed to create the payment',err:err,body:req.body});
+												}
+												return ;
+											});
+										}
+									});
+								}
+							}
+						});
+						break;
 
-		}else{
-		  return res.ok();
-		}
+				}
+			}
+		});
 	},
 	/**
 	*
@@ -204,9 +230,71 @@ module.exports = {
 	*
 	*/
 	getAll: function(req,res,next){
-		Payment.find({user:req.user.id},(err,found)=>{
+		User.findOne(req.user.id).populate('payments').exec((err,user)=>{
 			if(err)return next(err);
-			res.ok({payments:found});
+			res.json({payments:user.payments});
+		});
+	},
+	/**
+	*
+	*Sends a payment throug paypal payouts API
+	*
+	*
+	*
+	*
+	*/
+	createPayout:function(req,res,next){
+		if(!req.body.amount) return res.json(409,{error:'invalid_amount'})
+		User.findOne(req.user.id,(err,user)=>{
+			if(!user.paypalInfo){
+				return res.json(400,{error:'no_pp_account'});
+			}
+			var payout = {
+		    "sender_batch_header": {
+		        "sender_batch_id": random.generate(9),
+		        "email_subject": "You have a payment"
+		    },
+		    "items": [
+		        {
+		            "recipient_type": "PAYPAL_ID",
+		            "amount": {
+		                "value": req.body.amount.toFixed(2),
+		                "currency": "USD"
+		            },
+		            "receiver": user.paypalInfo.payer_id,
+		            "note": "Pago de comisiones"
+		        }
+		    ]
+			};
+			paypal.payout.create(payout,(err,payout)=>{
+				if(err) return next({error:'unable_to_pay'});
+				Payout.create({user:user.id,payPalData:payout,amount:req.body.amount},(err,created)=>{
+					if(err) return next(err);
+					return res.ok();
+				});
+			});
+
+		});
+
+	},
+	/**
+	*
+	*Check if a user exists in my paypal Clients and gets all the info needed to send him a payment
+	*
+	*
+	*
+	*/
+	getPayoutState:function(req,res,next){
+		User.findOne(req.user.id).populate('payouts',{payed:false}).exec((err,user)=>{
+			if(err)return next(err);
+			if(user.payouts[0]){
+				return res.ok({canRequestPayout:false});
+			}else{
+				return res.ok({canRequestPayout:true});
+			}
 		});
 	}
+
+
+
 };

@@ -7,8 +7,8 @@ const payments = (state=paymentsInit,action) => {
   switch (action.type) {
     case 'GET_PAYMENTS':
       switch (action.status) {
-        case 'succes':
-          return Object.assign({},state,{entities:action.payments,loading:false});
+        case 'success':
+          return Object.assign({},state,{entities:action.payments,loading:false,lastAction:action.type});
           break;
         case 'error':
           return Object.assign({},state,{lastError:action.error,loading:false});
@@ -28,8 +28,54 @@ const bills=(state=billsInit,action)=>{
   switch (action.type) {
     case 'GET_BILLS':
       switch (action.status) {
-        case 'succes':
-          return Object.assign({},state,{entities:action.bills,loading:false});
+        case 'success':
+          return Object.assign({},state,{entities:action.bills,loading:false,lastAction:action.type});
+          break;
+        case 'error':
+          return Object.assign({},state,{lastError:action.error,loading:false});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    case 'REQUEST_BILL':
+      switch (action.status) {
+        case 'success':
+          return Object.assign({},state,{entities:[...state.entities,action.newBill],loading:false,lastAction:action.type});
+          break;
+        case 'error':
+          return Object.assign({},state,{lastError:action.error,loading:false});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    default:
+      return state;
+  }
+};
+const {payouts:payoutsInit} = GlobalState;
+const payouts = (state=payoutsInit,action)=>{
+  switch (action.type) {
+    case 'GET_PAYOUT_STATE':
+      switch (action.status) {
+        case 'success':
+          return Object.assign({},state,{loading:false,canRequest:action.canRequest,lastAction:action.type});
+          break;
+        case 'error':
+          return Object.assign({},state,{lastError:action.error,loading:false});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    case 'REQUEST_PAYOUT':
+      switch (action.status) {
+        case 'success':
+          return Object.assign({},state,{loading:false,lastAction:action.type,canRequest:false});
           break;
         case 'error':
           return Object.assign({},state,{lastError:action.error,loading:false});

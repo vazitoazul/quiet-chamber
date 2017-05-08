@@ -1,7 +1,7 @@
 var fs = require('fs');
 const finalConsBI={
   name:'Consumidor Final',
-  identifier: '9999999999',
+  identifier: '9999999999999',
   idType:'07'
 };
 module.exports={
@@ -56,7 +56,6 @@ module.exports={
       Bill.findOne(req.param('id'),(err,found)=>{
         if(err)return next(err);
         if(!found) return res.badRequest();
-        if(!found.autNumber) return res.badRequest();
         var name= found.billingInfo.name+found.createdAt+'.xml';
 				res.setHeader('Content-disposition', 'attachment; filename=' + name );
   			res.setHeader('Content-type', 'text/xml');
@@ -73,7 +72,6 @@ module.exports={
       Bill.findOne(req.param('id'),(err,found)=>{
         if(err)return next(err);
         if(!found) return res.badRequest();
-        if(!found.autNumber) return res.badRequest();
         var data={};
         data.bill=found.toSRIFormat().factura;
         data.bill.autNumber=found.autNumber;
@@ -150,11 +148,9 @@ module.exports={
           };
           newBill.user=req.user.id;
           Bill.create(newBill,(err,created)=>{
-            console.log(`err${err}`);
             if(err) return next(err);
             Payment.update(req.body.payments,{bill:created.id},(err,updatedPays)=>{
               if(err) return next(err);
-              console.log(`llega4`);
               res.ok({bill:created});
             });
           });

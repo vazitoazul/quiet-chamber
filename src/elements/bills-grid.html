@@ -1,0 +1,70 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/brainy-table/brainy-table.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/payments-actions.html">
+<dom-module id="bills-grid">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        @apply(--layout-vertical);
+      }
+      .table{
+        padding: 10px;
+        max-width: 650px;
+      }
+    </style>
+    <h4>Tus Factuaras</h4>
+    <br>
+    <paper-material elevation="1" class="table vertical">
+      <brainy-table items="[[bills]]" details-enabled page-size="5">
+        <brainy-table-column name="Número">
+          <template>[[item.secuence]]</template>
+        </brainy-table-column>
+        <brainy-table-column name="Fecha" sort-by="createdAt">
+          <template>[[item.parsedCreatedAt]]</template>
+        </brainy-table-column>
+        <brainy-table-column name="Monto">
+          <template>[[item.detail.total]]</template>
+        </brainy-table-column>
+        <template is="row-detail">
+          <div class="horizontal">
+            <div class="flex"></div>
+            <span>Obtener esta factura en formato:</span>
+            <div class="horizontal">
+              <a href="/billxml/[[item.id]]" target="_blank">
+                <paper-button raised class="primary">XML</paper-button>
+              </a>
+              <a href="/billpdf/[[item.id]]" target="_blank">
+                <paper-button raised class="primary">PDF</paper-button>
+              </a>
+            </div>
+          </div>
+        </template>
+        <div no-results>No tienes ninguna factura</div>
+      </brainy-table>
+    </paper-material>
+  </template>
+  <script>
+    Polymer({
+      is: 'bills-grid',
+      behaviors:[
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        PaymentsActionsBehavior
+      ],
+      properties:{
+        bills:{
+          type:Array,
+          statePath:'bills.entities'
+        }
+      },
+      attached:function(){
+        this.dispatch('getBills');
+      }
+    });
+  </script>
+</dom-module>

@@ -2,12 +2,27 @@
 <script>
 
 const {user:userInit} = GlobalState;
+const {info:userInfoInit} = userInit;
+const userInfo = (state=userInfoInit,action)=>{
+  switch (action.type) {
+    case 'SET_USER_INF':
+      console.log(action.info);
+      return Object.assign({},state,action.info);
+      break;
+    case 'SET_USER_BILLING_INFO':
+      console.log(action.info);
+      return Object.assign({},state,{billingInfo:action.info});
+      break;
+    default:
+      return state;
+  }
+};
 const user = (state=userInit,action)=>{
   switch (action.type) {
     case 'LOG_IN':
       switch (action.status) {
         case 'success':
-          return Object.assign({},state,{loading:false,authenticated:true});
+          return Object.assign({},state,{loading:false,authenticated:true,lastAction:action.type});
           break;
         case 'error':
           return Object.assign({},state,{loading:false,lastError:action.error});
@@ -17,52 +32,11 @@ const user = (state=userInit,action)=>{
           break;
       }
       break;
-    case 'REGISTER':
-      switch (action.status) {
-        case 'success':
-          return Object.assign({},state,{loading:false,authenticated:true});
-          break;
-        case 'error':
-          return Object.assign({},state,{loading:false,lastError:action.error});
-          break;
-        default:
-          return Object.assign({},state,{loading:true});
-          break;
-      }
-      break;
-    case 'LOAD_USER':
-      switch (action.status) {
-        case 'success':
-
-          return Object.assign({},state,{loading:false,info:action.info,authenticated:true});
-          break;
-        case 'error':
-          return Object.assign({},state,{loading:false,lastError:action.error});
-          break;
-        default:
-          return Object.assign({},state,{loading:true});
-          break;
-      }
-      break;
+    case 'SET_USER_BILLING_INFO':
     case 'SET_USER_INF':
       switch (action.status) {
         case 'success':
-          var newInfo = Object.assign({},state.info,action.info);
-          return Object.assign({},state,{loading:false,info:newInfo});
-          break;
-        case 'error':
-          return Object.assign({},state,{loading:false,lastError:action.error});
-          break;
-        default:
-          return Object.assign({},state,{loading:true});
-          break;
-      }
-      break;
-    case 'SET_USER_INCRE':
-      switch (action.status) {
-        case 'success':
-          var newInfo = Object.assign({},state.info,action.info);
-          return Object.assign({},state,{loading:false,info:newInfo});
+          return Object.assign({},state,{loading:false,info:userInfo(state.info,action),lastAction:action.type});
           break;
         case 'error':
           return Object.assign({},state,{loading:false,lastError:action.error});
@@ -82,7 +56,7 @@ const recommender = (state=recoInit,action) => {
     case 'GET_RECO':
       switch (action.status) {
         case 'success':
-          return Object.assign({},state,{loading:false,info:action.info,exists:true});
+          return Object.assign({},state,{loading:false,info:action.info,exists:true,lastAction:action.type});
           break;
         case 'error':
           return Object.assign({},state,{loading:false,lastError:action.error});
@@ -103,7 +77,7 @@ const passRecovery =(state=passInit,action)=>{
     case 'REQ_RECOVER_PASS':
       switch (action.status) {
         case 'success':
-          return Object.assign({},state,{recoveryRequested:true,loading:false});
+          return Object.assign({},state,{recoveryRequested:true,loading:false,lastAction:action.type});
           break;
         case 'error':
           return Object.assign({},state,{lastError:action.error,loading:false});
@@ -116,7 +90,7 @@ const passRecovery =(state=passInit,action)=>{
     case 'CHANGE_PASS':
       switch (action.status) {
         case 'success':
-          return Object.assign({},state,{passChanged:true,loading:false});
+          return Object.assign({},state,{passChanged:true,loading:false,lastAction:action.type});
           break;
         case 'error':
           return Object.assign({},state,{lastError:action.error,loading:false});
@@ -136,7 +110,7 @@ const mailVerification = (state=mailInit,action)=>{
     case 'REQ_MAIL_VERIF':
       switch (action.status) {
         case 'success':
-          return Object.assign({},state,{success:true,loading:false,addressUsed:action.address});
+          return Object.assign({},state,{success:true,loading:false,addressUsed:action.address,lastAction:action.type});
           break;
         case 'error':
           return Object.assign({},state,{lastError:action.error,loading:false});

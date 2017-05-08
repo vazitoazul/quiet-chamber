@@ -1,0 +1,162 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/payments-actions.html">
+<link rel="import" href="paypal-integration.html">
+<dom-module id="membership-panel">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        height: 90vh;
+      }
+      #dialog{
+        max-height: 90vh;
+        width: 50%;
+      }
+      span.value{
+        font-size: 1.3rem;
+      }
+    </style>
+    <div class="vertical">
+      <div class="horizontal">
+        <div hidden$="[[user.isSuscribed]]">
+          <paper-card  class="vertical subscription">
+            <div class="card-content flex">
+              <h3>No tienes una suscripción activa</h3>
+              <span>Encuentra todos los beneficios de suscribirte <a href="#">Aquí</a></span>
+            </div>
+            <div class="card-actions">
+              <span>Utiliza PayPal para pagar tu suscripción de manera segura</span>
+              <paypal-integration></paypal-integration>
+            </div>
+          </paper-card>
+        </div>
+        <div hidden$="[[!user.isSuscribed]]">
+          <paper-card  class="vertical subscription m-2">
+            <div class="card-content">
+              <h3>Tienes una suscripción activa</h3>
+              <span>Tu suscripción se encuentra activa hasta el: [[user.subscribedUntil]]</span>
+            </div>
+          </paper-card>
+          <paper-card class="m-2">
+            <div class="card-content">
+              <h5>Tu saldo actual es de: <b>[[user.totalBalance]]</b></h5>
+            </div>
+            <div class="card-actions horizontal">
+              <div class="vertical" hidden="[[state.canRequest]]">
+                <span class="text-accent">Ya has solicitado un cobro en las últimas 24 horas. Debes esperar para solicitar uno nuevamente.</span>
+              </div>
+              <div class="vertical" hidden="[[!state.canRequest]]">
+                <span>Pudes solicitar una transferencia hacia tu cuenta de paypal aquí</span>
+                <paper-button raised on-click="openDialog">Cobrar</paper-button>
+              </div>
+            </div>
+          </paper-card>
+        </div>
+      </div>
+    </div>
+    <paper-dialog id="dialog">
+      <h2>Cobrar</h2>
+      <div class="vertical">
+        <span>Aquí puedes enviar tu saldo hacia tu cuenta de PayPal</span>
+        <span>Tu saldo actual es de [[user.totalBalance]]</span>
+        <div class="vertical">
+          <paper-input label="Monto a retirar" value="{{amount}}" id="amountInput" auto-validate allowed-pattern="[0-9.]"></paper-input>
+          <div class="horizontal">
+            <b class="flex">Valor de la transferencia:</b>
+            <span class="text-secondary value">[[amount]]$</span>
+          </div>
+          <div class="horizontal">
+            <b class="flex">Costo por la transferencia:</b>
+            <span class="text-secondary value">+[[tCost]]$</span>
+          </div>
+          <div class="horizontal">
+            <b class="flex ">Total:</b>
+            <span class="text-secondary value">[[finalValue]]$</span>
+          </div>
+        </div>
+      </div>
+      <div class="vertical">
+        <span>El costo por la transferencia se debe al uso de la plataforma de PayPal</span>
+        <span><b>Nota:</b> Recuerda que el pago se toma hasta 24 horas en procesarse. No podrás solicitar otro cobro en este tiempo.</span>
+      </div>
+      <div class="horizontal">
+        <div class="flex">
+
+        </div>
+        <paper-button raised class="primary" on-click="requestPayout">Cobrar</paper-button>
+      </div>
+
+
+    </paper-dialog>
+    <paper-toast id="toast" ></paper-toast>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'membership-panel',
+      behaviors:[
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        PaymentsActionsBehavior
+      ],
+      properties:{
+        state:{
+          type:Object,
+          statePath:'payouts',
+          onChange:'_payoutChange'
+        },
+        user:{
+          type:Object,
+          statePath:'user.info'
+        },
+        amount:{
+          type:Object,
+          observer:'_getAmounts',
+          value:0
+        }
+      },
+      showMessage:function(text,duration){
+        this.$.toast.text=text;
+        this.$.toast.duration=duration||3000;
+        this.$.toast.open();
+      },
+      attached:function(){
+        this.$.dialog.fitInto=this;
+        this.$.toast.fitInto=this;
+        this.dispatch('getPayoutState');
+      },
+      requestPayout:function(amount){
+        if(this.user.totalBalance<=this.finalValue){
+          this.showMessage('No tienes suficiente dinero en tu cuenta para realizar la transacción.');
+          return;
+        }
+        this.dispatch('requestPayout',{amount:this.finalValue,});
+      },
+      _payoutChange:function(newVal,oldVal){
+        console.log(newVal);
+      },
+      _getAmounts:function(newVal){
+        if(!newVal){
+          this.tCost=0;
+          this.finalValue=0;
+        };
+
+        this.tCost=newVal*0.02
+        if(this.tCost>=20){
+          this.tCost=20;
+        }
+        this.finalValue=newVal-(-this.tCost);
+      },
+      openDialog:function(){
+        this.$.dialog.open();
+      }
+
+    });
+  </script>
+</dom-module>

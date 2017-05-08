@@ -352,6 +352,78 @@ describe('UserController',function(){
           .end(done);
       });
     });
+    describe('Update billing info',function(){
+      currentUser = request.agent('http://localhost:9000');
+      before(function(done) {
+        //this user is going to be used all accross this tests
+         currentUser
+           .post('/auth/local')
+           .send({identifier : 'currentUser@dinabun.com',password : 'testtest'})
+           .end(done);
+      });
+
+      it('should return 409 when invalid info is provided (Missing parameters)',function(done){
+          currentUser
+            .post('/updatebillinginfo')
+            .send({identifier:'0401584909',name:'Pepe Trueno'})
+            .expect(409)
+            .end(done);
+      });
+      it('should return 409 when invalid info is provided (wrong id number)',function(done){
+          currentUser
+            .post('/updatebillinginfo')
+            .send({identifier:'123123123',name:'Pepe Trueno',idType:'05'})
+            .expect(409)
+            .end(done);
+      });
+      it('should return 409 when invalid info is provided (wrong idType for finalConsumer)',function(done){
+          currentUser
+            .post('/updatebillinginfo')
+            .send({identifier:'0401584909',name:'Pepe Trueno',idType:'07'})
+            .expect(409)
+            .end(done);
+      });
+      it('should return 200 when propper info ins sent (Natural person Case) ',function(done){
+          currentUser
+            .post('/updatebillinginfo')
+            .send({identifier:'0401584909',name:'Pepe Trueno',idType:'05'})
+            .expect(200)
+            .expect((res)=>{
+              res.body.should.have.property('info');
+            })
+            .end(done);
+      });
+      it('should return 200 when propper info ins sent (RUC Case) ',function(done){
+          currentUser
+            .post('/updatebillinginfo')
+            .send({identifier:'0401584909001',name:'Pepe Trueno Company',idType:'04'})
+            .expect(200)
+            .expect((res)=>{
+              res.body.should.have.property('info');
+            })
+            .end(done);
+      });
+      it('should return 200 when propper info ins sent (Passport Case) ',function(done){
+          currentUser
+            .post('/updatebillinginfo')
+            .send({identifier:'EC1232187656',name:'Peter Thunder',idType:'06'})
+            .expect(200)
+            .expect((res)=>{
+              res.body.should.have.property('info');
+            })
+            .end(done);
+      });
+      it('should return 200 when propper info ins sent (Final consumer Case) ',function(done){
+          currentUser
+            .post('/updatebillinginfo')
+            .send({identifier:'9999999999999',name:'Pepe Trueno',idType:'07'})
+            .expect(200)
+            .expect((res)=>{
+              res.body.should.have.property('info');
+            })
+            .end(done);
+      });
+    });
 
 
   });

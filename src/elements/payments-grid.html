@@ -1,23 +1,115 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/brainy-table/brainy-table.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/global-store.html">
 <link rel="import" href="../redux/actions/payments-actions.html">
+<link rel="import" href="payment-info.html">
 
 <dom-module id="payments-grid">
   <template>
     <style include="shared-styles">
       :host {
         display: block;
+        @apply(--layout-vertical);
+      }
+      .table{
+        padding: 10px;
+        max-width: 650px;
+      }
+      div.select-payments{
+        @apply(--layout-self-end);
+      }
+      #dialog{
+        max-height: 90vh;
+        padding-top: 120px;
+      }
+      div.loading-overlay{
+        height: 98%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        background-color: rgba(0,0,0,0.2);
       }
     </style>
-    <template is="dom-repeat" items="[[payments]]">
-      <div class="">
-        [[item.createdAt]]
+    <div class="horizontal">
+      <h4>Tus pagos</h4>
+    </div>
+
+    <paper-material class="table vertical">
+      <div class="horizontal">
+        <paper-tabs selected="{{selectedFilter}}" hidden$="[[billing]]">
+          <paper-tab>Todos</paper-tab>
+          <paper-tab>Sin facturar</paper-tab>
+          <paper-tab>Facturados</paper-tab>
+        </paper-tabs>
       </div>
-    </template>
+      <brainy-table items="[[payments]]" page-size="5" id="table">
+        <brainy-table-column name="Fecha" sort-by="createdAt" width="100px">
+          <template>[[item.parsedCreatedAt]]</template>
+        </brainy-table-column>
+        <brainy-table-column name="Monto" sort-by="amount">
+          <template>[[item.amount]]</template>
+        </brainy-table-column>
+        <brainy-table-column hidden filter-by="hasBill" filter-value="[[billedFilter]]">
+          <template>
+          </template>
+        </brainy-table-column>
+        <brainy-table-column name="Facturada" width="100px">
+          <template>
+            <div hidden$="[[!item.hasBill]]">Facturado</div>
+            <div hidden$="[[item.hasBill]]">Sin facturar</div>
+          </template>
+        </brainy-table-column>
+        <brainy-table-column hidden="[[!billing]]" align-right width="100px">
+          <template>
+            <paper-checkbox on-change="_addForBilling" checked="{{item.selected}}">Agregar</paper-checkbox>
+          </template>
+        </brainy-table-column>
+        <div no-results>No has realizado ningún pago</div>
+      </brainy-table>
+      <br>
+      <div class="horizontal">
+        <div class="flex"></div>
+        <div hidden$="[[!billing]]" class="text-accent select-payments">Selecciona los pagos a facturar</div>
+        <paper-button class="accent" raised$="[[billing]]" on-click="billingCallback">
+          <div hidden$="[[billing]]">Facturar</div>
+          <div hidden$="[[!billing]]">Terminar</div>
+        </paper-button>
+      </div>
+    </paper-material>
+    <paper-dialog id="dialog" on-iron-overlay-canceled="closeDialog" on-iron-overlay-closed="closeDialog">
+      <h2 class="text-accent">Facturar</h2>
+      <paper-dialog-scrollable class="horizontal ">
+        <div class="vertical p-2">
+          <h2>Resumen</h2>
+          <br>
+          <div class="horizontal">
+            Estás a punto de facturar [[selectedPayments.length]] pagos por un total de : [[selectedPaymentsTotal]]
+          </div>
+          <div class="flex">
+
+          </div>
+          <div class="">
+            <paper-button class="accent" dialog-dismiss>Cancelar</paper-button>
+          </div>
+        </div>
+        <div class="vertica p-2">
+          <h2>Datos para la factura</h2>
+          <payment-info button-text="Guardar y Facturar" on-info-updated="getBill"></payment-info>
+        </div>
+      </paper-dialog-scrollable>
+      <div class="loading-overlay vertical center" hidden="[[!billsLoading]]">
+          <paper-spinner active></paper-spinner>
+      </div>
+    </paper-dialog>
   </template>
   <script>
     Polymer({
@@ -30,15 +122,116 @@
       properties:{
         payments:{
           type:Array,
-          statePath:'payments.entities',
-          observer:'_paymentsChange'
+          statePath:'payments.entities'
+        },
+        billsLoading:{
+          type:Boolean,
+          statePath:'bills.loading',
+          observer:'_billsLoadChange'
+        },
+        billsLastError:{
+          type:Boolean,
+          statePath:'bills.lastError'
+        },
+        billsLastAction:{
+          type:String,
+          statePath:'bills.lastAction'
+        },
+        billing:{
+          type:Boolean,
+          value:null
+        },
+        billedFilter:{
+          type:Boolean,
+          value:null,
+        },
+        selectedFilter:{
+          type:String,
+          observer:'_filterChange',
+          value:0
+        },
+        selectedPayments:{
+          type:Array,
+          value:[]
+        },
+        selectedPaymentsTotal:{
+          type:Number,
+          calculated:'_getSelectedPaymentsTot'
         }
       },
       attached:function(){
         this.dispatch('getPayments');
+        this.$.dialog.fitInto=this;
+        this.$.table.notifyResize();
       },
-      _paymentsChange:function(lv,nv){
-        console.log(lv,nv);
+      _addForBilling:function(e){
+        var item = e.model.__data__.item;
+        if(!item.selected) return;
+        this.push('selectedPayments',item);
+      },
+      billingCallback:function(){
+        if(this.billing){
+          if(this.selectedPayments.length>0){
+            this.$.dialog.open();
+          }else{
+            this.billing=false;
+            this.selectedFilter=0;
+            this.set('selectedPayments',[]);
+          }
+        }else{
+          this.$.table.render();
+          this.billing=true;
+          this.selectedFilter=1;
+        }
+      },
+      _filterChange:function(newValue){
+        switch (newValue) {
+          case 0:
+            this.billedFilter=null;
+            break;
+          case 1:
+            this.billedFilter=false;
+            break;
+          case 2:
+            this.billedFilter=true;
+            break;
+          default:
+            this.billedFilter=null;
+        }
+      },
+      _getSelectedPaymentsTot:function(arr){
+        var tot=0;
+        arr.forEach(function(item){
+          tot+=tiem.amount;
+        });
+        return tot;
+      },
+      _billsLoadChange:function(newVal,oldVal){
+        if(!newVal&&oldVal){
+          if(this.billsLastAction==='REQUEST_BILL'){
+            this.$.dialog.close();
+            this.dispatch('getPayments');
+            this.fire('bill-requested');
+          }
+        }
+      },
+      getBill:function(){
+        var payments=[];
+        this.selectedPayments.forEach(function(item){
+          payments.push(item.id);
+        });
+        this.dispatch('requestBill',payments);
+      },
+      closeDialog:function(){
+        //force all the checkboxes to be unchecked
+        this.payments.forEach((item,index)=>{
+          this.set(['payments',index,'selected'],true);
+          this.set(['payments',index,'selected'],false);
+        });
+        //reset selected payments
+        this.set('selectedPayments',[]);
+        this.billing=false;
+        this.selectedFilter=0;
       }
     });
   </script>

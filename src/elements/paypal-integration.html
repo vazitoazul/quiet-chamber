@@ -1,38 +1,97 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
 <dom-module id="paypal-integration">
-  <script src="https://www.paypalobjects.com/api/checkout.js" async></script>
   <template>
-    <div id="paypalDiv"></div>
+    <div id="ppbtn"></div>
   </template>
   <script>
+    function handleReqError(response) {
+      if (response.ok) {
+        return Promise.resolve(response)
+      }
+      return response.json().then(json => {
+        const error = new Error(json.error || response.statusText)
+        return Promise.reject(Object.assign(error, { response }))
+      })
+    };
     Polymer({
       is : 'paypal-integration',
 
       properties : {
-        buttonAction : {
-          type : String,
+        button : {
+          type : Object,
           value : '/checkoutPayment'
         }
       },
+      attached:function(){
+        var oScript = document.createElement("script");
+        oScript.type = "text\/javascript";
+        this.appendChild(oScript);
+        oScript.addEventListener('load',(event)=>{
+          this._setUpButton(this.$.ppbtn);
+        });
+        oScript.src = 'https://www.paypalobjects.com/api/checkout.js';
+      },
+      _setUpButton : function(button){
+        window.paypal.Button.render({
 
-      attached : function(){
-        this.payA = document.createElement('form');
-        this.payA.style.position = 'absolute';
-        this.payA.method = 'POST'
-        var position = this.$.paypalDiv.getBoundingClientRect();
-        this.payA.id = 'myContainer';
-        this.payA.action = this.buttonAction;
-        this.payA.style.left = (position.left-1) + 'px';
-        this.payA.style.top = (position.top+1) + 'px';
-        this.payA.locale = 'ES';
-        this.payA.onClose = 'onClose';
-        document.body.appendChild(this.payA);
-        window.paypalCheckoutReady = function () {
-          paypal.checkout.setup('YFRS3M7MDRHTW', {
-              environment: 'sandbox',
-              container: 'myContainer',
-              locale : 'ES'
-            });
-          };
+            env: 'sandbox',
+
+            commit: true, // Show a 'Pay Now' button
+            style: {
+                label: 'checkout', // checkout || credit
+                size:  'small',    // tiny | small | medium
+                shape: 'pill',     // pill | rect
+                color: 'blue'      // gold | blue | silver
+            },
+            payment: function(resolve,reject) {
+                var request = new Request(
+                  '/checkoutPayment',{
+                    method:'POST',
+                    headers: new Headers({
+                      'Content-Type': 'application/json'
+                    }),
+                    credentials:'include'
+                  });
+                  window.fetch(request)
+                     .then(handleReqError)
+                     .then((res)=>{
+                       res.json().then((json)=>{
+                         console.log(json);
+                         resolve(json.payToken);
+                       });
+                     })
+                     .catch((err)=>{
+                       console.log(err);
+                       reject(err);
+                   });
+            },
+            onAuthorize: function(data, actions) {
+                var body={
+                  payToken:data.paymentID,
+                  payerID:data.payerID
+                }
+                var request = new Request(
+                  '/returnPaypal',{
+                    method:'POST',
+                    headers: new Headers({
+                      'Content-Type': 'application/json'
+                    }),
+                    body:JSON.stringify(body),
+                    credentials:'include'
+                  });
+                window.fetch(request)
+                       .then(handleReqError)
+                       .then((res)=>{
+                         console.log('yay!')
+                       })
+                       .catch((err)=>{
+                         console.log('nay!');
+                       });
+            }
+
+        },this.$.ppbtn);
+
       },
 
       detached : function(){

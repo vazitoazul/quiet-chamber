@@ -24,7 +24,8 @@
       passRecovery:passRecovery(state.passRecovery,action),
       mailVerification:mailVerification(state.mailVerification,action),
       bills:bills(state.bills,action),
-      payments:payments(state.payments,action)
+      payments:payments(state.payments,action),
+      payouts:payouts(state.payouts,action)
     };
   };
   const globalStore = Redux.createStore(

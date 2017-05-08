@@ -13,7 +13,12 @@
           .then(handleReqError)
           .then((response)=>{
             response.json().then((json)=>{
-              dispatch({type:'GET_PAYMENTS',status:'success',payments:json.payments});
+              var payments = json.payments.map((item)=>{
+                item.hasBill= item.bill ? true : false;
+                item.parsedCreatedAt = (new Date(item.createdAt)).toFormat('DD-MM-YYYY');
+                return item;
+              });
+              dispatch({type:'GET_PAYMENTS',status:'success',payments:payments});
             });
           })
           .catch((e)=>{
@@ -33,15 +38,85 @@
           .then(handleReqError)
           .then((response)=>{
             response.json().then((json)=>{
-
-              dispatch({type:'GET_BILLS',status:'success',bills:json.bills});
+              var bills = json.bills.map((item)=>{
+                item.parsedCreatedAt = (new Date(item.createdAt)).toFormat('DD-MM-YYYY');
+                item.detail.total = item.detail.total.toFixed(2);
+                return item;
+              });
+              dispatch({type:'GET_BILLS',status:'success',bills:bills});
             });
           })
           .catch((e)=>{
             dispatch({type:'GET_BILLS',status:'error',error:e.message});
           });
         }
+      },
+      requestBill:function(payments){
+        return function(dispatch){
+          dispatch({type:'REQUEST_BILL'});
+          let request = new Request('/requestBill',{
+            method:'POST',
+            headers: standardHeaders,
+            credentials: 'include',
+            body:JSON.stringify({payments:payments})
+          });
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            response.json().then((json)=>{
+              json.bill.parsedCreatedAt = (new Date(json.bill.createdAt)).toFormat('DD-MM-YYYY');
+              json.bill.detail.total = json.bill.detail.total.toFixed(2);
+              dispatch({type:'REQUEST_BILL',status:'success',newBill:json.bill});
+            });
+          })
+          .catch((e)=>{
+            dispatch({type:'REQUEST_BILL',status:'error',error:e.message});
+          });
+        }
+      },
+      getPayoutState:function(next){
+        return function(dispatch){
+          dispatch({type:'GET_PAYOUT_STATE'});
+          let request = new Request('/checkPayout',{
+            method:'POST',
+            headers: standardHeaders,
+            credentials: 'include',
+          });
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            response.json().then((json)=>{
+              dispatch({type:'GET_PAYOUT_STATE',status:'success',canRequest:json.canRequestPayout});
+            });
+          })
+          .catch((e)=>{
+            dispatch({type:'GET_PAYOUT_STATE',status:'error',error:e.message});
+          });
+        }
+      },
+      requestPayout:function(amount){
+        return function(dispatch){
+          dispatch({type:'REQUEST_PAYOUT'});
+          let request = new Request('/requestPayout',{
+            method:'POST',
+            headers: standardHeaders,
+            credentials: 'include',
+            body:JSON.stringify({amount:amount})
+          });
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            response.json().then((json)=>{
+              dispatch({type:'REQUEST_PAYOUT',status:'success'});
+            });
+          })
+          .catch((e)=>{
+            dispatch({type:'REQUEST_PAYOUT',status:'error',error:e.message});
+          });
+        }
       }
+
+
     }
   };
 </script>

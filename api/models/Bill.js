@@ -236,6 +236,7 @@ module.exports={
 					if(err) return next(err);
           if(received){
             bill.sent=true;
+            bill.signedVersion=signed;
             bill.save((err)=>{
               if(err)return next(err);
               next();

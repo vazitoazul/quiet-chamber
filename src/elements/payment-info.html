@@ -1,0 +1,120 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/user-actions.html">
+<dom-module id="payment-info">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        max-width: 400px;
+      }
+    </style>
+    <form is="iron-form" id="form" class="vertical">
+      <span>Tipo de identificación</span>
+      <paper-radio-group id="idType" selected="{{info.idType}}" attr-for-selected="value">
+	  		<paper-radio-button id="ci" value="05" name="idType">Cédula Ecuatoriana</paper-radio-button>
+	  		<paper-radio-button id="ps" value="06" name="idType">Pasaporte</paper-radio-button>
+	  		<paper-radio-button id="rc" value="04" name="idType">RUC</paper-radio-button>
+	  		<paper-radio-button id="cf" value="07" name="idType">Consumidor Final</paper-radio-button>
+  		</paper-radio-group>
+      <paper-input id="names" name="name" label="Nombre" value="[[info.name]]" error-message="Campo obligatorio" required pattern="^[a-zA-Z á-úÁ-Ú]*$" disabled="[[finalConsumer]]"></paper-input>
+  		<paper-input id="id" name="identifier" label="Cédula/RUC/Pasaporte" value="[[info.identifier]]"  error-message="Ingresa una identificación válida" required pattern="[[pattern]]" disabled="[[finalConsumer]]"></paper-input>
+  		<paper-input id="address" name="address" label="Dirección" value="[[info.address]]" pattern="^[a-zA-Z á-úÁ-Ú0-9.,-]*$" disabled="[[finalConsumer]]"></paper-input>
+  		<paper-input name="email" label="Email" value="[[info.email]]" disabled="[[finalConsumer]]"></paper-input>
+    </form>
+    <div class="horizontal">
+      <div class="flex"></div>
+      <paper-button raised on-click="saveInfo" class="accent">[[buttonText]]</paper-button>
+      <paper-spinner active hidden$="[[!event.loading]]"></paper-spinner>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'payment-info',
+      behaviors:[
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        UserActionsBehavior
+      ],
+      properties:{
+        info:{
+          type:Object,
+          statePath:'user.info.billingInfo'
+        },
+        event:{
+          type:Object,
+          statePath:'user',
+          observer:'_eventChange'
+        },
+        lastError:{
+          type:String,
+          statePath:'user.lastError'
+        },
+        pattern:{
+          type:String
+        },
+        finalConsumer:{
+          type:Boolean,
+          value:false
+        },
+        buttonText:{
+          type:String,
+          reflectToAttribute:true
+        }
+      },
+      observers:[
+        '_idTypeChange(info.idType)'
+      ],
+      _idTypeChange:function(type){
+        if(type==='05'){
+  				this.pattern='^([0-9]){10}$';
+  			}else if(type==='06'){
+  				this.pattern='^([0-9A-Za-z]){6,18}$';
+  			}else if(type==='04'||type==='07'){
+  				this.pattern='^([0-9]){13}$';
+  			}
+  			if(type=='07'){
+          this.finalConsumer=true;
+  				this.$.names.value = 'Consumidor final';
+  				this.$.id.value = '9999999999999';
+  			}else{
+          this.finalConsumer=false;
+  				if(type==this.info.idType){
+  					this.$.names.value = this.info.name;
+  					this.$.id.value = this.info.identifier;
+  					this.$.address.value = this.info.address;
+  				}else{
+  					this.$.form.reset();
+  				}
+        }
+  		},
+      _eventChange:function(newVal,lastVal){
+        if(!lastVal) return;
+        if(!newVal.loading&&lastVal.loading){
+          if(newVal.lastAction==='SET_USER_BILLING_INFO'){
+            this.fire('info-updated');
+          }
+        }
+      },
+      saveInfo:function(){
+        if(this.$.form.validate()){
+          var serialized=this.$.form.serialize();
+          if(serialized.idType==='07'){
+            serialized.name = 'Consumidor final';
+    				serialized.identifier = '9999999999999';
+          }
+          this.dispatch('updateUserBillingInfo',serialized);
+        }
+
+      }
+    });
+  </script>
+</dom-module>

@@ -40,6 +40,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../elements/business-form.html">
 <link rel="import" href="../elements/business-section.html">
 <link rel="import" href="../elements/payments-grid.html">
+<link rel="import" href="../elements/bills-grid.html">
+<link rel="import" href="../elements/membership-panel.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/global-store.html">
 <link rel="import" href="../redux/actions/user-actions.html">
@@ -64,7 +66,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         width: 18rem;
       }
       div#paypalDiv{
-        height: 150px;
+        height: 90px;
+        padding: 10px;
+      }
+      paper-card.subscription{
+        width: 300px;
       }
     </style>
     <app-location route="{{route}}"></app-location>
@@ -108,41 +114,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </app-header-layuout>
       <iron-pages selected='[[section]]' attr-for-selected="section">
         <section section="membership">
-          <div class="vertical">
-            <div class="horizontal ">
-              <paper-card hidden$="[[user.isSuscribed]]" class="flex vertical subscription">
-                <div class="card-content">
-                  <h3>No tienes una suscripción activa</h3>
-                  <span>Encuentra todos los beneficios de suscribirte <a href="#">Aquí</a> </span>
-                </div>
-                <div class="card-actions">
-                  <span>Utiliza PayPal para pagar tu suscripción de manera segura</span>
-                  <div id="paypalDiv"></div>
-                </div>
-              </paper-card>
-              <paper-card hidden$="[[!user.isSuscribed]]" class="flex vertical subscription">
-                <div class="card-content">
-                  <h3>Tienes una suscripción activa</h3>
-                  <span>Tu suscripción se encuentra activa hasta el: [[user.subscribedUntil]]</span>
-                </div>
-              </paper-card>
-            </div>
-          </div>
-
-          <div class="card">
-
-            <div id="subscribedUntilDiv" hidden>
-              [[user.parsedSubscribedUntil]]
-            </div>
-          </div>
+          <membership-panel></membership-panel>
         </section>
         <section section="payments">
           <div class="vertical">
             <div class="horizontal">
-              <payments-grid></payments-grid>
+              <payments-grid class="flex"></payments-grid>
             </div>
             <div class="horizontal">
-              <h3>Aqui van las facturas</h3>
+              <bills-grid class="flex"></bills-grid>
             </div>
           </div>
         </section>
@@ -303,23 +283,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.toast.open();
       },
 
-      currentUserHandler : function(e){
-        var user = e.detail.__data__.response;
-        console.log(user);
-        user.subscribedUntil = user.subscribedUntil ? new Date(user.subscribedUntil): 0;
-        if(user){
-          this.set('user',user);
-          if(this.routeData.section === 'undefined'){
-            this.set('route.path','acco/userInfo');
-            return ;
-          }
-          this.set('section',null);
-          this.set('section',this.routeData.section ? this.routeData.section : 'userInfo');
-        }else{
-          this.fire('route-change',{route : 'forbidden'});
-        }
-      },
-
       googleApiReady : function(e){
         var countrySearch = new google.maps.places.Autocomplete(this.$.countryInput.inputElement,{types : ['(regions)']});
         var that = this;
@@ -340,10 +303,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             that.set('countryCode',countryCode);
           }
         });
-      },
-
-      currentUserErrorHandler : function(e){
-        this.fire('route-change',{route : 'forbidden'})
       },
 
       updateIntlCredential : function(e){
@@ -367,15 +326,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _sectionChanged : function(){
         var self = this;
         if(!this.checkIntialCredential())return;
-        Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
-          Polymer.dom(self.$.paypalDiv).removeChild(node);
-        });
         switch(this.section){
           case 'membership':
-            if(!this.user.isSuscribed){
-                this.paypal = document.createElement('paypal-integration');
-                this.$.paypalDiv.appendChild(this.paypal);
-            }
           break;
           case 'business':
             this.$.userBusinessRequester.generateRequest();

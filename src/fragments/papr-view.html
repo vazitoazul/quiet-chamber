@@ -2,6 +2,8 @@
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../shared-styles.html">
 
 <dom-module id="papr-view">
@@ -10,6 +12,12 @@
       :host {
         display: block;
         padding: 10px 20px;
+        @apply(--layout-vertical);
+        height: 100vh;
+        background-color: var(--primary-background-color);
+      }
+      a.link{
+        @apply(--layout-self-end);
       }
     </style>
     <iron-ajax
@@ -20,9 +28,20 @@
       id="currentUserRequester"
       on-error="currentUserErrorHandler"></iron-ajax>
     <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
-    <div class="row">
-      <h4 class="col-sm-10">[[localize('pay_done')]]</h4>
-      <h5 class="col-sm-10">[[localize('subscribed_until','start', subscribedUntil)]]</h5>
+    <div class="vertical center flex">
+      <paper-card class="vertical">
+        <div class="card-content flex">
+          <h4>[[localize('pay_done')]]</h4>
+          <h5 class="text-accent">[[localize('subscribed_until','start', subscribedUntil)]]</h5>
+        </div>
+        <div class="card-actions vertical">
+          <a href="/acco/membership" class="link">
+            <paper-button raised class="primary">Regresar a mi Cuenta</paper-button>
+          </a>
+
+        </div>
+      </paper-card>
+
     </div>
   </template>
 
@@ -45,25 +64,19 @@
               return {
                 'en' : {
                   'pay_done' : 'Your payment has been completed succesfully',
-                  'subscribed_until' : 'you are subscribed until { start , date , short}'
+                  'subscribed_until' : 'You are subscribed until { start , date , short}'
                 },
                 'es' : {
                   'pay_done' : 'Tu pago se ha completado exitosamente',
-                  'subscribed_until' : 'estás subscrito hasta { start , date , short}'
+                  'subscribed_until' : 'Tu subscrición dura hasta el: { start , date , short}'
                 }
               }
             }
           },
-          
+
           subscribedUntil : {
             type : Date
           }
-      },
-
-      ready : function(e){
-      	setTimeout(function(e){
-      		window.close();
-      	},6000);
       },
 
       currentUserHandler : function(e){

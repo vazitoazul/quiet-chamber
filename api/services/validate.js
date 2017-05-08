@@ -45,7 +45,7 @@ module.exports={
     if(!info)return false;
     if(info.name&&info.identifier&&info.idType){
       if(info.idType==='04'||info.idType==='05'||info.idType==='06'||info.idType==='07'){
-        if(info.idType==='07'&&info.identifier!=='9999999999'){
+        if(info.idType==='07'&&info.identifier!=='9999999999999'){
           return false;
         }
         if(info.idType==='05'&&!verificarCedula(info.identifier)){
