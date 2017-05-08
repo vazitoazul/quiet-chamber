@@ -46,6 +46,30 @@
           });
         }
       },
+      loadRecommender:function(id){
+        return function(dispatch){
+          dispatch({type:'GET_RECO'});
+          let request = new Request(
+            '/getRecommenderUser',
+            {
+              method:'POST',
+              headers:standardHeaders,
+              credentials: 'include',
+              body: JSON.stringify(id)
+            }
+          );
+          window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              response.json().then((json)=>{
+                dispatch({type:'GET_RECO',status:'success',info:json.recommender});
+              });
+            })
+            .catch((e)=>{
+              dispatch({type:'GET_RECO',status:'error',error:e.message})
+            });
+        };
+      },
       updateUserRecommender : function(recommender){
         return function(dispatch){
           dispatch({type:'SET_USER_RECO'});
@@ -59,7 +83,7 @@
           window.fetch(request)
           .then(handleReqError)
           .then((response)=>{
-            dispatch({type:'SET_USER_RECO',status:'success'});
+            dispatch({type:'SET_USER_RECO',status:'success',info:this.getState().recommender.info});
           })
           .catch((e)=>{
             dispatch({type:'SET_USER_RECO',status:'error',error:e.message});

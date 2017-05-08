@@ -1,0 +1,22 @@
+<script>
+  const {search:searchInit} = GlobalState;
+  const search = (state=searchInit,action) => {
+    switch(action.type){
+      case 'SCH_POSTS':
+        switch (action.status) {
+          case 'success':
+            return Object.assign({},state,{lastResult: action.results});
+            break;
+          case 'error':
+            return Object.assign({},state,{lastError:action.error,status:'error'});
+            break;
+          default:
+            return Object.assign({},state,{status:'loading'});
+            break;
+        }
+        break;
+      default :
+      return state;
+    }
+  }
+</script>

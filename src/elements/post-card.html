@@ -5,30 +5,68 @@
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../shared-styles.html">
 <dom-module id="post-card">
-  <style include="app-grid-style shared-styles"></style>
+  <style include="app-grid-style shared-styles">
+    .card-ligth {
+      color: var(--paper-grey-600);
+      font-size: 80%;
+    }
+    :host {
+      margin-top : 1rem;
+    }
+    card-header{
+      font-size: 110%;
+      @apply(--paper-font-headline);
+    }
+    paper-card {
+      width: 100%;
+    }
+  </style>
   <template>
     <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
-      <paper-card>
-        <div class="card-content">
-          <div class="">[[localize('description')]]</div><div class="">[[post.description]]</div>
-          <a href="/acco/business/[[post.business]]/post/[[post.id]]"><paper-icon-button icon="close"></paper-icon-button></a>
-          <template is="dom-if" if="[[franchise]]">
-            franchise
-          </template>
-          <template is="dom-if" if="[[investment]]">
-            investment
-          </template>
-          <template is="dom-if" if="[[donation]]">
-            donation
-          </template>
-          <template is="dom-if" if="[[advertising]]">
-            advertising
-          </template>
-          <template is="dom-if" if="[[job]]">
-            job
-          </template>
-        </div>
-      </paper-card>
+    <template is="dom-if" if="[[!search]]">
+      <template is="dom-if" if="[[complete]]">
+        <paper-card>
+          <div class="card-content">
+            <div class="card-header row">
+              <h5>[[post.name]]</h5>
+            </div>
+            <div><span class="card-ligth">[[localize('type')]]</span><h6>[[localize('post_type','type',post.type)]]</h6></div>
+            <div><span class="card-ligth">[[localize('description')]]</span><h6>[[post.description]]</h6></div>
+            <div><span class="card-ligth">[[localize('amount')]]</span><h6>$[[post.amount]]</h6></div>
+            <!-- <template is="dom-if" if="[[franchise]]">
+              franchise
+            </template>
+            <template is="dom-if" if="[[investment]]">
+              investment
+            </template>
+            <template is="dom-if" if="[[donation]]">
+              donation
+            </template>
+            <template is="dom-if" if="[[advertising]]">
+              advertising
+            </template>
+            <template is="dom-if" if="[[job]]">
+              job
+            </template> -->
+          </div>
+          <div class="card-actions">
+            <a href="/acco/business/[[post.business]]/post/[[post.id]]"><paper-button class="primary">[[localize('edit')]]</paper-button></a>
+          </div>
+        </paper-card>
+      </template>
+      <template is="dom-if" if="[[!complete]]">
+        <paper-card class="uncomplete">
+          <div class="card-content">
+            <div class="card-header">
+              [[post.name]]
+            </div>
+            <div><span class="card-ligth">[[localize('type')]]</span><h6>[[localize('post_type','type',post.type)]]</h6></div>
+            <div><span class="card-ligth">[[localize('amount')]]</span><h6>$[[post.amount]]</h6></div>
+          </div>
+        </paper-card>
+      </template>
+    </template>
+
   </template>
   <script>
     Polymer({
@@ -42,30 +80,42 @@
         post : {
           type : Object,
         },
+        complete : {
+          type : Boolean,
+          value : false
+        },
+        search : {
+          type : Boolean,
+          value : false
+        },
         resources : {
           value :  function(){
             return  {
               'en' : {
                 'name' : 'name',
                 'type' : 'type',
-                'post_type' : '{type, select, f {franchise} d {donation} i {investment} j {job} a {advertising} }',
+                'post_type' : '{type, select, f {Franchise} d {Donation} i {Investment} j {Job} a {Advertising} }',
                 'labels' : 'labels',
                 'telephones' : 'telephones',
                 'number' : 'Phone number {number}',
                 'email' : 'Email',
+                'amount' : 'amount',
                 'mobile' : 'Mobile phone',
-                'description' : 'Description'
+                'description' : 'Description',
+                'edit' : 'Edit'
               } ,
               'es' : {
                 'name' : 'nombre',
                 'type' : 'tipo',
-                'post_type' : '{type, select, f {franquicia} d {donación} i {inversión} j {trabajo} a {publicidad} }',
+                'post_type' : '{type, select, f {Franquicia} d {Donación} i {Inversión} j {Trabajo} a {Publicidad} }',
                 'labels' : 'etiquetas',
                 'telephones' : 'teléfonos',
                 'number' : 'Teléfono {number}',
                 'email' : 'Correo electrónico',
                 'mobile' : 'Teléfono celular',
-                'description' : 'Descripccion'
+                'description' : 'Descripccion',
+                'edit' : 'Editar',
+                'amount' : 'monto',
               }
             }
           }

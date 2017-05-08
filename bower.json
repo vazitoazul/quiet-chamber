@@ -50,7 +50,9 @@
     "redux.min": "https://cdnjs.cloudflare.com/ajax/libs/redux/3.6.0/redux.min.js",
     "promise-polyfill": "^6.0.2",
     "iron-ajax": "PolymerElements/iron-ajax#^1.4.3",
-    "paper-autocomplete": "^2.4.0"
+    "paper-autocomplete": "^2.4.0",
+    "paper-range-slider": "IftachSadeh/paper-range-slider#^0.2.7",
+    "paper-search": "^1.2.3"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

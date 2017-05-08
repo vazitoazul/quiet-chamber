@@ -34,9 +34,8 @@ describe('PaymentController',function(){
         user
           .get('/allPayments')
           .expect(200)
-          .expect((res)=>}{
+          .expect((res)=>{
             res.body.should.have.property('payments');
-            
           })
           .end(done);
     });

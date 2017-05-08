@@ -6,32 +6,73 @@
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../elements/label-chip.html">
 <link rel="import" href="../elements/label-element.html">
+<link rel="import" href="../elements/post-card.html">
 <dom-module id="business-card">
-  <style include="app-grid-style shared-styles"></style>
+  <style include="app-grid-style shared-styles">
+    .card-ligth {
+      color: var(--paper-grey-600);
+      font-size: 80%;
+    }
+    .posts {
+      margin-top: 1rem;
+      color: var(--paper-grey-600);
+    }
+    a.edit{
+      position: relative
+    }
+  </style>
   <template>
     <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
-    <label-element id="labelElement"></label-element>
+    <label-element id="labelElement" on-labels-changed="_labelsChanged"></label-element>
     <template is="dom-if" if="[[complete]]">
-      <paper-card>
-        <div class="card-content row">
-          <div class="col-sm-10"><div class="col">[[localize('name')]]</div><div class="col">[[business.name]]</div></div>
-          <div class="col-sm-10"><div class="col">[[localize('city')]]</div><div class="col">[[business.citylabel]]</div></div>
-          <div class="col-sm-10"><div class="col">[[localize('description')]]</div><div class="col">[[business.description]]</div></div>
-          <div class="col-sm-10"><div class="col">[[localize('telephones')]]</div><div class="col">[[business.telephones.0]]</div></div>
-          <div class="col-sm-5">[[localize('labels')]]</div>
-          <template is="dom-repeat" items="[[businessLabels]]">
-            <label-chip item="[[item]]" class="col-sm-1"></label-chip>
-          </template>
-          <a href="/acco/business/[[business.id]]"><paper-icon-button icon="close"></paper-icon-button></a>
+      <paper-card image="http://tensaiweb.info/blog/wp-content/uploads/2016/05/Consejos-para-dise%C3%B1ar-un-logo-adecuado-para-tu-empresa.jpg">
+        <div class="card-content ">
+          <div class="card-header row">
+            <h5>[[business.name]]</h5>
+            <!-- <a href="/acco/business/[[business.id]]" class="col offset-sm-6"><paper-icon-button icon="create"></paper-icon-button></a> -->
+          </div>
+          <div><span class="card-ligth">[[localize('city')]]</span><h6>[[business.cityLabel]]</h6></div>
+          <div><span class="card-ligth">[[localize('description')]]</span><h6>[[business.description]]</h6></div>
+          <div><span class="card-ligth">[[localize('telephones')]]</span><h6>[[business.telephones.0]]</h6><h6>[[business.telephones.1]]</h6></div>
+          <div class="card-ligth">[[localize('labels')]]</div>
+          <div class="labels row">
+            <template is="dom-repeat" items="[[businessLabels]]">
+              <span class="col">[[item.text]]</span>
+            </template>
+          </div>
         </div>
-        <div class="card-actions"></div>
+        <div class="card-actions">
+          <a href="/acco/business/[[business.id]]"><paper-button class="primary">[[localize('edit')]]</paper-button></a>
+        </div>
       </paper-card>
+        <div class="posts">[[localize('posts')]]</div>
+        <div class="row">
+          <template is="dom-repeat" items="[[business.posts]]">
+            <post-card post="[[item]]" class="col-sm-6"></post-card>
+          </template>
+        </div>
     </template>
     <template is="dom-if" if="[[!complete]]">
-      <paper-card>
-        <div class="card-content">
+      <paper-card class="col-sm-12">
+        <div class="card-content row">
+          <div class="card-header row col-sm-12">
+            <h5>[[business.name]]</h5>
+            <a href="/acco/business/[[business.id]]" class="edit"><paper-icon-button icon="create"></paper-icon-button></a>
+          </div>
+          <div class="col">
+            <div><span class="card-ligth">[[localize('city')]]</span><h6>[[business.cityLabel]]</h6></div>
+            <div><span class="card-ligth">[[localize('description')]]</span><h6>[[business.description]]</h6></div>
+          </div>
+          <div class="col">
+            <div><span class="card-ligth">[[localize('telephones')]]</span><h6>[[business.telephones.0]]</h6><h6>[[business.telephones.1]]</h6></div>
+            <div class="card-ligth">[[localize('labels')]]</div>
+            <div class="labels row">
+              <template is="dom-repeat" items="[[businessLabels]]">
+                <span class="col">[[item.text]]</span>
+              </template>
+            </div>
+          </div>
         </div>
-        <div class="card-actions"></div>
       </paper-card>
     </template>
   </template>
@@ -50,14 +91,13 @@
         },
         complete : {
           type : Boolean,
-          value : true
+          value : false
         },
         business : {
-          type : Object
+          type : Object,
         },
         businessLabels:{
-          type : Array,
-          computed : 'computeBusinessLabels(business)'
+          type : Array
         },
         resources : {
           value :  function(){
@@ -67,10 +107,12 @@
                 'city' : 'city',
                 'labels' : 'labels',
                 'telephones' : 'telephones',
-                'number' : 'Phone number {number}',
+                'number' : 'phone number {number}',
                 'email' : 'Email',
                 'mobile' : 'Mobile phone',
-                'description' : 'Description'
+                'description' : 'description',
+                'posts' : 'Posts',
+                'edit' : 'Edit'
               } ,
               'es' : {
                 'name' : 'nombre',
@@ -80,15 +122,27 @@
                 'number' : 'Teléfono {number}',
                 'email' : 'Correo electrónico',
                 'mobile' : 'Teléfono celular',
-                'description' : 'Descripccion'
+                'description' : 'Descripccion',
+                'posts' : 'Publicaciones',
+                'edit' : 'Editar'
               }
             }
           }
         },
       },
 
-      computeBusinessLabels : function(business){
-        return this.$.labelElement.computeSelectedLabelsObjectArray(business.labels);
+      observers : [
+        '_businessLabelsObserver(business.labels)'
+      ],
+
+      _labelsChanged : function(e){
+        this.set('businessLabels',this.$.labelElement.computeSelectedLabelsObjectArray(this.business.labels.slice(0),e.detail));
+      },
+
+      _businessLabelsObserver(labels){
+        if(!labels)return;
+        var labelElement = this.$.labelElement;
+        this.set('businessLabels',labelElement.computeSelectedLabelsObjectArray(labels.slice(0),labelElement.labels));
       }
     });
   </script>

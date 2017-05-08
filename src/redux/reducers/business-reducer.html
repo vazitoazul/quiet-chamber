@@ -1,0 +1,142 @@
+<script>
+  const {business:businessInit} = GlobalState;
+  const business = (state=businessInit,action) => {
+    switch (action.type) {
+      case 'LOAD_BUSS':
+        switch (action.status) {
+          case 'success':
+            return Object.assign({},state,{entities:action.businesses,status:'loaded'});
+            break;
+          case 'error':
+            return Object.assign({},state,{lastError:action.error,status:'error'});
+            break;
+          default:
+            return Object.assign({},state,{status:'loading'});
+            break;
+        }
+        break;
+      case 'ADD_BUSS':
+        switch (action.status) {
+          case 'success':
+            return Object.assign({},state,{entities:[...state.entities,action.business],status:'added'});
+            break;
+          case 'error':
+            return Object.assign({},state,{lastError:action.error,status:'error'});
+            break;
+          default:
+            return Object.assign({},state,{status:'loading'});
+            break;
+        }
+        break;
+      case 'EDD_BUSS':
+        switch (action.status) {
+          case 'success':
+            var newBuss=state.entities.map((item)=>{
+              if(item.id===action.business.id){
+                return action.business;
+              }else{
+                return item;
+              }
+            });
+            return Object.assign({},state,{entities:newBuss,status:'edited'});
+            break;
+          case 'error':
+            return Object.assign({},state,{lastError:action.error,status:'error'});
+            break;
+          default:
+            return Object.assign({},state,{status:'loading'});
+            break;
+        }
+        break;
+      case 'DEL_BUSS':
+        switch (action.status) {
+          case 'success':
+            var newBuss = state.entities.reduce((result,item)=>{
+              if(item.id!==action.business.id){
+                result.push(item);
+              }
+              return result;
+            },[]);
+            return Object.assign({},state,{entities:newBuss,status:'deleted'});
+            break;
+          case 'error':
+            return Object.assign({},state,{lastError:action.error,status:'error'});
+            break;
+          default:
+            return Object.assign({},state,{status:'loading'});
+            break;
+        }
+        break;
+      case 'ADD_POST':
+        switch (action.status) {
+          case 'success':
+            var newBuss = state.entities.map((item)=>{
+              if(item.id===action.post.business){
+                return Object.assign({},item,{posts : [...item.posts,action.post]});
+              }else{
+                return item;
+              }
+            });
+            return Object.assign({},state,{entities:newBuss,status:'post_added'});
+            break;
+          case 'error':
+            return Object.assign({},state,{lastError:action.error,status:'error'});
+            break;
+          default:
+            return Object.assign({},state,{status:'loading'});
+            break;
+        }
+        break;
+        case 'EDD_POST':
+          switch (action.status) {
+            case 'success':
+              var newBuss = state.entities.map((item)=>{
+                if(item.id===action.post.business){
+                  var posts = item.posts.map((post)=>{
+                    if(post.id == action.post.id)return action.post;
+                    return post
+                  });
+                  return Object.assign({},item,{posts : posts});
+                }else{
+                  return item;
+                }
+              });
+              return Object.assign({},state,{entities:newBuss,status:'post_edited'});
+              break;
+            case 'error':
+              return Object.assign({},state,{lastError:action.error,status:'error'});
+              break;
+            default:
+              return Object.assign({},state,{status:'loading'});
+              break;
+          }
+          break;
+        case 'DEL_POST':
+          switch (action.status) {
+            case 'success':
+              var newBuss = state.entities.map((item)=>{
+                if(item.id===action.post.business){
+                  var posts = item.posts.reduce((result,post)=>{
+                    if(post.id != action.post.id)result.push(post);
+                    return result;
+                  },[]);
+                  return Object.assign({},item,{posts : posts});
+                }else{
+                  return item;
+                }
+              });
+              return Object.assign({},state,{entities:newBuss,status:'post_deleted'});
+              break;
+            case 'error':
+              return Object.assign({},state,{lastError:action.error,status:'error'});
+              break;
+            default:
+              return Object.assign({},state,{status:'loading'});
+              break;
+          }
+          break;
+      default:
+        return state;
+    }
+  };
+</script>

@@ -22,17 +22,19 @@ describe('BusinessController',function(){
     it('should create a business',function(done){
         user
           .post('/createBusiness')
-          .send({ labels: [ 'automovile', 'propaganda', 'plumber' ],
-                telephones: ['12341234'],
-                name: 'negocio',
-                description: 'asdfsdf',
-                cityLabel: 'Quito, Ecuador',
-                placesIds:
-                 [ 'ChIJN-TvJYNw1ZERnqEqXhutzpQ',
-                   'ChIJn3xCAkCa1ZERclXvWOGRuUQ',
-                   'ChIJ1UuaqN2HI5ARAjecEQSvdp0',
-                   'ChIJn3xCAkCa1ZERclXvWOGRuUQ' ],
-                email: 'asdf@asdf.com' })
+          .send({ business :
+                    { labels: [ 'automovile', 'propaganda', 'plumber' ],
+                    telephones: ['12341234','123423'],
+                    name: 'negocio',
+                    description: 'asdfsdf',
+                    cityLabel: 'Quito, Ecuador',
+                    placesIds:
+                     [ 'ChIJN-TvJYNw1ZERnqEqXhutzpQ',
+                       'ChIJn3xCAkCa1ZERclXvWOGRuUQ',
+                       'ChIJ1UuaqN2HI5ARAjecEQSvdp0',
+                       'ChIJn3xCAkCa1ZERclXvWOGRuUQ' ],
+                    email: 'asdf@asdf.com' }
+                })
           .expect(function(res,err){
             businessId = res.body.id;
             res.body.should.have.deep.property('name','negocio');
@@ -53,14 +55,15 @@ describe('BusinessController',function(){
     it('should return bad request becouse the business is not from current user',function(done){
         user
           .post('/updateBusiness/12341234')
-          .send({ labels: [ 'automovile', 'propaganda', 'plumber' ],
+          .send({business : { labels: [ 'accesories', 'propaganda' ],
                 telephones: '1234,1234',
                 name: 'negocio',
                 description: 'asdfsdf',
                 cityLabel: 'Quito, Ecuador',
                 placesIds:
                  [ 'ChIJN-TvJYNw1ZERnqEqXhutzpQ'],
-                email: 'asdf@asdf.com'})
+                email: 'asdf@asdf.com'}
+              })
           .expect(400)
           .end(done)
     });
@@ -68,18 +71,23 @@ describe('BusinessController',function(){
     it('should create a business with two posts',function(done){
         user
           .post('/createBusiness')
-          .send({ labels: [ 'automovile', 'propaganda', 'plumber' ],
-                telephones: '12341234',
-                name: 'deberia postear',
-                description: 'asdfsdf',
-                cityLabel: 'Quito, Ecuador',
-                placesIds:
-                 [ 'ChIJN-TvJYNw1ZERnqEqXhutzpQ',
-                   'ChIJn3xCAkCa1ZERclXvWOGRuUQ',
-                   'ChIJ1UuaqN2HI5ARAjecEQSvdp0',
-                   'ChIJn3xCAkCa1ZERclXvWOGRuUQ' ],
-                email: 'asdf@asdf.com' ,
-                posts : [ { description : 'post 1' , type : 't'} , {description : 'post 2' , type : 't'}]
+          .send({ business : {
+                    labels: [ 'art','plumber' ],
+                    telephones: '12341234',
+                    name: 'deberia postear',
+                    description: 'asdfsdf',
+                    cityLabel: 'Quito, Ecuador',
+                    placesIds:
+                     [ 'ChIJN-TvJYNw1ZERnqEqXhutzpQ',
+                       'ChIJn3xCAkCa1ZERclXvWOGRuUQ',
+                       'chochin',
+                       'ChIJn3xCAkCa1ZERclXvWOGRuUQ' ],
+                    email: 'asdf@asdf.com' ,
+                  },
+                  posts : {'0' : { description : 'post 1' , type : 'j' ,name : 'name 12 ', amount : 300} ,
+                           '1' :  {description : 'post 2' , type : 'j',name : 'name 32', amount : 400} ,
+                           '2' :  {description : 'post 2' , type : 'i',name : 'name 32', amount : 100}
+                         }
               })
           .expect(function(res,err){
             res.body.should.property('posts');
@@ -91,7 +99,7 @@ describe('BusinessController',function(){
         user
           .post('/updateBusiness/'+businessId)
           .send({ labels: [ 'automovile', 'plumber' ],
-                telephones: '1234,1234',
+                telephones: ['1234','1234'],
                 name: 'negocio',
                 description: 'loco loco',
                 cityLabel: 'Quito, Ecuador',

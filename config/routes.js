@@ -81,6 +81,7 @@ module.exports.routes = {
   '/createPost' : 'PostController.createPost',
   '/updatePost/:id' : 'PostController.updatePost',
   '/deletePost/:id' : 'PostController.deletePost',
+  '/searchPosts' : 'PostController.searchPosts',
 
   /***************************************************************************
   *                                                                          *

@@ -48,6 +48,7 @@ module.exports.policies = {
   },
 
   'PostController' : {
+    'searchPosts' : ['passport'],
     '*' : ['passport','sessionAuth','intlCredential','businessOwner']
   },
   'BillController' : {

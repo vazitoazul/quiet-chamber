@@ -1,0 +1,29 @@
+<script>
+  const SearchActionsBehavior = {
+    actions : {
+      searchPosts : function(query){
+        return function(dispatch){
+          dispatch({type:'SCH_POSTS'});
+          let request = new Request(
+            'searchPosts',{
+              method:'POST',
+              headers: standardHeaders,
+              credentials: 'include',
+              body: JSON.stringify(query)
+            }
+          );
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            response.json().then((json)=>{
+              dispatch({type:'SCH_POSTS',status:'success',results:json});
+            });
+          })
+          .catch((e)=>{
+            dispatch({type:'SCH_POSTS',status:'error',error:e.message});
+          });
+        }
+      }
+    }
+  }
+</script>

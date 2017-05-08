@@ -2,6 +2,8 @@
 <link rel="import" href="global-state.html">
 <link rel="import" href="reducers/user-reducer.html">
 <link rel="import" href="reducers/payments-reducer.html">
+<link rel="import" href="reducers/business-reducer.html">
+<link rel="import" href="reducers/search-reducer.html">
 
 <script>
 
@@ -24,7 +26,9 @@
       passRecovery:passRecovery(state.passRecovery,action),
       mailVerification:mailVerification(state.mailVerification,action),
       bills:bills(state.bills,action),
-      payments:payments(state.payments,action)
+      payments:payments(state.payments,action),
+      business:business(state.business,action),
+      search:search(state.search,action)
     };
   };
   const globalStore = Redux.createStore(

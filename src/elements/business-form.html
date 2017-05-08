@@ -16,6 +16,8 @@
 <link rel="import" href="../elements/label-chip.html">
 <link rel="import" href="../elements/post-form.html">
 <link rel="import" href="../elements/post-card.html">
+<link rel="import" href="../redux/actions/business-actions.html">
+<link rel="import" href="../redux/global-store.html">
 <dom-module id="business-form">
  <style include="app-grid-style shared-styles">
     host {
@@ -33,83 +35,88 @@
     post-form{
       margin-bottom: 0.5rem
     }
+    .ligth{
+      color: var(--paper-grey-600);
+      margin-top: 1rem;
+    }
+    .add-post{
+      margin-top: 0.5rem;
+    }
  </style>
  <template>
   <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
   <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
   <label-element id="labelElement" on-labels-changed="changeLabelsArray"></label-element>
-  <iron-ajax
-    id="deleteBusinessRequester"
-    url="/deleteBusiness/[[business.id]]"
-    handle-as="json"
-    on-response="_responseHandler"
-    on-error="_errorHandler"></iron-ajax>
   <div class="row">
-    <paper-card class="col-sm-5 offset-sm-1" id="paperCard">
-      <template is="dom-if" if="[[!creating]]"><paper-button raised class="secondary col-xs-1 offset-xs-1" on-click="openDeleteConfirmation">Eliminar</paper-button></template>
+    <paper-card class="col-sm-7 offset-sm-1" id="paperCard">
       <div class="card-content">
         <form is="iron-form" id="businessForm" action="[[ironFormAction]]" on-iron-form-response="_responseHandler" on-iron-form-error="_errorHandler" method="post">
           <paper-input name="name" label="[[localize('name')]]" required  value="{{business.name}}" error-message="[[localize('add_name')]]"></paper-input>
           <paper-textarea label="[[localize('description')]]" name="description" value="{{business.description}}" required error-message="[[localize('add_description')]]"></paper-textarea>
           <paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required  value="{{business.cityLabel}}" error-message="[[localize('add_city')]]"></paper-input>
           <input name="placesIds" hidden value="{{business.placesIds}}"></input>
-          <span>[[localize('labels')]]</span>
+          <div class="ligth">[[localize('labels')]]</div>
           <div class="row" id="autocompleteDiv">
-            <paper-autocomplete id="autocomplete" class="col-xl-3 col-lg-4 col-md-5 col-sm-12 col-xs-12" label="Select" source="[[labelsArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
-            <div class="col-xl-9 col-lg-8 col-md-7 col-sm-12 col-xs-12  row labels">
+            <paper-autocomplete id="autocomplete" class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-xs-12" label="Select" source="[[labelsArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
+            <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-xs-12  row labels">
               <template  id="businessLabelsTemplate" is="dom-repeat" items="[[selectedLabels]]">
                 <label-chip item="[[item]]" on-closed="spliceLabel" closeable></label-chip>
               </template>
             </div>
           </div>
           <input name="labels" hidden value="{{business.labels}}"></input>
-          <span>[[localize('telephones')]]</span>
+          <div class="ligth">[[localize('telephones')]]</div>
           <paper-input required name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('mobile')]]" value="{{business.telephones.0}}"></paper-input>
           <paper-input name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','1')]]" value="{{business.telephones.1}}"></paper-input>
           <gold-email-input required name="email" label="[[localize('email')]]" value="{{business.email}}" error-message="[[localize('valid_email')]]"></gold-email-input>
         </form>
       </div>
+      <div class="card-actions">
+        <template is="dom-if" if="[[creating]]"><paper-button class="primary" on-click="createBusiness">[[localize('create')]]</paper-button></template>
+        <template is="dom-if" if="[[!creating]]"><paper-button class="primary" on-click="edditBusiness">[[localize('update')]]</paper-button></template>
+        <template is="dom-if" if="[[!creating]]"><paper-button class="secondary" on-click="openDeleteConfirmation">[[localize('delete')]]</paper-button></template>
+      </div>
     </paper-card>
     </div>
     <div id="businessPostsTemplate" class="row">
-    <template is="dom-if" if="[[creating]]">
-      <div class="col-sm-6 offset-sm-1">
-        [[localize('want_add_post')]]
-        [[localize('what_is')]]
-      </div>
-      <template  is="dom-repeat" id="pushi" items="[[business.posts]]">
-        <post-form post="[[item]]" onbusiness on-remove="removePost" index="[[index]]" class="post-form col-sm-7 offset-sm-1"></post-form>
+      <template is="dom-if" if="[[creating]]">
+        <div class="col-sm-6 offset-sm-1 add-post">
+          [[localize('want_add_post')]]
+          [[localize('what_is')]]
+        </div>
+        <a on-tap="addPost" class="primary col-sm-5">
+          [[localize('add_new_post')]]<paper-icon-button class="label" icon="add"></paper-icon-button>
+        </a>
+        <template  is="dom-repeat" items="[[business.posts]]">
+          <post-form post="[[item]]" complete onbusiness on-remove="removePost" index="[[index]]" class="post-form col-sm-7 offset-sm-1"></post-form>
+        </template>
       </template>
-      <a on-tap="addPost" class="primary col-sm-5">
-        [[localize('add_new_post')]]<paper-icon-button class="label" icon="add"></paper-icon-button>
-      </a>
-    </template>
     </div>
     <div class="row">
       <template is="dom-if" if="[[!creating]]">
-        <template  is="dom-repeat" id="pushi" items="[[business.posts]]">
-          <post-card post="[[item]]"></post-card>
-        </template>
-        <a href="/acco/business/[[business.id]]/new" class="primary col-sm-3 offset-sm-1">
+        <a href="/acco/business/[[business.id]]/new" class="primary col-sm-5 offset-sm-1">
           [[localize('add_new_post')]]<paper-icon-button class="label" icon="add"></paper-icon-button>
         </a>
+        <template  is="dom-repeat" items="[[business.posts]]">
+          <post-card post="[[item]]" complete class="col-sm-6 offset-sm-1"></post-card>
+        </template>
       </template>
     </div>
     <div class="row">
-      <template is="dom-if" if="[[creating]]"><paper-button raised class="primary col-sm-1 offset-sm-1" on-click="submitForm">[[localize('create')]]</paper-button></template>
-      <template is="dom-if" if="[[!creating]]"><paper-button raised class="primary col-sm-1 offset-sm-1" on-click="submitForm">[[localize('update')]]</paper-button></template>
+      <template is="dom-if" if="[[creating]]"><paper-button raised class="primary col-sm-1 offset-sm-1" on-click="createBusiness">[[localize('create')]]</paper-button></template>
+      <template is="dom-if" if="[[!creating]]"><paper-button raised class="primary col-sm-1 offset-sm-1" on-click="edditBusiness">[[localize('update')]]</paper-button></template>
     </div>
   </div>
  	<paper-toast id="toast"></paper-toast>
   <div id="placesServiceResult"></div>
   <paper-dialog id="dialog">
-    <h2>Borrar [[business.name]]</h2>
+    <h2>[[localize('delete')]] [[business.name]]</h2>
     <paper-dialog-scrollable>
-      Lorem ipsum...
+      [[localize('want_delete')]]
     </paper-dialog-scrollable>
     <div class="buttons">
-      <paper-button dialog-dismiss>Cancel</paper-button>
-      <paper-button dialog-confirm autofocus on-click="deleteBusiness">Accept</paper-button>
+      <paper-button dialog-dismiss>[[localize('cancel')]]</paper-button>
+      <paper-button dialog-confirm autofocus on-click="deleteBusiness">[[localize('delete')]]</paper-button>
     </div>
   </paper-dialog>
  </template>
@@ -118,7 +125,9 @@
  		is : 'business-form',
 
 		behaviors : [
-			Polymer.AppLocalizeBehavior
+			Polymer.AppLocalizeBehavior,
+      GlobalStoreBehavior,
+      BusinessActionsBehavior
 		],
 
 		properties : {
@@ -145,15 +154,20 @@
                   'mobile' : 'Mobile phone',
                   'create' : 'Create',
                   'update' : 'Update',
+                  'delete' : 'Delete',
+                  'cancel' : 'Cancel',
                   'description' : 'Description',
                   'valid_email' : 'must be a valid email',
                   'add_description' : 'must input the business description',
                   'add_name' : 'must input the business name',
                   'add_city' : 'must add the business location',
                   'must_select_labels' : 'you must select labels',
-                  'want_add_post' : 'Do you want to add a post? You can add it later',
+                  'want_add_post' : 'Do you want to add a post? You can add it later. ',
                   'what_is' : 'What is this?',
-                  'add_new_post' : 'add post'
+                  'add_new_post' : 'add post',
+                  'bussiness_created' : 'bussiness created',
+                  'bussiness_edited' : 'business edited',
+                  'want_delete' : 'Are you sure you want to delete this business?'
                 } ,
 		        		'es' : {
     							'name' : 'nombre',
@@ -166,15 +180,20 @@
                   'mobile' : 'Teléfono celular',
                   'create' : 'Crear',
                   'update' : 'Actualizar',
+                  'delete' : 'Delete',
+                  'cancel' : 'Cancel',
                   'description' : 'Descripción',
                   'valid_email' : 'debe ser una direccion de correo valida',
                   'add_description' : 'debes ingresar la descripción del negocio',
                   'add_name' : 'debes ingresar el nombre del negocio',
                   'add_city' : 'debe ingresar el lugar del negocio',
                   'must_select_labels' : 'debes seleccionar las etiquetas',
-                  'want_add_post' : 'Quieres agregar una publicación? Puedes agregarlas despues',
+                  'want_add_post' : 'Quieres agregar una publicación? Puedes agregarlas después. ',
                   'what_is' : 'Que es esto?',
-                  'add_new_post' : 'agreagar post'
+                  'add_new_post' : 'agreagar post',
+                  'bussiness_created' : 'negocio creado',
+                  'bussiness_edited' : 'negocio editado',
+                  'want_delete' : 'Estas seguro que quieres borrar este negocio?'
                 }
 	        		}
 	        	}
@@ -258,8 +277,9 @@
     },
 
     setSelectedLabels : function(e){
-      for(var item in this.selectedLabels){
-        if(this.selectedLabels[item].value == e.detail.option.value){
+      var selected = this.selectedLabels;
+      for(var item in selected){
+        if(selected[item].value == e.detail.option.value){
             return;
         }
       }
@@ -268,8 +288,9 @@
 
     spliceLabel : function(itemRemoving){
       var index = 0;
-      for(var item in this.selectedLabels){
-        if(this.selectedLabels[item].value == itemRemoving.detail.value){
+      var selected = this.selectedLabels;
+      for(var item in selected){
+        if(selected[item].value == itemRemoving.detail.value){
             this.splice('selectedLabels',index,1);
             return;
         }
@@ -300,20 +321,33 @@
     validateLabels : function(){
       if(this.selectedLabels.length == 0){
         this.$.autocompleteDiv.focus();
-        this.$.toast.text = this.localize('must_select_labels');
-        this.$.toast.open();
+        this.$.showToast(this.localize('must_select_labels'));
         return false;
       }
       return true;
     },
 
     _onBusinessIdChanged : function(id){
-      this.set('ironFormAction',id ? '/updateBusiness/'+id: '/createBusiness');
-      this.set('selectedLabels',this.$.labelElement.computeSelectedLabelsObjectArray(this.business.labels));
+      this.set('selectedLabels',this.$.labelElement.computeSelectedLabelsObjectArray(this.business.labels.slice(0),this.labelsArray));
     },
 
-    submitForm : function(e){
-      if(!this.$.businessForm.validate() || !this.validateLabels()) return;
+    createBusiness : function(e){
+      if(!this.checkForm())return;
+      var posts = this.business.posts.reduce(function(obj,post,index){
+        obj[index] = post;
+        return obj
+      },{});
+      this.dispatch('createBusiness',{business:this.business,posts:posts});
+    },
+
+    edditBusiness : function(e){
+      if(!this.checkForm())return;
+      this.dispatch('edditBusiness',this.business);
+    },
+
+    checkForm : function(){
+      this.setBusinessLabels();
+      if(!this.$.businessForm.validate() || !this.validateLabels()) return false;
       var postForm = true;
       Polymer.dom(this.$.businessPostsTemplate).children.forEach(function(node){
         if(node.localName == 'post-form'){
@@ -322,28 +356,16 @@
           };
         }
       });
-      if(!postForm)return;
-      this.setBusinessLabels();
-      this.$.businessForm.request.params = this.business;
-      var aux = [];
-      var posts = this.business.posts;
-      console.log(JSON.stringify(posts))
-      for(var post in posts){
-        aux.push(JSON.stringify(posts[post]));
-      }
-      this.$.businessForm.request.params['posts'] = aux;
-      this.$.businessForm.submit();
+      return postForm;
     },
 
     _responseHandler : function(e){
-      this.$.toast.text = 'creado';
-      this.$.toast.open();
-      this.fire('business-added-eddited');
+      this.$.showToast('creado');
+      this.fire('business-added-edited');
     },
 
     _errorHandler : function(e){
-      this.$.toast.text = 'error';
-      this.$.toast.open();
+      this.$.showToast('error');
     },
 
     setBusinessLabels : function(){
@@ -367,7 +389,18 @@
     },
 
     deleteBusiness : function(e){
-      this.$.deleteBusinessRequester.generateRequest();
+      this.dispatch('deleteBusiness',this.business);
+    },
+
+    showToast : function(message){
+      this.$.toast.text = message;
+      this.$.toast.open();
+    },
+
+    resetForm : function(){
+      this.set('selectedLabels',[]);
+      this.set('business.posts',[]);
+      this.$.businessForm.reset();
     }
  	});
  </script>
