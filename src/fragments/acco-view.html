@@ -78,11 +78,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <app-location route="{{route}}"></app-location>
     <app-route
         route="{{route}}"
-        pattern="/acco"
-        tail="{{subroute}}"></app-route>
-    <app-route
-        route="{{subroute}}"
-        pattern="/:section"
+        pattern="/acco/:section"
         data="{{routeData}}"
         ></app-route>
     <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
@@ -109,7 +105,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          </app-toolbar>
         </app-header>
       </app-header-layuout>
-      <iron-pages selected='[[section]]' attr-for-selected="section">
+      <iron-pages selected='[[routeData.section]]' attr-for-selected="section" fallback-selection="userInfo">
         <section section="membership">
           <membership-panel></membership-panel>
         </section>
@@ -262,17 +258,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }
                   }
               }
-        },
-
-        section : {
-          type : String,
-          computed : 'computeSection(routeData.section)',
-          observer : '_sectionChanged'
         }
       },
 
       observers : [
+          '_sectionChanged(routeData.section)',
           '_routeChanged(route)'
+
       ],
 
       showMessage:function(message,duration){
@@ -305,28 +297,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       updateIntlCredential : function(e){
         var form = this.$.userIntlCredentialForm;
-        var newCredential = this.countryCode.concat(this.$.credentialNumber.value);
         if(form.validate()){
+          var newCredential = this.countryCode.concat(this.$.credentialNumber.value);
           this.dispatch('updateIntlCredential',{newCredential : newCredential});
         }
       },
-
-      updateIntlCredentialErrorHandler : function(e){
-        this.showMessage(this.localize('credential_used'));
-      },
-
-      detached : function(e){
-        if(this.paypal){
-          this.$.paypalDiv.removeChild(this.paypal);
-        }
-      },
-
-      _sectionChanged : function(){
-        var self = this;
-        if(!this.checkIntialCredential())return;
-        switch(this.section){
-          case 'membership':
-          break;
+      _sectionChanged : function(section){
+        switch(section){
           case 'business':
             this.dispatch('getBusiness');
           break;
@@ -335,9 +312,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _routeChanged: function(route){
           if(route.path.substring(0,5) !== '/acco'){
-            this.$.credentialDialog.close();
+            if(this.$.credentialDialog.opened){
+              this.$.credentialDialog.close();
+            }
           }else{
-            this.checkIntialCredential();
+            this.checkUserIntCred();
           }
       },
 
@@ -372,7 +351,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       userObserver : function(newVal,oldVal){
-        this._sectionChanged();
+        this.checkUserIntCred();
       },
 
       computeSection : function(section){
@@ -383,12 +362,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return section;
       },
 
-      removePayPalButton : function(){
-        let self = this;
-        Polymer.dom(this.$.paypalDiv).childNodes.forEach(function(node){
-          Polymer.dom(self.$.paypalDiv).removeChild(node);
-        });
-      },
 
       _userAuthChange : function(auth){
         if(!auth){
@@ -400,16 +373,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _lastErrorChanged : function(error){
         if(error) this.showMessage(error);
       },
-
-      checkIntialCredential : function(){
+      checkUserIntCred:function(){
         if(!this.user)return;
-          if(!this.user.intlCredential){
-            this.$.credentialDialog.open();
-            return false;
-          }else {
-            this.$.credentialDialog.close();
-            return true;
-          }
+        if(!this.user.intlCredential){
+          this.$.credentialDialog.open();
+        }else {
+          this.$.credentialDialog.close();
+        }
       }
     });
   </script>
