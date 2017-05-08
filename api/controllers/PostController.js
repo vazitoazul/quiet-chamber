@@ -45,6 +45,39 @@ module.exports = {
 			if(err)return next(err);
 			return res.json(deleted[0]);
 		});
-	}
+	},
+		/**
+			*search posts
+			*
+			*@param {string} labels - post labels
+			*@param {string} amountFrom - post amunt
+			*@param {string} amountTo - post amunt
+			*@param {string} location - post location
+			*@param {string} type - post type
+			*/
+		searchPosts : function(req,res,next){
+			var params = req.allParams();
+			var query = {};
+			var labels = params.labels;
+			var places = params.location;
+			if(labels||places)query['$or']=[];
+			for(var label in labels){
+				query['$or'].push({'labels' : labels[label]});
+			}
+			for(var place in places){
+				query['$or'].push({'placesIds' : places[place]});
+			}
+			if(params.amountTo || params.amountFrom)query['amount']= {};
+			if(params.amountFrom)query['amount'].$gt = parseInt(params.amountFrom);
+			if(params.amountTo)query['amount'].$lte = parseInt(params.amountTo);
+			if(params.type)query['type'] = params.type;
+			console.log(query);
+			Post.find(query,function(err,found){
+				if(err)return next(err);
+				console.log(found);
+				return res.json(200,found);
+			});
+		},
+
 
 };

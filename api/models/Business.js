@@ -17,5 +17,13 @@ module.exports = {
     telephones: { type : 'array' , defaultsTo : []},
     labels : { type : 'array', defaultsTo : [], required : true},
     posts : { collection : 'post', via : 'business'}
+  },
+
+  beforeDestroy: function(destroyedRecords, next) {
+    // Destroy any post associated to a deleted bussiness
+    Post.destroy({business: _.pluck(destroyedRecords, 'id')},function(err,destroyed){
+      if(err)return next(err);
+      return next();
+    });
   }
 };

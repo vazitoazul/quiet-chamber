@@ -14,7 +14,7 @@
 	          type : String
 	        },
 	        resources : {
-				type : Object,
+						type : Object,
 	        	value : {
         			'en' : {
         				'propaganda' : ['propaganda'],
@@ -41,7 +41,7 @@
         			'es' : {
         				'propaganda' : ['propaganda'],
         				'automovile' : ['automoviles', 'carros'],
-        				'accesories' : ['accesories'],
+        				'accesories' : ['accesorios'],
         				'mechanic' : ['mecanica'],
         				'clothes' : ['ropa'],
         				'technology' : ['tecologia'],
@@ -62,14 +62,13 @@
         			}
         		}
 	        },
-			labels : {
-				type : Object,
-				computed : 'computeLabelArray(language, resources)'
-			}
+					labels : {
+						type : Object,
+						computed : 'computeLabelArray(language,resources)'
+					}
 		},
 
-	    computeLabelArray : function(language, resources){
-	    	console.log(language,'qui')
+		computeLabelArray : function(language, resources){
 	    	var labelArray = [];
 	    	var labels = resources[language];
 				var keys = Object.keys(labels);
@@ -80,19 +79,19 @@
 					}
 					index++;
 				}
-			this.fire('labels-changed',labelArray);
+				this.fire('labels-changed',labelArray);
 	    	return labelArray;
 	    },
 
-		computeSelectedLabelsObjectArray : function(selectedValues){
+		computeSelectedLabelsObjectArray : function(selectedValues,labels){
 			var labelsObjectsArray = [];
 			if(selectedValues.length == 0) return labelsObjectsArray;
-			for(var label in this.labels){
+			for(var label in labels){
 				var aux = 0;
 				for(var selectedLabel in selectedValues){
-					if(selectedValues[selectedLabel]==this.labels[label].value){
-						aux = this.labels[label].value;
-						labelsObjectsArray.push(this.labels[label]);
+					if(selectedValues[selectedLabel]==labels[label].value){
+						aux = labels[label].value;
+						labelsObjectsArray.push(labels[label]);
 						selectedValues.splice(aux,1);
 					}
 					aux++;
@@ -103,7 +102,6 @@
 
 		getLabelArray  : function(language){
 			var resources = this.resources;
-			console.log(language);
 	    	var labelArray = [];
 	    	var labels = resources[language];
 				var keys = Object.keys(labels);

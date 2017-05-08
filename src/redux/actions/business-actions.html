@@ -1,9 +1,9 @@
 <script>
 const BusinessActionsBehavior = {
   actions:{
-    createBusiness = function(business){
+    createBusiness : function(business){
       return function(dispatch){
-        dispatch('SET_BUSS');
+        dispatch({type:'ADD_BUSS'});
         let request = new Request(
           '/createBusiness',{
           method:'POST',
@@ -16,14 +16,153 @@ const BusinessActionsBehavior = {
         .then(handleReqError)
         .then((response)=>{
           response.json().then((json)=>{
-            dispatch({type:'SET_BUSS',status:'success',business:json});
+            console.log('comming',json);
+            dispatch({type:'ADD_BUSS',status:'success',business:json});
           });
         })
         .catch((e)=>{
-          dispatch({type:'SET_BUSS',status:'error',error:e.message});
+          dispatch({type:'ADD_BUSS',status:'error',error:e.message});
         });
       }
+    },
+    getBusiness : function(){
+      return function(dispatch){
+        dispatch({type:'LOAD_BUSS'});
+        let request = new Request(
+          '/getBusiness',{
+          method:'GET',
+          headers: standardHeaders,
+          credentials: 'include'
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'LOAD_BUSS',status:'success',businesses:json});
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'LOAD_BUSS',status:'error',error:e.message});
+        });
       }
-    }
+    },
+    edditBusiness : function(business){
+      return function(dispatch){
+        dispatch({type:'EDD_BUSS'});
+        delete business.posts;
+        let request = new Request(
+          '/updateBusiness/'+business.id,{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include',
+          body: JSON.stringify(business)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'EDD_BUSS',status:'success',business:json});
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'EDD_BUSS',status:'error',error:e.message});
+        });
+      }
+    },
+    deleteBusiness : function(business){
+      return function(dispatch){
+        dispatch({type:'DEL_BUSS'});
+        delete business.posts;
+        let request = new Request(
+          '/deleteBusiness/'+business.id,{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include'
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'DEL_BUSS',status:'success',business:json});
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'DEL_BUSS',status:'error',error:e.message});
+        });
+      }
+    },
+    createPost : function(post){
+      return function(dispatch){
+        dispatch({type:'ADD_POST'});
+        let request = new Request(
+          '/createPost',{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include',
+          body: JSON.stringify(post)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'ADD_POST',status:'success',post:json});
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'ADD_POST',status:'error',error:e.message});
+        });
+      }
+    },
+    edditPost : function(post){
+      return function(dispatch){
+        dispatch({type:'EDD_POST'});
+        let request = new Request(
+          '/updatePost/'+post.id,{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include',
+          body: JSON.stringify(post)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'EDD_POST',status:'success',post:json});
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'EDD_POST',status:'error',error:e.message});
+        });
+      }
+    },
+    deletePost : function(post){
+      return function(dispatch){
+        dispatch({type:'DEL_POST'});
+        let request = new Request(
+          '/deletePost/'+post.id,{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include',
+          body: JSON.stringify(post)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'DEL_POST',status:'success',post:json});
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'DEL_POST',status:'error',error:e.message});
+        });
+      }
+    },
+  }
 }
 </script>

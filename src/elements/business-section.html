@@ -17,6 +17,20 @@
       color: var(--paper-pink-500);
       --paper-icon-button-ink-color: var(--paper-indigo-500);
     }
+    paper-toast{
+      right: 0 !important;
+      left: inherit !important;
+    }
+    business-card{
+      margin-top: 3rem;
+    }
+    .back{
+      width: 4rem;
+      height: 4rem;
+      position: absolute;
+      right: 0 !important;
+      left: inherit !important;
+    }
   </style>
   <template>
     <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
@@ -28,47 +42,52 @@
     <iron-pages selected="{{section}}" attr-for-selected="name">
       <section name="resume" class="row">
         <h4 class="col-sm-12">[[localize('your_business')]]</h4>
-        <template is="dom-repeat" items="[[business]]">
-          <business-card business="[[item]]"></business-card>
-        </template>
+        <div class="row">
+          <template is="dom-repeat" items="[[business]]">
+            <business-card complete business="[[item]]" class="col-sm-6 offset-sm-2"></business-card>
+          </template>
+        </div>
         <template is="dom-if" if="[[noBusiness]]">
           <h5 class="giant offset-sm-3 col-sm-8">[[localize('no_business')]]</h5>
         </template>
         <a class="offset-sm-4 col-sm-7" href="/acco/business/new"><paper-icon-button icon="add" class="giant"></paper-icon-button></a>
       </section>
-      <section name="edditBusiness">
-        [[localize('edditing')]]
-        <business-form business="[[currentBusiness]]" on-business-added-eddited="_onBusinessAddedorEditted"></business-form>
+      <section name="editBusiness">
+        <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
+        <h5 class="col-sm-12">[[localize('editing')]]</h5>
+        <business-form business="[[currentBusiness]]" ></business-form>
       </section>
       <section name="new">
-        <business-form creating on-business-added-eddited="_onBusinessAddedorEditted" ></business-form>
-      </section>
-      <section name="edditBusiness">
-        [[localize('edditing')]]
-        <business-form business="[[currentBusiness]]" on-business-added-eddited="_onBusinessAddedorEditted"></business-form>
+        <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
+        <h5 class="col-sm-12">[[localize('new_buss')]]</h5>
+        <business-form id="businessNewForm" creating  ></business-form>
       </section>
       <section name="newPost">
-        <post-form creating on-post-added-eddited="_onBusinessAddedorEditted" business="[[currentBusiness]]"></post-form>
+        <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
+        <h5 class="col-sm-12">[[localize('new_post')]]</h5>
+        <post-form id="postNewForm" creating business="[[currentBusiness]]" class="col-sm-6 offset-sm-2"></post-form>
       </section>
-      <section name="edditPost">
-        edditing post
-        <post-form post="[[currentPost]]" business="[[currentBusiness]]"></post-form>
+      <section name="edditPost" class="row">
+        <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
+        <h5 class="col-sm-12">[[localize('editing_post')]]</h5>
+        <post-form post="[[currentPost]]" business="[[currentBusiness]]" class="col-sm-6 offset-sm-2"></post-form>
       </section>
     </iron-pages>
+    <paper-toast id="toast" duration="4000"></paper-toast>
   </template>
   <script>
     Polymer({
       is : 'business-section',
 
       behaviors : [
-        Polymer.AppLocalizeBehavior
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior
       ],
 
       properties : {
         business : {
           type : Array,
-          value : [ ],
-          observer : '_onBusinessChanged'
+          statePath : 'business.entities'
         },
         section : {
           type: String,
@@ -81,39 +100,107 @@
                 'your_business' : 'Your business',
                 'no_business' : 'You do not have business yet',
                 'more_info' : 'More info',
-                'edditing' : 'Edditing',
+                'editing' : 'Editing',
+                'bussines_added' : 'new bussiness added',
+                'business_deleted' : 'bussiness deleted',
+                'business_edited' : 'business edited',
+                'post_added' : 'post added',
+                'post_edited' : 'post edited',
+                'post_deleted' : 'post deleted',
+                'editing_post' : 'Editing post',
+                'type' : 'type',
+                'new_buss' : 'New Business',
+                'new_post' : 'New Post',
               } ,
               'es' : {
                 'your_business' : 'Tus negocios',
                 'no_business' : 'Aun no tienes negocios',
                 'more_info' : 'Más información',
-                'edditing' : 'Editando',
+                'editing' : 'Editando',
+                'bussines_added' : 'nuevo negocio agregado',
+                'business_deleted': 'negocio borrado',
+                'business_edited' : 'negocio editado',
+                'post_added' : 'publicación agregada',
+                'post_edited' : 'publicación editada',
+                'post_deleted' : 'publicación eliminada',
+                'editing_post' : 'Editando post',
+                'type' : 'tipo',
+                'new_buss' : 'Nuevo negocio',
+                'new_post' : 'Nueva publicación',
               }
             }
           }
         },
         noBusiness : {
           type : Boolean,
-          value : false
+          computed : 'computeNoBusiness(business)'
+        },
+        lastError : {
+          type : Boolean,
+          statePath : 'business.lastError',
+          observer : '_lastErrorObserver'
+        },
+        status : {
+          type : String,
+          statePath : 'business.status',
+          observer : '_onStatusChanged'
         }
       },
 
       observers : [
-        '_onBusinessIdChanged(businessIdSubRouteData.businessId)'
+        '_onRouteChanged(businessIdSubRoute)'
       ],
 
-      _onBusinessIdChanged : function(currentBusinessId){
-        if(currentBusinessId == 'new')return this.set('section','new');
+      _onStatusChanged : function(status){
+        switch(status){
+          case 'added':
+            this.$.businessNewForm.resetForm();
+            this.set('businessIdSubRoute.path','');
+            this._onRouteChanged();
+            this.showToast(this.localize('business_added'));
+          break;
+          case 'edited' :
+            this.showToast(this.localize('business_edited'));
+          break;
+          case 'deleted' :
+            this.set('businessIdSubRoute.path','');
+            this._onRouteChanged();
+            this.showToast(this.localize('business_deleted'));
+          break;
+          case 'post_added':
+            this.$.postNewForm.resetForm();
+            this.set('businessIdSubRoute.path','/'+this.businessIdSubRouteData.businessId);
+            this._onRouteChanged();
+            this.showToast(this.localize('post_added'));
+          break;
+          case 'post_edited':
+            this.set('businessIdSubRoute.path','/'+this.businessIdSubRouteData.businessId);
+            this._onRouteChanged();
+            this.showToast(this.localize('post_edited'));
+          break;
+          case 'post_deleted':
+            this.set('businessIdSubRoute.path','/'+this.businessIdSubRouteData.businessId);
+            this._onRouteChanged();
+            this.showToast(this.localize('post_deleted'));
+          break;
+          case 'loaded':
+            this._onRouteChanged();
+          break;
+        }
       },
 
-      _onBusinessChanged : function(business){
-        if(!business || !business.length || business.length===0)return this.set('noBusiness',true);
-        this.set('noBusiness',false);
-        if(this.businessIdSubRoute.path == '')return this.set('section','resume');
+      _onBusinessAddedorEdited : function(){
+        // this.set('status','edited');
+      },
+
+      _onRouteChanged : function(route){
+        var business = this.business;
+        if(!business || this.businessIdSubRoute.path == '')return this.set('section','resume');
+        if(this.businessIdSubRouteData && this.businessIdSubRouteData.businessId == 'new') return this.set('section','new');
         for(var current in business){
           if(this.business[current].id == this.businessIdSubRouteData.businessId){
             this.set('currentBusiness',this.business[current]);
-            this.set('section','edditBusiness');
+            this.set('section','editBusiness');
             if(this.postActionSubRoute.path == '')return;
             if(this.postActionSubRouteData.postAction == 'new')return this.set('section','newPost');
             var posts = this.currentBusiness.posts;
@@ -125,10 +212,24 @@
             }
           }
         }
+        this.set('businessIdSubRoute.path','');
+        return this.set('section','resume');
       },
 
-      _onBusinessAddedorEditted : function(){
-        window.location = '/acco/business';
+      _lastErrorObserver : function(error){
+        if(error){
+          this.showToast(error);
+        }
+      },
+
+      showToast : function(message){
+        this.$.toast.text = message;
+        this.$.toast.open();
+      },
+
+      computeNoBusiness : function(business){
+        if(!business || !business.length || business.length===0)return true;
+        return false;
       }
     });
   </script>

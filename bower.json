@@ -54,7 +54,8 @@
     "brainy-table": "OWOX/brainy-table#^1.7.3",
     "date-utils": "^1.2.16",
     "paper-checkbox": "PolymerElements/paper-checkbox#^1.4.2",
-    "paper-radio-group": "PolymerElements/paper-radio-group#^1.2.2"
+    "paper-radio-group": "PolymerElements/paper-radio-group#^1.2.2",
+    "paper-range-slider": "IftachSadeh/paper-range-slider#^0.2.7",
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

@@ -6,11 +6,9 @@ const {info:userInfoInit} = userInit;
 const userInfo = (state=userInfoInit,action)=>{
   switch (action.type) {
     case 'SET_USER_INF':
-      console.log(action.info);
       return Object.assign({},state,action.info);
       break;
     case 'SET_USER_BILLING_INFO':
-      console.log(action.info);
       return Object.assign({},state,{billingInfo:action.info});
       break;
     default:
@@ -46,6 +44,20 @@ const user = (state=userInit,action)=>{
           break;
       }
       break;
+    case 'SET_USER_RECO':
+      switch (action.status) {
+        case 'success':
+          var newInfo = Object.assign({},state.info,{recommender : action.info});
+          return Object.assign({},state,{loading:false,info:newInfo});
+          break;
+        case 'error':
+          return Object.assign({},state,{loading:false,lastError:action.error});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
     default:
       return state;
   }
@@ -66,7 +78,6 @@ const recommender = (state=recoInit,action) => {
           break;
       }
       break;
-
     default:
       return state;
   };

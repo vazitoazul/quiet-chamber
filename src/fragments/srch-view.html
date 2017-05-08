@@ -1,0 +1,117 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-search/paper-search.html">
+<link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
+<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../elements/label-element.html">
+<link rel="import" href="../elements/label-chip.html">
+<link rel="import" href="../elements/search-bar.html">
+<link rel="import" href="../redux/actions/search-actions.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="srch-view">
+  <style include="app-grid-style shared-styles">
+
+  </style>
+   <template>
+     <app-drawer-layout>
+       <app-drawer align="left">
+         <h5>Filtros</h5>
+
+       </app-drawer>
+       <app-header-layout>
+         <app-header>
+          <app-toolbar>
+              <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+              <div main-title><span class="text-display-2">Dinabun</span></div>
+              <div class="hidden-sm-down">
+                <a href="/help"><paper-button>[[localize('help')]]</paper-button></a>
+              </div>
+          </app-toolbar>
+         </app-header>
+       </app-header-layuout>
+       <div class="">
+          <search-bar></search-bar>
+       </div>
+       <template is="dom-repeat" items="[[results]]">
+       </template>
+      <app-drawer-layout>
+   </template>
+   <script>
+    Polymer({
+      is: 'srch-view',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        SearchActionsBehavior
+      ],
+
+      properties:{
+        query : {
+          type: Object,
+          value : {
+            labels : [],
+          }
+        },
+        language:{
+          type:String,
+          value:'es'
+        },
+        resources:{
+          value:function(){
+            return {
+              'es':{
+                'search_post':'Search for posts',
+                'log_out':'Salir',
+                'account':'Mi Cuenta',
+                'create' : 'Create',
+                'name' : 'name',
+                'amount' : 'amount',
+                'update' : 'Update',
+                'cancel' : 'Cancel',
+                'delete' : 'delete',
+              },
+              'en':{
+                'search_post':'Busca una publicación',
+                'log_out':'Log Out',
+                'account':'My Account',
+                'type' : 'tipo',
+                'donation' : 'donación',
+                'advertising' : 'publicidad',
+                'investment' : 'inverciones',
+                'job' : 'trabajo',
+                'create' : 'Crear',
+                'name' : 'name',
+                'amount' : 'monto',
+              }
+            }
+          }
+        },
+        results : {
+          type : Object,
+          statePath : 'search.lastResult',
+        },
+        search : {
+          type : Object,
+          statePath : 'search',
+          observer : 'observe'
+        }
+      },
+
+      observe : function(result){
+        console.log(result);
+      }
+    })
+   </script>
+</dom-module>

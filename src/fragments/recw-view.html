@@ -1,4 +1,4 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+-<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/app-layout/app-grid/app-grid-style.html">
@@ -46,6 +46,9 @@
     lgin-view{
       height: 43rem;
     }
+    paper-button.change-rec{
+      margin-top: 3rem;
+    }
   </style>
   <template>
     <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
@@ -70,8 +73,8 @@
         </section>
         <section class="col" section="changeRecommender">
           <div class="content col-sm-7 offset-sm-2">
-            <h5>[[localize('change_recommender','lastRecommender',user.recommender.info.firstName,'newRecommender',recommender.info.firstName)]]</h5>
-            <paper-button raised class="secondary col-sm-3 offset-sm-4" on-click="openDialog">[[localize('change')]]</paper-button>
+            <h5>[[localize('change_recommender','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
+            <paper-button raised class="secondary col-sm-3 offset-sm-4 change-rec" on-click="openDialog">[[localize('change')]]</paper-button>
           </div>
         </section>
         <section class="col" section="setRecommender">
@@ -93,7 +96,7 @@
       </iron-pages>
       <paper-toast duration="5000" id="toast"></paper-toast>
       <paper-dialog class="row" id="dialog" with-backdrop>
-        <h5 class="col-sm-10">[[localize('confirm_change','lastRecommender',user.recommender.info.firstName,'newRecommender',recommender.info.firstName)]]</h5>
+        <h5 class="col-sm-10">[[localize('confirm_change','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
         <paper-button id="confirmButton" raised class="primary col-sm-3 offset-sm-4" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
       </paper-dialog>
     </app-drawer-layout>
@@ -198,8 +201,6 @@
           if(!this.user.recommender.firstName){
             this.set('user.recommender.firstName',this.localize('recommender_no_name'));
           }
-          console.log(this.recommender.info.id);
-          console.log(this.user.recommender.id);
           if(this.user.recommender.id == this.recommender.info.id)return this.set('section','sameRecommenderThanBefore');
           this.set('section','changeRecommender');
         }
@@ -251,14 +252,16 @@
         this.set('section','malformed');
       },
 
-      _userInfoChanged : function(auth){
-        if(auth) if(this.recommender) this._recommenderExists(this.recommender.exists);
+      _userInfoChanged : function(info){
+        if(this.userAuth) if(this.recommender){
+          this._recommenderExists(this.recommender.exists);
+          this.$.dialog.close();
+        }
       },
 
       errorChanged : function(error){
         if(error)this.showToast(error);
       }
-
     });
   </script>
 </dom-module>

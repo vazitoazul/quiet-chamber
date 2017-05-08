@@ -61,6 +61,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       a.menu-item{
         color : #bdced7;
+        width: 100%;
+        height: 3rem;
       }
       paper-card{
         width: 18rem;
@@ -74,11 +76,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
     <app-location route="{{route}}"></app-location>
-    <iron-ajax
-        url="/getBusiness"
-        handle-as="json"
-        on-response="userBusinessHandler"
-        id="userBusinessRequester"></iron-ajax>
     <app-route
         route="{{route}}"
         pattern="/acco"
@@ -148,7 +145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="row">
               <h5 class="col-sm-9 offset-sm-1">[[localize('your_recommended')]]</h5>
               <template is="dom-repeat" items="[[user.recommended]]">
-                <div class="paper-card col-sm-2">
+                <div class="paper-card col-sm-3">
                   <paper-card >
                     <div class="card-content">
                       [[item.email]]
@@ -165,7 +162,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
         </section>
         <section section="business">
-          <business-section business="{{user.business}}"></business-section>
+          <business-section></business-section>
         </section>
       </iron-pages>
     </app-drawer-layout>
@@ -190,7 +187,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       behaviors : [
         Polymer.AppLocalizeBehavior,
         GlobalStoreBehavior,
-        UserActionsBehavior
+        UserActionsBehavior,
+        BusinessActionsBehavior
       ],
 
       properties:{
@@ -330,7 +328,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           case 'membership':
           break;
           case 'business':
-            this.$.userBusinessRequester.generateRequest();
+            this.dispatch('getBusiness');
           break;
         }
       },
@@ -378,7 +376,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       computeSection : function(section){
-        if(!section){
+        if(!section || (section != 'membership' && section != 'payments' && section != 'userInfo' && section != 'business')){
           this.set('route.path','acco/userInfo');
           return 'userInfo';
         }

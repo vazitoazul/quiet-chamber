@@ -74,17 +74,18 @@ const GlobalState={
     loading:false,
     lastError:null
   },
+  business:{
+    entities:[],
+    loading:false,
+    lastError:null
+  },
   search:{
-    lastResult : {
-      page : null,
-      orderBy : null,
-      results : [
-        [],
-        []
-      ],
-      receivedAt : null,
-      query : null
-    }
+    page : null,
+    orderBy : null,
+    receivedAt : null,
+    query : null,
+    lastResult : [],
+    lastError:null
   }
 };
 </script>
