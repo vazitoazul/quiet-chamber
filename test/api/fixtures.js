@@ -64,24 +64,28 @@ module.exports ={
   Payment:[
     {
       confirmed:false,
+      amount:17.20,
       models:{
         user: {email:'buyer@dinabun.com'}
       }
     },
     {
       confirmed:false,
+      amount:17.20,
       models:{
         user: {email:'buyer@dinabun.com'}
       }
     },
     {
       confirmed:false,
+      amount:17.20,
       models:{
         user: {email:'buyer@dinabun.com'}
       }
     },
     {
       confirmed:false,
+      amount:17.20,
       models:{
         user: {email:'buyer@dinabun.com'}
       }

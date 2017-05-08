@@ -14,11 +14,12 @@ describe('PaymentController',function(){
     });
 
 
-    it('should redirect to paypal approving url',function(done){
+    it('should return a token for the current payment',function(done){
         user
-          .get('/checkoutPayment')
+          .post('/checkoutPayment')
+          .expect(200)
           .expect(function(res,err){
-            res.headers.location.should.include('https://www.sandbox.paypal.com/cgi-bin');
+            res.body.should.have.property('payToken');
           })
           .end(done)
     });
@@ -34,9 +35,8 @@ describe('PaymentController',function(){
         user
           .get('/allPayments')
           .expect(200)
-          .expect((res)=>}{
+          .expect((res)=>{
             res.body.should.have.property('payments');
-            
           })
           .end(done);
     });
