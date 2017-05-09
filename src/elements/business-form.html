@@ -1,6 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
-<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
@@ -45,7 +44,6 @@
  </style>
  <template>
   <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
-  <app-localstorage-document key="language" data="[[language]]"></app-localstorage-document>
   <label-element id="labelElement" on-labels-changed="changeLabelsArray"></label-element>
   <div class="row">
     <paper-card class="col-sm-7 offset-sm-1" id="paperCard">

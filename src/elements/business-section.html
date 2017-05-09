@@ -5,7 +5,6 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
-<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../elements/business-card.html">
 <link rel="import" href="../elements/business-form.html">
 <link rel="import" href="../elements/post-form.html">
@@ -33,7 +32,6 @@
     }
   </style>
   <template>
-    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/acco/business" data="{{routeData}}" tail="{{businessIdSubRoute}}"></app-route>
     <app-route route="{{businessIdSubRoute}}" pattern="/:businessId" data="{{businessIdSubRouteData}}" tail="{{postActionSubRoute}}"></app-route>
@@ -85,6 +83,10 @@
       ],
 
       properties : {
+        language:{
+          type:String,
+          statePath:'language'
+        },
         business : {
           type : Array,
           statePath : 'business.entities'
