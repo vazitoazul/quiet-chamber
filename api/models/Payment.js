@@ -12,6 +12,7 @@ module.exports = {
     billingAgreement : { type: 'string'},
     confirmed : { type: 'boolean', defaultsTo : false },
     bill : { model: 'bill'},
-    amount: {type:'float',required:true }
+    amount: {type:'float',required:true },
+    tax:{type:'float',required:true}
   }
 };

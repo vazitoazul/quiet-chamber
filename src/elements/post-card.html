@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
 <dom-module id="post-card">
   <style include="app-grid-style shared-styles">
     .card-ligth {
@@ -22,7 +23,6 @@
     }
   </style>
   <template>
-    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <template is="dom-if" if="[[!search]]">
       <template is="dom-if" if="[[complete]]">
         <paper-card>
@@ -73,7 +73,8 @@
       is: 'post-card',
 
       behaviors : [
-        Polymer.AppLocalizeBehavior
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior
       ],
 
       properties : {
@@ -87,6 +88,10 @@
         search : {
           type : Boolean,
           value : false
+        },
+        language:{
+          type:String,
+          statePath:'language'
         },
         resources : {
           value :  function(){

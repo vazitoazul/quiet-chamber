@@ -7,6 +7,7 @@
 <link rel="import" href="../elements/label-chip.html">
 <link rel="import" href="../elements/label-element.html">
 <link rel="import" href="../elements/post-card.html">
+<link rel="import" href="../redux/global-store.html">
 <dom-module id="business-card">
   <style include="app-grid-style shared-styles">
     .card-ligth {
@@ -22,7 +23,6 @@
     }
   </style>
   <template>
-    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <label-element id="labelElement" on-labels-changed="_labelsChanged"></label-element>
     <template is="dom-if" if="[[complete]]">
       <paper-card image="http://tensaiweb.info/blog/wp-content/uploads/2016/05/Consejos-para-dise%C3%B1ar-un-logo-adecuado-para-tu-empresa.jpg">
@@ -81,7 +81,8 @@
       is: 'business-card',
 
       behaviors : [
-        Polymer.AppLocalizeBehavior
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior
       ],
 
       properties : {
@@ -98,6 +99,10 @@
         },
         businessLabels:{
           type : Array
+        },
+        language:{
+          type:String,
+          statePath:'language'
         },
         resources : {
           value :  function(){

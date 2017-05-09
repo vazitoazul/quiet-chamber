@@ -1,18 +1,25 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../redux/global-store.html">
 
 <dom-module id="label-element">
 	<template>
-		<app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
 	</template>
 </dom-module>
 <script>
 	Polymer({
 		is: 'label-element',
+		behaviors:[
+			GlobalStoreBehavior
+		],
 		properties : {
 	        language :{
-	          type : String
+	          type : String,
+						statePath: 'language'
 	        },
+					behaviors:[
+						GlobalStoreBehavior
+					],
 	        resources : {
 						type : Object,
 	        	value : {
@@ -69,6 +76,7 @@
 		},
 
 		computeLabelArray : function(language, resources){
+				if(!language)return[];
 	    	var labelArray = [];
 	    	var labels = resources[language];
 				var keys = Object.keys(labels);

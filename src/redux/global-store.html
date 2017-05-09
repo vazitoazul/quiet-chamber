@@ -4,6 +4,7 @@
 <link rel="import" href="reducers/payments-reducer.html">
 <link rel="import" href="reducers/business-reducer.html">
 <link rel="import" href="reducers/search-reducer.html">
+<link rel="import" href="reducers/language-reducer.html">
 
 <script>
 
@@ -29,7 +30,8 @@
       payments:payments(state.payments,action),
       payouts:payouts(state.payouts,action),
       business:business(state.business,action),
-      search:search(state.search,action)
+      search:search(state.search,action),
+      language:language(state.language,action)
     };
   };
   const globalStore = Redux.createStore(

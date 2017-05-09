@@ -31,7 +31,7 @@ module.exports.routes = {
   * `assets` directory)                                                      *
   *                                                                          *
   ***************************************************************************/
-
+  '/testtest':'UserController.test',
   //bills related routes
   'post /requestBill' : 'BillController.createBillForPlanPayments',
   'get /allBills' : 'BillController.getAll',

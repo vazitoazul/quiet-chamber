@@ -28,7 +28,6 @@
         max-width: 100% !important;
       }
     </style>
-    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <app-route
         route="{{route}}"
         pattern="/:page"
@@ -79,7 +78,7 @@
         },
         language :{
           tpye : String,
-          value : 'es'
+          statePath:'language'
         },
         resources:{
           value:function(){

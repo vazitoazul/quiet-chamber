@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+var url = require('url');
+var path= require('path'),
+    async = require('async'),
+    paypal = require('paypal-rest-sdk');
+process.chdir(path.resolve(__dirname,'../'));
+(function() {
+  var sails;
+  try {
+    sails = require('sails');
+  } catch (e) {
+    console.error('To run an app using `node app.js`, you usually need to have a version of `sails` installed in the same directory as your app.');
+    console.error('To do that, run `npm install sails`');
+    console.error('');
+    console.error('Alternatively, if you have sails installed globally (i.e. you did `npm install -g sails`), you can use `sails lift`.');
+    console.error('When you run `sails lift`, your app will still use a local `./node_modules/sails` dependency if it exists,');
+    console.error('but if it doesn\'t, the app will run with the global sails instead!');
+    return;
+  }
+
+  // Try to get `rc` dependency
+  var rc;
+  try {
+    rc = require('rc');
+  } catch (e0) {
+    try {
+      rc = require('sails/node_modules/rc');
+    } catch (e1) {
+      console.error('Could not find dependency: `rc`.');
+      console.error('Your `.sailsrc` file(s) will be ignored.');
+      console.error('To resolve this, run:');
+      console.error('npm install rc --save');
+      rc = function () { return {}; };
+    }
+  }
+  // Start server
+  sails.lift(rc('sails'),function(done){
+    Payout.find({payed:false},(err,payouts)=>{
+      if(err) throw err;
+      async.each(payouts,(value,callback)=>{
+        paypal.payout.get(value.payPalData.payout_batch_id,(error,payout)=>{
+          if(err) return callback();
+          if(payout.batch_header.batch_status==='SUCCESS'){
+            Payout.update(value.id,{status:'SUCCESS',payed:true},(error,updated)=>{
+              if(error) return callback(error);
+              User.findOne(value.user,(error,user)=>{
+                if(error) return callback(error);
+                user.balance.push(-(value.amount+value.fee));
+                User.update(user.id,{balance:user.balance},(error,updated)=>{
+                  if(error) return callback(error);
+                  callback();
+                });
+              });
+            });
+          }
+        });
+      },(err)=>{
+        if(err) logger.error({message:'Payout cant be updated',error:err});
+        sails.lower(function(){
+            process.exit();
+          });
+      });
+    });
+  });
+})();

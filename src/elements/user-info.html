@@ -38,15 +38,15 @@
       method="POST"
       on-response="handleMailVerifResponse"></iron-ajax>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
-    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <form is="iron-form" method="POST" action="/updateuserinfo" id="userInfoForm">
-    <h4>[[localize('user_info')]]</h4>
+    <h4>Información de Registro</h4>
     <paper-card>
       <div class="card-content">
           <paper-input name="userFirstName" label="[[localize('names')]]" required  value="{{user.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
           <paper-input name="userLastName" label="[[localize('last_name')]]" required  value="{{user.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
       </div>
       <div class="card-content">
+
         <div hidden$="[[!user.mailVerified]]">
           <span class="success">[[localize('your_address')]] <b>[[user.email]]</b> [[localize('has_been_verified')]]</span>
         </div>
@@ -65,7 +65,7 @@
         </div>
       </div>
     </paper-card>
-    <h4>[[localize('contact_information)')]]</h4>
+    <h4>Información de contacto</h4>
     <paper-card id="toastContainer">
       <div class="card-content">
         <paper-input name="contactFirstName" label="[[localize('names')]]" required  value="{{user.contactInfo.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
@@ -103,7 +103,8 @@
 
       properties : {
         language : {
-          value : 'en'
+          type:String,
+          statePath:'language'
         },
         user :{
         	type : Object,

@@ -41,7 +41,6 @@
         @apply(--layout-self-center);
       }
     </style>
-    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <h2>[[localize('log_in_tittle')]]</h2>
     <paper-card>
       <div class="card-content">
@@ -117,7 +116,8 @@
           statePath:'passRecovery.lastError'
         },
         language : {
-          value : 'en'
+          type:String,
+          statePath:'language'
         },
         resources: {
                 value: function() {

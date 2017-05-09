@@ -46,7 +46,6 @@
         text-align: center;
       }
     </style>
-    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <app-location route="{{route}}"></app-location>
     <app-route
         route="{{route}}"
@@ -111,7 +110,8 @@
           observer:'_userChange'
         },
         language : {
-          value : 'es'
+          type:String,
+          statePath : 'language'
         },
         resources: {
                 value: function() {

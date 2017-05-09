@@ -27,7 +27,6 @@
          pattern="/:section"
          data="{{routeData}}"
          ></app-route>
-     <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
      <label-element id="labelElement" on-labels-changed="changeLabelsArray"></label-element>
      <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
      <div class="search-box class row">
@@ -72,7 +71,7 @@
         },
         language:{
           type:String,
-          value:'es'
+          statePath:'language'
         },
         resources:{
           value:function(){

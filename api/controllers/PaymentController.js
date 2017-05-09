@@ -106,25 +106,28 @@ module.exports = {
 		        return next(error);
 		    } else {
 					console.log(JSON.stringify(billingAgreement,null,4));
-						var amount = 0;
+						var amount = 0,tax=0;
 						billingAgreement.plan.payment_definitions.forEach((item)=>{
 							amount+= parseFloat(item.amount.value);
 							if(item.charge_models){
 								item.charge_models.forEach((model)=>{
 									amount+= parseFloat(model.amount.value);
+									if(model.type==='TAX'){
+										tax+=parseFloat(model.amount.value);
+									}
 								});
 							}
 						});
 						amount = parseFloat(amount.toFixed(2));
 						console.log(typeof amount);
-            Payment.create({user : req.user.id, billingAgreement : billingAgreement.id,amount:amount},function(err,payment){
+            Payment.create({user : req.user.id, billingAgreement : billingAgreement.id,amount:amount,tax:tax},function(err,payment){
               if(err){
                 return next(err);
               }
               var subscribedUntil = new Date();
               subscribedUntil.setHours(0,0,0,0);
               subscribedUntil.setMonth(subscribedUntil.getMonth() + 1);
-              User.update(req.user.id, {subscribedUntil : subscribedUntil,paypalInfo:billingAgreement.payer.payer_info}, function(err, updated){
+              User.update(req.user.id, {subscribedUntil : subscribedUntil,payPalInfo:billingAgreement.payer.payer_info}, function(err, updated){
                 if(err){
                   throw err;
                 }
@@ -206,7 +209,7 @@ module.exports = {
 										if(err){
 											logger.error({message:'IPN Failed to extend users subscription',err:err,body:req.body});
 										}else{
-											Payment.create({user:payment.user,amount:parseFloat(req.body.amount),billingAgreement:req.body.recurring_payment_id},(err,newPayment)=>{
+											Payment.create({user:payment.user,amount:parseFloat(req.body.amount),tax:parseFloat(req.body.tax),billingAgreement:req.body.recurring_payment_id},(err,newPayment)=>{
 												if(err){
 													logger.error({message:'IPN listener Failed to create the payment',err:err,body:req.body});
 												}
@@ -244,9 +247,10 @@ module.exports = {
 	*
 	*/
 	createPayout:function(req,res,next){
+		console.log(req.body);
 		if(!req.body.amount) return res.json(409,{error:'invalid_amount'})
 		User.findOne(req.user.id,(err,user)=>{
-			if(!user.paypalInfo){
+			if(!user.payPalInfo){
 				return res.json(400,{error:'no_pp_account'});
 			}
 			var payout = {
@@ -258,17 +262,21 @@ module.exports = {
 		        {
 		            "recipient_type": "PAYPAL_ID",
 		            "amount": {
-		                "value": req.body.amount.toFixed(2),
+		                "value": req.body.amount,
 		                "currency": "USD"
 		            },
-		            "receiver": user.paypalInfo.payer_id,
+		            "receiver": user.payPalInfo.payer_id,
 		            "note": "Pago de comisiones"
 		        }
 		    ]
 			};
 			paypal.payout.create(payout,(err,payout)=>{
 				if(err) return next({error:'unable_to_pay'});
-				Payout.create({user:user.id,payPalData:payout,amount:req.body.amount},(err,created)=>{
+				var fee=req.body.amount*0.02,amount=parseFloat(req.body.amount);
+				if(fee>=20){
+					fee=20;
+				}
+				Payout.create({user:user.id,payPalData:payout.batch_header,amount:amount,fee:fee},(err,created)=>{
 					if(err) return next(err);
 					return res.ok();
 				});

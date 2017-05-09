@@ -1,0 +1,13 @@
+<script>
+
+const language = (state=GlobalState.language,action)=>{
+  switch (action.type) {
+    case 'SET_LANG':
+      return action.lang;
+      break;
+    default:
+      return state;
+  }
+};
+
+</script>

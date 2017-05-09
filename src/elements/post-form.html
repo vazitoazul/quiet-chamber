@@ -35,7 +35,6 @@
     }
   </style>
   <template>
-    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <template is="dom-if" if="[[business]]">
       <business-card business="[[business]]"></business-card>
     </template>
@@ -117,6 +116,10 @@
         post : {
           type : Object,
           value : {}
+        },
+        language:{
+          type:String,
+          statePath:'language'
         },
         resources : {
           value :   function(){

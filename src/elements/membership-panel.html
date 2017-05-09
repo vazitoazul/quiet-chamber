@@ -21,6 +21,13 @@
       span.value{
         font-size: 1.3rem;
       }
+      div.loading-overlay{
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: -15px;
+        background-color: rgba(0,0,0,0.2);
+      }
     </style>
     <div class="vertical">
       <div class="horizontal">
@@ -40,12 +47,12 @@
           <paper-card  class="vertical subscription m-2">
             <div class="card-content">
               <h3>Tienes una suscripción activa</h3>
-              <span>Tu suscripción se encuentra activa hasta el: [[user.subscribedUntil]]</span>
+              <span>Tu suscripción se encuentra activa hasta el: [[localize('date','value',user.subscribedUntil)]]</span>
             </div>
           </paper-card>
           <paper-card class="m-2">
             <div class="card-content">
-              <h5>Tu saldo actual es de: <b>[[user.totalBalance]]</b></h5>
+              <h5>Tu saldo actual es de: <b>[[showDecimal(user.totalBalance)]]$</b></h5>
             </div>
             <div class="card-actions horizontal">
               <div class="vertical" hidden="[[state.canRequest]]">
@@ -64,20 +71,20 @@
       <h2>Cobrar</h2>
       <div class="vertical">
         <span>Aquí puedes enviar tu saldo hacia tu cuenta de PayPal</span>
-        <span>Tu saldo actual es de [[user.totalBalance]]</span>
+        <span>Tu saldo actual es de <b>[[showDecimal(user.totalBalance)]]$</b> </span>
         <div class="vertical">
           <paper-input label="Monto a retirar" value="{{amount}}" id="amountInput" auto-validate allowed-pattern="[0-9.]"></paper-input>
           <div class="horizontal">
             <b class="flex">Valor de la transferencia:</b>
-            <span class="text-secondary value">[[amount]]$</span>
+            <span class="text-secondary value">[[showDecimal(amount)]]$</span>
           </div>
           <div class="horizontal">
             <b class="flex">Costo por la transferencia:</b>
-            <span class="text-secondary value">+[[tCost]]$</span>
+            <span class="text-secondary value">+[[showDecimal(tCost)]]$</span>
           </div>
           <div class="horizontal">
             <b class="flex ">Total:</b>
-            <span class="text-secondary value">[[finalValue]]$</span>
+            <span class="text-secondary value">[[showDecimal(finalValue)]]$</span>
           </div>
         </div>
       </div>
@@ -87,11 +94,12 @@
       </div>
       <div class="horizontal">
         <div class="flex">
-
         </div>
         <paper-button raised class="primary" on-click="requestPayout">Cobrar</paper-button>
       </div>
-
+      <div class="loading-overlay vertical center" hidden="[[!state.loading]]">
+          <paper-spinner active></paper-spinner>
+      </div>
 
     </paper-dialog>
     <paper-toast id="toast" ></paper-toast>
@@ -109,7 +117,7 @@
         state:{
           type:Object,
           statePath:'payouts',
-          onChange:'_payoutChange'
+          observer:'_payoutChange'
         },
         user:{
           type:Object,
@@ -119,12 +127,35 @@
           type:Object,
           observer:'_getAmounts',
           value:0
+        },
+        language:{
+          type:String,
+          statePath:'language'
+        },
+        resources:{
+          value:function(){
+            return {
+              'es':{
+                'date': '{ value , date , medium}'
+              },
+              'en':{
+                'date': '{ value , date , medium}'
+              }
+            }
+          }
         }
       },
       showMessage:function(text,duration){
         this.$.toast.text=text;
         this.$.toast.duration=duration||3000;
         this.$.toast.open();
+      },
+      showDecimal:function(decimal){
+        if(!decimal)return '0.00';
+        if(typeof decimal!=='number'){
+          decimal = Number(decimal);
+        }
+        return decimal.toFixed(2);
       },
       attached:function(){
         this.$.dialog.fitInto=this;
@@ -136,10 +167,19 @@
           this.showMessage('No tienes suficiente dinero en tu cuenta para realizar la transacción.');
           return;
         }
-        this.dispatch('requestPayout',{amount:this.finalValue,});
+        this.dispatch('requestPayout',{amount:this.amount});
       },
       _payoutChange:function(newVal,oldVal){
-        console.log(newVal);
+        if(!newVal) return ;
+        if(oldVal){
+          if(!newVal.loading&&oldVal.loading){
+            if(newVal.lastAction==='REQUEST_PAYOUT'){
+              this.$.dialog.close();
+              this.showMessage('Has solicitado un pago exitosamente.Se confirmará dentro de 24 horas.');
+            }
+          }
+        }
+
       },
       _getAmounts:function(newVal){
         if(!newVal){

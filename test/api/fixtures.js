@@ -65,6 +65,7 @@ module.exports ={
     {
       confirmed:false,
       amount:17.20,
+      tax:2.2,
       models:{
         user: {email:'buyer@dinabun.com'}
       }
@@ -72,6 +73,7 @@ module.exports ={
     {
       confirmed:false,
       amount:17.20,
+      tax:2.2,
       models:{
         user: {email:'buyer@dinabun.com'}
       }
@@ -79,6 +81,7 @@ module.exports ={
     {
       confirmed:false,
       amount:17.20,
+      tax:2.2,
       models:{
         user: {email:'buyer@dinabun.com'}
       }
@@ -86,6 +89,7 @@ module.exports ={
     {
       confirmed:false,
       amount:17.20,
+      tax:2.2,
       models:{
         user: {email:'buyer@dinabun.com'}
       }

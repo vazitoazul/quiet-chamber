@@ -6,7 +6,11 @@ const {info:userInfoInit} = userInit;
 const userInfo = (state=userInfoInit,action)=>{
   switch (action.type) {
     case 'SET_USER_INF':
-      return Object.assign({},state,action.info);
+      var info=action.info;
+      if(info.subscribedUntil){
+        info.subscribedUntil = (new Date(info.subscribedUntil)).getTime();
+      }
+      return Object.assign({},state,info);
       break;
     case 'SET_USER_BILLING_INFO':
       return Object.assign({},state,{billingInfo:action.info});
@@ -34,6 +38,7 @@ const user = (state=userInit,action)=>{
     case 'SET_USER_INF':
       switch (action.status) {
         case 'success':
+          console.log(action.info);
           return Object.assign({},state,{loading:false,info:userInfo(state.info,action),lastAction:action.type});
           break;
         case 'error':

@@ -45,7 +45,7 @@
  </style>
  <template>
   <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
-  <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
+  <app-localstorage-document key="language" data="[[language]]"></app-localstorage-document>
   <label-element id="labelElement" on-labels-changed="changeLabelsArray"></label-element>
   <div class="row">
     <paper-card class="col-sm-7 offset-sm-1" id="paperCard">
@@ -201,7 +201,7 @@
 
           language : {
             type : String,
-            value : 'en'
+            statePath:'language'
           },
 
           labelsArray :{

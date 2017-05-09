@@ -81,7 +81,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         pattern="/acco/:section"
         data="{{routeData}}"
         ></app-route>
-    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <app-drawer-layout>
       <app-drawer align="left">
@@ -112,7 +111,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <section section="payments">
           <div class="vertical">
             <div class="horizontal">
-              <payments-grid class="flex"></payments-grid>
+              <payments-grid class="flex" on-bill-added="billAdded"></payments-grid>
             </div>
             <div class="horizontal">
               <bills-grid class="flex"></bills-grid>
@@ -212,7 +211,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         language :{
           tpye : String,
-          value : 'en'
+          statePath:'language'
         },
         lastError :{
           type : String,
@@ -380,6 +379,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }else {
           this.$.credentialDialog.close();
         }
+      },
+      billAdded:function(){
+        this.showMessage('Se te ha emitido una factura exitosamente.')
       }
     });
   </script>

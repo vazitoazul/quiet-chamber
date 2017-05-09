@@ -32,6 +32,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../elements/login-button.html">
 <link rel="import" href="../elements/search-bar.html">
 <link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
 <dom-module id="main-view">
   <template>
     <style include="shared-styles">
@@ -89,7 +90,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
     <app-location route="{{route}}"></app-location>
-    <app-localstorage-document key="langauge" data="{{language}}"></app-localstorage-document>
     <app-header-layout fullbleed>
       <app-header fixed reveals effects="fade-background">
         <app-toolbar>
@@ -244,12 +244,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       is: 'main-view',
 
       behaviors : [
-        Polymer.AppLocalizeBehavior
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior
       ],
 
       properties : {
         language : {
-          value : 'es'
+          type:String,
+          statePath:'language'
         },
         user :{
           type : Object

@@ -1,11 +1,10 @@
 #!/usr/bin/env node
-require('newrelic');
 var url = require('url');
 var path= require('path'),
     async = require('async'),
     ObjectId = require('mongodb').ObjectID;
 process.chdir(path.resolve(__dirname,'../'));
-
+var subsValue;
 (function() {
   var sails;
   try {
@@ -43,6 +42,7 @@ process.chdir(path.resolve(__dirname,'../'));
         fourthlvl = [];
     Payment.find({ confirmed : false}, function (err , payments){
       if(err) throw err;
+      subsValue=payments[0].amount - payments[0].tax;
       async.eachOfLimit(payments,10,
         function(value,index,callback){
           Payment.update({id : value.id},{confirmed : true}, function(err,updated){
@@ -91,33 +91,32 @@ process.chdir(path.resolve(__dirname,'../'));
           var result = {};
           firstlvl.forEach(function(id){
             if(!result[id]){
-              result[id] = 0.25;
+              result[id] = subsValue*0.1;
             }else{
-              result[id] = result[id] + 0.25;
+              result[id] = result[id] + subsValue*0.1;
             }
           });
           secondlvl.forEach(function(id){
             if(!result[id]){
-              result[id] = 0.50;
+              result[id] = subsValue*0.1;
             }else{
-              result[id] = result[id] + 0.50;
+              result[id] = result[id] + subsValue*0.1;
             }
           });
           thirdlvl.forEach(function(id){
             if(!result[id]){
-              result[id] = 0.75;
+              result[id] = subsValue*0.3;
             }else{
-              result[id] = result[id] + 0.75;
+              result[id] = result[id] + subsValue*0.3;
             }
           });
           fourthlvl.forEach(function(id){
             if(!result[id]){
-              result[id] = 1;
+              result[id] = subsValue*0.5;;
             }else{
-              result[id] = result[id] + 1;
+              result[id] = result[id] + subsValue*0.5;
             }
           });
-          console.log(result);
           async.eachOf(result, function (value, key, callback){
             User.native(function(err,collection){
               collection.update({ _id : new ObjectId(key)} , { $push : { balance : [value] }}, function(err,items){

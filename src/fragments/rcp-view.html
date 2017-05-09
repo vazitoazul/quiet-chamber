@@ -31,7 +31,6 @@
         height: 100vh;
       }
     </style>
-    <app-localstorage-document id="localStorageLang" key="langauge" data="{{language}}"></app-localstorage-document>
     <app-route
         route="{{route}}"
         pattern="/:token"
@@ -93,7 +92,7 @@
         },
         language :{
           type : String,
-          value : 'es'
+          statePath:'language'
         },
         passwordsMatch:{
           type:Boolean

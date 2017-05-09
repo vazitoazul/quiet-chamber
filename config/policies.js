@@ -26,6 +26,7 @@ module.exports.policies = {
   *                                                                          *
   ***************************************************************************/
   'UserController' : {
+    'test':[],
     'verifyMail' : ['passport'],
     'getPassRecovery' : ['passport'],
     'recoverPass' : ['passport'],

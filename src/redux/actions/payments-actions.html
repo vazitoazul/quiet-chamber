@@ -94,21 +94,19 @@
           });
         }
       },
-      requestPayout:function(amount){
+      requestPayout:function(body){
         return function(dispatch){
           dispatch({type:'REQUEST_PAYOUT'});
           let request = new Request('/requestPayout',{
             method:'POST',
             headers: standardHeaders,
             credentials: 'include',
-            body:JSON.stringify({amount:amount})
+            body:JSON.stringify(body)
           });
           window.fetch(request)
           .then(handleReqError)
           .then((response)=>{
-            response.json().then((json)=>{
-              dispatch({type:'REQUEST_PAYOUT',status:'success'});
-            });
+            dispatch({type:'REQUEST_PAYOUT',status:'success'});
           })
           .catch((e)=>{
             dispatch({type:'REQUEST_PAYOUT',status:'error',error:e.message});

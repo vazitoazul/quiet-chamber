@@ -5,6 +5,8 @@ module.exports = {
       user:{ model: 'User', required: true },
       payed:{type:'boolean',defaultsTo:false},
       status:{type:'string',defaultsTo:null},
-      amount:{type:'float',required:true}
+      amount:{type:'float',required:true},
+      fee:{type:'float',required:true}
+      
     }
 };

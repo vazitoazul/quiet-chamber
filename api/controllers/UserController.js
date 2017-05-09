@@ -14,7 +14,8 @@ module.exports = {
 				return res.badRequest();
 			}
 			user.isSuscribed=user.isSuscribed();
-			user.totalBalance=user.balance.reduce((a, b) => a + b, 0); 
+			user.totalBalance=user.balance.reduce((a, b) => a + b);
+			user.totalBalance=Math.round( user.totalBalance * 100 ) / 100;
 			User.find({recommender : user.id}, (err,found) => {
 				if(err) return res.badRequest();
 				user.recommended = found;
@@ -337,5 +338,15 @@ module.exports = {
 			}
 			return res.json({info:updated[0].billingInfo});
 		})
+	},
+	test: function(req,res,next){
+		User.findOne({email:'pacho-uno@hotmail.com'},(err,user)=>{
+			console.log(user);
+			user.balance.push(10);
+			User.update({id:user.id},{balance:user.balance},(err,updated)=>{
+				res.json(err||updated);
+			});
+
+		});
 	}
 }

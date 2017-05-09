@@ -5,6 +5,8 @@
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
 
 <dom-module id="papr-view">
   <template>
@@ -20,19 +22,11 @@
         @apply(--layout-self-end);
       }
     </style>
-    <iron-ajax
-      auto
-      url="/getcurrentuser"
-      handle-as="json"
-      on-response="currentUserHandler"
-      id="currentUserRequester"
-      on-error="currentUserErrorHandler"></iron-ajax>
-    <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
     <div class="vertical center flex">
       <paper-card class="vertical">
         <div class="card-content flex">
           <h4>[[localize('pay_done')]]</h4>
-          <h5 class="text-accent">[[localize('subscribed_until','start', subscribedUntil)]]</h5>
+          <h5 class="text-accent">[[localize('subscribed_until','start', user.subscribedUntil)]]</h5>
         </div>
         <div class="card-actions vertical">
           <a href="/acco/membership" class="link">
@@ -50,25 +44,30 @@
       is: 'papr-view',
 
       behaviors : [
-        Polymer.AppLocalizeBehavior
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        AuthActionsBehavior
       ],
 
       properties : {
           language : {
             type : String,
-            value : 'en'
+            statePath:'language'
           },
-
+          user:{
+            type:Object,
+            statePath:'user.info'
+          }
           resources : {
             value : function(){
               return {
                 'en' : {
                   'pay_done' : 'Your payment has been completed succesfully',
-                  'subscribed_until' : 'You are subscribed until { start , date , short}'
+                  'subscribed_until' : 'You are subscribed until { start , date , medium}'
                 },
                 'es' : {
                   'pay_done' : 'Tu pago se ha completado exitosamente',
-                  'subscribed_until' : 'Tu subscrición dura hasta el: { start , date , short}'
+                  'subscribed_until' : 'Tu subscrición dura hasta el: { start , date , medium}'
                 }
               }
             }
@@ -79,9 +78,8 @@
           }
       },
 
-      currentUserHandler : function(e){
-        var user = e.detail.__data__.response;
-        this.set('subscribedUntil', user.subscribedUntil ? new Date(user.subscribedUntil): 0);
+      attached : function(e){
+        this.dispatch('loadUserInfo');
       }
 
     });
