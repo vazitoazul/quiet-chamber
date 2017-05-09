@@ -8,9 +8,21 @@
 
     <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../../../bower_components/web-component-tester/browser.js"></script>
+    <!-- Polyfills -->
+    <script src="../../../bower_components/promise-polyfill/Promise.min.js"></script>
+    <script src="../../../bower_components/fetch/fetch.js"></script>
+
+    <!-- Date Utils -->
+    <script src="../../../bower_components/date-utils/lib/date-utils.min.js"></script>
+
+    <!-- Redux -->
+    <script src="../../../bower_components/redux.min/index.js"></script>
+    <script src="../../../bower_components/redux-thunk.min/index.js"></script>
 
     <!-- Import the element to test -->
     <link rel="import" href="../../../src/elements/user-info.html">
+
+
   </head>
   <body>
     <test-fixture id="basic">
@@ -22,24 +34,6 @@
 
       describe('<user-info>', function() {
         var view;
-        var user={
-          email : 'user@test.com',
-        	mailVerified : false,
-        	firstName : 'Pepe',
-        	lastName : 'Trueno',
-        	contactInfo : {
-        		firstName : 'Peps',
-        		lastName : 'Rayo',
-        		telephones : ['123123123123','123123123'],
-        		location : {
-        			latitude : '-0.1807',
-        			longitude : '78.4678'
-        		},
-        		email : 'pepetrueno@test.com',
-        		address : 'En la casa del rayo'
-        	},
-          intlCredential:null
-        };
         before(function() {
           view = fixture('basic');
         });
@@ -47,10 +41,6 @@
           expect(view.is).to.equal('user-info');
         });
 
-        it('should set the new currentUser',function(){
-          view.setCurrentUser(user);
-          expect(view.user.email).to.equal('user@test.com');
-        });
 
       });
 
