@@ -14,7 +14,7 @@ describe('RouterController', function() {
 	      request(sails.hooks.http.app)
 	        .get('/user?id=xxxx')
 	        .expect(function(res){
-            res.text.should.include('<title>My App</title>')
+            res.text.should.include('<title>Dinabun</title>')
 	        })
 	        .end(done)
     });

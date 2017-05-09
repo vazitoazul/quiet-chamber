@@ -14,7 +14,7 @@ module.exports = {
 				return res.badRequest();
 			}
 			user.isSuscribed=user.isSuscribed();
-			user.totalBalance=user.balance.reduce((a, b) => a + b);
+			user.totalBalance=user.balance.reduce((a, b) => a + b,0);
 			user.totalBalance=Math.round( user.totalBalance * 100 ) / 100;
 			User.find({recommender : user.id}, (err,found) => {
 				if(err) return res.badRequest();
