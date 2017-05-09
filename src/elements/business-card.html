@@ -144,7 +144,7 @@
         this.set('businessLabels',this.$.labelElement.computeSelectedLabelsObjectArray(this.business.labels.slice(0),e.detail));
       },
 
-      _businessLabelsObserver(labels){
+      _businessLabelsObserver:function(labels){
         if(!labels)return;
         var labelElement = this.$.labelElement;
         this.set('businessLabels',labelElement.computeSelectedLabelsObjectArray(labels.slice(0),labelElement.labels));
