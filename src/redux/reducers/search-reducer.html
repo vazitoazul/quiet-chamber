@@ -5,13 +5,13 @@
       case 'SCH_POSTS':
         switch (action.status) {
           case 'success':
-            return Object.assign({},state,{lastResult: action.results});
+            return Object.assign({},state,{lastResult: action.results, query: action.query});
             break;
           case 'error':
             return Object.assign({},state,{lastError:action.error,status:'error'});
             break;
           default:
-            return Object.assign({},state,{status:'loading'});
+            return Object.assign({},state,{status:'loading', firstLoad : false});
             break;
         }
         break;

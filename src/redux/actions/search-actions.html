@@ -16,7 +16,7 @@
           .then(handleReqError)
           .then((response)=>{
             response.json().then((json)=>{
-              dispatch({type:'SCH_POSTS',status:'success',results:json});
+              dispatch({type:'SCH_POSTS',status:'success',results:json, query : query});
             });
           })
           .catch((e)=>{

@@ -1,5 +1,4 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/paper-search/paper-search.html">
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
@@ -13,43 +12,45 @@
 <link rel="import" href="../shared-styles.html">
 <dom-module id="search-bar">
    <style include="app-grid-style shared-styles">
-
+     paper-button{
+      width: 80% ;
+      margin-top: 1.9rem;
+     }
+     paper-autocomplete{
+      color: black;
+     }
    </style>
    <template>
      <app-location route="{{route}}"></app-location>
-     <app-route
-         route="{{route}}"
-         pattern="/acco"
-         tail="{{subroute}}"></app-route>
-     <app-route
-         route="{{subroute}}"
-         pattern="/:section"
-         data="{{routeData}}"
-         ></app-route>
      <label-element id="labelElement" on-labels-changed="changeLabelsArray"></label-element>
      <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
-     <div class="search-box class row">
-       <paper-dropdown-menu label="[[localize('type')]]" class="col-sm-5" required>
-         <paper-listbox id="paperList" class="dropdown-content" selected="{{query.type}}"  attr-for-selected="value">
-           <paper-item value="f">[[localize('franchise')]]</paper-item>
-           <paper-item value="d">[[localize('donation')]]</paper-item>
-           <paper-item value="i">[[localize('investment')]]</paper-item>
-           <paper-item value="j">[[localize('job')]]</paper-item>
-           <paper-item value="a">[[localize('advertising')]]</paper-item>
-         </paper-listbox>
-       </paper-dropdown-menu>
-       <paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required  value="{{query.cityLabel}}" error-message="[[localize('add_city')]]"></paper-input>
-        <div class="row col" id="autocompleteDiv">
-          <paper-autocomplete id="autocomplete" class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-xs-12" label="Select" source="[[labelsArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
-          <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-xs-12  row labels">
-            <template  id="businessLabelsTemplate" is="dom-repeat" items="[[selectedLabels]]">
-              <label-chip item="[[item]]" on-closed="spliceLabel" closeable></label-chip>
-            </template>
-          </div>
-        </div>
-        <paper-button raised on-click="search">Buscar</paper-button>
-     </div>
+     <form is="iron-form" id="searchForm">
+       <div class="search-box class row">
+           <paper-dropdown-menu label="[[localize('type')]]" class="col-sm-4" id="typeDropDown" required>
+             <paper-listbox id="paperList" class="dropdown-content" selected="{{query.type}}"  attr-for-selected="value">
+               <paper-item value="f">[[localize('franchise')]]</paper-item>
+               <paper-item value="d">[[localize('donation')]]</paper-item>
+               <paper-item value="i">[[localize('investment')]]</paper-item>
+               <paper-item value="j">[[localize('job')]]</paper-item>
+               <paper-item value="a">[[localize('advertising')]]</paper-item>
+             </paper-listbox>
+           </paper-dropdown-menu>
+           <paper-input id="cityInput" name="cityLabel" class="col-sm-8" label="[[localize('place')]]"  value="{{query.cityLabel}}" error-message="[[localize('place')]]"></paper-input>
+            <div class="row col-sm-8" id="autocompleteDiv">
+              <paper-autocomplete id="autocomplete" class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-xs-12" label="[[localize('labels')]]" source="[[labelsArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
+              <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-xs-12  row labels">
+                <template  id="businessLabelsTemplate" is="dom-repeat" items="[[selectedLabels]]">
+                  <label-chip item="[[item]]" on-closed="spliceLabel" closeable></label-chip>
+                </template>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <paper-button raised on-click="search" class="primary" type="submit">[[localize('search')]]</paper-button>
+            </div>
+         </div>    
+     </form>
      <div id="placesServiceResult"></div>
+     <paper-toast id="toast" duration="5000"></paper-toast>
    </template>
    <script>
     Polymer({
@@ -64,9 +65,7 @@
       properties:{
         query : {
           type: Object,
-          value : {
-            labels : [],
-          }
+          statePath : 'search.query'
         },
         language:{
           type:String,
@@ -94,7 +93,12 @@
                 'donation' : 'donation',
                 'advertising' : 'advertising',
                 'investment' : 'investment',
+                'investment' : 'investment',
                 'job' : 'job',
+                'labels' : 'labels',
+                'search' : 'Search',
+                'place' : 'location',
+                'select_type' : 'you must select the publish type'
               },
               'es':{
                 'search_post':'Busca una publicación',
@@ -112,7 +116,11 @@
                 'donation' : 'donación',
                 'advertising' : 'publicidad',
                 'investment' : 'inverciones',
-                'job' : 'trabajo'
+                'job' : 'trabajo',
+                'labels' : 'etiquetas',
+                'search' : 'Buscar',
+                'place' : 'ubicacion',
+                'select_type' : 'debes seleccionar al menos el tipo de publicacion'
               }
             }
           }
@@ -129,14 +137,24 @@
           type : Object,
           value : {types : ['(regions)'],componentRestrictions: {country: 'ec'}}
         },
+        firstLoad : {
+          type : Object,
+          statePath : 'search.firstLoad'
+        }
       },
 
       search : function(){
+        this.$.searchForm.submit();
         this.setQueryLabels();
         console.log(this.query);
-        console.log(this.route);
-        this.set('route.path','/srch')
-        this.dispatch('searchPosts',this.query)
+        console.log(this.query.type);
+        if(this.query.type == 'n'){
+          this.showMessage([[this.localize('select_type')]]);
+          return this.$.typeDropDown.focus();
+        }
+        this.dispatch('searchPosts',this.query);
+        console.log(this.firstLoad)
+        if(!this.firstLoad)this.set('route.path','/srch');
       },
 
       changeLabelsArray : function(e){
@@ -218,6 +236,12 @@
           queryLabels.push(this.selectedLabels[label].value);
         }
         this.set('query.labels',queryLabels);
+      },
+
+      showMessage:function(message,duration){
+        this.$.toast.text = message;
+        this.$.toast.duration=duration || 3000;
+        this.$.toast.open();
       },
     })
    </script>

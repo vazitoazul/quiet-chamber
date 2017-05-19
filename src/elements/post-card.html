@@ -7,66 +7,29 @@
 <link rel="import" href="../redux/global-store.html">
 <dom-module id="post-card">
   <style include="app-grid-style shared-styles">
-    .card-ligth {
-      color: var(--paper-grey-600);
-      font-size: 80%;
-    }
-    :host {
-      margin-top : 1rem;
-    }
-    card-header{
-      font-size: 110%;
-      @apply(--paper-font-headline);
-    }
-    paper-card {
-      width: 100%;
-    }
+  	span.ligth{
+  		color : grey;
+  	}
   </style>
   <template>
-    <template is="dom-if" if="[[!search]]">
-      <template is="dom-if" if="[[complete]]">
-        <paper-card>
-          <div class="card-content">
-            <div class="card-header row">
-              <h5>[[post.name]]</h5>
-            </div>
-            <div><span class="card-ligth">[[localize('type')]]</span><h6>[[localize('post_type','type',post.type)]]</h6></div>
-            <div><span class="card-ligth">[[localize('description')]]</span><h6>[[post.description]]</h6></div>
-            <div><span class="card-ligth">[[localize('amount')]]</span><h6>$[[post.amount]]</h6></div>
-            <!-- <template is="dom-if" if="[[franchise]]">
-              franchise
-            </template>
-            <template is="dom-if" if="[[investment]]">
-              investment
-            </template>
-            <template is="dom-if" if="[[donation]]">
-              donation
-            </template>
-            <template is="dom-if" if="[[advertising]]">
-              advertising
-            </template>
-            <template is="dom-if" if="[[job]]">
-              job
-            </template> -->
-          </div>
-          <div class="card-actions">
-            <a href="/acco/business/[[post.business]]/post/[[post.id]]"><paper-button class="primary">[[localize('edit')]]</paper-button></a>
-          </div>
-        </paper-card>
-      </template>
-      <template is="dom-if" if="[[!complete]]">
-        <paper-card class="uncomplete">
-          <div class="card-content">
-            <div class="card-header">
-              [[post.name]]
-            </div>
-            <div><span class="card-ligth">[[localize('type')]]</span><h6>[[localize('post_type','type',post.type)]]</h6></div>
-            <div><span class="card-ligth">[[localize('amount')]]</span><h6>$[[post.amount]]</h6></div>
-          </div>
-        </paper-card>
-      </template>
-    </template>
-
+  	<paper-card image="http://tensaiweb.info/blog/wp-content/uploads/2016/05/Consejos-para-dise%C3%B1ar-un-logo-adecuado-para-tu-empresa.jpg">
+  		<div class="card-contet row">
+  			<div class="row col-sm-12">
+  				<div class="col-sm-9">
+					<h4>[[post.name]]</h4>
+					<template is="dom-repeat" items="[[posts.labels]]">
+						<span class="ligth">[[item]]</span>
+					</template>
+  				</div>
+  				<h5 class="col-sm-3">$[[post.amount]]</h5>
+  			</div>
+			<span class="col-sm-12">[[post.business.cityLabel]]</span>
+			<span class="col-sm-12 ligth">[[post.description]]</span>
+			<div class="col-sm-12">
+				<span></span>
+			</div>
+  		</div>
+  	</paper-card>
   </template>
   <script>
     Polymer({
@@ -80,14 +43,6 @@
       properties : {
         post : {
           type : Object,
-        },
-        complete : {
-          type : Boolean,
-          value : false
-        },
-        search : {
-          type : Boolean,
-          value : false
         },
         language:{
           type:String,
@@ -128,33 +83,8 @@
       },
 
       observers : [
-        'changeTypeTemplate(post.type)'
-      ],
 
-      changeTypeTemplate : function(type){
-        this.set('franchise',false);
-        this.set('donation',false);
-        this.set('franchise',false);
-        this.set('advertising',false);
-        this.set('job',false);
-        switch(type){
-          case 'f':
-            this.set('franchise',true);
-          break;
-          case 'i':
-            this.set('investment',true);
-          break;
-          case 'd':
-            this.set('donation',true);
-          break;
-          case 'a':
-            this.set('advertising',true);
-          break;
-          case 'j':
-            this.set('job',true);
-          break;
-        }
-      }
+      ]
     });
   </script>
 </dom-module>

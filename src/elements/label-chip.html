@@ -38,9 +38,13 @@
     div{
       margin-top: 0.15rem;
     }
+    paper-material.chip{
+      background-color : black;
+      color : white;
+    }
   </style>
   <template>
-    <paper-material class="row" elevation="1" id="main" >
+    <paper-material class="row chip" elevation="1" id="main" >
         <div id="label">[[item.text]]</div>
         <template is="dom-if" if="[[closeable]]">
           <paper-icon-button class="label" icon="close" on-tap="close"></paper-icon-button>

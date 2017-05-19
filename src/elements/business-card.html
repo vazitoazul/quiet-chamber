@@ -6,7 +6,7 @@
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../elements/label-chip.html">
 <link rel="import" href="../elements/label-element.html">
-<link rel="import" href="../elements/post-card.html">
+<link rel="import" href="../elements/account-postcard.html">
 <link rel="import" href="../redux/global-store.html">
 <dom-module id="business-card">
   <style include="app-grid-style shared-styles">
@@ -48,7 +48,7 @@
         <div class="posts">[[localize('posts')]]</div>
         <div class="row">
           <template is="dom-repeat" items="[[business.posts]]">
-            <post-card post="[[item]]" class="col-sm-6"></post-card>
+            <account-postcard post="[[item]]" class="col-sm-6"></account-postcard>
           </template>
         </div>
     </template>

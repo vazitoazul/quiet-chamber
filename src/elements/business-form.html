@@ -14,7 +14,7 @@
 <link rel="import" href="../elements/label-element.html">
 <link rel="import" href="../elements/label-chip.html">
 <link rel="import" href="../elements/post-form.html">
-<link rel="import" href="../elements/post-card.html">
+<link rel="import" href="../elements/account-postcard.html">
 <link rel="import" href="../redux/actions/business-actions.html">
 <link rel="import" href="../redux/global-store.html">
 <dom-module id="business-form">
@@ -96,7 +96,7 @@
           [[localize('add_new_post')]]<paper-icon-button class="label" icon="add"></paper-icon-button>
         </a>
         <template  is="dom-repeat" items="[[business.posts]]">
-          <post-card post="[[item]]" complete class="col-sm-6 offset-sm-1"></post-card>
+          <account-postcard post="[[item]]" complete class="col-sm-6 offset-sm-1"></account-postcard>
         </template>
       </template>
     </div>

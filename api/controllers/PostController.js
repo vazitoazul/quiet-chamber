@@ -55,29 +55,37 @@ module.exports = {
 			*@param {string} location - post location
 			*@param {string} type - post type
 			*/
-		searchPosts : function(req,res,next){
-			var params = req.allParams();
-			var query = {};
-			var labels = params.labels;
-			var places = params.location;
-			if(labels||places)query['$or']=[];
+	searchPosts : function(req,res,next){
+		var params = req.allParams();
+		var query = {};
+		var labels = params.labels;
+		var places = params.location;
+		console.log(labels);
+		console.log(places);
+		if(labels&&labels.length>0){
+			query['$or']=[];
 			for(var label in labels){
 				query['$or'].push({'labels' : labels[label]});
-			}
+			}			
+		}
+		if(places&&places.length>0){
+			query['$or']= query['$or'] || [];
 			for(var place in places){
 				query['$or'].push({'placesIds' : places[place]});
-			}
-			if(params.amountTo || params.amountFrom)query['amount']= {};
-			if(params.amountFrom)query['amount'].$gt = parseInt(params.amountFrom);
-			if(params.amountTo)query['amount'].$lte = parseInt(params.amountTo);
-			if(params.type)query['type'] = params.type;
-			console.log(query);
-			Post.find(query,function(err,found){
-				if(err)return next(err);
-				console.log(found);
-				return res.json(200,found);
-			});
-		},
+			}			
+		}
+
+		if(params.amountTo || params.amountFrom)query['amount']= {};
+		if(params.amountFrom)query['amount'].$gt = parseInt(params.amountFrom);
+		if(params.amountTo)query['amount'].$lte = parseInt(params.amountTo);
+		if(params.type)query['type'] = params.type;
+		console.log(query);
+		Post.find(query).populate('business').exec(function(err,found){
+			if(err)return next(err);
+			console.log(found);
+			return res.json(200,found);
+		});
+	},
 
 
 };

@@ -1,0 +1,157 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+<dom-module id="account-postcard">
+  <style include="app-grid-style shared-styles">
+    .card-ligth {
+      color: var(--paper-grey-600);
+      font-size: 80%;
+    }
+    :host {
+      margin-top : 1rem;
+    }
+    card-header{
+      font-size: 110%;
+      @apply(--paper-font-headline);
+    }
+    paper-card {
+      width: 80%;
+    }
+  </style>
+  <template>
+      <template is="dom-if" if="[[complete]]">
+        <paper-card>
+          <div class="card-content">
+            <div class="card-header row">
+              <h5>[[post.name]]</h5>
+            </div>
+            <div><span class="card-ligth">[[localize('type')]]</span><h6>[[localize('post_type','type',post.type)]]</h6></div>
+            <div><span class="card-ligth">[[localize('description')]]</span><h6>[[post.description]]</h6></div>
+            <div><span class="card-ligth">[[localize('amount')]]</span><h6>$[[post.amount]]</h6></div>
+            <!-- <template is="dom-if" if="[[franchise]]">
+              franchise
+            </template>
+            <template is="dom-if" if="[[investment]]">
+              investment
+            </template>
+            <template is="dom-if" if="[[donation]]">
+              donation
+            </template>
+            <template is="dom-if" if="[[advertising]]">
+              advertising
+            </template>
+            <template is="dom-if" if="[[job]]">
+              job
+            </template> -->
+          </div>
+          <div class="card-actions">
+            <a href="/acco/business/[[post.business]]/post/[[post.id]]"><paper-button class="primary">[[localize('edit')]]</paper-button></a>
+          </div>
+        </paper-card>
+      </template>
+      <template is="dom-if" if="[[!complete]]">
+        <paper-card class="uncomplete">
+          <div class="card-content">
+            <div class="card-header">
+              [[post.name]]
+            </div>
+            <div><span class="card-ligth">[[localize('type')]]</span><h6>[[localize('post_type','type',post.type)]]</h6></div>
+            <div><span class="card-ligth">[[localize('amount')]]</span><h6>$[[post.amount]]</h6></div>
+          </div>
+        </paper-card>
+      </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'account-postcard',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior
+      ],
+
+      properties : {
+        post : {
+          type : Object,
+        },
+        complete : {
+          type : Boolean,
+          value : false
+        },
+        search : {
+          type : Boolean,
+          value : false
+        },
+        language:{
+          type:String,
+          statePath:'language'
+        },
+        resources : {
+          value :  function(){
+            return  {
+              'en' : {
+                'name' : 'name',
+                'type' : 'type',
+                'post_type' : '{type, select, f {Franchise} d {Donation} i {Investment} j {Job} a {Advertising} }',
+                'labels' : 'labels',
+                'telephones' : 'telephones',
+                'number' : 'Phone number {number}',
+                'email' : 'Email',
+                'amount' : 'amount',
+                'mobile' : 'Mobile phone',
+                'description' : 'Description',
+                'edit' : 'Edit'
+              } ,
+              'es' : {
+                'name' : 'nombre',
+                'type' : 'tipo',
+                'post_type' : '{type, select, f {Franquicia} d {Donación} i {Inversión} j {Trabajo} a {Publicidad} }',
+                'labels' : 'etiquetas',
+                'telephones' : 'teléfonos',
+                'number' : 'Teléfono {number}',
+                'email' : 'Correo electrónico',
+                'mobile' : 'Teléfono celular',
+                'description' : 'Descripccion',
+                'edit' : 'Editar',
+                'amount' : 'monto',
+              }
+            }
+          }
+        },
+      },
+
+      observers : [
+        'changeTypeTemplate(post.type)'
+      ],
+
+      changeTypeTemplate : function(type){
+        this.set('franchise',false);
+        this.set('donation',false);
+        this.set('franchise',false);
+        this.set('advertising',false);
+        this.set('job',false);
+        switch(type){
+          case 'f':
+            this.set('franchise',true);
+          break;
+          case 'i':
+            this.set('investment',true);
+          break;
+          case 'd':
+            this.set('donation',true);
+          break;
+          case 'a':
+            this.set('advertising',true);
+          break;
+          case 'j':
+            this.set('job',true);
+          break;
+        }
+      }
+    });
+  </script>
+</dom-module>
