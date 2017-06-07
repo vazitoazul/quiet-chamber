@@ -16,7 +16,7 @@
             .then(handleReqError)
             .then((response)=>{
               response.json().then((json)=>{
-                
+
                 dispatch({type:'SET_USER_INF',status:'success',info:json});
               });
             })
@@ -114,9 +114,6 @@
         }
       }
 
-    },
-    _getArrayFromObj:function(obj){
-      return ;
     }
   }
 </script>

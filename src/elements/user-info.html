@@ -38,30 +38,28 @@
       on-response="handleMailVerifResponse"></iron-ajax>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
     <form is="iron-form" method="POST" action="/updateuserinfo" id="userInfoForm">
+    <paper-card>
+      <div class="card-content">
+        <div hidden$="[[!user.mailVerified]]">
+          <span class="success">[[localize('your_address')]] <b>[[user.email]]</b> [[localize('has_been_verified')]]</span>
+        </div>
+        <div hidden$="[[user.mailVerified]]">
+          <div hidden$="[[mailVerification.success]]" class="vertical layout">
+            <span class="warning">[[localize('your_address')]] <b>[[user.email]]</b> [[localize('hasnt_been_verified')]] </span>
+            <div class="horizontal layout">
+              <span>[[localize('an_email_will_be_sent')]]</span>
+              <div class="flex"></div>
+              <paper-button raised class="info" on-click="requestMailVerification" class="self-end">[[localize('verify')]]</paper-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </paper-card>
     <h4>Información de Registro</h4>
     <paper-card>
       <div class="card-content">
           <paper-input name="userFirstName" label="[[localize('names')]]" required  value="{{user.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
           <paper-input name="userLastName" label="[[localize('last_name')]]" required  value="{{user.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
-      </div>
-      <div class="card-content">
-
-        <div hidden$="[[!user.mailVerified]]">
-          <span class="success">[[localize('your_address')]] <b>[[user.email]]</b> [[localize('has_been_verified')]]</span>
-        </div>
-        <div hidden$="[[user.mailVerified]]">
-          <div hidden$="[[mailVerifPending]]" class="vertical layout">
-            <span class="warning">[[localize('your_address')]] <b>[[user.email]]</b> [[localize('hasnt_been_verified')]] </span>
-            <div class="horizontal layout">
-              <span>[[localize('an_email_will_be_sent')]]</span>
-              <div class="flex"></div>
-              <paper-button raised class="info" on-click="askMailVerification" class="self-end">[[localize('verify')]]</paper-button>
-            </div>
-          </div>
-          <div hidden$="[[!mailVerifPending]]">
-            <span class="info">[[localize('an_email_has_been_sent_to')]]<b>[[user.email]]</b> [[localize('with_a_link_to_verify')]]</span>
-          </div>
-        </div>
       </div>
     </paper-card>
     <h4>Información de contacto</h4>
@@ -97,7 +95,8 @@
       behaviors : [
         Polymer.AppLocalizeBehavior,
         GlobalStoreBehavior,
-        UserActionsBehavior
+        UserActionsBehavior,
+        AuthActionsBehavior
       ],
 
       properties : {
@@ -113,9 +112,10 @@
         addressSearch:{
           type:Object
         },
-        mailVerifPending:{
-          type:Boolean,
-          value:false
+        mailVerification:{
+          type:Object,
+          observer:'mailVerifChanged',
+          statePath:'mailVerification'
         },
         resources: {
             value: function() {
@@ -138,7 +138,7 @@
                   'info_updated' : 'Your information has been updated',
                   'not_valid_address' : 'Address not valid, please type and select an other one',
                   'email_sent':'A confirmation email has been sent to {email}.',
-                  'email_already_sent':'An email has already been sent to {email}. Check your inbox.',
+                  'user_cant_request_mail_verification':'An email has already been sent to {email}. Check your inbox.',
                   'your_address': 'Your address',
                   'has_been_verified': 'has been verified.',
                   'hasnt_been_verified' : 'hasn\'t been verified yet.',
@@ -166,7 +166,7 @@
                   'info_updated' : 'Se ha actualizado tu información',
                   'not_valid_address' : 'Dirección no válida,escribe y elije otro',
                   'email_sent':'Un correo de confirmación ha sido enviado a {email}.',
-                  'email_already_sent':'Ya se ha enviado un correo a {email}. Revisa tu bandeja.',
+                  'user_cant_request_mail_verification':'Ya se ha enviado un correo a {email}. Revisa tu bandeja.',
                   'your_address': 'Tu dirección',
                   'has_been_verified': 'ha sido verificada.',
                   'hasnt_been_verified' : 'no ha sido verificada todavía.',
@@ -225,17 +225,13 @@
       setCurrentUser : function(newUser){
         this.set('user',newUser);
       },
-      askMailVerification:function(){
-        this.$.mailVerifAjax.generateRequest();
+      requestMailVerification:function(){
+        this.dispatch('requestMailVerif');
       },
-      handleMailVerifResponse:function(e){
-        var response = e.detail.__data__.response;
-        if(response.success){
-          this.showMessage(this.localize('email_sent','email',this.user.email),5000);
-        }else{
-          this.showMessage(this.localize('email_already_sent','email',this.user.email),7000);
+      mailVerifChanged:function(newVal){
+        if(newVal.lastError){
+          this.showMessage(this.localize(newVal.lastError,'email',this.user.email),6000);
         }
-        this.mailVerifPending=true;
       }
     });
   </script>
