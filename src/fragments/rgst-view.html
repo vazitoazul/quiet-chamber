@@ -206,6 +206,11 @@
       },
 
       _userChange : function(newValue){
+        if(newValue.lastAction==='LOG_IN'){
+          if(!newValue.loading){
+            window.location.pathname='/acco';
+          }
+        }
         if(newValue.lastError){
           this.$.toast.text = this.localize(newValue.lastError);
           this.$.toast.open();

@@ -19,38 +19,46 @@
      paper-autocomplete{
       color: black;
      }
+     div.flex-1{
+       @apply(--layout-flex-1);
+     }
+     div.flex-2{
+       @apply(--layout-flex-2);
+     }
+     div.flex-3{
+       @apply(--layout-flex-3);
+     }
    </style>
    <template>
-     <app-location route="{{route}}"></app-location>
-     <label-element id="labelElement" on-labels-changed="changeLabelsArray"></label-element>
      <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
-     <form is="iron-form" id="searchForm">
-       <div class="search-box class row">
-           <paper-dropdown-menu label="[[localize('type')]]" class="col-sm-4" id="typeDropDown" required>
-             <paper-listbox id="paperList" class="dropdown-content" selected="{{query.type}}"  attr-for-selected="value">
-               <paper-item value="f">[[localize('franchise')]]</paper-item>
-               <paper-item value="d">[[localize('donation')]]</paper-item>
-               <paper-item value="i">[[localize('investment')]]</paper-item>
-               <paper-item value="j">[[localize('job')]]</paper-item>
-               <paper-item value="a">[[localize('advertising')]]</paper-item>
-             </paper-listbox>
-           </paper-dropdown-menu>
-           <paper-input id="cityInput" name="cityLabel" class="col-sm-8" label="[[localize('place')]]"  value="{{query.cityLabel}}" error-message="[[localize('place')]]"></paper-input>
-            <div class="row col-sm-8" id="autocompleteDiv">
-              <paper-autocomplete id="autocomplete" class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-xs-12" label="[[localize('labels')]]" source="[[labelsArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
-              <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-xs-12  row labels">
-                <template  id="businessLabelsTemplate" is="dom-repeat" items="[[selectedLabels]]">
-                  <label-chip item="[[item]]" on-closed="spliceLabel" closeable></label-chip>
-                </template>
-              </div>
-            </div>
-            <div class="col-sm-4">
-              <paper-button raised on-click="search" class="primary" type="submit">[[localize('search')]]</paper-button>
-            </div>
-         </div>    
+     <label-element labels="{{labelArray}}"></label-element>
+     <form is="iron-form" class="row">
+       <div class="col-3">
+         <paper-dropdown-menu label="Estoy buscando" id="typeDropDown" required>
+           <paper-listbox id="paperList" class="dropdown-content" selected="{{query.type}}"  attr-for-selected="value">
+             <paper-item value="f">Franquicia</paper-item>
+             <paper-item value="d">Donación</paper-item>
+             <paper-item value="i">Inversiones</paper-item>
+             <paper-item value="j">Trabajos</paper-item>
+             <paper-item value="a">Publicidad</paper-item>
+           </paper-listbox>
+         </paper-dropdown-menu>
+       </div>
+       <div class="col-4">
+         <paper-input id="cityInput" name="cityLabel" label="En (lugar)". error-message="No pudimos encontrar ese lugar "></paper-input>
+       </div>
+       <div class="col-5">
+         <paper-autocomplete id="autocomplete" label="Área" source="[[labelArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
+       </div>
+       <div class="col-12">
+         <template  id="businessLabelsTemplate" is="dom-repeat" items="[[selectedLabels]]">
+           <label-chip item="[[item]]" on-closed="spliceLabel" closeable></label-chip>
+         </template>
+       </div>
+       <div class="vertical center col-12">
+         <paper-button raised on-click="search" class="primary" type="submit">Buscar</paper-button>
+       </div>
      </form>
-     <div id="placesServiceResult"></div>
-     <paper-toast id="toast" duration="5000"></paper-toast>
    </template>
    <script>
     Polymer({
@@ -75,52 +83,8 @@
           value:function(){
             return {
               'en':{
-                'search_post':'Search for posts',
-                'log_out':'Salir',
-                'account':'Mi Cuenta',
-                'create' : 'Create',
-                'name' : 'name',
-                'amount' : 'amount',
-                'update' : 'Update',
-                'cancel' : 'Cancel',
-                'delete' : 'delete',
-                'type' : 'tipo',
-                'donation' : 'donación',
-                'advertising' : 'publicidad',
-                'investment' : 'inverciones',
-                'job' : 'trabajo',
-                'type' : 'type',
-                'donation' : 'donation',
-                'advertising' : 'advertising',
-                'investment' : 'investment',
-                'investment' : 'investment',
-                'job' : 'job',
-                'labels' : 'labels',
-                'search' : 'Search',
-                'place' : 'location',
-                'select_type' : 'you must select the publish type'
               },
               'es':{
-                'search_post':'Busca una publicación',
-                'log_out':'Log Out',
-                'account':'My Account',
-                'create' : 'Crear',
-                'name' : 'name',
-                'amount' : 'monto',
-                'name' : 'name',
-                'amount' : 'monto',
-                'update' : 'Actualizar',
-                'delete' : 'Eliminar',
-                'cancel' : 'Cancel',
-                'type' : 'tipo',
-                'donation' : 'donación',
-                'advertising' : 'publicidad',
-                'investment' : 'inverciones',
-                'job' : 'trabajo',
-                'labels' : 'etiquetas',
-                'search' : 'Buscar',
-                'place' : 'ubicacion',
-                'select_type' : 'debes seleccionar al menos el tipo de publicacion'
               }
             }
           }
@@ -131,7 +95,9 @@
         },
         labelsArray :{
           type : Object,
-          value : {}
+          value : function(){
+            return {};
+          }
         },
         googleMapsApiRestrictions : {
           type : Object,

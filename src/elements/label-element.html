@@ -70,7 +70,9 @@
 	        },
 					labels : {
 						type : Object,
-						computed : 'computeLabelArray(language,resources)'
+						computed : 'computeLabelArray(language,resources)',
+						notify:true,
+						readOnly:true
 					}
 		},
 
@@ -109,17 +111,17 @@
 
 		getLabelArray  : function(language){
 			var resources = this.resources;
-	    	var labelArray = [];
-	    	var labels = resources[language];
-				var keys = Object.keys(labels);
-				var index = 0;
-				for(var item in labels){
-					for(var subitem in labels[item]){
-						labelArray.push({ text : labels[item][subitem], value : keys[index]});
-					}
-					index++;
+    	var labelArray = [];
+    	var labels = resources[language];
+			var keys = Object.keys(labels);
+			var index = 0;
+			for(var item in labels){
+				for(var subitem in labels[item]){
+					labelArray.push({ text : labels[item][subitem], value : keys[index]});
 				}
-	    	return labelArray;
-	    }
+				index++;
+			}
+    	return labelArray;
+    }
 	});
 </script>

@@ -61,7 +61,7 @@
       </div>
     </paper-card>
     <div class="vertical center recover">
-      <h5><a on-click="openCollapse">[[localize('pass_forgot')]]</a></h5>
+      <paper-button class="primary" on-click="openCollapse">[[localize('pass_forgot')]]</paper-button>
       <iron-collapse id="collapse">
         <div class="vertical">
           <form is="iron-form" id="recoverForm">
@@ -77,6 +77,7 @@
         </div>
       </iron-collapse>
     </div>
+    <h5>[[localize('no_account')]]<a href="/rgst">[[localize('register')]]</a></h5>
   	<paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
 
@@ -134,7 +135,9 @@
                       'user_does_not_exists':'We don\'t have that address registered.',
                       'pass_forgot':'Forgot your password?',
                       'enter_your_email':'Email',
-                      'recover_pass':'Recover my password'
+                      'recover_pass':'Recover my password',
+                      'no_account':'Need an account?',
+                      'register':'Register'
                     },
                     'es': {
                       'log_in_tittle' : 'Ingreso',
@@ -149,7 +152,9 @@
                       'user_does_not_exists':'No existe una cuenta con esa dirección',
                       'pass_forgot':'Olvidé mi contraseña',
                       'enter_your_email':'Ingresa tu correo electrónico',
-                      'recover_pass':'Recuperar contraseña'
+                      'recover_pass':'Recuperar contraseña',
+                      'no_account':'No tienes una cuenta?',
+                      'register':'Regístrate'
                     }
                   }
               }
