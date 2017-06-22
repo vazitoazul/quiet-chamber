@@ -79,7 +79,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           observer: '_pageChanged'
         },
         authenticated:{
-          type:String,
+          type:Boolean,
           statePath:'user.authenticated',
           observer:'_userAuthChange'
         }
@@ -87,11 +87,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       observers: [
         '_routePageChanged(routeData.page)'
       ],
-      attached:function(){
-        if(this.checkLogIn()){
-          this.dispatch('loadUserInfo');
-        }
-      },
       _routePageChanged: function(page) {
         this.page = page || 'main';
       },
@@ -111,10 +106,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
       _userAuthChange:function(newVal,oldVal){
         if(newVal&&!oldVal){
+          return this.dispatch('loadUserInfo');
+        }
+        if(this.checkLogIn()){
           this.dispatch('loadUserInfo');
-          if(this.page==='lgin'||this.page==='rsgt'){
-            this.set('route.path','/');
-          }
         }
       },
       _handleUserInfResponse:function(e){

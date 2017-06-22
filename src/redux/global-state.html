@@ -14,6 +14,7 @@ const GlobalState={
       totalBalance:0,
       buisnesses: [],
       posts:[],
+      recommender:null,
       recommended : [],
       contactInfo:{
         firstName:null,
@@ -40,6 +41,7 @@ const GlobalState={
   },
   recommender:{
     exists:false,
+    watingAuthorization:false,
     loading:false,
     lastError:null,
     info:{}

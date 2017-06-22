@@ -54,19 +54,19 @@
     <div class="container vertical center h-100">
       <paper-card>
         <div class="card-content top">
-          <h2>Regístrate</h2>
+          <h2>[[localize('register')]]</h2>
         </div>
         <div class="card-content">
           <div class="text-center">
-            <span class="s-text">Puedes utilizar:</span>
+            <span class="s-text">[[localize('you_can_use')]]</span>
           </div>
           <div class="row horizontal center">
-            <facebook-login recommender=[[recommender]] on-user-logged="routeChangedHandler" on-show-message="showMessage"></facebook-login>
-            <google-login recommender=[[recommender]] on-user-logged="routeChangedHandler" on-show-message="showMessage"></google-login>
+            <facebook-login recommender=[[recommender]]></facebook-login>
+            <google-login recommender=[[recommender]]></google-login>
           </div>
           <div class="text-center">
             <br>
-            <span class="s-text">O tu dirección de correo electrónico:</span>
+            <span class="s-text">[[localize('or_your_email')]]</span>
           </div>
           <form is="iron-form" id="registerForm" on-change="validateForm">
         	  <paper-input name="email" label="[[localize('email')]]" required auto-validate pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" error-message="[[localize('email_form')]]"></paper-input>
@@ -85,6 +85,12 @@
           <paper-button raised on-click="submit" disabled id="submitButton" class="secondary">
           [[localize('submit')]]</paper-button>
           <paper-spinner active="[[user.loading]]" ></paper-spinner>
+        </div>
+      </paper-card>
+      <paper-card hidden="[[!recommender.watingAuthorization]]">
+        <div class="card-content vertical layout">
+          <span class="warning">[[localize('you_are_about_to_register_under')]] <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b></span>
+          <span>[[localize('register_to_continue')]]</span>
         </div>
       </paper-card>
       <div class="output"></div>
@@ -112,58 +118,69 @@
           type:String,
           statePath : 'language'
         },
+        recommender:{
+          type:Object,
+          statePath:'recommender'
+        },
+        recommenderId:{
+          type:String,
+          computed:'_computeRecoId(recommender)'
+        },
+        route : {
+          type: String,
+          observer : 'routeObserver'
+        },
+        recaptchaToken : {
+          type: String
+        },
         resources: {
-                value: function() {
-                  return {
-                    'en': {
-                      'email' : 'Email',
-                      'password' : 'Password' ,
-                      'confirmation' : 'Repeat password',
-                      'submit' : 'Submit',
-                      'reset' : 'Reset',
-                      'pass_form' : 'Must have 8 chars, one capital and one number',
-                      'email_form' : 'Must be a valid email',
-                      'repeat_pass' : 'Repeat the password',
-                      'or' : 'or',
-                      'pass_not_match' : "The password confirmation doesn't match ",
-                      'not_robot' : "Prove you are not a robot",
-                      'or_login' : "Or"
-                    },
-                    'es': {
-                      'email' : 'Correo electrónico',
-                      'password' : 'Contraseña' ,
-                      'confirmation' : 'Repita contraseña',
-                      'submit' : 'Enviar',
-                      'reset' : 'Limpiar forma',
-                      'pass_form' : 'Debe tener al menos 8 caracteres, una letra mayúscula y un número',
-                      'email_form' : 'Debe ser una dirección de correo válida',
-                      'repeat_pass' : 'Repita la contraseña',
-                      'or' : 'o',
-                      'pass_not_match' : "Las contraseñas no coinciden",
-                      'or_login' : "O"
-                    }
-                  }
+            value: function() {
+              return {
+                'en': {
+                  'register':'Register',
+                  'you_can_use':'You can use',
+                  'or_your_email':'Or your email address:',
+                  'email' : 'Email',
+                  'password' : 'Password' ,
+                  'confirmation' : 'Repeat password',
+                  'submit' : 'Submit',
+                  'reset' : 'Reset',
+                  'pass_form' : 'Must have 8 chars, one capital and one number',
+                  'email_form' : 'Must be a valid email',
+                  'repeat_pass' : 'Repeat the password',
+                  'or' : 'or',
+                  'pass_not_match' : "The password confirmation doesn't match ",
+                  'not_robot' : "Prove you are not a robot",
+                  'or_login' : "Or",
+                  'you_are_about_to_register_under':'Your recommender is going to be: ',
+                  'register_to_continue':'Register to continue'
+                },
+                'es': {
+                  'register':'Regístrate',
+                  'you_can_use':'Puedes utilizar:',
+                  'or_your_email':'O tu dirección de correo electrónico:',
+                  'email' : 'Correo electrónico',
+                  'password' : 'Contraseña' ,
+                  'confirmation' : 'Repita contraseña',
+                  'submit' : 'Enviar',
+                  'reset' : 'Limpiar forma',
+                  'pass_form' : 'Debe tener al menos 8 caracteres, una letra mayúscula y un número',
+                  'email_form' : 'Debe ser una dirección de correo válida',
+                  'repeat_pass' : 'Repita la contraseña',
+                  'or' : 'o',
+                  'pass_not_match' : "Las contraseñas no coinciden",
+                  'or_login' : "O",
+                  'you_are_about_to_register_under':'Estas por enlistarte debajo de: ',
+                  'register_to_continue':'Regístrate para luego confirmar esta acción.'
+                }
               }
-            },
-
-          recommender : {
-            type: String,
-            value: null
-          },
-
-          route : {
-            type: String,
-            observer : 'routeObserver'
-          },
-
-          recaptchaToken : {
-            type: String
           }
+        }
 
       },
 
       detached:function(e){
-        document.body.removeChild(this.recaptcha);
+
       },
 
       _setUpRecaptcha:function(){
@@ -206,11 +223,6 @@
       },
 
       _userChange : function(newValue){
-        if(newValue.lastAction==='LOG_IN'){
-          if(!newValue.loading){
-            window.location.pathname='/acco';
-          }
-        }
         if(newValue.lastError){
           this.$.toast.text = this.localize(newValue.lastError);
           this.$.toast.open();
@@ -240,11 +252,24 @@
       },
 
       routeObserver : function(newValue,lastValue){
-        if(this.route.path == '/rgst'){
+        if(this.route.path === '/rgst'){
           var self = this;
-          if(!document.querySelector('#recaptchaElement')){
-            setTimeout(function(){ self._setUpRecaptcha() }, 100);
+          this.async(function(){
+            if(!document.querySelector('#recaptchaElement')){
+              self._setUpRecaptcha()
+            }
+          },100);
+        }else{
+          if(document.querySelector('#recaptchaElement')){
+            document.body.removeChild(document.querySelector('#recaptchaElement'));
           }
+        }
+      },
+      _computeRecoId:function(reco){
+        if(reco.watingAuthorization){
+          return reco.info.id;
+        }else{
+          return null;
         }
       }
 

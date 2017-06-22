@@ -154,7 +154,12 @@ module.exports = {
 				return res.badRequest({error:'user_does_not_exists'});
 			}
 			var canRecomend = recommender.canRecomend();
-			response['recommender'] = recommender;
+			response['recommender'] = {
+				id:recommender.id,
+				firstName:recommender.firstName,
+				lastName:recommender.lastName,
+				canRecomend:canRecomend
+			};
 			if(!req.user){
 				return res.json(200,response);
 			}

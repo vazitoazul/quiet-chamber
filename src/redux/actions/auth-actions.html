@@ -2,7 +2,7 @@
 <script>
   const AuthActionsBehavior = {
     actions:{
-      logIn:function(provider,body){
+      logIn:function(provider,body,callback){
         return function(dispatch){
             dispatch({type:'LOG_IN'});
             let url = '/auth/'+provider;
@@ -19,9 +19,18 @@
             .then(handleReqError)
             .then((response)=>{
               dispatch({type:'LOG_IN',status:'success'});
+              var state = this.getState();
+              if(state.recommender.watingAuthorization){
+                window.history.pushState({}, null, '/recw/'+state.recommender.info.id);
+                dispatch({type:'SET_WAITING_AUTH_RECO',isWating:false});
+              }else{
+                window.history.pushState({},null,'/')
+              }
+              window.dispatchEvent(new CustomEvent('location-changed'));
             })
             .catch((e)=>{
               dispatch({type:'LOG_IN',status:'error',error:e.message});
+              callback({message:e.message});
             });
         }
       },
@@ -39,6 +48,14 @@
             .then(handleReqError)
             .then((response)=>{
               dispatch({type:'LOG_IN',status:'success'});
+              var state = this.getState();
+              if(state.recommender.watingAuthorization){
+                window.history.pushState({}, null, '/recw/'+state.recommender.info.id);
+                dispatch({type:'SET_WAITING_AUTH_RECO',isWating:false});
+              }else{
+                window.history.pushState({},null,'/')
+              }
+              window.dispatchEvent(new CustomEvent('location-changed'));
             })
             .catch((e)=>{
               dispatch({type:'LOG_IN',status:'error',error:e.message});

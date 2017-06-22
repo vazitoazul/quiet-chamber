@@ -44,8 +44,8 @@
     <paper-card>
       <div class="card-content">
         <div class="row horizontal center">
-          <facebook-login recommender="[[recommender]]" on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></facebook-login>
-          <google-login recommender="[[recommender]]" on-user-logged="handleThirdPartyLogin" on-show-message="showMessage"></google-login>
+          <facebook-login recommender="[[recommenderId]]" on-show-message="showMessage"></facebook-login>
+          <google-login  recommender="[[recommenderId]]" on-show-message="showMessage"></google-login>
         </div>
         <form is="iron-form" id="loginForm">
         	  <paper-input name="identifier" label="[[localize('email')]]" required auto-validate  error-message="[[localize('email_form')]]"></paper-input>
@@ -58,6 +58,12 @@
           </paper-button>
           <paper-spinner active="[[userLoading]]"></paper-spinner>
         </div>
+      </div>
+    </paper-card>
+    <paper-card hidden="[[!recommender.watingAuthorization]]">
+      <div class="card-content vertical layout">
+        <span class="warning">[[localize('you_are_about_to_register_under')]] <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b></span>
+        <span>[[localize('log_in_to_later_confirm')]]</span>
       </div>
     </paper-card>
     <div class="vertical center recover">
@@ -100,20 +106,23 @@
           type:Boolean,
           statePath:'passRecovery.loading'
         },
-        passRecoveryRequested:{
+        user:{
           type:Boolean,
-          statePath:'passRecovery.recoveryRequested',
-          observer:'_passRecoveryChange'
+          observer:'_userChange',
+          statePath:'user'
         },
-        userError:{
-          type:Boolean,
-          observer:'_showError',
-          statePath:'user.lastError'
-        },
-        passRecoveryError : {
+        passRecovery : {
           type:Object,
-          observer:'_showError',
-          statePath:'passRecovery.lastError'
+          observer:'_passRecoveryChange',
+          statePath:'passRecovery'
+        },
+        recommender:{
+          type:Object,
+          statePath:'recommender'
+        },
+        recommenderId:{
+          type:String,
+          computed:'_computeRecoId(recommender)'
         },
         language : {
           type:String,
@@ -137,7 +146,9 @@
                       'enter_your_email':'Email',
                       'recover_pass':'Recover my password',
                       'no_account':'Need an account?',
-                      'register':'Register'
+                      'register':'Register',
+                      'you_are_about_to_register_under':'Your recommender is going to be: ',
+                      'log_in_to_later_confirm':'Log in to contiue the process.'
                     },
                     'es': {
                       'log_in_tittle' : 'Ingreso',
@@ -154,14 +165,13 @@
                       'enter_your_email':'Ingresa tu correo electrónico',
                       'recover_pass':'Recuperar contraseña',
                       'no_account':'No tienes una cuenta?',
-                      'register':'Regístrate'
+                      'register':'Regístrate',
+                      'you_are_about_to_register_under':'Estas por registrarte debajo de: ',
+                      'log_in_to_later_confirm':'Inicia sesión para luego confirmar esta acción.'
                     }
                   }
               }
-            },
-          recommender : {
-            type : String
-          }
+        }
       },
       showMessage:function(message,duration){
         this.$.toast.text=message;
@@ -184,13 +194,24 @@
         this.$.collapse.toggle();
       },
       _showError:function(newVal,oldVal){
+        if(!this.localize)return
         if(newVal){
           this.showMessage(this.localize(newVal));
         }
       },
       _passRecoveryChange:function(newVal){
-        if(newVal){
+        if(newVal.recoveryRequested){
           this.showMessage(this.localize('mail_sent'));
+        }
+        if(newVal.lastError){
+
+        }
+      },
+      _computeRecoId:function(reco){
+        if(reco.watingAuthorization){
+          return reco.info.id;
+        }else{
+          return null;
         }
       }
 

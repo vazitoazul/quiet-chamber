@@ -16,7 +16,6 @@
             .then(handleReqError)
             .then((response)=>{
               response.json().then((json)=>{
-
                 dispatch({type:'SET_USER_INF',status:'success',info:json});
               });
             })
@@ -67,9 +66,17 @@
               });
             })
             .catch((e)=>{
-              dispatch({type:'GET_RECO',status:'error',error:e.message})
+              dispatch({type:'GET_RECO',status:'error',error:e.message});
             });
         };
+      },
+      waitForUserAuthForRecommeder:function(target){
+        window.history.pushState({}, null, '/'+target);
+        window.dispatchEvent(new CustomEvent('location-changed'));
+        return {type:'SET_WAITING_AUTH_RECO',isWating:true};
+      },
+      setWaitAuthForRecomemender:function(isWating){
+        return {type:'SET_WAITING_AUTH_RECO',isWating:isWating};
       },
       updateUserRecommender : function(recommender){
         return function(dispatch){
