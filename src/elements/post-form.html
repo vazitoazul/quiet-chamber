@@ -138,7 +138,10 @@
                   'delete' : 'delete',
                   'want_delete' : 'Are you sure you want to delete this post?' ,
                   'description' : 'description',
-                  'add_description' : 'must input the business description'
+                  'add_description' : 'must input the business description',
+                  'post_created': 'Post created',
+                  'post_edited' : 'Post edited',
+                  'post_deleted' : 'Post deleted'
                 },
                 'es':{
                   'franchise' : 'franquicia',
@@ -153,9 +156,12 @@
                   'update' : 'Actualizar',
                   'delete' : 'Eliminar',
                   'cancel' : 'Cancel',
-                  'description' : 'descripcion',
+                  'description' : 'descripción',
                   'add_description' : 'debes agregar una descripción',
-                  'want_delete' : 'Estas seguro que deseas borrar esta publicación?' ,
+                  'post_created': 'Publicación agreagada',
+                  'post_edited' : 'Publicación editada',
+                  'post_deleted' : 'Publicacion eliminada adiooo',
+                  'want_delete' : 'Estas seguro que deseas borrar esta publicación?'
                 }
               }
           }
@@ -169,8 +175,7 @@
           value : false
         },
         business : {
-          type : Object,
-          observer : 'businessChanged'
+          type : Object
         }
       },
 
@@ -203,60 +208,71 @@
           break;
         }
       },
-
       ready : function(){
         this.$.toast.fitInto = this.$.paperCard;
       },
-
       validateForm : function(){
         return this.$.postForm.validate();
       },
-
       fireRemoveEvent : function(){
         this.fire('remove',this.index);
       },
-
       createPost : function(){
+        var self=this;
         if(!this.validateForm)return;
         this.set('post.business',this.business.id);
-        this.dispatch('createPost',this.post);
+        this.dispatch('createPost',this.post,function(err){
+          if(err) self.showMessage(self.localize(err.message));
+          self.showMessage(self.localize('post_created'));
+          self.returnToResume();
+        });
       },
-
       edditPost : function(){
+        var self = this;
         if(!this.validateForm)return;
-        this.dispatch('edditPost',this.post);
+        this.dispatch('edditPost',this.post,function(err){
+          if(err) self.showMessage(self.localize(err.message));
+          self.showMessage(self.localize('post_edited'));
+          self.returnToResume();
+        });
       },
-
       _onPostIdChanged : function(id){
         this.set('ironFormAction',id ? '/updatePost/'+id: '/createPost');
       },
-
       _responseHandler : function(){
         this.$.toast.text = 'creado';
         this.$.toast.open();
         this.fire('post-added-eddited');
       },
-
       _errorHandler : function(){
         this.$.toast.text = 'error';
         this.$.toast.open();
       },
-
       openDeleteConfirmation : function(e){
         this.$.dialog.open();
       },
-
       deletePost : function(e){
-        this.dispatch('deletePost',this.post);
+        var self = this;
+        this.dispatch('deletePost',this.post,function(err){
+          if(err) self.showMessage(self.localize(err.message));
+          window.history.pushState({},null,'/acco/business/'+self.business.id);
+          window.dispatchEvent(new CustomEvent('location-changed'));
+        });
       },
-
       resetForm : function(e){
         this._onPostTypeChanged();
         this.$.postForm.reset();
       },
-
-      businessChanged : function(bussiness){
-        console.log('en el pAST', bussiness)
+      returnToResume : function(){
+        var self = this;
+        setTimeout(function(){
+          window.history.pushState({},null,'/acco/business/'+self.business.id);
+          window.dispatchEvent(new CustomEvent('location-changed'));
+        },700);
+      },
+      showMessage : function(message){
+          this.$.toast.text = message;
+          this.$.toast.open();
       }
     });
   </script>

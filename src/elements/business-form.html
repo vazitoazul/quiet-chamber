@@ -121,13 +121,11 @@
  <script>
  	Polymer({
  		is : 'business-form',
-
 		behaviors : [
 			Polymer.AppLocalizeBehavior,
       GlobalStoreBehavior,
       BusinessActionsBehavior
 		],
-
 		properties : {
 	        business :{
 	          type : Object,
@@ -137,7 +135,6 @@
               posts : []
             }
 	        },
-
           resources : {
 	        	value :  function(){
 	        		return  {
@@ -163,8 +160,8 @@
                   'want_add_post' : 'Do you want to add a post? You can add it later. ',
                   'what_is' : 'What is this?',
                   'add_new_post' : 'add post',
-                  'bussiness_created' : 'bussiness created',
-                  'bussiness_edited' : 'business edited',
+                  'business_created' : 'business created',
+                  'business_edited' : 'business edited',
                   'want_delete' : 'Are you sure you want to delete this business?'
                 } ,
 		        		'es' : {
@@ -189,48 +186,44 @@
                   'want_add_post' : 'Quieres agregar una publicación? Puedes agregarlas después. ',
                   'what_is' : 'Que es esto?',
                   'add_new_post' : 'agreagar post',
-                  'bussiness_created' : 'negocio creado',
-                  'bussiness_edited' : 'negocio editado',
+                  'business_created' : 'negocio creado',
+                  'business_edited' : 'negocio editado',
                   'want_delete' : 'Estas seguro que quieres borrar este negocio?'
                 }
 	        		}
 	        	}
 	        },
-
           language : {
             type : String,
             statePath:'language'
           },
-
           labelsArray :{
-            type : Object,
-            value : {}
+            type : Array,
+            value : []
           },
-
           selectedLabels : {
             type : Array,
             value : []
           },
-
           googleMapsApiRestrictions : {
             type : Object,
             value : {types : ['(regions)'],componentRestrictions: {country: 'ec'}}
           },
-
           creating : {
             type : Boolean,
             value : false
+          },
+          test : {
+            type : Array,
+            value : [{ text : 'prop' , value : 's'},{ text : 'prap' , value : 'p'}]
           }
 		},
-
     observers : [
       '_onBusinessIdChanged(business.id)'
     ],
-
     ready : function(){
       this.$.toast.fitInto = this.$.paperCard;
     },
-
 		handleApiLoad : function(){
         var self = this;
         var cityInput = self.$.cityInput.inputElement;
@@ -269,11 +262,10 @@
           });
         });
 		},
-
     changeLabelsArray : function(e){
-      this.set('labelsArray',e.detail);
+      var labels = e.detail;
+      if(Array.isArray(labels))this.set('labelsArray',labels);
     },
-
     setSelectedLabels : function(e){
       var selected = this.selectedLabels;
       for(var item in selected){
@@ -283,7 +275,6 @@
       }
       this.push('selectedLabels',e.detail.option);
     },
-
     spliceLabel : function(itemRemoving){
       var index = 0;
       var selected = this.selectedLabels;
@@ -295,7 +286,6 @@
         index++;
       }
     },
-
     setPlacesIdsArray : function(address){
       var self = this;
       var service = new google.maps.places.AutocompleteService();
@@ -315,34 +305,39 @@
         });
       }
     },
-
     validateLabels : function(){
       if(this.selectedLabels.length == 0){
         this.$.autocompleteDiv.focus();
-        this.$.showToast(this.localize('must_select_labels'));
+        this.showMessage(this.localize('must_select_labels'));
         return false;
       }
       return true;
     },
-
     _onBusinessIdChanged : function(id){
       this.set('selectedLabels',this.$.labelElement.computeSelectedLabelsObjectArray(this.business.labels.slice(0),this.labelsArray));
     },
-
     createBusiness : function(e){
+      var self = this;
       if(!this.checkForm())return;
       var posts = this.business.posts.reduce(function(obj,post,index){
         obj[index] = post;
         return obj
       },{});
-      this.dispatch('createBusiness',{business:this.business,posts:posts});
+      this.dispatch('createBusiness',{business:this.business,posts:posts},function(err){
+        if(err) return self.showMessage(self.localize(err.message));
+        self.showMessage(self.localize('business_created'));
+        self.returnToResume();
+      });
     },
-
     edditBusiness : function(e){
       if(!this.checkForm())return;
-      this.dispatch('edditBusiness',this.business);
+      var self=this;
+      this.dispatch('edditBusiness',this.business,function(err){
+        if(err) self.showMessage(self.localize(err.message));
+        self.showMessage(self.localize('business_edited'));
+        self.returnToResume();
+      });
     },
-
     checkForm : function(){
       this.setBusinessLabels();
       if(!this.$.businessForm.validate() || !this.validateLabels()) return false;
@@ -356,16 +351,13 @@
       });
       return postForm;
     },
-
     _responseHandler : function(e){
-      this.$.showToast('creado');
+      this.$.showMessage('creado');
       this.fire('business-added-edited');
     },
-
     _errorHandler : function(e){
-      this.$.showToast('error');
+      this.$.showMessage('error');
     },
-
     setBusinessLabels : function(){
       var businessLabels = [];
       for(var label in this.selectedLabels){
@@ -373,32 +365,34 @@
       }
       this.set('business.labels',businessLabels);
     },
-
     addPost : function(){
       this.push('business.posts',{ business : this.businessId });
     },
-
     removePost : function(e){
       this.splice('business.posts',e.detail,1);
     },
-
     openDeleteConfirmation : function(e){
       this.$.dialog.open();
     },
-
     deleteBusiness : function(e){
-      this.dispatch('deleteBusiness',this.business);
+      this.dispatch('deleteBusiness',this.business,function(err){
+        if(err) self.showMessage(self.localize(err.message));
+      });
     },
-
-    showToast : function(message){
+    showMessage : function(message){
       this.$.toast.text = message;
       this.$.toast.open();
     },
-
     resetForm : function(){
       this.set('selectedLabels',[]);
       this.set('business.posts',[]);
       this.$.businessForm.reset();
+    },
+    returnToResume : function(){
+      setTimeout(function(){
+        window.history.pushState({},null,'/acco/business');
+        window.dispatchEvent(new CustomEvent('location-changed'));
+      },1000);
     }
  	});
  </script>

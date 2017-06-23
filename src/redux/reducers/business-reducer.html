@@ -5,26 +5,26 @@
       case 'LOAD_BUSS':
         switch (action.status) {
           case 'success':
-            return Object.assign({},state,{entities:action.businesses,status:'loaded'});
+            return Object.assign({},state,{entities:action.businesses});
             break;
           case 'error':
-            return Object.assign({},state,{lastError:action.error,status:'error'});
+            return Object.assign({},state,{lastError:action.error});
             break;
           default:
-            return Object.assign({},state,{status:'loading'});
+            return Object.assign({},state);
             break;
         }
         break;
       case 'ADD_BUSS':
         switch (action.status) {
           case 'success':
-            return Object.assign({},state,{entities:[...state.entities,action.business],status:'added'});
+            return Object.assign({},state,{entities:[...state.entities,action.business]});
             break;
           case 'error':
-            return Object.assign({},state,{lastError:action.error,status:'error'});
+            return Object.assign({},state,{lastError:action.error});
             break;
           default:
-            return Object.assign({},state,{status:'loading'});
+            return Object.assign({},state);
             break;
         }
         break;
@@ -38,13 +38,13 @@
                 return item;
               }
             });
-            return Object.assign({},state,{entities:newBuss,status:'edited'});
+            return Object.assign({},state,{entities:newBuss});
             break;
           case 'error':
-            return Object.assign({},state,{lastError:action.error,status:'error'});
+            return Object.assign({},state,{lastError:action.error});
             break;
           default:
-            return Object.assign({},state,{status:'loading'});
+            return Object.assign({},state);
             break;
         }
         break;
@@ -57,13 +57,13 @@
               }
               return result;
             },[]);
-            return Object.assign({},state,{entities:newBuss,status:'deleted'});
+            return Object.assign({},state,{entities:newBuss});
             break;
           case 'error':
-            return Object.assign({},state,{lastError:action.error,status:'error'});
+            return Object.assign({},state,{lastError:action.error});
             break;
           default:
-            return Object.assign({},state,{status:'loading'});
+            return Object.assign({},state);
             break;
         }
         break;
@@ -77,13 +77,13 @@
                 return item;
               }
             });
-            return Object.assign({},state,{entities:newBuss,status:'post_added'});
+            return Object.assign({},state,{entities:newBuss});
             break;
           case 'error':
-            return Object.assign({},state,{lastError:action.error,status:'error'});
+            return Object.assign({},state,{lastError:action.error});
             break;
           default:
-            return Object.assign({},state,{status:'loading'});
+            return Object.assign({},state);
             break;
         }
         break;
@@ -101,13 +101,13 @@
                   return item;
                 }
               });
-              return Object.assign({},state,{entities:newBuss,status:'post_edited'});
+              return Object.assign({},state,{entities:newBuss});
               break;
             case 'error':
-              return Object.assign({},state,{lastError:action.error,status:'error'});
+              return Object.assign({},state,{lastError:action.error});
               break;
             default:
-              return Object.assign({},state,{status:'loading'});
+              return Object.assign({},state);
               break;
           }
           break;
@@ -125,13 +125,13 @@
                   return item;
                 }
               });
-              return Object.assign({},state,{entities:newBuss,status:'post_deleted'});
+              return Object.assign({},state,{entities:newBuss});
               break;
             case 'error':
-              return Object.assign({},state,{lastError:action.error,status:'error'});
+              return Object.assign({},state,{lastError:action.error});
               break;
             default:
-              return Object.assign({},state,{status:'loading'});
+              return Object.assign({},state);
               break;
           }
           break;

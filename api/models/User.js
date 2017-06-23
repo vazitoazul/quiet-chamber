@@ -30,7 +30,7 @@ var User = {
     payouts : {collection : 'payout',via : 'user'},
     subscribedUntil : {type: 'date',defaultsTo:null,date:true},
     recommender : {type : 'string', defaultsTo : null},
-    recommended : {type:'json',defaultsTo:{}, recommended :true},
+    recommended : {type:'json',defaultsTo:[], recommended :true},
     totalBalance : { type:'float'},
     payPalInfo: {type:'json',defaultsTo:null},
     balance : { type : 'array', defaultsTo : []},

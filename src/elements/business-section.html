@@ -42,7 +42,7 @@
         <h4 class="col-sm-12">[[localize('your_business')]]</h4>
         <div class="row">
           <template is="dom-repeat" items="[[business]]">
-            <business-card complete business="[[item]]" class="col-sm-6 offset-sm-2"></business-card>
+            <business-card complete business="[[item]]" class="col-sm-4 offset-sm-1"></business-card>
           </template>
         </div>
         <template is="dom-if" if="[[noBusiness]]">
@@ -76,12 +76,10 @@
   <script>
     Polymer({
       is : 'business-section',
-
       behaviors : [
         Polymer.AppLocalizeBehavior,
         GlobalStoreBehavior
       ],
-
       properties : {
         language:{
           type:String,
@@ -89,7 +87,8 @@
         },
         business : {
           type : Array,
-          statePath : 'business.entities'
+          statePath : 'business.entities',
+          observer : '_businessChanged'
         },
         section : {
           type: String,
@@ -141,63 +140,22 @@
           type : Boolean,
           statePath : 'business.lastError',
           observer : '_lastErrorObserver'
-        },
-        status : {
-          type : String,
-          statePath : 'business.status',
-          observer : '_onStatusChanged'
         }
       },
-
       observers : [
         '_onRouteChanged(businessIdSubRoute)'
       ],
-
-      _onStatusChanged : function(status){
-        switch(status){
-          case 'added':
-            this.$.businessNewForm.resetForm();
-            this.set('businessIdSubRoute.path','');
-            this._onRouteChanged();
-            this.showToast(this.localize('business_added'));
-          break;
-          case 'edited' :
-            this.showToast(this.localize('business_edited'));
-          break;
-          case 'deleted' :
-            this.set('businessIdSubRoute.path','');
-            this._onRouteChanged();
-            this.showToast(this.localize('business_deleted'));
-          break;
-          case 'post_added':
-            this.$.postNewForm.resetForm();
-            this.set('businessIdSubRoute.path','/'+this.businessIdSubRouteData.businessId);
-            this._onRouteChanged();
-            this.showToast(this.localize('post_added'));
-          break;
-          case 'post_edited':
-            this.set('businessIdSubRoute.path','/'+this.businessIdSubRouteData.businessId);
-            this._onRouteChanged();
-            this.showToast(this.localize('post_edited'));
-          break;
-          case 'post_deleted':
-            this.set('businessIdSubRoute.path','/'+this.businessIdSubRouteData.businessId);
-            this._onRouteChanged();
-            this.showToast(this.localize('post_deleted'));
-          break;
-          case 'loaded':
-            this._onRouteChanged();
-          break;
+      _businessChanged(newValue,lastValue){
+        if(lastValue && newValue.length < lastValue.length){
+          this.$.toast.text = this.localize('business_deleted');
+          this.$.toast.open();
         }
+        if(newValue.length > 0) this._onRouteChanged(this.businessIdSubRoute);
       },
-
-      _onBusinessAddedorEdited : function(){
-        // this.set('status','edited');
-      },
-
       _onRouteChanged : function(route){
         var business = this.business;
-        if(!business || this.businessIdSubRoute.path == '')return this.set('section','resume');
+        if(business == undefined && this.businessIdSubRouteData && this.businessIdSubRouteData.businessId)return;
+        if(this.businessIdSubRoute.path == '')return this.set('section','resume');
         if(this.businessIdSubRouteData && this.businessIdSubRouteData.businessId == 'new') return this.set('section','new');
         for(var current in business){
           if(this.business[current].id == this.businessIdSubRouteData.businessId){
@@ -217,18 +175,15 @@
         this.set('businessIdSubRoute.path','');
         return this.set('section','resume');
       },
-
       _lastErrorObserver : function(error){
         if(error){
           this.showToast(error);
         }
       },
-
       showToast : function(message){
         this.$.toast.text = message;
         this.$.toast.open();
       },
-
       computeNoBusiness : function(business){
         if(!business || !business.length || business.length===0)return true;
         return false;
