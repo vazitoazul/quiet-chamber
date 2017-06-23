@@ -44,7 +44,7 @@
  </style>
  <template>
   <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
-  <label-element id="labelElement" on-labels-changed="changeLabelsArray"></label-element>
+  <label-element id="labelElement" labels="{{labelsArray}}"></label-element>
   <div class="row">
     <paper-card class="col-sm-7 offset-sm-1" id="paperCard">
       <div class="card-content">
@@ -262,10 +262,6 @@
           });
         });
 		},
-    changeLabelsArray : function(e){
-      var labels = e.detail;
-      if(Array.isArray(labels))this.set('labelsArray',labels);
-    },
     setSelectedLabels : function(e){
       var selected = this.selectedLabels;
       for(var item in selected){

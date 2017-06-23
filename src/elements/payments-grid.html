@@ -202,7 +202,6 @@
         return tot;
       },
       _billsStateChange:function(newVal,oldVal){
-        console.log('stateChange',newVal,oldVal);
         if(!newVal)return;
         if(oldVal){
           if(!newVal.loading&&oldVal.loading){
