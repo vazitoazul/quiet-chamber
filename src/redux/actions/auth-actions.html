@@ -27,6 +27,7 @@
                 window.history.pushState({},null,'/')
               }
               window.dispatchEvent(new CustomEvent('location-changed'));
+              callback();
             })
             .catch((e)=>{
               dispatch({type:'LOG_IN',status:'error',error:e.message});
@@ -34,7 +35,7 @@
             });
         }
       },
-      register:function(body){
+      register:function(body,callback){
         return function(dispatch){
             dispatch({type:'LOG_IN'});
             let url = '/auth/local/register';
@@ -56,13 +57,15 @@
                 window.history.pushState({},null,'/')
               }
               window.dispatchEvent(new CustomEvent('location-changed'));
+              callback();
             })
             .catch((e)=>{
               dispatch({type:'LOG_IN',status:'error',error:e.message});
+              callback({message:e.message});
             });
         }
       },
-      recoverPassword:function(body){
+      recoverPassword:function(body,callback){
         return function(dispatch){
           dispatch({type:'REQ_RECOVER_PASS'});
           let request = new Request(
@@ -78,13 +81,15 @@
             .then(handleReqError)
             .then((response)=>{
               dispatch({type:'REQ_RECOVER_PASS',status:'success'});
+              callback();
             })
             .catch((e)=>{
               dispatch({type:'REQ_RECOVER_PASS',status:'error',error:e.message});
+              callback({message:e.message});
             });
         };
       },
-      requestMailVerif:function(){
+      requestMailVerif:function(callback){
         return function(dispatch){
           dispatch({type:'REQ_MAIL_VERIF'});
           let request = new Request(
@@ -98,14 +103,14 @@
           window.fetch(request)
             .then(handleReqError)
             .then((response)=>{
-              response.json().then((json)=>dispatch({type:'REQ_MAIL_VERIF',status:'success',address:json.address}));
+              dispatch({type:'REQ_MAIL_VERIF',status:'success',address:json.address});
             })
             .catch((e)=>{
               dispatch({type:'REQ_MAIL_VERIF',status:'error',error:e.message});
             });
         };
       },
-      changePassword:function(body){
+      changePassword:function(body,callback){
         return function(dispatch){
           dispatch({type:'CHANGE_PASS'});
           let request = new Request(
@@ -121,9 +126,11 @@
             .then(handleReqError)
             .then((response)=>{
               dispatch({type:'CHANGE_PASS',status:'success'});
+              callback();
             })
             .catch((e)=>{
               dispatch({type:'CHANGE_PASS',status:'error',error:e.message});
+              callback({message:e.message});
             });
         };
       },

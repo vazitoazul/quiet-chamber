@@ -50,17 +50,7 @@
       },
       login:function(e){
         if(this.$.signIn.signedIn){
-          e.preventDefault();
-          var user = gapi.auth2.getAuthInstance()['currentUser'].get();
-          var authResponse = user.getAuthResponse();
-          var profile = user.getBasicProfile();
-          var body={
-            token: authResponse.id_token,
-            email: profile.getEmail(),
-            familyName: profile.getFamilyName(),
-            givenName:profile.getGivenName()
-          };
-          this.dispatch('logIn','google',body);
+          this._dispatchLogin();
         }else{
           this.$.signIn.signIn();
           this.wantsLogin=true;
@@ -71,19 +61,25 @@
       },
       signInSuccess:function(e,detail){
         if(this.wantsLogin){
-          var user = gapi.auth2.getAuthInstance()['currentUser'].get();
-          var authResponse = user.getAuthResponse();
-          var profile = user.getBasicProfile();
-          var body={
-            token: authResponse.id_token,
-            email: profile.getEmail(),
-            familyName: profile.getFamilyName(),
-            givenName:profile.getGivenName(),
-            recommender : this.recommender
-          };
-          this.dispatch('logIn','google',body);
+          this._dispatchLogin();
         }
 
+      },
+      _dispatchLogin:function(){
+        var user = gapi.auth2.getAuthInstance()['currentUser'].get();
+        var authResponse = user.getAuthResponse();
+        var profile = user.getBasicProfile();
+        var body={
+          token: authResponse.id_token,
+          email: profile.getEmail(),
+          familyName: profile.getFamilyName(),
+          givenName:profile.getGivenName(),
+          recommender : this.recommender
+        };
+        this.dispatch('logIn','google',body,(err)=>{
+          if(err)return console.log(err)
+          this.dispatch('loadUserInfo')
+        });
       }
     });
   </script>

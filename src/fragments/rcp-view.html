@@ -102,8 +102,7 @@
         },
         passRecovery:{
           type:Object,
-          statePath:'passRecovery',
-          observer:'_passRecoverChange'
+          statePath:'passRecovery'
         },
         resources:{
           value:function(){
@@ -153,18 +152,13 @@
       },
       sendForm:function(){
         if(this.$.mainForm.validate()){
-          this.dispatch('changePassword',this.$.mainForm.serialize());
-        }
-      },
-      _passRecoverChange:function(newVal,oldVal){
-        if(newVal.passChanged){
-          this.page="success";
-        }else if(newVal.lastError){
-          if(newVal.lastError!=='pass_not_match'){
-            this.page="failure";
-          }else{
-            this.showMessage(this.localize(newVal.lastError));
-          }
+          this.dispatch('changePassword',this.$.mainForm.serialize(),(err)=>{
+            if(err){
+              this.page='failure';
+              return this.showMessage(this.localize(err.message));
+            }
+            this.page='success';
+          });
         }
       }
     });

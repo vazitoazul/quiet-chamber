@@ -44,8 +44,8 @@
     <paper-card>
       <div class="card-content">
         <div class="row horizontal center">
-          <facebook-login recommender="[[recommenderId]]" on-show-message="showMessage"></facebook-login>
-          <google-login  recommender="[[recommenderId]]" on-show-message="showMessage"></google-login>
+          <facebook-login on-show-message="showMessage"></facebook-login>
+          <google-login  on-show-message="showMessage"></google-login>
         </div>
         <form is="iron-form" id="loginForm">
         	  <paper-input name="identifier" label="[[localize('email')]]" required auto-validate  error-message="[[localize('email_form')]]"></paper-input>
@@ -108,21 +108,15 @@
         },
         user:{
           type:Boolean,
-          observer:'_userChange',
           statePath:'user'
         },
         passRecovery : {
           type:Object,
-          observer:'_passRecoveryChange',
           statePath:'passRecovery'
         },
         recommender:{
           type:Object,
           statePath:'recommender'
-        },
-        recommenderId:{
-          type:String,
-          computed:'_computeRecoId(recommender)'
         },
         language : {
           type:String,
@@ -181,38 +175,23 @@
       submit : function(e){
         if(this.$.loginForm.validate()){
           var body = this.$.loginForm.serialize();
-          this.dispatch('logIn','local',body);
+          this.dispatch('logIn','local',body,(err)=>{
+            if(err)return this.showMessage(this.localize(err.message));
+            this.dispatch('loadUserInfo');
+          });
         }
       },
       submitRecover:function(e){
         if(this.$.recoverForm.validate()){
           var body = this.$.recoverForm.serialize();
-          this.dispatch('recoverPassword',body);
+          this.dispatch('recoverPassword',body,(err)=>{
+            if(err)return this.showMessage(this.localize(err.message));
+            this.showMessage(this.localize('mail_sent'));
+          });
         }
       },
       openCollapse:function(e){
         this.$.collapse.toggle();
-      },
-      _showError:function(newVal,oldVal){
-        if(!this.localize)return
-        if(newVal){
-          this.showMessage(this.localize(newVal));
-        }
-      },
-      _passRecoveryChange:function(newVal){
-        if(newVal.recoveryRequested){
-          this.showMessage(this.localize('mail_sent'));
-        }
-        if(newVal.lastError){
-
-        }
-      },
-      _computeRecoId:function(reco){
-        if(reco.watingAuthorization){
-          return reco.info.id;
-        }else{
-          return null;
-        }
       }
 
     });

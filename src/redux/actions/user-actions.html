@@ -78,7 +78,7 @@
       setWaitAuthForRecomemender:function(isWating){
         return {type:'SET_WAITING_AUTH_RECO',isWating:isWating};
       },
-      updateUserRecommender : function(recommender){
+      updateUserRecommender : function(recommender,callback){
         return function(dispatch){
           dispatch({type:'SET_USER_RECO'});
           let request = new Request(
@@ -86,15 +86,17 @@
             method:'POST',
             headers: standardHeaders,
             credentials: 'include',
-            body: JSON.stringify(recommender),
+            body: JSON.stringify({recommender:recommender}),
           });
           window.fetch(request)
           .then(handleReqError)
           .then((response)=>{
             dispatch({type:'SET_USER_RECO',status:'success',info:this.getState().recommender.info});
+            callback();
           })
           .catch((e)=>{
             dispatch({type:'SET_USER_RECO',status:'error',error:e.message});
+            callback({message:e.message});
           });
         }
       },

@@ -162,7 +162,8 @@
 
       properties : {
         section : {
-          type : String
+          type : String,
+          value: ''
         },
         route : {
           type : Object,
@@ -174,8 +175,7 @@
         },
         userStatus:{
           type:String,
-          statePath: 'user',
-          observer:'_userStatusChange'
+          statePath: 'user'
         },
         userAuth : {
           type : Boolean,
@@ -252,7 +252,6 @@
       },
 
       observers : [
-        'errorChanged(recommender.lastError)',
         '_recommenderExists(recommender.exists)'
       ],
 
@@ -286,13 +285,18 @@
       openDialog : function(){
         this.$.dialog.toggle();
       },
-
       changeRecommender : function(){
-        this.dispatch('updateUserRecommender',{recommender : this.recommender.info.id});
+        this.dispatch('updateUserRecommender', this.recommender.info.id,(err)=>{
+          if(err){
+            return this.showMessage(this.localize(err.message));
+          }
+          this.section='success';
+        });
       },
 
-      showToast : function(message){
+      showMessage : function(message,time){
         this.$.toast.text = message;
+        this.$.toast.duration= time || 3000;
         this.$.toast.show();
       },
 
@@ -306,20 +310,11 @@
           }
         }
       },
-      errorChanged : function(error){
-        if(error)this.showToast(this.localize(error));
-      },
       goLogin:function(){
         this.dispatch('waitForUserAuthForRecommeder','lgin');
       },
       goRegister:function(){
         this.dispatch('waitForUserAuthForRecommeder','rgst');
-      },
-      _userStatusChange:function(newVal,oldVal){
-        //watch for a successful SET_USER_RECO action fired
-        if(newVal.lastAction==='SET_USER_RECO'){
-          this.section='success';
-        }
       },
       goAccount:function(){
         window.history.pushState({}, null, '/acco');

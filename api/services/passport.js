@@ -136,7 +136,7 @@ passport.connect = function (req, query, profile, next) {
           User.create(user, function (err, user) {
             if (err) {
               if (err.code === 'E_VALIDATION') {
-                let info;
+                var info;
                 if (err.invalidAttributes.email) {
                   info={message:'user_already_exists'};
                 }

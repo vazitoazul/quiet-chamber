@@ -63,7 +63,10 @@
               userID:response.authResponse.userID,
               recommender : this.recommender
             };
-            self.dispatch('logIn','facebook',body);
+            self.dispatch('logIn','facebook',body,(err)=>{
+              if(err)return console.log(err);
+              self.dispatch('loadUserInfo');
+            });
           } else if (response.status === 'not_authorized') {
             // The person is logged into Facebook, but not your app.
             FB.login(function(response){
@@ -101,7 +104,10 @@
             recommender : this.recommender
           };
           console.log(this.recommender);
-          this.dispatch('logIn','facebook',body);
+          this.dispatch('logIn','facebook',body,(err)=>{
+            if(err)return console.log(err);
+            this.dispatch('loadUserInfo');
+          });
         } else {
           this.fire('show-message','error_log_with_fb');
         }
