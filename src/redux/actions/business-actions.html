@@ -1,7 +1,7 @@
 <script>
 const BusinessActionsBehavior = {
   actions:{
-    createBusiness : function(business){
+    createBusiness : function(business,callback){
       return function(dispatch){
         dispatch({type:'ADD_BUSS'});
         let request = new Request(
@@ -16,17 +16,18 @@ const BusinessActionsBehavior = {
         .then(handleReqError)
         .then((response)=>{
           response.json().then((json)=>{
-            console.log('comming',json);
             dispatch({type:'ADD_BUSS',status:'success',business:json});
+            callback();
           });
         })
         .catch((e)=>{
           dispatch({type:'ADD_BUSS',status:'error',error:e.message});
+          callback(e);
         });
       }
     },
     getBusiness : function(){
-      return function(dispatch){
+      return function(dispatch,callback){
         dispatch({type:'LOAD_BUSS'});
         let request = new Request(
           '/getBusiness',{
@@ -40,14 +41,16 @@ const BusinessActionsBehavior = {
         .then((response)=>{
           response.json().then((json)=>{
             dispatch({type:'LOAD_BUSS',status:'success',businesses:json});
+            callback();
           });
         })
         .catch((e)=>{
           dispatch({type:'LOAD_BUSS',status:'error',error:e.message});
+          callback(e);
         });
       }
     },
-    edditBusiness : function(business){
+    edditBusiness : function(business,callback){
       return function(dispatch){
         dispatch({type:'EDD_BUSS'});
         delete business.posts;
@@ -64,14 +67,16 @@ const BusinessActionsBehavior = {
         .then((response)=>{
           response.json().then((json)=>{
             dispatch({type:'EDD_BUSS',status:'success',business:json});
+            callback();
           });
         })
         .catch((e)=>{
           dispatch({type:'EDD_BUSS',status:'error',error:e.message});
+          callback(e);
         });
       }
     },
-    deleteBusiness : function(business){
+    deleteBusiness : function(business,callback){
       return function(dispatch){
         dispatch({type:'DEL_BUSS'});
         delete business.posts;
@@ -87,14 +92,16 @@ const BusinessActionsBehavior = {
         .then((response)=>{
           response.json().then((json)=>{
             dispatch({type:'DEL_BUSS',status:'success',business:json});
+            callback();
           });
         })
         .catch((e)=>{
           dispatch({type:'DEL_BUSS',status:'error',error:e.message});
+          callback(e);
         });
       }
     },
-    createPost : function(post){
+    createPost : function(post,callback){
       return function(dispatch){
         dispatch({type:'ADD_POST'});
         let request = new Request(
@@ -110,14 +117,16 @@ const BusinessActionsBehavior = {
         .then((response)=>{
           response.json().then((json)=>{
             dispatch({type:'ADD_POST',status:'success',post:json});
+            callback();
           });
         })
         .catch((e)=>{
           dispatch({type:'ADD_POST',status:'error',error:e.message});
+          callback(e);
         });
       }
     },
-    edditPost : function(post){
+    edditPost : function(post,callback){
       return function(dispatch){
         dispatch({type:'EDD_POST'});
         let request = new Request(
@@ -133,14 +142,16 @@ const BusinessActionsBehavior = {
         .then((response)=>{
           response.json().then((json)=>{
             dispatch({type:'EDD_POST',status:'success',post:json});
+            callback();
           });
         })
         .catch((e)=>{
           dispatch({type:'EDD_POST',status:'error',error:e.message});
+          callback(e);
         });
       }
     },
-    deletePost : function(post){
+    deletePost : function(post,callback){
       return function(dispatch){
         dispatch({type:'DEL_POST'});
         let request = new Request(
@@ -156,10 +167,12 @@ const BusinessActionsBehavior = {
         .then((response)=>{
           response.json().then((json)=>{
             dispatch({type:'DEL_POST',status:'success',post:json});
+            callback();
           });
         })
         .catch((e)=>{
           dispatch({type:'DEL_POST',status:'error',error:e.message});
+          callback(e);
         });
       }
     },

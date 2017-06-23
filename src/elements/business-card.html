@@ -135,15 +135,13 @@
           }
         },
       },
-
       observers : [
         '_businessLabelsObserver(business.labels)'
       ],
-
       _labelsChanged : function(e){
+        if(!this.business)return;
         this.set('businessLabels',this.$.labelElement.computeSelectedLabelsObjectArray(this.business.labels.slice(0),e.detail));
       },
-
       _businessLabelsObserver:function(labels){
         if(!labels)return;
         var labelElement = this.$.labelElement;

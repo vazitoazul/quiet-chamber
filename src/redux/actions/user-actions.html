@@ -2,7 +2,7 @@
 <script>
   const UserActionsBehavior = {
     actions : {
-      updateUserInfo:function(contactInfo){
+      updateUserInfo:function(contactInfo,callback){
         return function(dispatch){
             dispatch({type:'SET_USER_INF'});
             let request = new Request(
@@ -17,14 +17,16 @@
             .then((response)=>{
               response.json().then((json)=>{
                 dispatch({type:'SET_USER_INF',status:'success',info:json});
+                callback();
               });
             })
             .catch((e)=>{
               dispatch({type:'SET_USER_INF',status:'error',error:e.message});
+              callback(e);
             });
         }
       },
-      updateIntlCredential:function(newCredential){
+      updateIntlCredential:function(newCredential,callback){
         return function(dispatch){
           dispatch({type:'SET_USER_INF'});
           let request = new Request(
@@ -39,10 +41,12 @@
           .then((response)=>{
             response.json().then((json)=>{
               dispatch({type:'SET_USER_INF',status:'success',info:json});
+              callback();
             });
           })
           .catch((e)=>{
             dispatch({type:'SET_USER_INF',status:'error',error:e.message});
+            callback(e);
           });
         }
       },

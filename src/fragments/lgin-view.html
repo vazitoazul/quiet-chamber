@@ -108,7 +108,6 @@
         },
         user:{
           type:Boolean,
-          observer:'_userChange',
           statePath:'user'
         },
         passRecovery : {
@@ -179,9 +178,13 @@
         this.$.toast.open();
       },
       submit : function(e){
+        var self=this;
         if(this.$.loginForm.validate()){
           var body = this.$.loginForm.serialize();
-          this.dispatch('logIn','local',body);
+          this.dispatch('logIn','local',body,function(err){
+            if(err) return self.showMessage(self.localize(err.message));
+            self.dispatch('loadUserInfo');
+          });
         }
       },
       submitRecover:function(e){

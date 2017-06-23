@@ -188,12 +188,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         user :{
           type : Object,
           statePath : 'user.info',
-          observer : 'userObserver'
+          // observer : 'userObserver'
         },
-        authenticated:{
-          type:String,
-          statePath:'user.authenticated',
-          observer:'_userAuthChange'
+        authenticated : {
+          type: Boolean,
+          statePath : 'user.authenticated'
         },
         entities:{
           type:Object,
@@ -213,8 +212,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         lastError :{
           type : String,
-          statePath : 'user.lastError',
-          observer : '_lastErrorChanged'
+          statePath : 'user.lastError'
         },
         resources: {
                 value: function() {
@@ -234,7 +232,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'recommended':'Recomended',
                       'for_recommend_a_user':'In order to recommend a user it must subscribed or confirm the action on the next link :',
                       'your_recommended' : 'Your recommended :',
-                      'bussiness' : 'Bussiness'
+                      'bussiness' : 'Bussiness',
+                      'no_credential' : 'No credential inserted',
+                      'credential_in_use' : 'The crediantal is already used'
                     },
                     'es': {
                       'hello' : 'Hola',
@@ -251,25 +251,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'recommended':'Recomendados',
                       'for_recommend_a_user':'Para que un usuario este recomendado por ti debe subscribirse o aceptar por este link :',
                       'your_recommended' : 'Tus recomendados :',
-                      'bussiness' : 'Negocio'
+                      'bussiness' : 'Negocio',
+                      'no_credential' : 'No se a ingresado una credencial',
+                      'credential_in_use' : 'La credencial ya esta siendo usada'
+
                     }
                   }
               }
         }
       },
-
       observers : [
           '_sectionChanged(routeData.section)',
           '_routeChanged(route)'
-
       ],
-
+      attached : function(){
+        this.checkUserIntCred();
+      },
       showMessage:function(message,duration){
         this.$.toast.text = message;
         this.$.toast.duration=duration || 3000;
         this.$.toast.open();
       },
-
       googleApiReady : function(e){
         var countrySearch = new google.maps.places.Autocomplete(this.$.countryInput.inputElement,{types : ['(regions)']});
         var that = this;
@@ -291,12 +293,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         });
       },
-
       updateIntlCredential : function(e){
         var form = this.$.userIntlCredentialForm;
+        var self = this;
         if(form.validate()){
           var newCredential = this.countryCode.concat(this.$.credentialNumber.value);
-          this.dispatch('updateIntlCredential',{newCredential : newCredential});
+          this.dispatch('updateIntlCredential',{newCredential : newCredential},function(err){
+            if(err) return self.showMessage(self.localize(err.message));
+            self.checkUserIntCred();
+          });
         }
       },
       _sectionChanged : function(section){
@@ -306,17 +311,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           break;
         }
       },
-
       _routeChanged: function(route){
-          if(route.path.substring(0,5) !== '/acco'){
-            if(this.$.credentialDialog.opened){
-              this.$.credentialDialog.close();
-            }
-          }else{
-            this.checkUserIntCred();
+        if(route.path.substring(0,5) !== '/acco'){
+          if(this.$.credentialDialog.opened){
+            this.$.credentialDialog.close();
           }
+        }else{
+          this.checkUserIntCred();
+        }
       },
-
       copyRecLink:function(){
         var text = 'https://quiet-chamber-staging.herokuapp.com/recw/'+this.user.id;
         var textArea = document.createElement("textarea");
@@ -342,15 +345,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         document.body.removeChild(textArea);
       },
-
       userBusinessHandler : function(e){
         this.set('user.business',e.detail.__data__.response);
       },
-
-      userObserver : function(newVal,oldVal){
-        this.checkUserIntCred();
-      },
-
+      // userObserver : function(newVal,oldVal){
+      //   this.checkUserIntCred();
+      // },
       computeSection : function(section){
         if(!section || (section != 'membership' && section != 'payments' && section != 'userInfo' && section != 'business')){
           this.set('route.path','acco/userInfo');
@@ -358,20 +358,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         return section;
       },
-
-
-      _userAuthChange : function(auth){
-        if(!auth){
-          this.fire('route-change',{route : 'forbidden'})
-          this.$.credentialDialog.close();
-        };
-      },
-
-      _lastErrorChanged : function(error){
-        if(error) this.showMessage(error);
-      },
       checkUserIntCred:function(){
         if(!this.user)return;
+        if(!this.authenticated)return this.changeRoute('forbidden');
         if(!this.user.intlCredential){
           this.$.credentialDialog.open();
         }else {
@@ -380,6 +369,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
       billAdded:function(){
         this.showMessage('Se te ha emitido una factura exitosamente.')
+      },
+      changeRoute : function(route){
+        this.fire('route-change',{route : route})
       }
     });
   </script>

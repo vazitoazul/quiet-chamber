@@ -30,6 +30,9 @@
         right: 0 !important;
         left: inherit !important;
       }
+      h6.no-margin-button{
+        margin-bottom: -0.5rem;
+      }
     </style>
     <iron-ajax
       id="mailVerifAjax"
@@ -55,20 +58,20 @@
         </div>
       </div>
     </paper-card>
-    <h4>Información de Registro</h4>
+    <!-- <h4>Información de Registro</h4>
     <paper-card>
       <div class="card-content">
           <paper-input name="userFirstName" label="[[localize('names')]]" required  value="{{user.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
           <paper-input name="userLastName" label="[[localize('last_name')]]" required  value="{{user.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
       </div>
-    </paper-card>
-    <h4>Información de contacto</h4>
+    </paper-card> -->
+    <h4>[[localize('personal_info')]]</h4>
     <paper-card id="toastContainer">
       <div class="card-content">
-        <paper-input name="contactFirstName" label="[[localize('names')]]" required  value="{{user.contactInfo.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
-        <paper-input name="contactLastName" label="[[localize('last_name')]]" required  value="{{user.contactInfo.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+        <paper-input name="firstName" label="[[localize('names')]]" required  value="{{user.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+        <paper-input name="lastName" label="[[localize('last_name')]]" required  value="{{user.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
         <div>
-          <h5>[[localize('telephones')]]</h5>
+          <h6 class="no-margin-button">[[localize('telephones')]]</h6>
           <paper-input required name="telephone" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('mobile')]]" value="{{user.contactInfo.telephones.0}}"></paper-input>
           <paper-input name="telephone" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','1')]]" value="{{user.contactInfo.telephones.1}}"></paper-input>
           <paper-input name="telephone" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','2')]]" value="{{user.contactInfo.telephones.2}}"></paper-input>
@@ -91,14 +94,12 @@
   <script>
     Polymer({
       is: 'user-info',
-
       behaviors : [
         Polymer.AppLocalizeBehavior,
         GlobalStoreBehavior,
         UserActionsBehavior,
         AuthActionsBehavior
       ],
-
       properties : {
         language : {
           type:String,
@@ -145,7 +146,8 @@
                   'an_email_will_be_sent': 'A confirmation email will be sent to verify it.',
                   'verify': 'Verify',
                   'an_email_has_been_sent_to':'An email has been sent to',
-                  'with_a_link_to_verify':'with a link to verify your address.'
+                  'personal_info':'Personal Info',
+                  'with_a_link_to_verify':'with a link to verify your address.',
 
                  },
                 'es': {
@@ -173,7 +175,8 @@
                   'an_email_will_be_sent': 'Se te enviará un correo de confirmación para verificarlo.',
                   'verify': 'Verificar',
                   'an_email_has_been_sent_to':'Se ha enviado un correo a',
-                  'with_a_link_to_verify':'con un link para verificar tu correo.'
+                  'personal_info':'Información Personal',
+                  'with_a_link_to_verify':'con un link para verificar tu correo.',
                 }
               }
           }
@@ -185,10 +188,14 @@
         this.$.toast.show();
       },
       submit : function(e){
+        var self = this;
         if(this.$.userInfoForm.validate()){
           this.$.spinner.active = true;
           this.$.spinner.hidden = false;
-          this.dispatch('updateUserInfo',this.$.userInfoForm.serialize());
+          this.dispatch('updateUserInfo',this.$.userInfoForm.serialize(),function(err){
+            if(err)return self.showMessage(self.localize(err.message));
+            self.showMessage(self.localize('info_updated'));
+          });
         }
       },
       handleApiLoad : function(e){

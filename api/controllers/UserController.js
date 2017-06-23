@@ -36,12 +36,12 @@ module.exports = {
 	updateIntlCredential : function(req,res,next){
 		var newCredential = req.param('newCredential');
 		if(!newCredential){
-			return res.badRequest({error : "No credential "});
+			return res.badRequest({error : 'no_credential'});
 		}
 		User.findOne({intlCredential : newCredential},function(err,user){
 			if(err) return next(err);
 			if(user){
-				return res.json(409,{error : "Credential in use"});
+				return res.json(409,{error : 'credential_in_use'});
 			}
 			User.update({id : req.user.id}, {intlCredential : newCredential}, function(err,updated){
 				if(err){
@@ -63,11 +63,9 @@ module.exports = {
     */
 	updateUserInfo : function(req,res,next){
 		var info = {
-			firstName:req.param('userFirstName'),
-			lastName: req.param('userLastName'),
+			firstName:req.param('firstName'),
+			lastName: req.param('lastName'),
 			contactInfo:{
-				firstName : req.param('contactFirstName'),
-				lastName : req.param('contactLastName'),
 				telephones : req.param('telephone'),
 				email : req.param('contactEmail'),
 				location : {

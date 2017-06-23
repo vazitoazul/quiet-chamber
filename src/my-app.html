@@ -80,17 +80,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         authenticated:{
           type:Boolean,
-          statePath:'user.authenticated',
-          observer:'_userAuthChange'
+          statePath:'user.authenticated'
         }
       },
       observers: [
         '_routePageChanged(routeData.page)'
       ],
+      attached : function(){
+        if(this.checkLogIn()) this.dispatch('loadUserInfo');
+      },
       _routePageChanged: function(page) {
         this.page = page || 'main';
       },
-
       _pageChanged: function(page) {
         if(page==='auth' || page === 'logout'){
           window.location = this.route.path;
@@ -100,21 +101,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var resolvedPageUrl = this.resolveUrl('fragments/'+ page +'-view.html');
         this.importHref(resolvedPageUrl, null, this._showPage404, true);
       },
-
       _showPage404: function() {
         this.page = 'notfound';
       },
-      _userAuthChange:function(newVal,oldVal){
-        if(newVal&&!oldVal){
-          return this.dispatch('loadUserInfo');
-        }
-        if(this.checkLogIn()){
-          this.dispatch('loadUserInfo');
-        }
-      },
-      _handleUserInfResponse:function(e){
-
-      },
+      // _userAuthChange:function(newVal,oldVal){
+      //   if(newVal&&!oldVal){
+      //     return this.dispatch('loadUserInfo');
+      //   }
+      //   if(this.checkLogIn()){
+      //     this.dispatch('loadUserInfo');
+      //   }
+      // },
       changeRoute : function(e){
         var newPath = e.detail.route
         this.page = newPath;

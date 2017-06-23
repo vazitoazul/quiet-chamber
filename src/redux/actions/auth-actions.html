@@ -27,6 +27,7 @@
                 window.history.pushState({},null,'/')
               }
               window.dispatchEvent(new CustomEvent('location-changed'));
+              callback();
             })
             .catch((e)=>{
               dispatch({type:'LOG_IN',status:'error',error:e.message});
