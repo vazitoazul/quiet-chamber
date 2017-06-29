@@ -76,6 +76,54 @@ module.exports = {
 			if(err)return next(err);
 			return res.json(deleted[0]);
 		});
+	},
+	/**
+    *sign aws s3 url
+    *
+		*@param {string} file - file name
+		*@param {string} type - file type
+		*/
+	signAwsUrl : function(req,res,next){
+		const bucket = sails.config.s3.bucket;
+		const fileName = req.param('file');
+		const s3Params = {
+			Bucket: bucket,
+			Key: fileName,
+			Expires: 60,
+			ContentType: req.param('type'),
+			ACL: 'public-read'
+		};
+		s3.getSignedUrl('putObject', s3Params, (err, data) => {
+			if(err)return next(err);
+			return res.json({
+				signedRequest: data,
+				url: `https://${bucket}.s3.amazonaws.com/${fileName}`
+			});
+		});
+	},
+	/**
+    *delete image from aws s3
+    *
+		*@param {string} id - business id with the image to delete
+		*/
+	deleteBusinessImage :function(req,res,next){
+		Business.findOne({id : req.param('id')},function(err,business){
+			if(err)return next(err);
+			console.log(business.image.split(".com/")[1]);
+			var params = {
+				Bucket : sails.config.s3.bucket,
+				Delete : {
+					Objects : [{
+						Key : business.image.split(".com/")[1]
+					}]
+				},
+				Quiet: false
+			}
+			s3.deleteObjects(params, function(err, data) {
+				if(err)return next(err); // an error occurred
+				return res.ok();
+			});
+		});
 	}
 
 };

@@ -6,6 +6,7 @@
   "keywords": [],
   "dependencies": {
     "async": "^2.1.4",
+    "aws-sdk": "^2.77.0",
     "bcrypt": "^1.0.2",
     "bcryptjs": "^2.3.0",
     "bower": "^1.7.9",

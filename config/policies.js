@@ -50,8 +50,10 @@ module.exports.policies = {
 
   'PostController' : {
     'searchPosts' : ['passport'],
+    'signAwsUrl' : ['passport','sessionAuth'],
     '*' : ['passport','sessionAuth','intlCredential','businessOwner']
   },
+
   'BillController' : {
     '*' : ['passport','sessionAuth','intlCredential']
   },

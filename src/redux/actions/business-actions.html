@@ -176,6 +176,29 @@ const BusinessActionsBehavior = {
         });
       }
     },
+    deleteImage : function(img,callback){
+      return function(dispatch){
+        dispatch({type:'EDD_POST'});
+        let request = new Request(
+          '/deleteawsimage',{
+            method:'POST',
+            headers: standardHeaders,
+            credentials: 'include',
+            body: JSON.stringify({img : img})
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          dispatch({type:'EDD_POST',status:'success',post:{image : ''}});
+          callback();
+        })
+        .catch((e)=>{
+          dispatch({type:'EDD_POST',status:'error',error:e.message});
+          callback(e);
+        });
+      }
+    }
   }
 }
 </script>

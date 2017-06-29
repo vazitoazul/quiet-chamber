@@ -37,9 +37,13 @@
     .ligth{
       color: var(--paper-grey-600);
       margin-top: 1rem;
+      margin-left: 1rem;
     }
     .add-post{
       margin-top: 0.5rem;
+    }
+    gold-email-input.bussPhone{
+      margin-bottom: 0.5rem;
     }
  </style>
  <template>
@@ -49,12 +53,12 @@
     <paper-card class="col-sm-7 offset-sm-1" id="paperCard">
       <div class="card-content">
         <form is="iron-form" id="businessForm" action="[[ironFormAction]]" on-iron-form-response="_responseHandler" on-iron-form-error="_errorHandler" method="post">
-          <paper-input name="name" label="[[localize('name')]]" required  value="{{business.name}}" error-message="[[localize('add_name')]]"></paper-input>
-          <paper-textarea label="[[localize('description')]]" name="description" value="{{business.description}}" required error-message="[[localize('add_description')]]"></paper-textarea>
-          <paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required  value="{{business.cityLabel}}" error-message="[[localize('add_city')]]"></paper-input>
+          <paper-input name="name" label="[[localize('name')]]" required  value="{{business.name}}" error-message="[[localize('add_name')]]" class="col-sm-7"></paper-input>
+          <paper-textarea label="[[localize('description')]]" name="description" value="{{business.description}}" required error-message="[[localize('add_description')]]" class="col-sm-10"></paper-textarea>
+          <paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required  value="{{business.cityLabel}}" error-message="[[localize('add_city')]]" class="col-sm-7"></paper-input>
           <input name="placesIds" hidden value="{{business.placesIds}}"></input>
           <div class="ligth">[[localize('labels')]]</div>
-          <div class="row" id="autocompleteDiv">
+          <div class="row col-sm-12" id="autocompleteDiv">
             <paper-autocomplete id="autocomplete" class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-xs-12" label="Select" source="[[labelsArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
             <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-xs-12  row labels">
               <template  id="businessLabelsTemplate" is="dom-repeat" items="[[selectedLabels]]">
@@ -64,9 +68,21 @@
           </div>
           <input name="labels" hidden value="{{business.labels}}"></input>
           <div class="ligth">[[localize('telephones')]]</div>
-          <paper-input required name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('mobile')]]" value="{{business.telephones.0}}"></paper-input>
-          <paper-input name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','1')]]" value="{{business.telephones.1}}"></paper-input>
-          <gold-email-input required name="email" label="[[localize('email')]]" value="{{business.email}}" error-message="[[localize('valid_email')]]"></gold-email-input>
+          <paper-input required name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('mobile')]]" value="{{business.telephones.0}}" class="col-sm-7"></paper-input>
+          <paper-input name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','1')]]" value="{{business.telephones.1}}" class="col-sm-7"></paper-input>
+          <gold-email-input required name="email" label="[[localize('email')]]" value="{{business.email}}" error-message="[[localize('valid_email')]]" class="col-sm-7 bussPhone"></gold-email-input>
+          <template is="dom-if" if="[[business.image]]">
+            <img src="[[business.image]]" class="col-sm-12">
+          </template>
+          <paper-spinner active="[[uploading]]" class="col-sm-12 offset-sm-4"></paper-spinner>
+          <template is="dom-if" if="[[!business.image]]">
+            <paper-button id="uploadButton" name="button" class="secondary" on-click="openFileInput" raised>[[localize('upload_image')]]</paper-button>
+          </template>
+          <input type="file" id="imageInput" hidden accept=".jpg,.jpeg,.png" on-change="uploadImageAndFinish">
+          <template is="dom-if" if="[[business.image]]">
+            <paper-button id="uploadButton" name="button" class="secondary" on-click="openFileInput" raised>[[localize('change_image')]]</paper-button>
+            <paper-button raised class="secondary">[[localize('delete_image')]]</paper-button>
+          </template>
         </form>
       </div>
       <div class="card-actions">
@@ -162,7 +178,10 @@
                   'add_new_post' : 'add post',
                   'business_created' : 'business created',
                   'business_edited' : 'business edited',
-                  'want_delete' : 'Are you sure you want to delete this business?'
+                  'want_delete' : 'Are you sure you want to delete this business?',
+                  'upload_image':'Upload an image',
+                  'change_image':'Cambiar Imagen',
+                  'delete_image' : 'Delete'
                 } ,
 		        		'es' : {
     							'name' : 'nombre',
@@ -188,7 +207,10 @@
                   'add_new_post' : 'agreagar post',
                   'business_created' : 'negocio creado',
                   'business_edited' : 'negocio editado',
-                  'want_delete' : 'Estas seguro que quieres borrar este negocio?'
+                  'want_delete' : 'Estas seguro que quieres borrar este negocio?',
+                  'upload_image':'Subir una imagen',
+                  'change_image':'Cambiar Imagen',
+                  'delete_image' : 'Eliminar'
                 }
 	        		}
 	        	}
@@ -389,6 +411,53 @@
         window.history.pushState({},null,'/acco/business');
         window.dispatchEvent(new CustomEvent('location-changed'));
       },1000);
+    },
+    openFileInput : function(){
+      if(!this.checkForm())return;
+      this.$.imageInput.click();
+    },
+    uploadImageAndFinish : function(e){
+      var self = this;
+      this.set('uploading',true);
+      const file = e.target.files[0];
+      if(file == null)return;
+      if(this.business.image)this.deleteImage();
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET','/signawsurl?file='+file.name+'&type='+file.type);
+      xhr.onreadystatechange = function(){
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            const response = JSON.parse(xhr.responseText);
+            var url = response.url;
+            const uploader = new XMLHttpRequest();
+            uploader.open('PUT', response.signedRequest);
+            uploader.onreadystatechange = () => {
+              if(uploader.readyState === 4){
+                if(uploader.status === 200){
+                  self.set('uploading',false);
+                  self.set('business.image',url);
+                  if(self.creating)self.createBusiness();
+                }
+                else{
+                  console.log('No se subioo');
+                }
+              }
+            };
+            uploader.send(file);
+          }
+          else{
+            console.log('something bad happend');
+          }
+        }
+      };
+      xhr.send();
+    },
+    deleteImage : function(){
+      this.dispatch('deleteImage',{business:this.business,posts:posts},function(err){
+        if(err) return self.showMessage(self.localize(err.message));
+        self.showMessage(self.localize('business_created'));
+        self.returnToResume();
+      });
     }
  	});
  </script>

@@ -4,6 +4,12 @@
  * @description :: Server-side logic for managing posts
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
+var aws = require('aws-sdk');
+var s3 = new aws.S3({
+	accessKeyId : sails.config.s3.awsKeyId,
+	secretAccessKey : sails.config.s3.awsKeySecret,
+	region : sails.config.s3.region
+});
 
 module.exports = {
 	/**
@@ -58,34 +64,27 @@ module.exports = {
 	searchPosts : function(req,res,next){
 		var params = req.allParams();
 		var query = {};
-		var labels = params.labels;
-		var places = params.location;
-		console.log(labels);
-		console.log(places);
+		const labels = params.labels;
+		const places = params.location;
 		if(labels&&labels.length>0){
 			query['$or']=[];
 			for(var label in labels){
 				query['$or'].push({'labels' : labels[label]});
-			}			
+			}
 		}
 		if(places&&places.length>0){
 			query['$or']= query['$or'] || [];
 			for(var place in places){
 				query['$or'].push({'placesIds' : places[place]});
-			}			
+			}
 		}
-
 		if(params.amountTo || params.amountFrom)query['amount']= {};
 		if(params.amountFrom)query['amount'].$gt = parseInt(params.amountFrom);
 		if(params.amountTo)query['amount'].$lte = parseInt(params.amountTo);
 		if(params.type)query['type'] = params.type;
-		console.log(query);
 		Post.find(query).populate('business').exec(function(err,found){
 			if(err)return next(err);
-			console.log(found);
 			return res.json(200,found);
 		});
-	},
-
-
+	}
 };
