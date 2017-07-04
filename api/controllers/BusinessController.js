@@ -4,7 +4,13 @@
  * @description :: Server-side logic for managing businesses
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
-
+ var aws = require('aws-sdk');
+ var s3 = new aws.S3({
+ 	accessKeyId : sails.config.s3.awsKeyId,
+ 	secretAccessKey : sails.config.s3.awsKeySecret,
+ 	region : sails.config.s3.region
+ });
+ 
 module.exports = {
 	/**
     *create a business for the current logged user
@@ -121,7 +127,7 @@ module.exports = {
 			}
 			s3.deleteObjects(params, function(err, data) {
 				if(err)return next(err); // an error occurred
-				return res.ok();
+				return res.json(business);
 			});
 		});
 	}

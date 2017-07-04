@@ -181,7 +181,8 @@
                   'want_delete' : 'Are you sure you want to delete this business?',
                   'upload_image':'Upload an image',
                   'change_image':'Cambiar Imagen',
-                  'delete_image' : 'Delete'
+                  'delete_image' : 'Delete',
+                  'error_uploading' : 'An error occurred'
                 } ,
 		        		'es' : {
     							'name' : 'nombre',
@@ -210,7 +211,8 @@
                   'want_delete' : 'Estas seguro que quieres borrar este negocio?',
                   'upload_image':'Subir una imagen',
                   'change_image':'Cambiar Imagen',
-                  'delete_image' : 'Eliminar'
+                  'delete_image' : 'Eliminar',
+                  'error_uploading' : 'Error al subir la imagen'
                 }
 	        		}
 	        	}
@@ -439,21 +441,27 @@
                   if(self.creating)self.createBusiness();
                 }
                 else{
-                  console.log('No se subioo');
+                  console.log('mal en la firma');
+                  self.showMessage(self.localize('error_uploading'));
                 }
               }
+              console.log('mal en la subida');
+
+              self.set('uploading',false);
             };
             uploader.send(file);
           }
           else{
-            console.log('something bad happend');
+            console.log('mal aqui');
+            self.showMessage(self.localize('error_uploading'));
+            self.set('uploading',false);
           }
         }
       };
       xhr.send();
     },
     deleteImage : function(){
-      this.dispatch('deleteImage',{business:this.business,posts:posts},function(err){
+      this.dispatch('deleteImage',{business:this.business},function(err){
         if(err) return self.showMessage(self.localize(err.message));
         self.showMessage(self.localize('business_created'));
         self.returnToResume();

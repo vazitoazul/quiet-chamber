@@ -4,13 +4,6 @@
  * @description :: Server-side logic for managing posts
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
-var aws = require('aws-sdk');
-var s3 = new aws.S3({
-	accessKeyId : sails.config.s3.awsKeyId,
-	secretAccessKey : sails.config.s3.awsKeySecret,
-	region : sails.config.s3.region
-});
-
 module.exports = {
 	/**
 		*create a post for certain business

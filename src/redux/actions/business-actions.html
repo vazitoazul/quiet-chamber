@@ -190,8 +190,10 @@ const BusinessActionsBehavior = {
         window.fetch(request)
         .then(handleReqError)
         .then((response)=>{
-          dispatch({type:'EDD_POST',status:'success',post:{image : ''}});
-          callback();
+          response.json().then((json)=>{
+            dispatch({type:'DEL_POST',status:'success',business:json});
+            callback();
+          });
         })
         .catch((e)=>{
           dispatch({type:'EDD_POST',status:'error',error:e.message});
