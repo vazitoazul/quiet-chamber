@@ -10,7 +10,7 @@
  	secretAccessKey : sails.config.s3.awsKeySecret,
  	region : sails.config.s3.region
  });
- 
+
 module.exports = {
 	/**
     *create a business for the current logged user
@@ -89,7 +89,7 @@ module.exports = {
 		*@param {string} file - file name
 		*@param {string} type - file type
 		*/
-	signAwsUrl : function(req,res,next){
+	signAwsUrl : (req,res,next)=>{
 		const bucket = sails.config.s3.bucket;
 		const fileName = req.param('file');
 		const s3Params = {
@@ -100,6 +100,7 @@ module.exports = {
 			ACL: 'public-read'
 		};
 		s3.getSignedUrl('putObject', s3Params, (err, data) => {
+      console.log(err,data);
 			if(err)return next(err);
 			return res.json({
 				signedRequest: data,
@@ -122,12 +123,14 @@ module.exports = {
 					Objects : [{
 						Key : business.image.split(".com/")[1]
 					}]
-				},
-				Quiet: false
+				}
 			}
 			s3.deleteObjects(params, function(err, data) {
 				if(err)return next(err); // an error occurred
-				return res.json(business);
+        Business.update({id : business.id},{image : ''}, (err,updated)=>{
+          if(err) return next(err);
+          return res.json(updated[0]);
+        });
 			});
 		});
 	}

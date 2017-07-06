@@ -81,7 +81,7 @@
           <input type="file" id="imageInput" hidden accept=".jpg,.jpeg,.png" on-change="uploadImageAndFinish">
           <template is="dom-if" if="[[business.image]]">
             <paper-button id="uploadButton" name="button" class="secondary" on-click="openFileInput" raised>[[localize('change_image')]]</paper-button>
-            <paper-button raised class="secondary">[[localize('delete_image')]]</paper-button>
+            <paper-button raised class="secondary" on-click="deleteImage">[[localize('delete_image')]]</paper-button>
           </template>
         </form>
       </div>
@@ -441,18 +441,15 @@
                   if(self.creating)self.createBusiness();
                 }
                 else{
-                  console.log('mal en la firma');
                   self.showMessage(self.localize('error_uploading'));
+                  self.set('uploading',false);
                 }
               }
-              console.log('mal en la subida');
-
               self.set('uploading',false);
             };
             uploader.send(file);
           }
           else{
-            console.log('mal aqui');
             self.showMessage(self.localize('error_uploading'));
             self.set('uploading',false);
           }
@@ -461,7 +458,9 @@
       xhr.send();
     },
     deleteImage : function(){
-      this.dispatch('deleteImage',{business:this.business},function(err){
+      var self = this;
+      this.dispatch('deleteImage',this.business,function(err){
+        console.log(err);
         if(err) return self.showMessage(self.localize(err.message));
         self.showMessage(self.localize('business_created'));
         self.returnToResume();

@@ -176,27 +176,27 @@ const BusinessActionsBehavior = {
         });
       }
     },
-    deleteImage : function(img,callback){
+    deleteImage : function(business,callback){
       return function(dispatch){
-        dispatch({type:'EDD_POST'});
+        dispatch({type:'EDD_BUSS'});
         let request = new Request(
           '/deleteawsimage',{
             method:'POST',
             headers: standardHeaders,
             credentials: 'include',
-            body: JSON.stringify({img : img})
+            body: JSON.stringify(business)
           }
         );
         window.fetch(request)
         .then(handleReqError)
         .then((response)=>{
           response.json().then((json)=>{
-            dispatch({type:'DEL_POST',status:'success',business:json});
+            dispatch({type:'DEL_BUSS',status:'success',business:json});
             callback();
           });
         })
         .catch((e)=>{
-          dispatch({type:'EDD_POST',status:'error',error:e.message});
+          dispatch({type:'EDD_BUSSS',status:'error',error:e.message});
           callback(e);
         });
       }
