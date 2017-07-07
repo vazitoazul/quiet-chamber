@@ -100,7 +100,6 @@ module.exports = {
 			ACL: 'public-read'
 		};
 		s3.getSignedUrl('putObject', s3Params, (err, data) => {
-      console.log(err,data);
 			if(err)return next(err);
 			return res.json({
 				signedRequest: data,
@@ -116,7 +115,6 @@ module.exports = {
 	deleteBusinessImage :function(req,res,next){
 		Business.findOne({id : req.param('id')},function(err,business){
 			if(err)return next(err);
-			console.log(business.image.split(".com/")[1]);
 			var params = {
 				Bucket : sails.config.s3.bucket,
 				Delete : {

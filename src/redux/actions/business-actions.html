@@ -191,8 +191,8 @@ const BusinessActionsBehavior = {
         .then(handleReqError)
         .then((response)=>{
           response.json().then((json)=>{
-            dispatch({type:'DEL_BUSS',status:'success',business:json});
-            callback();
+            dispatch({type:'EDD_BUSS',status:'success',business:json});
+            if(callback)callback();
           });
         })
         .catch((e)=>{
@@ -201,6 +201,41 @@ const BusinessActionsBehavior = {
         });
       }
     }
+  },
+  signAwsUrl : function(file,callback){
+    let request = new Request(
+      '/signawsurl?file='+file.name+'&type='+file.type,{
+        method:'GET',
+        headers: standardHeaders,
+        credentials: 'include'
+      }
+    );
+    window.fetch(request)
+    .then(handleReqError)
+    .then((response)=>{
+      response.json().then((json)=>{
+        callback(json);
+      });
+    })
+    .catch((e)=>{
+      callback(e);
+    });
+  },
+  uploadtoAws : function(url,file,callback){
+    let request = new Request(
+        url,{
+        method:'PUT',
+        body : file
+      }
+    );
+    window.fetch(request)
+    .then(handleReqError)
+    .then((response)=>{
+      if(callback)callback();
+    })
+    .catch((e)=>{
+      callback(e);
+    });
   }
 }
 </script>

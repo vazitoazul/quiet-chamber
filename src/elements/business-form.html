@@ -78,7 +78,7 @@
           <template is="dom-if" if="[[!business.image]]">
             <paper-button id="uploadButton" name="button" class="secondary" on-click="openFileInput" raised>[[localize('upload_image')]]</paper-button>
           </template>
-          <input type="file" id="imageInput" hidden accept=".jpg,.jpeg,.png" on-change="uploadImageAndFinish">
+          <input type="file" id="imageInput" hidden accept=".jpg,.jpeg,.png" on-change="uploadImage">
           <template is="dom-if" if="[[business.image]]">
             <paper-button id="uploadButton" name="button" class="secondary" on-click="openFileInput" raised>[[localize('change_image')]]</paper-button>
             <paper-button raised class="secondary" on-click="deleteImage">[[localize('delete_image')]]</paper-button>
@@ -178,11 +178,14 @@
                   'add_new_post' : 'add post',
                   'business_created' : 'business created',
                   'business_edited' : 'business edited',
+                  'business_deleted':'business delete',
                   'want_delete' : 'Are you sure you want to delete this business?',
                   'upload_image':'Upload an image',
-                  'change_image':'Cambiar Imagen',
+                  'change_image':'Change Image',
                   'delete_image' : 'Delete',
-                  'error_uploading' : 'An error occurred'
+                  'error_uploading' : 'An error occurred',
+                  'image_changed' : 'Image chagned',
+                  'image_deleted' : 'Image deleted'
                 } ,
 		        		'es' : {
     							'name' : 'nombre',
@@ -208,11 +211,14 @@
                   'add_new_post' : 'agreagar post',
                   'business_created' : 'negocio creado',
                   'business_edited' : 'negocio editado',
+                  'business_deleted':'negocio eliminado',
                   'want_delete' : 'Estas seguro que quieres borrar este negocio?',
                   'upload_image':'Subir una imagen',
                   'change_image':'Cambiar Imagen',
                   'delete_image' : 'Eliminar',
-                  'error_uploading' : 'Error al subir la imagen'
+                  'error_uploading' : 'Error al subir la imagen',
+                  'image_changed' : 'Imagen cambiada',
+                  'image_deleted' : 'Imagen borrada'
                 }
 	        		}
 	        	}
@@ -361,6 +367,7 @@
     checkForm : function(){
       this.setBusinessLabels();
       if(!this.$.businessForm.validate() || !this.validateLabels()) return false;
+      if(!this.business.placesIds) return this.showMessage(this.localize('add_city'));;
       var postForm = true;
       Polymer.dom(this.$.businessPostsTemplate).children.forEach(function(node){
         if(node.localName == 'post-form'){
@@ -395,8 +402,11 @@
       this.$.dialog.open();
     },
     deleteBusiness : function(e){
+      var self = this;
       this.dispatch('deleteBusiness',this.business,function(err){
         if(err) self.showMessage(self.localize(err.message));
+        self.showMessage(self.localize('business_deleted'));
+        self.returnToResume();
       });
     },
     showMessage : function(message){
@@ -409,61 +419,44 @@
       this.$.businessForm.reset();
     },
     returnToResume : function(){
+      var self=this;
       setTimeout(function(){
         window.history.pushState({},null,'/acco/business');
         window.dispatchEvent(new CustomEvent('location-changed'));
+        self.set('business','');
       },1000);
     },
     openFileInput : function(){
       if(!this.checkForm())return;
       this.$.imageInput.click();
     },
-    uploadImageAndFinish : function(e){
+    uploadImage : function(e){
       var self = this;
       this.set('uploading',true);
       const file = e.target.files[0];
       if(file == null)return;
-      if(this.business.image)this.deleteImage();
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET','/signawsurl?file='+file.name+'&type='+file.type);
-      xhr.onreadystatechange = function(){
-        if(xhr.readyState === 4){
-          if(xhr.status === 200){
-            const response = JSON.parse(xhr.responseText);
-            var url = response.url;
-            const uploader = new XMLHttpRequest();
-            uploader.open('PUT', response.signedRequest);
-            uploader.onreadystatechange = () => {
-              if(uploader.readyState === 4){
-                if(uploader.status === 200){
-                  self.set('uploading',false);
-                  self.set('business.image',url);
-                  if(self.creating)self.createBusiness();
-                }
-                else{
-                  self.showMessage(self.localize('error_uploading'));
-                  self.set('uploading',false);
-                }
-              }
-              self.set('uploading',false);
-            };
-            uploader.send(file);
-          }
-          else{
-            self.showMessage(self.localize('error_uploading'));
-            self.set('uploading',false);
-          }
-        }
-      };
-      xhr.send();
+      if(self.business.image) self.dispatch('deleteImage',self.business);
+      this.signAwsUrl(file,function(response){
+        if(response.message) return self.showMessage(self.localize(response.message));
+        self.uploadtoAws(response.signedRequest,file,function(err){
+          self.set('uploading',false);
+          if(err) return self.showMessage(self.localize(err.message));
+          self.set('business.image',response.url);
+          if(self.creating) return self.createBusiness();
+          self.dispatch('edditBusiness',self.business,function(){
+            return self.showMessage(self.localize('image_changed'));
+          });
+        });
+      });
     },
     deleteImage : function(){
       var self = this;
+      this.set('uploading',true);
       this.dispatch('deleteImage',this.business,function(err){
-        console.log(err);
+        self.set('uploading',false);
         if(err) return self.showMessage(self.localize(err.message));
-        self.showMessage(self.localize('business_created'));
-        self.returnToResume();
+        self.showMessage(self.localize('image_deleted'));
+        self.set('business.image','');
       });
     }
  	});
