@@ -18,18 +18,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../../bower_components/re-captcha/re-captcha.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
-<link rel="import" href="../elements/facebook-login.html">
-<link rel="import" href="../elements/google-login.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../elements/label-autocomplete.html">
 <link rel="import" href="../elements/page-footer.html">
 <link rel="import" href="../elements/login-button.html">
-<link rel="import" href="../elements/search-bar.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/global-store.html">
 <dom-module id="main-view">
@@ -180,7 +177,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <h3 class="text-center strong">buscas trabajo o l oque sea?</h3>
                   <h4 class="text-center">Encuentraloou</h4>
                   <div class="w-100 horizontal center search-box ">
-                    <search-bar></search-bar>
+                    <paper-dropdown-menu label="Estoy buscando" id="typeDropDown" required>
+                      <paper-listbox id="paperList" class="dropdown-content" selected="{{query.type}}"  attr-for-selected="value">
+                        <paper-item value="f">Franquicia</paper-item>
+                        <paper-item value="d">Donación</paper-item>
+                        <paper-item value="i">Inversiones</paper-item>
+                        <paper-item value="j">Trabajos</paper-item>
+                        <paper-item value="a">Publicidad</paper-item>
+                      </paper-listbox>
+                    </paper-dropdown-menu>
+                    <label-autocomplete></label-autocomplete>
                   </div>
                 </div>
               </div>
@@ -242,11 +248,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-card>
               </div>
             </div>
-          </div>
-        </section>
-        <section class="second">
-          <div class="container h-100 mt-2">
-            <search-bar></search-bar>
           </div>
         </section>
         <section>

@@ -1,0 +1,152 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete-suggestions.html">
+<link rel="import" href="../../bower_components/iron-form-element-behavior/iron-form-element-behavior.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../elements/label-element.html">
+<link rel="import" href="../elements/label-chip.html">
+<link rel="import" href="../redux/global-store.html">
+<dom-module id="label-autocomplete">
+   <style include="shared-styles">
+    div.wraper{
+      position:relative;
+      max-width: 300px;
+    }
+    div.labels{
+      max-width: 300px;
+    }
+    paper-autocomplete-suggestions{
+      --suggestions-wrapper:{
+        color:var(--primary-text-color);
+      }
+    }
+   </style>
+   <template>
+     <label-element labels="{{labelArray}}"></label-element>
+     <div class="wraper">
+       <paper-input label="Relacionado con" id="autocompleteInput"></paper-input>
+       <paper-autocomplete-suggestions for="autocompleteInput" source="[[labelArray]]" on-autocomplete-selected="labelSelected"></paper-autocomplete-suggestions>
+     </div>
+     <div class="labels">
+       <template is="dom-repeat" items="[[selectedLabels]]">
+         <label-chip item="[[item]]" on-closed="spliceLabel" closeable></label-chip>
+       </template>
+     </div>
+   </template>
+   <script>
+    Polymer({
+      is: 'label-autocomplete',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior
+      ],
+
+      properties:{
+        language:{
+          type:String,
+          statePath:'language'
+        },
+        resources:{
+          value:function(){
+            return {
+              'en':{
+              },
+              'es':{
+              }
+            }
+          }
+        },
+        selectedLabels : {
+          type : Array,
+          value : function(){
+            return [];
+          }
+        },
+        labelsArray :{
+          type : Object
+        }
+      },
+      labelSelected: function(e){
+        this.selectedLabels.forEach((item)=>{
+          if(item.value===e.detail.option.value){
+            return ;
+          }
+        });
+        this.push('selectedLabels',e.detail.option);
+        this.$.autocompleteInput.value='';
+      },
+      spliceLabel:function(e){
+        this.selectedLabels.forEach((item,index)=>{
+          if(item.value===e.detail.value){
+            this.splice('selectedLabels',index,1);
+          }
+        });
+      },
+      // handleApiLoad : function(){
+      //     var self = this;
+      //     var cityInput = self.$.cityInput.inputElement;
+      //     var citySearch = new google.maps.places.Autocomplete(cityInput,this.googleMapsApiRestrictions);
+      //     google.maps.event.addListener(citySearch,'place_changed', function(){
+      //       var city = citySearch.getPlace();
+      //       if(!city.geometry){
+      //         self.$.toast.text = self.localize('not_valid_city');
+      //         self.$.toast.open();
+      //       }else{
+      //         self.setPlacesIdsArray(city);
+      //       }
+      //     });
+      //     this.$.cityInput.inputElement.addEventListener('blur',function(e){
+      //       var service = new google.maps.places.AutocompleteService();
+      //       service.getPlacePredictions({
+      //           input: cityInput.value,
+      //           componentRestrictions: self.googleMapsApiRestrictions.componentRestrictions,
+      //           types: self.googleMapsApiRestrictions.types
+      //       }, function(predictions,status){
+      //         if (status != google.maps.places.PlacesServiceStatus.OK) {
+      //             self.$.toast.text = self.localize('not_valid_city');
+      //             self.$.toast.open();
+      //             return;
+      //         }
+      //         var placesService = new google.maps.places.PlacesService(self.$.placesServiceResult);
+      //         placesService.getDetails({placeId:predictions[0].place_id},function(result,status){
+      //           if (status != google.maps.places.PlacesServiceStatus.OK) {
+      //               // show that this address is an error
+      //               self.$.toast.text = self.localize('not_valid_city');
+      //               self.$.toast.open();
+      //               return;
+      //           }
+      //           self.setPlacesIdsArray(result);
+      //         });
+      //       });
+      //     });
+      // },
+
+      // setPlacesIdsArray : function(address){
+      //   var self = this;
+      //   var service = new google.maps.places.AutocompleteService();
+      //   var placesService = new google.maps.places.PlacesService(self.$.placesServiceResult);
+      //   this.set('query.placesIds',[]);
+      //   this.set('query.cityLabel',address.formatted_address);
+      //   for(var place in address.address_components){
+      //     service.getPlacePredictions({
+      //         input: address.address_components[place].long_name,
+      //         componentRestrictions: self.googleMapsApiRestrictions.componentRestrictions,
+      //         types: self.googleMapsApiRestrictions.types
+      //     }, function(predictions,status){
+      //       if (status != google.maps.places.PlacesServiceStatus.OK) {
+      //           return;
+      //       }
+      //       self.push('query.placesIds',predictions[0].place_id);
+      //     });
+      //   }
+      // },
+
+      showMessage:function(message,duration){
+        this.$.toast.text = message;
+        this.$.toast.duration=duration || 3000;
+        this.$.toast.open();
+      },
+    })
+   </script>
+</dom-module>
