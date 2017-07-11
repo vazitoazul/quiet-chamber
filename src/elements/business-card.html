@@ -21,30 +21,32 @@
     a.edit{
       position: relative
     }
+
   </style>
   <template>
     <label-element id="labelElement" on-labels-changed="_labelsChanged"></label-element>
     <template is="dom-if" if="[[complete]]">
-      <paper-card image="[[business.image]]">
-        <div class="card-content ">
-          <div class="card-header row">
-            <h5>[[business.name]]</h5>
-            <!-- <a href="/acco/business/[[business.id]]" class="col offset-sm-6"><paper-icon-button icon="create"></paper-icon-button></a> -->
+      <div class="col-12 col-sm-6">
+        <paper-card image="[[image]]">
+          <div class="card-content ">
+            <div class="card-header row">
+              <h5>[[business.name]]</h5>
+            </div>
+            <div><span class="card-ligth">[[localize('city')]]</span><h6>[[business.cityLabel]]</h6></div>
+            <div><span class="card-ligth">[[localize('description')]]</span><h6>[[business.description]]</h6></div>
+            <div><span class="card-ligth">[[localize('telephones')]]</span><h6>[[business.telephones.0]]</h6><h6>[[business.telephones.1]]</h6></div>
+            <div class="card-ligth">[[localize('labels')]]</div>
+            <div class="labels">
+              <template is="dom-repeat" items="[[businessLabels]]">
+                <label-chip item="[[item]]"></label-chip>
+              </template>
+            </div>
           </div>
-          <div><span class="card-ligth">[[localize('city')]]</span><h6>[[business.cityLabel]]</h6></div>
-          <div><span class="card-ligth">[[localize('description')]]</span><h6>[[business.description]]</h6></div>
-          <div><span class="card-ligth">[[localize('telephones')]]</span><h6>[[business.telephones.0]]</h6><h6>[[business.telephones.1]]</h6></div>
-          <div class="card-ligth">[[localize('labels')]]</div>
-          <div class="labels row">
-            <template is="dom-repeat" items="[[businessLabels]]">
-              <span class="col">[[item.text]]</span>
-            </template>
+          <div class="card-actions">
+            <a href="/acco/business/[[business.id]]"><paper-button class="primary">[[localize('edit')]]</paper-button></a>
           </div>
-        </div>
-        <div class="card-actions">
-          <a href="/acco/business/[[business.id]]"><paper-button class="primary">[[localize('edit')]]</paper-button></a>
-        </div>
-      </paper-card>
+        </paper-card>
+      </div>
         <div class="posts">[[localize('posts')]]</div>
         <div class="row">
           <template is="dom-repeat" items="[[business.posts]]">
@@ -104,6 +106,9 @@
           type:String,
           statePath:'language'
         },
+        image : {
+          type : String
+        },
         resources : {
           value :  function(){
             return  {
@@ -136,7 +141,8 @@
         },
       },
       observers : [
-        '_businessLabelsObserver(business.labels)'
+        '_businessLabelsObserver(business.labels)',
+        'computeBusinessImage(business.image)'
       ],
       _labelsChanged : function(e){
         if(!this.business)return;
@@ -146,6 +152,10 @@
         if(!labels)return;
         var labelElement = this.$.labelElement;
         this.set('businessLabels',labelElement.computeSelectedLabelsObjectArray(labels.slice(0),labelElement.labels));
+      },
+      computeBusinessImage : function(image){
+        this.set('image', image ? image: 'https://images.unsplash.com/photo-1473187983305-f615310e7daa?dpr=1&auto=format&fit=crop&w=1500&h=1000&q=80&cs=tinysrgb&crop=');
+        console.log(this.image);
       }
     });
   </script>

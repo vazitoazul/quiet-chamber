@@ -41,11 +41,9 @@
     <iron-pages selected="{{section}}" attr-for-selected="name">
       <section name="resume" class="row">
         <h4 class="col-sm-12">[[localize('your_business')]]</h4>
-        <div class="row">
-          <template is="dom-repeat" items="[[business]]">
-            <business-card complete business="[[item]]" class="col-sm-4 offset-sm-1"></business-card>
-          </template>
-        </div>
+        <template is="dom-repeat" items="[[business]]">
+          <business-card complete business="[[item]]" class="col-12"></business-card>
+        </template>
         <template is="dom-if" if="[[noBusiness]]">
           <h5 class="giant offset-md-3 col-md-8 offset-1 col-10">[[localize('no_business')]]</h5>
         </template>
@@ -56,17 +54,17 @@
       </section>
       <section name="editBusiness">
         <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
-        <h5 class="col-sm-12">[[localize('editing')]]</h5>
+        <h5 class="col-sm-8 col-7">[[localize('editing')]]</h5>
         <business-form business="[[currentBusiness]]" ></business-form>
       </section>
       <section name="new">
         <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
-        <h5 class="col-sm-12">[[localize('new_buss')]]</h5>
+        <h5 class="col-sm-8 col-7">[[localize('new_buss')]]</h5>
         <business-form id="businessNewForm" creating  ></business-form>
       </section>
       <section name="newPost">
         <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
-        <h5 class="col-sm-12">[[localize('new_post')]]</h5>
+        <h5 class="col-sm-8 col-7">[[localize('new_post')]]</h5>
         <post-form id="postNewForm" creating business="[[currentBusiness]]" class="col-sm-6 offset-sm-2"></post-form>
       </section>
       <section name="edditPost" class="row">

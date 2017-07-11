@@ -83,70 +83,14 @@
           }
         });
       },
-      // handleApiLoad : function(){
-      //     var self = this;
-      //     var cityInput = self.$.cityInput.inputElement;
-      //     var citySearch = new google.maps.places.Autocomplete(cityInput,this.googleMapsApiRestrictions);
-      //     google.maps.event.addListener(citySearch,'place_changed', function(){
-      //       var city = citySearch.getPlace();
-      //       if(!city.geometry){
-      //         self.$.toast.text = self.localize('not_valid_city');
-      //         self.$.toast.open();
-      //       }else{
-      //         self.setPlacesIdsArray(city);
-      //       }
-      //     });
-      //     this.$.cityInput.inputElement.addEventListener('blur',function(e){
-      //       var service = new google.maps.places.AutocompleteService();
-      //       service.getPlacePredictions({
-      //           input: cityInput.value,
-      //           componentRestrictions: self.googleMapsApiRestrictions.componentRestrictions,
-      //           types: self.googleMapsApiRestrictions.types
-      //       }, function(predictions,status){
-      //         if (status != google.maps.places.PlacesServiceStatus.OK) {
-      //             self.$.toast.text = self.localize('not_valid_city');
-      //             self.$.toast.open();
-      //             return;
-      //         }
-      //         var placesService = new google.maps.places.PlacesService(self.$.placesServiceResult);
-      //         placesService.getDetails({placeId:predictions[0].place_id},function(result,status){
-      //           if (status != google.maps.places.PlacesServiceStatus.OK) {
-      //               // show that this address is an error
-      //               self.$.toast.text = self.localize('not_valid_city');
-      //               self.$.toast.open();
-      //               return;
-      //           }
-      //           self.setPlacesIdsArray(result);
-      //         });
-      //       });
-      //     });
-      // },
-
-      // setPlacesIdsArray : function(address){
-      //   var self = this;
-      //   var service = new google.maps.places.AutocompleteService();
-      //   var placesService = new google.maps.places.PlacesService(self.$.placesServiceResult);
-      //   this.set('query.placesIds',[]);
-      //   this.set('query.cityLabel',address.formatted_address);
-      //   for(var place in address.address_components){
-      //     service.getPlacePredictions({
-      //         input: address.address_components[place].long_name,
-      //         componentRestrictions: self.googleMapsApiRestrictions.componentRestrictions,
-      //         types: self.googleMapsApiRestrictions.types
-      //     }, function(predictions,status){
-      //       if (status != google.maps.places.PlacesServiceStatus.OK) {
-      //           return;
-      //       }
-      //       self.push('query.placesIds',predictions[0].place_id);
-      //     });
-      //   }
-      // },
-
       showMessage:function(message,duration){
         this.$.toast.text = message;
         this.$.toast.duration=duration || 3000;
         this.$.toast.open();
       },
+      focusInput : function(){
+        this.$.autocompleteInput.focus();
+      }
     })
    </script>
 </dom-module>

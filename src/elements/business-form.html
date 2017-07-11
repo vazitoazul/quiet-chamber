@@ -15,6 +15,7 @@
 <link rel="import" href="../elements/label-chip.html">
 <link rel="import" href="../elements/post-form.html">
 <link rel="import" href="../elements/account-postcard.html">
+<link rel="import" href="../elements/label-autocomplete.html">
 <link rel="import" href="../redux/actions/business-actions.html">
 <link rel="import" href="../redux/global-store.html">
 <dom-module id="business-form">
@@ -48,6 +49,14 @@
     label-chip{
       margin-bottom: 0.2rem;
     }
+    label-autocomplete{
+      margin-left: 1rem;
+    }
+    div.label-autocomplete-div{
+      margin-left: 1rem;
+      margin-bottom: -1rem;
+      margin-top: -2rem;
+    }
  </style>
  <template>
   <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
@@ -60,14 +69,8 @@
           <paper-textarea label="[[localize('description')]]" name="description" value="{{business.description}}" required error-message="[[localize('add_description')]]" class="col-sm-10"></paper-textarea>
           <paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required  value="{{business.cityLabel}}" error-message="[[localize('add_city')]]" class="col-sm-7"></paper-input>
           <input name="placesIds" hidden value="{{business.placesIds}}"></input>
-          <div class="ligth">[[localize('labels')]]</div>
-          <div class="row col-12" id="autocompleteDiv">
-            <paper-autocomplete id="autocomplete" class="col-xl-5 col-lg-5 col-md-5 col-12" label="Select" source="[[labelsArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
-            <div class="col-xl-7 col-lg-7 col-md-7 col-12 row labels">
-              <template  id="businessLabelsTemplate" is="dom-repeat" items="[[selectedLabels]]">
-                <label-chip item="[[item]]" on-closed="spliceLabel" closeable></label-chip>
-              </template>
-            </div>
+          <div class="label-autocomplete-div">
+            <label-autocomplete id="labelAutocomplete" selectedLabels="{{selectedLabels}}"></label-autocomplete>
           </div>
           <input name="labels" hidden value="{{business.labels}}"></input>
           <div class="ligth">[[localize('telephones')]]</div>
@@ -158,8 +161,8 @@
 	        	value :  function(){
 	        		return  {
 		        		'en' : {
-		        			'name' : 'name',
-		        			'city' : 'city',
+		        			'name' : 'Name',
+		        			'city' : 'City',
                   'labels' : 'labels',
                   'telephones' : 'telephones',
                   'must_be_numbers' : 'must have just from 5 to 20 numbers',
@@ -191,8 +194,8 @@
                   'image_deleted' : 'Image deleted'
                 } ,
 		        		'es' : {
-    							'name' : 'nombre',
-		        			'city' : 'ciudad',
+    							'name' : 'Nombre',
+		        			'city' : 'Ciudad',
                   'labels' : 'etiquetas',
                   'telephones' : 'teléfonos',
                   'must_be_numbers' : 'debe ser solo de 5 a 20 números',
@@ -270,51 +273,7 @@
             self.setPlacesIdsArray(city);
           }
         });
-        this.$.cityInput.inputElement.addEventListener('blur',function(e){
-          var service = new google.maps.places.AutocompleteService();
-          service.getPlacePredictions({
-              input: cityInput.value,
-              componentRestrictions: self.googleMapsApiRestrictions.componentRestrictions,
-              types: self.googleMapsApiRestrictions.types
-          }, function(predictions,status){
-            if (status != google.maps.places.PlacesServiceStatus.OK) {
-                self.$.toast.text = self.localize('not_valid_city');
-                self.$.toast.open();
-                return;
-            }
-            var placesService = new google.maps.places.PlacesService(self.$.placesServiceResult);
-            placesService.getDetails({placeId:predictions[0].place_id},function(result,status){
-              if (status != google.maps.places.PlacesServiceStatus.OK) {
-                  // show that this address is an error
-                  self.$.toast.text = self.localize('not_valid_city');
-                  self.$.toast.open();
-                  return;
-              }
-              self.setPlacesIdsArray(result);
-            });
-          });
-        });
 		},
-    setSelectedLabels : function(e){
-      var selected = this.selectedLabels;
-      for(var item in selected){
-        if(selected[item].value == e.detail.option.value){
-            return;
-        }
-      }
-      this.push('selectedLabels',e.detail.option);
-    },
-    spliceLabel : function(itemRemoving){
-      var index = 0;
-      var selected = this.selectedLabels;
-      for(var item in selected){
-        if(selected[item].value == itemRemoving.detail.value){
-            this.splice('selectedLabels',index,1);
-            return;
-        }
-        index++;
-      }
-    },
     setPlacesIdsArray : function(address){
       var self = this;
       var service = new google.maps.places.AutocompleteService();
@@ -336,7 +295,7 @@
     },
     validateLabels : function(){
       if(this.selectedLabels.length == 0){
-        this.$.autocompleteDiv.focus();
+        this.$.labelA.focus();
         this.showMessage(this.localize('must_select_labels'));
         return false;
       }
@@ -344,6 +303,7 @@
     },
     _onBusinessIdChanged : function(id){
       this.set('selectedLabels',this.$.labelElement.computeSelectedLabelsObjectArray(this.business.labels.slice(0),this.labelsArray));
+      this.$.labelAutocomplete.selectedLabels = this.selectedLabels;
     },
     createBusiness : function(e){
       var self = this;
@@ -390,6 +350,7 @@
     },
     setBusinessLabels : function(){
       var businessLabels = [];
+      this.set('selectedLabels',this.$.labelAutocomplete.selectedLabels);
       for(var label in this.selectedLabels){
         businessLabels.push(this.selectedLabels[label].value);
       }
