@@ -66,4 +66,15 @@ describe('PostController',function(){
     });
   });
 
+  describe('upload picture', ()=>{
+    it('sign url', (done)=>{
+      user
+        .get('/signawsurl?file=banana.jpeg&type:jpeg')
+        .expect((res,err)=>{
+          res.body.should.have.property('url').equal('https://quiet-staging.s3.amazonaws.com/banana.jpeg');
+        })
+        .end(done)
+    });
+  });
+
 });

@@ -176,6 +176,66 @@ const BusinessActionsBehavior = {
         });
       }
     },
+    deleteImage : function(business,callback){
+      return function(dispatch){
+        dispatch({type:'EDD_BUSS'});
+        let request = new Request(
+          '/deleteawsimage',{
+            method:'POST',
+            headers: standardHeaders,
+            credentials: 'include',
+            body: JSON.stringify(business)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'EDD_BUSS',status:'success',business:json});
+            if(callback)callback();
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'EDD_BUSSS',status:'error',error:e.message});
+          callback(e);
+        });
+      }
+    }
+  },
+  signAwsUrl : function(file,callback){
+    let request = new Request(
+      '/signawsurl?file='+file.name+'&type='+file.type,{
+        method:'GET',
+        headers: standardHeaders,
+        credentials: 'include'
+      }
+    );
+    window.fetch(request)
+    .then(handleReqError)
+    .then((response)=>{
+      response.json().then((json)=>{
+        callback(json);
+      });
+    })
+    .catch((e)=>{
+      callback(e);
+    });
+  },
+  uploadtoAws : function(url,file,callback){
+    let request = new Request(
+        url,{
+        method:'PUT',
+        body : file
+      }
+    );
+    window.fetch(request)
+    .then(handleReqError)
+    .then((response)=>{
+      if(callback)callback();
+    })
+    .catch((e)=>{
+      callback(e);
+    });
   }
 }
 </script>

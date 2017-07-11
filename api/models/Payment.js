@@ -11,7 +11,7 @@ module.exports = {
     user: { model: 'User', required: true },
     billingAgreement : { type: 'string'},
     confirmed : { type: 'boolean', defaultsTo : false },
-    bill : { model: 'bill'},
+    // bill : { model: 'bill'},
     amount: {type:'float',required:true },
     tax:{type:'float',required:true}
   }

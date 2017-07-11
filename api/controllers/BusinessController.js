@@ -4,6 +4,12 @@
  * @description :: Server-side logic for managing businesses
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
+ var aws = require('aws-sdk');
+ var s3 = new aws.S3({
+ 	accessKeyId : sails.config.s3.awsKeyId,
+ 	secretAccessKey : sails.config.s3.awsKeySecret,
+ 	region : sails.config.s3.region
+ });
 
 module.exports = {
 	/**
@@ -75,6 +81,55 @@ module.exports = {
 		Business.destroy({id : req.param('id')},function(err,deleted){
 			if(err)return next(err);
 			return res.json(deleted[0]);
+		});
+	},
+	/**
+    *sign aws s3 url
+    *
+		*@param {string} file - file name
+		*@param {string} type - file type
+		*/
+	signAwsUrl : (req,res,next)=>{
+		const bucket = sails.config.s3.bucket;
+		const fileName = req.param('file');
+		const s3Params = {
+			Bucket: bucket,
+			Key: fileName,
+			Expires: 60,
+			ContentType: req.param('type'),
+			ACL: 'public-read'
+		};
+		s3.getSignedUrl('putObject', s3Params, (err, data) => {
+			if(err)return next(err);
+			return res.json({
+				signedRequest: data,
+				url: `https://${bucket}.s3.amazonaws.com/${fileName}`
+			});
+		});
+	},
+	/**
+    *delete image from aws s3
+    *
+		*@param {string} id - business id with the image to delete
+		*/
+	deleteBusinessImage :function(req,res,next){
+		Business.findOne({id : req.param('id')},function(err,business){
+			if(err)return next(err);
+			var params = {
+				Bucket : sails.config.s3.bucket,
+				Delete : {
+					Objects : [{
+						Key : business.image.split(".com/")[1]
+					}]
+				}
+			}
+			s3.deleteObjects(params, function(err, data) {
+				if(err)return next(err); // an error occurred
+        Business.update({id : business.id},{image : ''}, (err,updated)=>{
+          if(err) return next(err);
+          return res.json(updated[0]);
+        });
+			});
 		});
 	}
 

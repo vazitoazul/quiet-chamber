@@ -154,7 +154,7 @@
       },
       _onRouteChanged : function(route){
         var business = this.business;
-        if(business == undefined && this.businessIdSubRouteData && this.businessIdSubRouteData.businessId)return;
+        if(business == undefined && this.businessIdSubRouteData && this.businessIdSubRouteData.businessId&& this.businessIdSubRouteData.businessId != 'new')return;
         if(this.businessIdSubRoute.path == '')return this.set('section','resume');
         if(this.businessIdSubRouteData && this.businessIdSubRouteData.businessId == 'new') return this.set('section','new');
         for(var current in business){
