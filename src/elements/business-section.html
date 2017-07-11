@@ -2,14 +2,14 @@
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../elements/business-card.html">
 <link rel="import" href="../elements/business-form.html">
 <link rel="import" href="../elements/post-form.html">
 <dom-module id="business-section">
-  <style include="app-grid-style shared-styles">
+  <style include="shared-styles">
     paper-icon-button.giant{
       width: 5rem;
       height: 5rem;
@@ -29,6 +29,7 @@
       position: absolute;
       right: 0 !important;
       left: inherit !important;
+      top : 4rem;
     }
   </style>
   <template>
@@ -46,9 +47,12 @@
           </template>
         </div>
         <template is="dom-if" if="[[noBusiness]]">
-          <h5 class="giant offset-sm-3 col-sm-8">[[localize('no_business')]]</h5>
+          <h5 class="giant offset-md-3 col-md-8 offset-1 col-10">[[localize('no_business')]]</h5>
         </template>
-        <a class="offset-sm-4 col-sm-7" href="/acco/business/new"><paper-icon-button icon="add" class="giant"></paper-icon-button></a>
+        <div class="offset-md-4 col-md-2 offset-4 col-2">
+          <a id="addBussButton" href="/acco/business/new"><paper-icon-button icon="add" class="giant"></paper-icon-button></a>
+          <paper-tooltip for="addBussButton">[[localize('add_a_buss')]]</paper-tooltip>
+        </div>
       </section>
       <section name="editBusiness">
         <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
@@ -112,6 +116,7 @@
                 'type' : 'type',
                 'new_buss' : 'New Business',
                 'new_post' : 'New Post',
+                'add_a_buss' : 'Add a bussiness'
               } ,
               'es' : {
                 'your_business' : 'Tus negocios',
@@ -128,6 +133,7 @@
                 'type' : 'tipo',
                 'new_buss' : 'Nuevo negocio',
                 'new_post' : 'Nueva publicación',
+                'add_a_buss' : 'Agregar un negocio'
               }
             }
           }

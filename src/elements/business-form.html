@@ -45,6 +45,9 @@
     gold-email-input.bussPhone{
       margin-bottom: 0.5rem;
     }
+    label-chip{
+      margin-bottom: 0.2rem;
+    }
  </style>
  <template>
   <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
@@ -58,9 +61,9 @@
           <paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required  value="{{business.cityLabel}}" error-message="[[localize('add_city')]]" class="col-sm-7"></paper-input>
           <input name="placesIds" hidden value="{{business.placesIds}}"></input>
           <div class="ligth">[[localize('labels')]]</div>
-          <div class="row col-sm-12" id="autocompleteDiv">
-            <paper-autocomplete id="autocomplete" class="col-xl-5 col-lg-5 col-md-5 col-sm-12 col-xs-12" label="Select" source="[[labelsArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
-            <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12 col-xs-12  row labels">
+          <div class="row col-12" id="autocompleteDiv">
+            <paper-autocomplete id="autocomplete" class="col-xl-5 col-lg-5 col-md-5 col-12" label="Select" source="[[labelsArray]]" on-autocomplete-selected="setSelectedLabels"></paper-autocomplete>
+            <div class="col-xl-7 col-lg-7 col-md-7 col-12 row labels">
               <template  id="businessLabelsTemplate" is="dom-repeat" items="[[selectedLabels]]">
                 <label-chip item="[[item]]" on-closed="spliceLabel" closeable></label-chip>
               </template>
