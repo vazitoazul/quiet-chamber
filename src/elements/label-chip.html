@@ -4,50 +4,38 @@
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animation-runner-behavior.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
-<link rel="import" href="../shared-styles.html">
-
 <dom-module id="label-chip">
-  <style include="app-grid-style shared-styles">
+  <style>
     :host {
       display: inline-block;
-      vertical-align: top;
-      position: relative;
-      outline: none;
-      font-size: 16px;
-      cursor: default;
-      margin: 0px 0;
+      height: 32px;
       overflow: visible;
-      margin-right: 2.5rem;
-    }
-    #main, #chip {
-      border-radius: 16px;
     }
     #main {
+      border-radius: 16px;
       position: relative;
-      height: 2.1rem;
-    }
-    #chip {
-      box-sizing: border-box;
+      @apply(--layout-horizontal);
     }
     #label{
-      padding: 0 4px 0 12px;
+      margin: 0px 4px 0px 12px;
+      @apply(--layout-flex);
+    }
+    paper-material#main{
+      background-color : var(--accent-color);
+      color : white;
     }
     paper-icon-button{
-      margin-top: -0.32rem;
-    }
-    div{
-      margin-top: 0.15rem;
-    }
-    paper-material.chip{
-      background-color : black;
-      color : white;
+      height: 21px;
+      width: 21px;
+      padding: 3px;
+      margin-right: 4px;
     }
   </style>
   <template>
-    <paper-material class="row chip" elevation="1" id="main" >
+    <paper-material elevation="1" id="main" >
         <div id="label">[[item.text]]</div>
         <template is="dom-if" if="[[closeable]]">
-          <paper-icon-button class="label" icon="close" on-tap="close"></paper-icon-button>
+          <paper-icon-button class="close" icon="close" on-tap="close"></paper-icon-button>
         </template>
     </paper-material>
   </template>
@@ -65,7 +53,7 @@
 
       properties : {
         item : {
-          type : Object,
+          type : Object
         },
         animationConfig: {
           type: Object,
