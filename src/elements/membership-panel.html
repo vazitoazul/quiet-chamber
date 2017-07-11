@@ -28,39 +28,30 @@
         top: -15px;
         background-color: rgba(0,0,0,0.2);
       }
+      iron-image.qr{
+        height: 200px;
+        width: 200px;
+        @apply(--layout-self-center);
+      }
     </style>
     <div class="vertical">
       <div class="horizontal">
+
         <div hidden$="[[user.isSuscribed]]">
+
           <paper-card  class="vertical subscription">
             <div class="card-content flex">
               <h3>No tienes una suscripción activa</h3>
               <span>Encuentra todos los beneficios de suscribirte <a href="#">Aquí</a></span>
             </div>
             <div class="card-actions">
-              <span>Utiliza PayPal para pagar tu suscripción de manera segura</span>
-              <paypal-integration></paypal-integration>
-            </div>
-          </paper-card>
-        </div>
-        <div hidden$="[[!user.isSuscribed]]">
-          <paper-card  class="vertical subscription m-2">
-            <div class="card-content">
-              <h3>Tienes una suscripción activa</h3>
-              <span>Tu suscripción se encuentra activa hasta el: [[localize('date','value',user.subscribedUntil)]]</span>
-            </div>
-          </paper-card>
-          <paper-card class="m-2">
-            <div class="card-content">
-              <h5>Tu saldo actual es de: <b>[[showDecimal(user.totalBalance)]]$</b></h5>
-            </div>
-            <div class="card-actions horizontal">
-              <div class="vertical" hidden="[[state.canRequest]]">
-                <span class="text-accent">Ya has solicitado un cobro en las últimas 24 horas. Debes esperar para solicitar uno nuevamente.</span>
+              <div hidden$="[[user.walletAddress]]">
+                Utiliza la red de BitCoins para adquirir una subscripción.
+                <paper-button raised on-click="requestAddress">Muestrame mi dirección</paper-button>
               </div>
-              <div class="vertical" hidden="[[!state.canRequest]]">
-                <span>Pudes solicitar una transferencia hacia tu cuenta de paypal aquí</span>
-                <paper-button raised on-click="openDialog">Cobrar</paper-button>
+              <div hidden$="[[!user.walletAddress]]">
+                Tu la dirección de tu billetera es: [[user.walletAddress]]
+                <paper-button raised on-click="showAddress">Ver QR</paper-button>
               </div>
             </div>
           </paper-card>
@@ -68,39 +59,18 @@
       </div>
     </div>
     <paper-dialog id="dialog">
-      <h2>Cobrar</h2>
+      <h2>Mi dirección</h2>
       <div class="vertical">
-        <span>Aquí puedes enviar tu saldo hacia tu cuenta de PayPal</span>
-        <span>Tu saldo actual es de <b>[[showDecimal(user.totalBalance)]]$</b> </span>
+        <span>Deposita 0.001 BTC a esta dirección para activar tu subscripción</span>
         <div class="vertical">
-          <paper-input label="Monto a retirar" value="{{amount}}" id="amountInput" auto-validate allowed-pattern="[0-9.]"></paper-input>
-          <div class="horizontal">
-            <b class="flex">Valor de la transferencia:</b>
-            <span class="text-secondary value">[[showDecimal(amount)]]$</span>
-          </div>
-          <div class="horizontal">
-            <b class="flex">Costo por la transferencia:</b>
-            <span class="text-secondary value">+[[showDecimal(tCost)]]$</span>
-          </div>
-          <div class="horizontal">
-            <b class="flex ">Total:</b>
-            <span class="text-secondary value">[[showDecimal(finalValue)]]$</span>
-          </div>
+          <template is="dom-if" if="[[user.walletAddress]]" restamp>
+            <iron-image src="https://api.qrserver.com/v1/create-qr-code/?data=[[user.walletAddress]]&amp;size=200x200" preload sizing="cover" class="qr"></iron-image>
+            <div class="horizontal center">
+              <span>[[user.walletAddress]]</span>
+            </div>
+          </template>
         </div>
       </div>
-      <div class="vertical">
-        <span>El costo por la transferencia se debe al uso de la plataforma de PayPal</span>
-        <span><b>Nota:</b> Recuerda que el pago se toma hasta 24 horas en procesarse. No podrás solicitar otro cobro en este tiempo.</span>
-      </div>
-      <div class="horizontal">
-        <div class="flex">
-        </div>
-        <paper-button raised class="primary" on-click="requestPayout">Cobrar</paper-button>
-      </div>
-      <div class="loading-overlay vertical center" hidden="[[!state.loading]]">
-          <paper-spinner active></paper-spinner>
-      </div>
-
     </paper-dialog>
     <paper-toast id="toast" ></paper-toast>
 
@@ -160,26 +130,16 @@
       attached:function(){
         this.$.dialog.fitInto=this;
         this.$.toast.fitInto=this;
-        this.dispatch('getPayoutState');
-      },
-      requestPayout:function(amount){
-        if(this.user.totalBalance<=this.finalValue){
-          this.showMessage('No tienes suficiente dinero en tu cuenta para realizar la transacción.');
-          return;
-        }
-        this.dispatch('requestPayout',{amount:this.amount});
-      },
-      _payoutChange:function(newVal,oldVal){
-        if(!newVal) return ;
-        if(oldVal){
-          if(!newVal.loading&&oldVal.loading){
-            if(newVal.lastAction==='REQUEST_PAYOUT'){
-              this.$.dialog.close();
-              this.showMessage('Has solicitado un pago exitosamente.Se confirmará dentro de 24 horas.');
-            }
-          }
-        }
 
+      },
+      requestAddress:function(){
+        this.dispatch('requestWalletAdd',(err,resp)=>{
+          if(err)console.log(err);
+          this.openDialog();
+        });
+      },
+      showAddress:function(){
+        this.openDialog();
       },
       _getAmounts:function(newVal){
         if(!newVal){
