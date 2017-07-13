@@ -3,10 +3,11 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/global-store.html">
 <link rel="import" href="../redux/actions/payments-actions.html">
-<link rel="import" href="paypal-integration.html">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sails.io.js/1.1.12/sails.io.min.js" autoConnect="false" environment="production"></script>
 <dom-module id="membership-panel">
   <template>
     <style include="shared-styles">
@@ -36,39 +37,66 @@
     </style>
     <div class="vertical">
       <div class="horizontal">
-
         <div hidden$="[[user.isSuscribed]]">
-
           <paper-card  class="vertical subscription">
             <div class="card-content flex">
-              <h3>No tienes una suscripción activa</h3>
+              <h4>No tienes una suscripción activa</h4>
               <span>Encuentra todos los beneficios de suscribirte <a href="#">Aquí</a></span>
             </div>
-            <div class="card-actions">
-              <div hidden$="[[user.walletAddress]]">
-                Utiliza la red de BitCoins para adquirir una subscripción.
-                <paper-button raised on-click="requestAddress">Muestrame mi dirección</paper-button>
-              </div>
-              <div hidden$="[[!user.walletAddress]]">
-                Tu la dirección de tu billetera es: [[user.walletAddress]]
-                <paper-button raised on-click="showAddress">Ver QR</paper-button>
-              </div>
+            <div class="card-actions horizontal center">
+              <b>Inicia una subscripción ahora</b>
+              <div class="flex"></div>
+              <paper-button class="accent" on-tap="opnenDialog">Iniciar Subscripción</paper-button>
             </div>
           </paper-card>
         </div>
       </div>
     </div>
-    <paper-dialog id="dialog">
-      <h2>Mi dirección</h2>
+    <paper-dialog id="dialog" >
+      <h2>Iniciar una subscripción</h2>
+      <iron-pages selected="[[subStep]]" attr-for-selected="step">
+        <section step="0">
+          <div class="vertical">
+            <b>Gracias por confiar en nosotros!.</b>
+            <span>Estos son los pasos que debes seguir:</span>
+            <ol>
+              <li>A continuación se te mostrará una dirección de Bitcoin a la cual debes depositar <b>0.006 BTC.</b> Esto activará tu subscripción por <b>30 días</b>, contando desde el momento en que se confirme tu transacción. </li>
+              <li>Junto a la dirección podrás ver el estado de la transacción. Cuando recibamos tu transacción </li>
+              <li>Una vez recibida tu transacción puedes cerrar la página.Te enviaremos un correo electrónico cuando la transacción haya sido confirmada en la red de bitcoins.</li>
+              <li>Disfruta de tu subscripción. </li>
+            </ol>
+          </div>
+          <div class="horizontal layout">
+            <div class="flex">
+              <paper-checkbox checked="{{stepsUnderstand}}">Entiendo los pasos, continuar con el pago.</paper-checkbox>
+            </div>
+            <paper-button class="accent" disabled="{{!stepsUnderstand}}" on-click="continuePayment">Continuar al pago</paper-button>
+          </div>
+        </section>
+        <section step="0">
+          <div class="vertical">
+            <b>Deposita 0.006 a esta dirección</b>
+            <template is="dom-if" if="[[user.walletAddress]]" restamp>
+              <iron-image src="https://api.qrserver.com/v1/create-qr-code/?data=[[user.walletAddress]]&amp;size=200x200" preload sizing="cover" class="qr"></iron-image>
+              <div class="horizontal center">
+                <span>[[user.walletAddress]]</span>
+              </div>
+            </template>
+            <div class="horizontal">
+              <b>Estado: </b>
+              <iron-pages selected="[[depositState]]">
+                <section class="info" >Esperando la transferencia</section>
+                <section class="success">Transferencia recibida. Espera el correo de confirmación.</section>
+              </iron-pages>
+            </div>
+          </div>
+        </section>
+      </iron-pages>
+
       <div class="vertical">
         <span>Deposita 0.001 BTC a esta dirección para activar tu subscripción</span>
         <div class="vertical">
-          <template is="dom-if" if="[[user.walletAddress]]" restamp>
-            <iron-image src="https://api.qrserver.com/v1/create-qr-code/?data=[[user.walletAddress]]&amp;size=200x200" preload sizing="cover" class="qr"></iron-image>
-            <div class="horizontal center">
-              <span>[[user.walletAddress]]</span>
-            </div>
-          </template>
+
         </div>
       </div>
     </paper-dialog>
@@ -101,6 +129,14 @@
         language:{
           type:String,
           statePath:'language'
+        },
+        subStep:{
+          type:String,
+          value:'0'
+        },
+        depositState:{
+          type:String,
+          value:0
         },
         resources:{
           value:function(){
@@ -155,6 +191,14 @@
       },
       openDialog:function(){
         this.$.dialog.open();
+      },
+      continuePayment:function(){
+        //check if the user already 
+        if(this.user.walletAddress){
+
+        }else{
+
+        }
       }
 
     });
