@@ -7,7 +7,6 @@
 <link rel="import" href="reducers/language-reducer.html">
 
 <script>
-
   const standardHeaders = new Headers({
     'Content-Type': 'application/json'
   });
@@ -37,5 +36,4 @@
        Redux.applyMiddleware(ReduxThunk.default));
 
   const GlobalStoreBehavior = PolymerRedux(globalStore);
-
 </script>

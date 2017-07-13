@@ -27,7 +27,7 @@ var User = {
     billingInfo:{type:'json',billingInfo:true},
     tokens : {collection:'Token',via:'user'},
     payments : { collection : 'Payment', via : 'user'},
-    bills : { collection : 'bill', via : 'user'},
+    // bills : { collection : 'bill', via : 'user'},
     payouts : {collection : 'payout',via : 'user'},
     subscribedUntil : {type: 'date',defaultsTo:null,date:true},
     recommender : {type : 'string', defaultsTo : null},

@@ -25,7 +25,7 @@
   <template>
     <label-element id="labelElement" on-labels-changed="_labelsChanged"></label-element>
     <template is="dom-if" if="[[complete]]">
-      <paper-card image="http://tensaiweb.info/blog/wp-content/uploads/2016/05/Consejos-para-dise%C3%B1ar-un-logo-adecuado-para-tu-empresa.jpg">
+      <paper-card image="[[business.image]]">
         <div class="card-content ">
           <div class="card-header row">
             <h5>[[business.name]]</h5>
