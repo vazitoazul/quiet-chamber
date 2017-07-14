@@ -35,24 +35,19 @@ module.exports = {
 	*
 	*
 	*/
-	requestWallet:function(req,res,next){
-    User.findOne(req.user.id,(err,user)=>{
-      if(err)return next(err);
-      //If the user has a wallet already we should not create one
-      if(user.walletAddress){
-        return res.json(409,{error:'user_has_wallet'});
-      }
-      //MISSING : Verificar que la dirección no haya sido creada anteriormente
-      block.get_new_address({'label':req.user.id},(err,result)=>{
+	requestOrder:function(req,res,next){
+    var user = req.user;
+    Payment.create({user:user.id},(err,payment)=>{
+      if(err) return next(err);
+      bitcoins.createOrder(user,payment.id,(err,response)=>{
         if(err) return next(err);
-        if(result.status!=='success'){
-          return res.json(500,{error:'bitcoin_network_error'});
-        }
-        User.update(req.user.id,{walletAddress:result.data.address},(err,updated)=>{
-          if(err)return next(err);
-
+        payment.amount=Math.ceil((parseFloat(response.coin_amount))*100000000);
+        payment.txId=response.id;
+        payment.url=response.url;
+        payment.save((err)=>{
+          if(err){return next(err)};
+          res.redirect(response.url);
         });
-        res.ok({address:result.data.address});
       });
     });
   },
@@ -68,29 +63,56 @@ module.exports = {
 			res.json({payments:user.payments});
 		});
 	},
-	/**
-	*
-	*Sends a payment throug paypal payouts API
-	*
-	*
-	*
-	*
-	*/
-	createPayout:function(req,res,next){
-
-
-	},
-	/**
-	*
-	*Check if a user exists in my paypal Clients and gets all the info needed to send him a payment
-	*
-	*
-	*
-	*/
-	getPayoutState:function(req,res,next){
-
-	}
-
-
-
+  /**
+  *
+  *Listener for the Alfacoins calls on payments/orders updates
+  *
+  *
+  */
+  paymentListener: function(req,res,next){
+    //Chech if alfacoins is the one doing the calls
+    if(req.headers['user-agent']!=='ALFAcoins (+https://alfacoins.com)'){
+      return res.forbidden();
+    }
+    console.log('paymentListener',req.body);
+    //Find the payment related
+    Payment.find(req.body.order_id,(err,payment)=>{
+      if(err){
+        console.log('paymentListenerError',err);
+        return res.ok();
+      }
+      if(!payment){
+        console.log('paymentListenerError',{error:'payment_not_found'});
+        return res.ok();
+      }
+      //Update the payment txStatus
+      payment.txStatus=req.body.status;
+      //Check payment status
+      if(payment.txStatus==='completed'){
+        //If payment was succesfully completed then update the user and credit
+        //him with one month of subscription
+        User.extendSubscription(payment.user,1,(err)=>{
+          if(err){
+            console.log('paymentListenerError',{error:'user_not_updated'});
+            return res.ok();
+          }
+          payment.realized=true;
+          payment.save((err)=>{
+            if(err){
+              console.log('paymentListenerError',{error:'payment_not_saved'});
+            }
+            return res.ok();
+          });
+        });
+      }else{
+        //If not just save the payment
+        payment.save((err)=>{
+          if(err){
+            console.log('paymentListenerError',{error:'payment_not_saved'});
+          }
+          return res.ok();
+        });
+      }
+    });
+  }
 };

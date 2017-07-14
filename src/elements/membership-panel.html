@@ -7,7 +7,7 @@
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/global-store.html">
 <link rel="import" href="../redux/actions/payments-actions.html">
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sails.io.js/1.1.12/sails.io.min.js" autoConnect="false" environment="production"></script>
+<link rel="import" href="../shared-styles.html">
 <dom-module id="membership-panel">
   <template>
     <style include="shared-styles">
@@ -34,6 +34,9 @@
         width: 200px;
         @apply(--layout-self-center);
       }
+      #dialog{
+        background-color: #fff;
+      }
     </style>
     <div class="vertical">
       <div class="horizontal">
@@ -46,7 +49,7 @@
             <div class="card-actions horizontal center">
               <b>Inicia una subscripción ahora</b>
               <div class="flex"></div>
-              <paper-button class="accent" on-tap="opnenDialog">Iniciar Subscripción</paper-button>
+              <paper-button class="accent" on-tap="openDialog">Iniciar Subscripción</paper-button>
             </div>
           </paper-card>
         </div>
@@ -54,49 +57,22 @@
     </div>
     <paper-dialog id="dialog" >
       <h2>Iniciar una subscripción</h2>
-      <iron-pages selected="[[subStep]]" attr-for-selected="step">
-        <section step="0">
-          <div class="vertical">
-            <b>Gracias por confiar en nosotros!.</b>
-            <span>Estos son los pasos que debes seguir:</span>
-            <ol>
-              <li>A continuación se te mostrará una dirección de Bitcoin a la cual debes depositar <b>0.006 BTC.</b> Esto activará tu subscripción por <b>30 días</b>, contando desde el momento en que se confirme tu transacción. </li>
-              <li>Junto a la dirección podrás ver el estado de la transacción. Cuando recibamos tu transacción </li>
-              <li>Una vez recibida tu transacción puedes cerrar la página.Te enviaremos un correo electrónico cuando la transacción haya sido confirmada en la red de bitcoins.</li>
-              <li>Disfruta de tu subscripción. </li>
-            </ol>
-          </div>
-          <div class="horizontal layout">
-            <div class="flex">
-              <paper-checkbox checked="{{stepsUnderstand}}">Entiendo los pasos, continuar con el pago.</paper-checkbox>
-            </div>
-            <paper-button class="accent" disabled="{{!stepsUnderstand}}" on-click="continuePayment">Continuar al pago</paper-button>
-          </div>
-        </section>
-        <section step="0">
-          <div class="vertical">
-            <b>Deposita 0.006 a esta dirección</b>
-            <template is="dom-if" if="[[user.walletAddress]]" restamp>
-              <iron-image src="https://api.qrserver.com/v1/create-qr-code/?data=[[user.walletAddress]]&amp;size=200x200" preload sizing="cover" class="qr"></iron-image>
-              <div class="horizontal center">
-                <span>[[user.walletAddress]]</span>
-              </div>
-            </template>
-            <div class="horizontal">
-              <b>Estado: </b>
-              <iron-pages selected="[[depositState]]">
-                <section class="info" >Esperando la transferencia</section>
-                <section class="success">Transferencia recibida. Espera el correo de confirmación.</section>
-              </iron-pages>
-            </div>
-          </div>
-        </section>
-      </iron-pages>
-
-      <div class="vertical">
-        <span>Deposita 0.001 BTC a esta dirección para activar tu subscripción</span>
+      <div>
         <div class="vertical">
-
+          <b>Lee con atención los pasos que debes seguir:</b>
+          <ol>
+            <li>A continuación te vamos a redirigir a la página donde puedes realizar el pago. </li>
+            <li>Allí encontrarás la dirección de bitcoin a la cual debes realizar el depósito. Recuerda que Alfacoin (la red mediante la cual manejamos los pagos) cobra un cargo extra por la transferencia del dinero.</li>
+            <li>Una vez recibida tu transacción, espera a que se confirme en la red de bitcoins. Puedes visitar la sección de <b>Membrecia</b> dentro de tu cuenta para mantenerte al tanto. </li>
+            <li>Recuerda que debes depositar el valor exacto, de otro modo, tendrás problemas iniciando tu subscripción.</li>
+            <li>Disfruta tu subscripción y gana dinero!</li>
+          </ol>
+        </div>
+        <div class="horizontal layout">
+          <div class="flex">
+            <paper-checkbox checked="{{stepsUnderstand}}">Entiendo los pasos, continuar con el pago.</paper-checkbox>
+          </div>
+          <paper-button class="accent" disabled="{{!stepsUnderstand}}" on-click="continuePayment">Continuar al pago</paper-button>
         </div>
       </div>
     </paper-dialog>
@@ -193,12 +169,7 @@
         this.$.dialog.open();
       },
       continuePayment:function(){
-        //check if the user already 
-        if(this.user.walletAddress){
-
-        }else{
-
-        }
+        window.location=window.location.origin+'/payment/requestOrder';
       }
 
     });

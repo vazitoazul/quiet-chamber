@@ -9,10 +9,12 @@ module.exports = {
 
   attributes: {
     user: { model: 'User', required: true },
-    billingAgreement : { type: 'string'},
-    confirmed : { type: 'boolean', defaultsTo : false },
-    // bill : { model: 'bill'},
-    amount: {type:'float',required:true },
-    tax:{type:'float',required:true}
+    txId : { type: 'string'},
+    txStatus: {type:'string', defaultsTo: 'new'},
+    distributed : { type: 'boolean', defaultsTo : false },
+    realized: {type:'boolean',defaultsTo:false},
+    amount: {type:'float'},
+    url: {type:'string'}
+
   }
 };

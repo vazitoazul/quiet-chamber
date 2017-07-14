@@ -20,7 +20,6 @@ var User = {
     passports : { collection: 'Passport', via: 'user' },
     mailVerified : { type: 'boolean', defaultsTo : false},
     intlCredential : { type: 'string', unique : true},
-    walletAddress: {type:'string',unique:true},
     firstName : {type : 'string'},
     lastName : {type : 'string'},
     contactInfo: {type : 'json',defaultsTo:{firstName:null,lastName:null,telephones:[],location:{latitude:null,longitude:null},email:null,address:null}},
