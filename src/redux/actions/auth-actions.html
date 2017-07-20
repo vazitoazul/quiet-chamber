@@ -15,6 +15,7 @@
               body: JSON.stringify(body),
               credentials: 'include'
             });
+            console.log(request,body);
             window.fetch(request)
             .then(handleReqError)
             .then((response)=>{

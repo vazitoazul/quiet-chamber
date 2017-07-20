@@ -62,21 +62,21 @@
   <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
   <label-element id="labelElement" labels="{{labelsArray}}"></label-element>
   <div class="row">
-    <paper-card class="col-sm-7 offset-sm-1" id="paperCard">
+    <paper-card class="col-sm-4 offset-sm-1" id="paperCard">
       <div class="card-content">
         <form is="iron-form" id="businessForm" action="[[ironFormAction]]" on-iron-form-response="_responseHandler" on-iron-form-error="_errorHandler" method="post">
-          <paper-input name="name" label="[[localize('name')]]" required  value="{{business.name}}" error-message="[[localize('add_name')]]" class="col-sm-7"></paper-input>
-          <paper-textarea label="[[localize('description')]]" name="description" value="{{business.description}}" required error-message="[[localize('add_description')]]" class="col-sm-10"></paper-textarea>
-          <paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required  value="{{business.cityLabel}}" error-message="[[localize('add_city')]]" class="col-sm-7"></paper-input>
+          <paper-input name="name" label="[[localize('name')]]" required  value="{{business.name}}" error-message="[[localize('add_name')]]" class="col-sm-11"></paper-input>
+          <paper-textarea label="[[localize('description')]]" name="description" value="{{business.description}}" required error-message="[[localize('add_description')]]" class="col-sm-11"></paper-textarea>
+          <paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required  value="{{business.cityLabel}}" error-message="[[localize('add_city')]]" class="col-sm-11"></paper-input>
           <input name="placesIds" hidden value="{{business.placesIds}}"></input>
           <div class="label-autocomplete-div">
             <label-autocomplete id="labelAutocomplete" selectedLabels="{{selectedLabels}}"></label-autocomplete>
           </div>
           <input name="labels" hidden value="{{business.labels}}"></input>
           <div class="ligth">[[localize('telephones')]]</div>
-          <paper-input required name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('mobile')]]" value="{{business.telephones.0}}" class="col-sm-7"></paper-input>
-          <paper-input name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','1')]]" value="{{business.telephones.1}}" class="col-sm-7"></paper-input>
-          <gold-email-input required name="email" label="[[localize('email')]]" value="{{business.email}}" error-message="[[localize('valid_email')]]" class="col-sm-7 bussPhone"></gold-email-input>
+          <paper-input required name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('mobile')]]" value="{{business.telephones.0}}" class="col-sm-11"></paper-input>
+          <paper-input name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','1')]]" value="{{business.telephones.1}}" class="col-sm-11"></paper-input>
+          <gold-email-input required name="email" label="[[localize('email')]]" value="{{business.email}}" error-message="[[localize('valid_email')]]" class="col-sm-11 bussPhone"></gold-email-input>
           <template is="dom-if" if="[[business.image]]">
             <img src="[[business.image]]" class="col-sm-12">
           </template>
@@ -98,7 +98,7 @@
       </div>
     </paper-card>
     </div>
-    <div id="businessPostsTemplate" class="row">
+    <!-- <div id="businessPostsTemplate" class="row">
       <template is="dom-if" if="[[creating]]">
         <div class="col-sm-6 offset-sm-1 add-post">
           [[localize('want_add_post')]]
@@ -111,7 +111,7 @@
           <post-form post="[[item]]" complete onbusiness on-remove="removePost" index="[[index]]" class="post-form col-sm-7 offset-sm-1"></post-form>
         </template>
       </template>
-    </div>
+    </div> -->
     <div class="row">
       <template is="dom-if" if="[[!creating]]">
         <a href="/acco/business/[[business.id]]/new" class="primary col-sm-5 offset-sm-1">
@@ -121,10 +121,6 @@
           <account-postcard post="[[item]]" complete class="col-sm-6 offset-sm-1"></account-postcard>
         </template>
       </template>
-    </div>
-    <div class="row">
-      <template is="dom-if" if="[[creating]]"><paper-button raised class="primary col-sm-1 offset-sm-1" on-click="createBusiness">[[localize('create')]]</paper-button></template>
-      <template is="dom-if" if="[[!creating]]"><paper-button raised class="primary col-sm-1 offset-sm-1" on-click="edditBusiness">[[localize('update')]]</paper-button></template>
     </div>
   </div>
  	<paper-toast id="toast"></paper-toast>
@@ -308,11 +304,7 @@
     createBusiness : function(e){
       var self = this;
       if(!this.checkForm())return;
-      var posts = this.business.posts.reduce(function(obj,post,index){
-        obj[index] = post;
-        return obj
-      },{});
-      this.dispatch('createBusiness',{business:this.business,posts:posts},function(err){
+      this.dispatch('createBusiness',{business:this.business},function(err){
         if(err) return self.showMessage(self.localize(err.message));
         self.showMessage(self.localize('business_created'));
         self.returnToResume();
