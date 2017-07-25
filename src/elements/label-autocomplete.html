@@ -23,13 +23,13 @@
    </style>
    <template>
      <label-element labels="{{labelArray}}"></label-element>
-     <div class="wraper">
+     <div class="wraper" hidden$="[[readonly]]">
        <paper-input label="Relacionado con" id="autocompleteInput"></paper-input>
        <paper-autocomplete-suggestions for="autocompleteInput" source="[[labelArray]]" on-autocomplete-selected="labelSelected"></paper-autocomplete-suggestions>
      </div>
      <div class="labels">
-       <template is="dom-repeat" items="[[selectedLabels]]">
-         <label-chip item="[[item]]" on-closed="spliceLabel" closeable></label-chip>
+       <template is="dom-repeat" items="[[labels]]">
+         <label-chip item="[[item]]" on-closed="spliceLabel" closeable="[[!readonly]]"></label-chip>
        </template>
      </div>
    </template>
@@ -57,39 +57,92 @@
             }
           }
         },
-        selectedLabels : {
+        labelArray:Array,
+        value:{
+          type:Array,
+          value: function(){
+            return [];
+          },
+          notify:true,
+          observer:'_valueChanged'
+        },
+        labels : {
           type : Array,
           value : function(){
             return [];
           }
         },
-        labelsArray :{
-          type : Object
+        readonly:{
+          type: Boolean,
+          value: false
         }
       },
+      observers : ['_labelsChanged(labels.splices)'],
+      _labelsChanged : function(splices){
+        //this function takes care of maintaining values syncronized with labels array
+        if (splices) {
+          //check every change on the array
+          splices.indexSplices.forEach((s)=> {
+            s.removed.forEach((label)=>{
+              //for every removed label, remove corresponding value
+              this.values.forEach((value,index)=>{
+                if(label.value===value){
+                  this.splice('value',index,1);
+                }
+              });
+            });
+            for (var i=0; i<s.addedCount; i++) {
+              var index = s.index + i;
+              var newLabel = s.object[index];
+              console.log(this.value);
+              this.push('value',newLabel.value);
+            }
+          });
+        }
+      },
+      _valueChanged : function(newVal,oldVal){
+        //update value array when modified from external source
+        if(!newVal)return;
+        if(newVal.length<1)return;
+        //empty the labels array
+        this.set('labels',[]);
+        //run on every element of the new array
+        newVal.forEach((item)=>{
+          //check if that element value is inside the labels array provided by <label-element>
+          this.labelArray.forEach((label)=>{
+            if(label.value===item){
+              //if values match, push the arrays
+              return this.push('labels',label);
+            }
+          });
+        });
+      },
       labelSelected: function(e){
-        this.selectedLabels.forEach((item)=>{
-          if(item.value===e.detail.option.value){
+        //Check if there is no duplicates with same value
+        this.labels.forEach((item)=>{
+          if(item===e.detail.option.value){
             return ;
           }
         });
-        this.push('selectedLabels',e.detail.option);
+        //if not, push into labels the option
+        this.push('labels',e.detail.option);
+        //clear the input
         this.$.autocompleteInput.value='';
       },
       spliceLabel:function(e){
-        this.selectedLabels.forEach((item,index)=>{
-          if(item.value===e.detail.value){
-            this.splice('selectedLabels',index,1);
+        //remove values from label and value arrays
+        this.labels.forEach((label,index)=>{
+          if(label.value===e.detail.value){
+            this.splice('labels',index,1);
           }
         });
       },
-      showMessage:function(message,duration){
-        this.$.toast.text = message;
-        this.$.toast.duration=duration || 3000;
-        this.$.toast.open();
-      },
       focusInput : function(){
         this.$.autocompleteInput.focus();
+      },
+      isValid:function(){
+        //checks if there is at least one value into values array
+        return this.value.length>0;
       }
     })
    </script>

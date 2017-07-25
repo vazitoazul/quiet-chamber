@@ -56,7 +56,8 @@
     "paper-checkbox": "PolymerElements/paper-checkbox#^1.4.2",
     "paper-radio-group": "PolymerElements/paper-radio-group#^1.2.2",
     "paper-range-slider": "IftachSadeh/paper-range-slider#^0.2.7",
-    "paper-input": "PolymerElements/paper-input#^2.0.1"
+    "paper-input": "PolymerElements/paper-input#^2.0.1",
+    "paper-tooltip": "PolymerElements/paper-tooltip#^2.0.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

@@ -31,36 +31,127 @@
       left: inherit !important;
       top : 4rem;
     }
+    paper-card.start-card{
+      @apply(--layout-vertical);
+      margin-top: 1rem;
+      height: 70vh;
+      --paper-card-header-color:#fff;
+      --paper-card-header:{
+        background-color:var(--default-primary-color);
+      }
+    }
+    div.bus-item{
+      margin-top: 8px;
+      border-top: 1px solid;
+      border-color: rgba(0,0,0,0.12);
+      position: relative;
+    }
+    div.bus-item:first-child{
+      border-top: 0px !important;
+    }
+    div.bus-item div.photo iron-image{
+      width: 60px;
+      height: 60px;
+    }
+    div.bus-item div.photo{
+      margin-right: 8px;
+    }
+
   </style>
   <template>
     <app-location route="{{route}}"></app-location>
-    <app-route route="{{route}}" pattern="/acco/business" data="{{routeData}}" tail="{{businessIdSubRoute}}"></app-route>
-    <app-route route="{{businessIdSubRoute}}" pattern="/:businessId" data="{{businessIdSubRouteData}}" tail="{{postActionSubRoute}}"></app-route>
-    <app-route route="{{postActionSubRoute}}" pattern="/:postAction" data="{{postActionSubRouteData}}" tail="{{postIdSubRoute}}"></app-route>
-    <app-route route="{{postIdSubRoute}}" pattern="/:postId" data="{{postIdSubRouteData}}"></app-route>
+    <app-route route="{{route}}" pattern="/acco/business" data="{{routeData}}" tail="{{busId}}"></app-route>
+    <app-route route="{{busId}}" pattern="/:id" data="{{busIdData}}" tail="{{postId}}"></app-route>
+    <app-route route="{{postId}}" pattern="/:id" data="{{postIdData}}"></app-route>
     <iron-pages selected="{{section}}" attr-for-selected="name">
-      <section name="resume" class="row">
-        <h4 class="col-sm-12">[[localize('your_business')]]</h4>
-        <template is="dom-repeat" items="[[business]]">
-          <business-card complete business="[[item]]" class="col-12"></business-card>
-        </template>
-        <template is="dom-if" if="[[noBusiness]]">
-          <h5 class="giant offset-md-3 col-md-8 offset-1 col-10">[[localize('no_business')]]</h5>
-        </template>
-        <div class="offset-md-4 col-md-2 offset-4 col-2">
-          <a id="addBussButton" href="/acco/business/new"><paper-icon-button icon="add" class="giant"></paper-icon-button></a>
-          <paper-tooltip for="addBussButton">[[localize('add_a_buss')]]</paper-tooltip>
+      <section name="resume" class="container">
+        <div class="row">
+          <div class="col-12 col-md-6">
+            <paper-card heading="Tus Negocios" class="start-card">
+              <div class="card-content vertical flex">
+                <template is="dom-if" if="[[noBusiness]]">
+                  <div class="vertical flex">
+                    <h5 class="text-accent">No has registrado ningún negocio</h5>
+                    <span class="s-text">Los Negocios están pensados para brindarle al usuario la capacidad de promover sus ideas de negocio en el resto de esta comunidad.</span>
+                    <span class="s-text">Si estás interesado en conseguir capital para tu idea, empieza registrando tu negocio a continuación:</span>
+                    <br>
+                    <a href="/acco/business/new">
+                      <paper-button raised class="accent">Registrar negocio</paper-button>
+                    </a>
+                    <br>
+                    <div class="flex"></div>
+                    <span class="font-caption">Si deseas saber más sobre nuestro sistema puedes hacerlo desde <a href="/faq">Aquí</a> </span>
+                  </div>
+                </template>
+                <template is="dom-if" if="[[!noBusiness]]">
+                  <div class="vertical bus-container">
+                    <template is="dom-repeat" items="[[business]]">
+                      <div class="horizontal bus-item">
+                        <div class="photo">
+                          <iron-image src="[[item.image]]" preload sizing="cover" placeholder="https://images.unsplash.com/photo-1473187983305-f615310e7daa?dpr=1&auto=format&fit=crop&w=1500&h=1000&q=80&cs=tinysrgb"></iron-image>
+                        </div>
+                        <div class="vertical flex" on-tap="_selectBusiness">
+                          <span>[[item.name]]</span>
+                          <span class="s-text">[[item.posts.length]] anuncios</span>
+                        </div>
+                        <div>
+                          <a href="/acco/business/[[business.id]]">
+                            <paper-button class="primary">Ver</paper-button>
+                          </a>
+                        </div>
+                        <paper-ripple></paper-ripple>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+              </div>
+              <div class="card-actions horizontal" hidden$="[[noBusiness]]">
+                <span class="s-text flex">Puedes registrar hasta 3 negocios por cuenta.</span>
+                <a href="/acco/business/new">
+                  <paper-button class="accent">Nuevo negocio</paper-button>
+                </a>
+              </div>
+            </paper-card>
+          </div>
+          <div class="col-md-6 py-3">
+            <business-card business="[[currentBusiness]]" hidden$="[[!currentBusiness.id]]"></business-card>
+            <paper-card class="business-placeholder" hidden$="[[currentBusiness.id]]">
+              <div class="card-content vertical center">
+                <span class="font-display1 s-text">
+                  Selecciona un negocio para ver sus detalles
+                </span>
+              </div>
+            </paper-card>
+          </div>
         </div>
       </section>
-      <section name="editBusiness">
-        <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
-        <h5 class="col-sm-8 col-7">[[localize('editing')]]</h5>
-        <business-form business="[[currentBusiness]]" ></business-form>
+      <section name="editBus" class="container">
+        <div class="row">
+          <div class="col-12">
+            <a href="/acco/business">Mis negocios</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <span>[[currentBusiness.name]]</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <business-form business="[[currentBusiness]]" hidden$="[[!currentBusiness.id]]"></business-form>
+          </div>
+        </div>
       </section>
-      <section name="new">
-        <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
-        <h5 class="col-sm-8 col-8">[[localize('new_buss')]]</h5>
-        <business-form id="businessNewForm" creating  ></business-form>
+      <section name="new" class="container">
+        <div class="row">
+          <div class="col-12 horizontal p-1">
+            <a href="/acco/business">Mis negocios</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <span>Nuevo negocio</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <business-form id="businessNewForm" creating ></business-form>
+          </div>
+        </div>
       </section>
       <section name="newPost">
         <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
@@ -144,40 +235,70 @@
           type : Boolean,
           statePath : 'business.lastError',
           observer : '_lastErrorObserver'
+        },
+        currentBusiness:{
+          type:Object,
+          value: function(){
+            return {};
+          }
         }
       },
       observers : [
-        '_onRouteChanged(businessIdSubRoute)'
+        '_onRouteChanged(busIdData,postIdData)'
       ],
       _businessChanged(newValue,lastValue){
         if(lastValue && newValue.length < lastValue.length){
           this.$.toast.text = this.localize('business_deleted');
           this.$.toast.open();
         }
-        if(newValue.length > 0) this._onRouteChanged(this.businessIdSubRoute);
+        if(newValue.length > 0) this._onRouteChanged(this.busIdData,{});
       },
-      _onRouteChanged : function(route){
-        var business = this.business;
-        if(business == undefined && this.businessIdSubRouteData && this.businessIdSubRouteData.businessId&& this.businessIdSubRouteData.businessId != 'new')return;
-        if(this.businessIdSubRoute.path == '')return this.set('section','resume');
-        if(this.businessIdSubRouteData && this.businessIdSubRouteData.businessId == 'new') return this.set('section','new');
-        for(var current in business){
-          if(this.business[current].id == this.businessIdSubRouteData.businessId){
-            this.set('currentBusiness',this.business[current]);
-            this.set('section','editBusiness');
-            if(this.postActionSubRoute.path == '')return;
-            if(this.postActionSubRouteData.postAction == 'new')return this.set('section','newPost');
-            var posts = this.currentBusiness.posts;
-            for(var post in posts){
-              if(posts[post].id == this.postIdSubRouteData.postId){
-                this.set('currentPost',posts[post]);
-                return this.set('section','edditPost');
+      _onRouteChanged : function(bus,post){
+        if(bus===undefined&&post===undefined){
+          return;
+        }
+        bus=bus.id;
+        post=post.id;
+        console.log(bus,post);
+        if(bus){
+          if(bus==='new'){
+            return this.set('section','newBus');
+          }else{
+            this._selectBusinessById(bus);
+            if(post){
+              if(post==='new'){
+                return this.set('section','newPost')
+              }else{
+                this._selectPostById(post);
+                return this.set('section','postDetail');
               }
             }
+            return this.set('section','editBus');
           }
+
         }
-        this.set('businessIdSubRoute.path','');
         return this.set('section','resume');
+        // var business = this.business;
+        // if(business == undefined && this.businessIdSubRouteData && this.businessIdSubRouteData.businessId&& this.businessIdSubRouteData.businessId != 'new')return;
+        // if(this.businessIdSubRoute.path == '')return this.set('section','resume');
+        // if(this.businessIdSubRouteData && this.businessIdSubRouteData.businessId == 'new') return this.set('section','new');
+        // for(var current in business){
+        //   if(this.business[current].id == this.businessIdSubRouteData.businessId){
+        //     this.set('currentBusiness',this.business[current]);
+        //     this.set('section','editBusiness');
+        //     if(this.postActionSubRoute.path == '')return;
+        //     if(this.postActionSubRouteData.postAction == 'new')return this.set('section','newPost');
+        //     var posts = this.currentBusiness.posts;
+        //     for(var post in posts){
+        //       if(posts[post].id == this.postIdSubRouteData.postId){
+        //         this.set('currentPost',posts[post]);
+        //         return this.set('section','edditPost');
+        //       }
+        //     }
+        //   }
+        // }
+        // this.set('businessIdSubRoute.path','');
+        // return this.set('section','resume');
       },
       _lastErrorObserver : function(error){
         if(error){
@@ -191,6 +312,20 @@
       computeNoBusiness : function(business){
         if(!business || !business.length || business.length===0)return true;
         return false;
+      },
+      _selectBusiness: function(e){
+        var business= e.model.__data__.item;
+        this.set('currentBusiness',business);
+      },
+      _selectBusinessById:function(id){
+        if(!this.business)return ;
+        if(this.currentBusiness.id===id)return;
+        this.business.forEach((item)=>{
+          if(item.id===id){
+            console.log('selected');
+            this.set('currentBusiness',item);
+          }
+        });
       }
     });
   </script>
