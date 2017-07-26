@@ -1,0 +1,53 @@
+<script>
+const PayoutsActionsBehavior={
+  actions:{
+    getRate:function(callback){
+      return function(dispatch){
+        dispatch({type:'GET_RATE'});
+        let request = new Request('/payment/rate',{
+          method:'GET',
+          headers: standardHeaders,
+          credentials:'include'
+        });
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'GET_RATE',status:'success',rate:json});
+            callback(null,json);
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'GET_RATE',status:'error',error:e.message});
+          callback({message:e.message});
+        });
+      }
+    },
+    requestPayout:function(newPayout,callback){
+      return function(dispatch){
+        dispatch({type:'ADD_PAYOUT'});
+        let request = new Request('/payment/requestPayout',{
+          method:'POST',
+          body: JSON.stringify(newPayout),
+          headers: standardHeaders,
+          credentials:'include'
+        });
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'ADD_PAYOUT',status:'success',payout:json});
+            callback(null,json);
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'ADD_PAYOUT',status:'error',error:e.message});
+          callback({message:e.message});
+        });
+      }
+    },
+
+
+  }
+};
+</script>

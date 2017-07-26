@@ -3,7 +3,7 @@
     actions:{
       getPayments:function(){
         return function(dispatch){
-          dispatch({type:'GET_PAYMENTS'});
+          dispatch({type:'LOAD_PAYMENTS'});
           let request = new Request('/allPayments',{
             method:'GET',
             headers: standardHeaders,
@@ -13,34 +13,11 @@
           .then(handleReqError)
           .then((response)=>{
             response.json().then((json)=>{
-              dispatch({type:'GET_PAYMENTS',status:'success',payments:json.payments});
+              dispatch({type:'LOAD_PAYMENTS',status:'success',payments:json.payments});
             });
           })
           .catch((e)=>{
-            dispatch({type:'GET_PAYMENTS',status:'error',error:e.message});
-          });
-        }
-      },
-      requestWalletAdd:function(callback){
-        return function(dispatch){
-          dispatch({type:'REQUEST_WALLET_ADDRESS'});
-          let request = new Request('/payment/requestWallet',{
-            method:'POST',
-            headers: standardHeaders,
-            credentials: 'include'
-          });
-          window.fetch(request)
-          .then(handleReqError)
-          .then((response)=>{
-            response.json().then((json)=>{
-              dispatch({type:'REQUEST_WALLET_ADDRESS',status:'success'});
-              dispatch({type:'SET_USER_WALLET_ADDRESS',address:json.address})
-              callback(null,json);
-            });
-          })
-          .catch((e)=>{
-            dispatch({type:'REQUEST_WALLET_ADDRESS',status:'error',error:e.message});
-            callback({error:e.message});
+            dispatch({type:'LOAD_PAYMENTS',status:'error',error:e.message});
           });
         }
       }

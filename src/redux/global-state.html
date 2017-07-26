@@ -24,21 +24,8 @@ const GlobalState={
         location:{},
         email:null,
         address:null
-      },
-      billingInfo:{
-        idType:'05',
-        name:'',
-        identifier:'',
-        address:'',
-        email:''
       }
     }
-  },
-  entities: {
-    businesses:[],
-    posts:[],
-    payments:[],
-    recommended:[]
   },
   recommender:{
     exists:false,
@@ -67,9 +54,11 @@ const GlobalState={
     lastAction:null
   },
   payouts:{
+    entities:[],
     canRequest:false,
     loading:false,
-    lastError:null
+    lastError:null,
+    rate:null
   },
   business:{
     entities:[],

@@ -51,6 +51,53 @@ module.exports = {
       });
     });
   },
+  requestPayout:function(req,res,next){
+    var user = req.user;
+    if(!req.body.amount||!req.body.address){
+      return res.json(409,{error: 'missing_arguments'});
+    }
+    var amount =req.body.amount;
+    if(typeof amount ==='string'){
+      amount = parseFloat(amount);
+    }
+    var detail={
+      user:user.id,
+      amount: amount,
+      fee:(amount*0.01)+0.0001,
+      address:req.body.address
+    };
+    Payout.create(detail,function(err,newPayout){
+      if(err) return res.json(500,{error:'server_error'});
+      bitcoins.bitSend(detail.amount,detail.address,user,function(err,response){
+        if(err){
+          Payout.destroy({id:newPayout.id},function(err,deleted){
+            if(err) console.log('Error deleting payout on alfacoin fail',err);
+            return res.json(500,{error:'network_fail'});
+          });
+        }else{
+          Payout.update({id:newPayout.id},{txId:response.txId},function(err,updated){
+            if(err){
+              console.log('Error updating payout transaction Id');
+              return res.json(500,{error:'server_error'});
+            }
+            res.json(updated[0]);
+          });
+        }
+      });
+    });
+
+  },
+  /**
+  *
+  *Get bitcoin rate
+  *
+  */
+  rate:function(req,res,next){
+    bitcoins.rate((err,rate)=>{
+      if(err)return next(err);
+      res.json(rate);
+    });
+  },
 	/**
 	*
 	*Gets all the payments for the current user
@@ -76,7 +123,7 @@ module.exports = {
     }
     console.log('paymentListener',req.body);
     //Find the payment related
-    Payment.find(req.body.order_id,(err,payment)=>{
+    Payment.findOne(req.body.order_id,(err,payment)=>{
       if(err){
         console.log('paymentListenerError',err);
         return res.ok();
@@ -85,6 +132,7 @@ module.exports = {
         console.log('paymentListenerError',{error:'payment_not_found'});
         return res.ok();
       }
+
       //Update the payment txStatus
       payment.txStatus=req.body.status;
       //Check payment status
@@ -96,8 +144,7 @@ module.exports = {
             console.log('paymentListenerError',{error:'user_not_updated'});
             return res.ok();
           }
-          payment.realized=true;
-          payment.save((err)=>{
+          Payment.update({id:payment.id},{realized:true,txStatus:payment.txStatus},(err,updated)=>{
             if(err){
               console.log('paymentListenerError',{error:'payment_not_saved'});
             }
@@ -106,7 +153,7 @@ module.exports = {
         });
       }else{
         //If not just save the payment
-        payment.save((err)=>{
+        Payment.update({id:payment.id},{txStatus:payment.txStatus},(err,updated)=>{
           if(err){
             console.log('paymentListenerError',{error:'payment_not_saved'});
           }

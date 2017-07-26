@@ -3,9 +3,9 @@
 
 const {payments:paymentsInit} = GlobalState;
 const payments = (state=paymentsInit,action) => {
-  if(!state) return paymentsInitialState;
+
   switch (action.type) {
-    case 'GET_PAYMENTS':
+    case 'LOAD_PAYMENTS':
       switch (action.status) {
         case 'success':
           return Object.assign({},state,{entities:action.payments,loading:false});
@@ -15,19 +15,6 @@ const payments = (state=paymentsInit,action) => {
           break;
         default:
 
-          return Object.assign({},state,{loading:true});
-          break;
-      }
-      break;
-    case 'REQUEST_WALLET_ADDRESS':
-      switch (action.status) {
-        case 'success':
-          return Object.assign({},state,{loading:false});
-          break;
-        case 'error':
-          return Object.assign({},state,{lastError:action.error,loading:false});
-          break;
-        default:
           return Object.assign({},state,{loading:true});
           break;
       }

@@ -6,7 +6,7 @@
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/global-store.html">
-<link rel="import" href="../redux/actions/payments-actions.html">
+<link rel="import" href="../redux/actions/payouts-actions.html">
 <link rel="import" href="../shared-styles.html">
 <dom-module id="membership-panel">
   <template>
@@ -15,9 +15,10 @@
         display: block;
         height: 90vh;
       }
-      #dialog{
+      #dialog , #payoutDialog{
         max-height: 90vh;
         width: 50%;
+        background-color: #fff;
       }
       span.value{
         font-size: 1.3rem;
@@ -35,7 +36,7 @@
         @apply(--layout-self-center);
       }
       #dialog{
-        background-color: #fff;
+
       }
     </style>
     <div class="vertical">
@@ -50,6 +51,31 @@
               <b>Inicia una subscripción ahora</b>
               <div class="flex"></div>
               <paper-button class="accent" on-tap="openDialog">Iniciar Subscripción</paper-button>
+            </div>
+          </paper-card>
+        </div>
+        <div hidden$="[[!user.isSuscribed]]">
+          <paper-card  class="vertical subscription">
+            <div class="card-content flex">
+              <h4>Tienes una subscripción activa</h4>
+              <span>Tu subscripción es válida hasta [[localize('date','value',user.subscribedUntil)]]</span>
+            </div>
+            <div class="card-content flex">
+              <div class="">
+                <h5>Tu saldo</h5>
+              </div>
+              <div hidden$="[[!userHasBalance]]">
+                Tu saldo es de: [[toRegBitcoin(user.totalBalance)]] BTC
+              </div>
+              <div hidden$="[[userHasBalance]]" class="vertical">
+                <span>Todavía no tienes saldo a tu favor.</span>
+                <span>Para empezar a ganar <a href="/acco/recommended">Agrega recomendados</a></span>
+              </div>
+            </div>
+            <div hidden$="[[!userHasBalance]]" class="card-actions horizontal center">
+              <b>Aquí puedes retirar saldo de tu cuenta: </b>
+              <div class="flex"></div>
+              <paper-button class="accent" on-tap="openPayoutDialog">Retirar Dinero</paper-button>
             </div>
           </paper-card>
         </div>
@@ -76,6 +102,32 @@
         </div>
       </div>
     </paper-dialog>
+    <paper-dialog id="payoutDialog" >
+      <h2>Retirar Dinero</h2>
+      <div>
+        <div class="vertical">
+
+          <paper-input label="Cantidad a retirar" value="{{sendValue}}" autocorrect allowed-pattern="^(?:\d*\.)?\d{0,8}$">
+            <div prefix>BTC &nbsp;</div>
+            <div suffix>
+              Saldo restante [[showDecimal(remainingValue)]]
+            </div>
+          </paper-input>
+          <div class="horizonal">
+            <b class="flex">Costo por la transferencia</b>
+            <span>[[showDecimal(feeValue)]]</span>
+          </div>
+          <div class="horizonal">
+            <b class="flex">Total a transferir</b>
+            <span>[[showDecimal(totalValue)]]</span>
+          </div>
+          <paper-input label="Dirección a depositar" value="{{sendAdress}}"></paper-input>
+        </div>
+        <div class="horizontal layout">
+          <paper-button raised on-tap="requestPayout">Retirar dinero</paper-button>
+        </div>
+      </div>
+    </paper-dialog>
     <paper-toast id="toast" ></paper-toast>
 
   </template>
@@ -85,34 +137,35 @@
       behaviors:[
         Polymer.AppLocalizeBehavior,
         GlobalStoreBehavior,
-        PaymentsActionsBehavior
+        PayoutsActionsBehavior
       ],
       properties:{
-        state:{
-          type:Object,
-          statePath:'payouts',
-          observer:'_payoutChange'
-        },
         user:{
           type:Object,
           statePath:'user.info'
-        },
-        amount:{
-          type:Object,
-          observer:'_getAmounts',
-          value:0
         },
         language:{
           type:String,
           statePath:'language'
         },
-        subStep:{
-          type:String,
-          value:'0'
+        payouts:{
+          type:Object,
+          statePath:'payouts'
         },
-        depositState:{
-          type:String,
-          value:0
+        totalValue:{
+          type:Number,
+          computed:'_computeTotal(sendValue)'
+        },
+        feeValue:{
+          type:Number,
+          computed:'_computeFee(sendValue)'
+        },
+        remainingValue:{
+          type:Number
+        },
+        userHasBalance:{
+          type:Boolean,
+          computed:'_computeHasBalance(user.totalBalance)'
         },
         resources:{
           value:function(){
@@ -127,6 +180,10 @@
           }
         }
       },
+      observers:['_computeRemaining(sendValue,user.totalBalance)'],
+      toRegBitcoin:function(value){
+        return (value/100000000);
+      },
       showMessage:function(text,duration){
         this.$.toast.text=text;
         this.$.toast.duration=duration||3000;
@@ -137,39 +194,48 @@
         if(typeof decimal!=='number'){
           decimal = Number(decimal);
         }
-        return decimal.toFixed(2);
+        return decimal.toFixed(8);
       },
       attached:function(){
         this.$.dialog.fitInto=this;
         this.$.toast.fitInto=this;
-
-      },
-      requestAddress:function(){
-        this.dispatch('requestWalletAdd',(err,resp)=>{
-          if(err)console.log(err);
-          this.openDialog();
-        });
-      },
-      showAddress:function(){
-        this.openDialog();
-      },
-      _getAmounts:function(newVal){
-        if(!newVal){
-          this.tCost=0;
-          this.finalValue=0;
-        };
-
-        this.tCost=newVal*0.02
-        if(this.tCost>=20){
-          this.tCost=20;
-        }
-        this.finalValue=newVal-(-this.tCost);
       },
       openDialog:function(){
         this.$.dialog.open();
       },
+      _computeTotal:function(value){
+        if(!value)return 0
+        return (parseFloat(value)*0.99)-0.0001;
+      },
+      _computeFee:function(value){
+        if(!value)return 0.0001
+        return (parseFloat(value)*0.01)+0.0001;
+      },
+      _computeRemaining:function(value,balance){
+        if(!balance)return 0;
+        var parsed = balance/100000000;
+        if(!value)return parsed
+        this.remainingValue= parsed-parseFloat(value);
+      },
+      _computeHasBalance:function(balance){
+        return balance>0;
+      },
+      openPayoutDialog:function(){
+        this.$.payoutDialog.open();
+      },
       continuePayment:function(){
         window.location=window.location.origin+'/payment/requestOrder';
+      },
+      requestPayout:function(){
+        var body = {
+          address:this.sendAdress,
+          amount:this.sendValue
+        }
+        this.dispatch('requestPayout',body,(err,payout)=>{
+          if(err) return this.showMessage('Hubo un error enviando tu dinero');
+          this.showMessage('Se ha enviado tu dinero.');
+        });
+
       }
 
     });

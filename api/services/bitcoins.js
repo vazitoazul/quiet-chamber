@@ -30,7 +30,7 @@ module.exports = {
         "password" : config.pass,
         "type" : "bitcoin",
         "address" : "33PYu8NfzPHwMfuF953yBwb3aD4HDaKNx5",
-        "amount" : (0.0101*rate).toString(),
+        "amount" : (0.00701*rate*1.01).toString(),
         "order_id" : paymentId,
         "description": "Pago por subscripción a Dinabun",
         "options" : {
@@ -69,6 +69,42 @@ module.exports = {
     }).catch((err)=>{
       callback(err);
     })
-  }
+  },
+  bitSend:function(amount,address,user,callback){
+
+
+    checkRate((err,rate)=>{
+      console.log(rate);
+      var reqBody ={
+        "name": config.name,
+        "secret_key": config.secret,
+        "password" : config.pass,
+        "type" : "bitcoin",
+        "address" : address,
+        "amount" : (((amount*0.99)-0.0001)*rate).toString(),
+        "recipient_name": user.firstName,
+        "recipient_email": user.email,
+        "reference":"Payment from Dinabun"
+      };
+      console.log('amount', reqBody);
+      rp({
+        method:'POST',
+        uri:'https://www.alfacoins.com/api/bitsend',
+        body:reqBody,
+        json:true
+      }).then((data)=>{
+        if(data.error){
+          return callback({err:data.error});
+        }
+        var response={
+          txId:data.id
+        };
+        callback(null,response);
+      }).catch((err)=>{
+        callback({err:err.message});
+      });
+    });
+  },
+  rate: checkRate
 
 }

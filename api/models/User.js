@@ -23,7 +23,6 @@ var User = {
     firstName : {type : 'string'},
     lastName : {type : 'string'},
     contactInfo: {type : 'json',defaultsTo:{firstName:null,lastName:null,telephones:[],location:{latitude:null,longitude:null},email:null,address:null}},
-    billingInfo:{type:'json',billingInfo:true},
     tokens : {collection:'Token',via:'user'},
     payments : { collection : 'Payment', via : 'user'},
     // bills : { collection : 'bill', via : 'user'},
@@ -32,7 +31,6 @@ var User = {
     recommender : {type : 'string', defaultsTo : null},
     recommended : {type:'json',defaultsTo:[], recommended :true},
     totalBalance : { type:'float'},
-    payPalInfo: {type:'json',defaultsTo:null},
     balance : { type : 'array', defaultsTo : []},
     hasBillingInfo:function(){
       var info = this.toObject().billingInfo;
