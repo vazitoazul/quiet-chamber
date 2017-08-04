@@ -11,7 +11,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-range-slider/paper-range-slider.html">
-<link rel="import" href="../elements/business-card.html">
+<link rel="import" href="../elements/post-card.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/actions/business-actions.html">
 <link rel="import" href="../redux/global-store.html">
@@ -26,71 +26,101 @@
     }
     paper-card{
       width: 100%;
-      margin-top: 1rem;
-    }
-    .ligth{
-      color: var(--paper-grey-600);
-      margin-top: 1rem;
+      max-width: 500px;
+      min-width: 300px;
     }
   </style>
   <template>
-    <template is="dom-if" if="[[business]]">
-      <business-card business="[[business]]"></business-card>
-    </template>
-    <paper-card id="paperCard">
-      <div class="card-content">
-        <form is="iron-form" id="postForm" method="post" action=[[ironFormAction]] on-iron-form-response="_responseHandler" on-iron-form-error="_errorHandler">
-          <div class="row">
-            <paper-dropdown-menu label="[[localize('type')]]" class="col-sm-5" required>
-              <paper-listbox id="paperList" class="dropdown-content" selected="{{post.type}}"  attr-for-selected="value">
-                <paper-item value="f">[[localize('franchise')]]</paper-item>
-                <paper-item value="d">[[localize('donation')]]</paper-item>
-                <paper-item value="i">[[localize('investment')]]</paper-item>
-                <paper-item value="j">[[localize('job')]]</paper-item>
-                <paper-item value="a">[[localize('advertising')]]</paper-item>
-              </paper-listbox>
-            </paper-dropdown-menu>
-            <template is="dom-if" if="[[onbusiness]]">
-              <paper-icon-button icon="close" class="offset-sm-6" on-tap="fireRemoveEvent"></paper-icon-button>
+    <div class="horizontal">
+      <div class="flex">
+        <paper-card>
+          <div class="card-content">
+              <form is="iron-form" id="topForm" >
+                <div>
+                  <paper-dropdown-menu label="[[localize('type')]]" required>
+                    <paper-listbox id="paperList" class="dropdown-content" selected="{{post.type}}"  attr-for-selected="value">
+                      <paper-item value="i">[[localize('investment')]]</paper-item>
+                      <paper-item value="d">[[localize('donation')]]</paper-item>
+                      <paper-item value="j">[[localize('job')]]</paper-item>
+                    </paper-listbox>
+                  </paper-dropdown-menu>
+                </div>
+                <input hidden name="type" value="[[post.type]]" hidden></input>
+                <input hidden name="business" value="[[business.id]]" hidden></input>
+              </form>
+              <iron-pages selected="[[post.type]]" attr-for-selected="type">
+                <section type="j">
+                  <form is="iron-form" id="jobForm">
+                    <paper-input label="Se busca.." required value="{{post.name}}" allowed-pattern="^.{1,}$"></paper-input>
+                    <paper-textarea label="Descripción del trabajo" name="description" value="{{post.details.description}}" required error-message="Al menos 20 caracteres." rows="3" allowed-pattern="^.{20,}$" maxlength="500" char-counter></paper-textarea>
+                    <paper-textarea label="Requisitos para aplicar" name="requirements" value="{{post.details.requirements}}" required error-message="Al menos 20 caracteres." rows="3" allowed-pattern="^.{20,}$" maxlength="500" char-counter></paper-textarea>
+                    <div class="horizontal">
+                      <paper-input class="self-start" label="Sueldo" name="salary" value="{{post.details.salary}}" required allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
+                        <span suffix>$</span>
+                      </paper-input>
+                      <div class="flex"></div>
+                      <paper-dropdown-menu required name="time">
+                        <paper-listbox class="dropdown-content" selected="{{post.details.time}}"  attr-for-selected="value" >
+                          <paper-item value="m">Mensual</paper-item>
+                          <paper-item value="w">Semanal</paper-item>
+                          <paper-item value="h">Por hora</paper-item>
+                        </paper-listbox>
+                      </paper-dropdown-menu>
+                    </div>
+                  </form>
+                </section>
+                <section type="d">
+                  <form is="iron-form" id="donationForm">
+                    <paper-input label="Con el dinero voy a..." required value="{{post.name}}" allowed-pattern="^.{1,}$"></paper-input>
+                    <paper-textarea label="Describe tu causa" name="description" value="{{post.details.description}}" required error-message="Al menos 20 caracteres." rows="3" allowed-pattern="^.{20,}$" maxlength="500" char-counter></paper-textarea>
+                    <paper-textarea label="En qué vas a utilizar el dinero?" name="reason" value="{{post.details.reason}}" required error-message="Al menos 20 caracteres." rows="3" allowed-pattern="^.{20,}$" maxlength="500" char-counter></paper-textarea>
+                    <paper-input class="self-start" label="Monto mínimo (0 si lo dejas en blanco)" name="minDonation" value="{{post.details.minDonation}}" required allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
+                      <span suffix>$</span>
+                    </paper-input>
+                  </form>
+                </section>
+                <section type="i">
+                  <form is="iron-form" id="investmentForm">
+                    <paper-input label="Necesito financiamiento para..." required value="{{post.name}}" allowed-pattern="^.{1,}$"></paper-input>
+                    <paper-textarea label="Describe tu negocio" name="description" value="{{post.details.description}}" required error-message="[[localize('add_description')]]" rows="3" ></paper-textarea>
+                    <paper-textarea label="En qué vas a utilizar el dinero?" name="reason" value="{{post.details.reason}}" required error-message="[[localize('add_description')]]" rows="3"></paper-textarea>
+                    <div class="vertical">
+                      <paper-input label="Inversión mínima" class="self-start" name="minInvestment" value="{{post.details.minInvestment}}" required allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
+                        <span suffix>$</span>
+                      </paper-input>
+                      <paper-input label="Porcentaje de retorno (anual)" class="self-start" name="returnPercentage" value="{{post.details.returnPercentage}}" required allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
+                        <span suffix>%</span>
+                      </paper-input>
+                    </div>
+                    <div class="ligth">Tiempo para recuperar la inversión</div>
+                    <div class="horizontal">
+                      <paper-range-slider pin single-slider slider-width="300px" value-max="{{post.details.returnTime}}" max="100" min="1"></paper-range-slider>
+                      <span>[[post.details.returnTime]] Mes(es)</span>
+                    </div>
+                  </form>
+                </section>
+              </iron-pages>
+          </div>
+          <div class="card-actions horizontal">
+            <div class="flex"></div>
+            <template is="dom-if" if="[[creating]]">
+              <paper-button class="primary self-end" on-click="createPost">[[localize('create')]]</paper-button>
+            </template>
+            <template is="dom-if" if="[[!creating]]">
+              <paper-button class="primary self-end" on-click="edditPost">[[localize('update')]]</paper-button>
+              <paper-button class="warning self-end" on-click="openDeleteConfirmation">[[localize('delete')]] </paper-button>
             </template>
           </div>
-          <paper-input label="[[localize('name')]]" required value="{{post.name}}"></paper-input>
-          <paper-textarea label="[[localize('description')]]" name="description" value="{{post.description}}" required error-message="[[localize('add_description')]]"></paper-textarea>
-          <div class="ligth">[[localize('amount')]]</div>
-          <div class="row">
-            <paper-range-slider pin single-slider slider-width="350px" value-max="{{post.amount}}" max="1000" min="100"></paper-range-slider>
-            <div class="">$[[post.amount]]</div>
-          </div>
-          <!-- <template is="dom-if" if="[[franchise]]">
-            [[localize('franchise')]]
-          </template>
-          <template is="dom-if" if="[[investment]]">
-            [[localize('investment')]]
-          </template>
-          <template is="dom-if" if="[[donation]]">
-            [[localize('donation')]]
-          </template>
-          <template is="dom-if" if="[[advertising]]">
-            [[localize('advertising')]]
-          </template>
-          <template is="dom-if" if="[[job]]">
-            [[localize('job')]]
-          </template> -->
-          <input hidden name="type" value="[[post.type]]" hidden></input>
-          <input hidden name="business" value="[[business.id]]" hidden></input>
-        </form>
+        </paper-card>
       </div>
-      <div class="card-actions">
-        <template is="dom-if" if="[[!onbusiness]]">
-          <template is="dom-if" if="[[creating]]"><paper-button raised class="primary" on-click="createPost">[[localize('create')]]</paper-button></template>
-          <template is="dom-if" if="[[!creating]]">
-            <paper-button raised class="primary" on-click="edditPost">[[localize('update')]]</paper-button>
-            <paper-button raised class="secondary col-xs-1 offset-xs-1" on-click="openDeleteConfirmation">[[localize('delete')]] </paper-button>
-          </template>
-        </template>
+      <div class="flex vertical px-3" hidden$="[[!post.type]]">
+        <span class="light self-center">El resumen de tu anuncio se verá así:</span>
+        <post-card post="[[post]]" alt-business="[[business]]"></post-card>
+        <span class="light self-center">También hay una página dedicada a tu anuncio que puedes ver desde aquí:</span>
+        <paper-button raised class="primary self-center" on-tap="watchPost">Ver mi anuncio</paper-button>
       </div>
-    </paper-card>
-    <paper-toast id="toast"></paper-toast>
+    </div>
+
     <paper-dialog id="dialog">
       <h2>[[localize('delete')]] [[business.name]]</h2>
       <paper-dialog-scrollable>
@@ -114,7 +144,14 @@
       properties : {
         post : {
           type : Object,
-          value : {}
+          notify:true,
+          value:function(){
+            return {
+              details:{
+                time:'m'
+              }
+            };
+          }
         },
         language:{
           type:String,
@@ -124,51 +161,43 @@
           value :   function(){
               return {
                 'en':{
-                  'franchise' : 'franchise',
-                  'type' : 'type',
-                  'donation' : 'donation',
-                  'advertising' : 'advertising',
-                  'investment' : 'investment',
-                  'job' : 'job',
+                  'type' : 'Type',
+                  'donation' : 'Donation',
+                  'investment' : 'Investment',
+                  'job' : 'Job',
                   'create' : 'Create',
-                  'name' : 'name',
-                  'amount' : 'amount',
+                  'name' : 'Name',
+                  'amount' : 'Amount',
                   'update' : 'Update',
                   'cancel' : 'Cancel',
-                  'delete' : 'delete',
+                  'delete' : 'Delete',
                   'want_delete' : 'Are you sure you want to delete this post?' ,
-                  'description' : 'description',
-                  'add_description' : 'must input the business description',
+                  'description' : 'Description',
+                  'add_description' : 'You need a description',
                   'post_created': 'Post created',
                   'post_edited' : 'Post edited',
                   'post_deleted' : 'Post deleted'
                 },
                 'es':{
-                  'franchise' : 'franquicia',
-                  'type' : 'tipo',
-                  'donation' : 'donación',
-                  'advertising' : 'publicidad',
-                  'investment' : 'inverciones',
-                  'job' : 'trabajo',
+                  'type' : 'Tipo',
+                  'donation' : 'Donación',
+                  'investment' : 'Inversión',
+                  'job' : 'Trabajo',
                   'create' : 'Crear',
-                  'name' : 'name',
-                  'amount' : 'monto',
+                  'name' : 'Nombre',
+                  'amount' : 'Inversión mínima',
                   'update' : 'Actualizar',
                   'delete' : 'Eliminar',
                   'cancel' : 'Cancel',
-                  'description' : 'descripción',
-                  'add_description' : 'debes agregar una descripción',
-                  'post_created': 'Publicación agreagada',
-                  'post_edited' : 'Publicación editada',
-                  'post_deleted' : 'Publicacion eliminada adiooo',
-                  'want_delete' : 'Estas seguro que deseas borrar esta publicación?'
+                  'description' : 'Descripción',
+                  'add_description' : 'Debes agregar una descripción',
+                  'post_created': 'Anuncio agreagado',
+                  'post_edited' : 'Anuncio editado',
+                  'post_deleted' : 'Se ha eliminado tu anuncio´',
+                  'want_delete' : 'Estas seguro que deseas borrar este anuncio?'
                 }
               }
           }
-        },
-        onbusiness : {
-          type : Boolean,
-          value : false
         },
         creating : {
           type : Boolean,
@@ -178,66 +207,46 @@
           type : Object
         }
       },
-
-      observers : [
-        '_onPostTypeChanged(post.type)',
-        '_onPostIdChanged(post.id)'
-      ],
-
-      _onPostTypeChanged : function(type){
-        this.set('franchise',false);
-        this.set('donation',false);
-        this.set('franchise',false);
-        this.set('advertising',false);
-        this.set('job',false);
-        switch(type){
-          case 'f':
-            this.set('franchise',true);
-          break;
-          case 'i':
-            this.set('investment',true);
-          break;
-          case 'd':
-            this.set('donation',true);
-          break;
-          case 'a':
-            this.set('advertising',true);
-          break;
-          case 'j':
-            this.set('job',true);
-          break;
-        }
-      },
-      ready : function(){
-        this.$.toast.fitInto = this.$.paperCard;
-      },
       validateForm : function(){
-        return this.$.postForm.validate();
+        switch (this.post.type) {
+          case 'j':
+            return this.$.jobForm.validate() &&this.$.topForm.validate();
+            break;
+          case 'i':
+            return this.$.investmentForm.validate() &&this.$.topForm.validate();
+            break;
+          case 'd':
+            return this.$.donationForm.validate() &&this.$.topForm.validate();
+            break;
+        }
       },
       fireRemoveEvent : function(){
         this.fire('remove',this.index);
       },
       createPost : function(){
         var self=this;
-        if(!this.validateForm)return;
+        if(!this.validateForm())return;
         this.set('post.business',this.business.id);
         this.dispatch('createPost',this.post,function(err){
-          if(err) self.showMessage(self.localize(err.message));
-          self.showMessage(self.localize('post_created'));
+          if(err) return showMessage(self.localize(err.message));
+          showMessage(self.localize('post_created'));
+          self.set('post',{
+            details:{
+              time:'m'
+            }
+          });
           self.returnToResume();
         });
       },
       edditPost : function(){
         var self = this;
-        if(!this.validateForm)return;
+        if(!this.validateForm())return;
+        console.log(this.post);
         this.dispatch('edditPost',this.post,function(err){
-          if(err) self.showMessage(self.localize(err.message));
-          self.showMessage(self.localize('post_edited'));
+          if(err) return showMessage(self.localize(err.message));
+          showMessage(self.localize('post_edited'));
           self.returnToResume();
         });
-      },
-      _onPostIdChanged : function(id){
-        this.set('ironFormAction',id ? '/updatePost/'+id: '/createPost');
       },
       _responseHandler : function(){
         this.$.toast.text = 'creado';
@@ -254,10 +263,18 @@
       deletePost : function(e){
         var self = this;
         this.dispatch('deletePost',this.post,function(err){
-          if(err) self.showMessage(self.localize(err.message));
+          if(err) return showMessage(self.localize(err.message));
           window.history.pushState({},null,'/acco/business/'+self.business.id);
           window.dispatchEvent(new CustomEvent('location-changed'));
+          showMessage(self.localize('post_deleted'));
         });
+      },
+      watchPost : function(e){
+        if(this.post.id){
+          window.open('/pst/'+this.business.id);
+        }else{
+          this.createPost();
+        }
       },
       resetForm : function(e){
         this._onPostTypeChanged();
@@ -269,10 +286,6 @@
           window.history.pushState({},null,'/acco/business/'+self.business.id);
           window.dispatchEvent(new CustomEvent('location-changed'));
         },700);
-      },
-      showMessage : function(message){
-          this.$.toast.text = message;
-          this.$.toast.open();
       }
     });
   </script>

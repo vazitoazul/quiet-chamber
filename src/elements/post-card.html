@@ -2,34 +2,106 @@
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../elements/label-autocomplete.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/global-store.html">
 <dom-module id="post-card">
   <style include="app-grid-style shared-styles">
-  	span.ligth{
-  		color : grey;
-  	}
+    span.heading{
+      @apply(--paper-font-display1);
+    }
+    span.title{
+      @apply(--paper-font-title);
+    }
+    span.big-number{
+      @apply(--paper-font-display1);
+      color:var(--accent-color);
+      font-weight: 100;
+    }
+    paper-card{
+      width: 100%;
+      max-width: 350px;
+      --paper-card-header-image:{
+        height: 120px;
+      }
+      --paper-card-header-image-text:{
+        color: #fff;
+      }
+    }
   </style>
   <template>
-  	<paper-card image="http://tensaiweb.info/blog/wp-content/uploads/2016/05/Consejos-para-dise%C3%B1ar-un-logo-adecuado-para-tu-empresa.jpg">
-  		<div class="card-contet row">
-  			<div class="row col-sm-12">
-  				<div class="col-sm-9">
-					<h4>[[post.name]]</h4>
-					<template is="dom-repeat" items="[[posts.labels]]">
-						<span class="ligth">[[item]]</span>
-					</template>
-  				</div>
-  				<h5 class="col-sm-3">$[[post.amount]]</h5>
-  			</div>
-			<span class="col-sm-12">[[post.business.cityLabel]]</span>
-			<span class="col-sm-12 ligth">[[post.description]]</span>
-			<div class="col-sm-12">
-				<span></span>
-			</div>
-  		</div>
-  	</paper-card>
+    <iron-pages selected="[[post.type]]" attr-for-selected="name">
+      <section name="j">
+        <paper-card image="https://unsplash.it/300/300" heading="[[business.name]]">
+      		<div class="card-content vertical">
+            <span class="title">[[post.name]]</span>
+            <span class="ligth">[[localize('post_type','type','j')]]</span>
+            <span>[[business.cityLabel]]</span>
+            <span class="light">[[post.details.description]]</span>
+            <div class="horizontal">
+              <div class="flex"></div>
+              <span class="big-number self-end">[[post.details.salary]]$</span>
+              <span class="light self-end">/[[localize('salary_time','time',post.details.time)]]</span>
+            </div>
+      		</div>
+          <div class="card-actions horizontal">
+            <div class="flex"></div>
+            <paper-button class="accent self-end">Contactar</paper-button>
+            <paper-button class="accent self-end">Detalles</paper-button>
+          </div>
+      	</paper-card>
+      </section>
+      <section name="i">
+        <paper-card heading="[[business.name]]" image="https://unsplash.it/300/300">
+      		<div class="card-content vertical">
+            <span class="light">[[localize('post_type','type','i')]]</span>
+            <span>[[business.cityLabel]]</span>
+            <span class="title">[[post.name]]</span>
+            <br>
+      			<span class="light">[[post.details.description]]</span>
+            <br>
+            <div class="horizontal">
+              <div class="flex">
+                <span class="light"> <b>[[post.details.minInvestment]]$</b> de inversión mínima.</span> <br>
+                <span class="light"> Se recuperan en un plazo de <b>[[post.details.returnTime]] meses</b> </span>
+              </div>
+              <div class="vertical">
+                <span class="big-number self-end">[[post.details.returnPercentage]] %</span>
+                <span class="light self-end">De retorno</span>
+              </div>
+            </div>
+      		</div>
+          <div class="card-actions horizontal">
+            <div class="flex"></div>
+            <paper-button class="accent self-end">Contactar</paper-button>
+            <paper-button class="accent self-end">Detalles</paper-button>
+          </div>
+      	</paper-card>
+      </section>
+      <section name="d">
+        <paper-card image="https://unsplash.it/300/300" heading="[[business.name]]">
+      		<div class="card-content vertical">
+            <h4 class="title">[[post.name]]</h4>
+            <span class="light">[[localize('post_type','type','d')]]</span>
+            <span>[[business.cityLabel]]</span>
+            <br>
+            <span class="light">[[post.details.description]]</span>
+            <br>
+            <span class="light">[[post.details.reason]]</span>
+            <div hidden$="[[!post.details.minDonation]]">
+              <span>Se aceptan donaciones desde <b>$[[post.details.minDonation]]</b> </span>
+            </div>
+      		</div>
+          <div class="card-actions horizontal">
+            <div class="flex"></div>
+            <paper-button class="accent self-end">Contactar</paper-button>
+            <paper-button class="accent self-end">Detalles</paper-button>
+          </div>
+      	</paper-card>
+      </section>
+    </iron-pages>
   </template>
   <script>
     Polymer({
@@ -42,7 +114,15 @@
 
       properties : {
         post : {
-          type : Object,
+          type: Object,
+          notify:true
+        },
+        business:{
+          type: Object,
+          computed:'_computeBusiness(post,altBusiness)'
+        },
+        altBusiness:{
+          type: Object
         },
         language:{
           type:String,
@@ -54,7 +134,8 @@
               'en' : {
                 'name' : 'name',
                 'type' : 'type',
-                'post_type' : '{type, select, f {Franchise} d {Donation} i {Investment} j {Job} a {Advertising} }',
+                'post_type' : '{type, select, d {Donation} i {Investment Oportinity} j {Job} }',
+                'salary_time' : '{time, select, m {Month} w {Week} h {Hour} }',
                 'labels' : 'labels',
                 'telephones' : 'telephones',
                 'number' : 'Phone number {number}',
@@ -67,7 +148,8 @@
               'es' : {
                 'name' : 'nombre',
                 'type' : 'tipo',
-                'post_type' : '{type, select, f {Franquicia} d {Donación} i {Inversión} j {Trabajo} a {Publicidad} }',
+                'post_type' : '{type, select, d {Donación} i {Oportunidad de Inversión} j {Oportunidad de trabajo}}',
+                'salary_time' : '{time, select, m {Mes} w {Semana} h {Hora}}',
                 'labels' : 'etiquetas',
                 'telephones' : 'teléfonos',
                 'number' : 'Teléfono {number}',
@@ -79,12 +161,15 @@
               }
             }
           }
-        },
+        }
       },
-
-      observers : [
-
-      ]
+      _computeBusiness:function(post,alt){
+        if(typeof post.business==='object'){
+          return post.business;
+        }else{
+          return alt;
+        }
+      }
     });
   </script>
 </dom-module>

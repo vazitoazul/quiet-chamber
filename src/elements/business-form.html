@@ -1,7 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
@@ -10,10 +9,6 @@
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
 <link rel="import" href="../shared-styles.html">
-<link rel="import" href="../elements/label-element.html">
-<link rel="import" href="../elements/label-chip.html">
-<link rel="import" href="../elements/post-form.html">
-<link rel="import" href="../elements/account-postcard.html">
 <link rel="import" href="../elements/label-autocomplete.html">
 <link rel="import" href="../redux/actions/business-actions.html">
 <link rel="import" href="../redux/global-store.html">
@@ -46,11 +41,26 @@
     div.form-content{
       max-width: 300px;
     }
+    paper-card.form-container{
+      max-width: 500px;
+      min-width: 300px;
+      @apply(--flex-layout);
+    }
+    paper-card{
+      width: 100%;
+      --paper-card-header-image:{
+        height: 200px;
+
+      }
+      --paper-card-header-image-text:{
+        color: #fff;
+      }
+    }
  </style>
  <template>
   <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
   <div class="vertical w-100" hidden$="[[!editing]]">
-    <paper-card>
+    <paper-card class="form-container">
       <div class="card-content">
         <form is="iron-form" id="businessForm" action="[[ironFormAction]]" method="post" class="vertical">
           <paper-input name="name" label="[[localize('name')]]" required  value="{{business.name}}" error-message="[[localize('add_name')]]"></paper-input>
@@ -83,14 +93,16 @@
       <div class="card-actions horizontal">
         <div class="flex"></div>
         <paper-button class="primary" hidden="[[!creating]]" on-click="createBusiness">[[localize('create')]]</paper-button>
-        <paper-button class="primary" hidden$="[[!editing]]" on-click="switchEdit">Cancelar</paper-button>
-        <paper-button class="accent" hidden$="[[creating]]" on-click="edditBusiness">[[localize('update')]]</paper-button>
+        <div hidden$="[[creating]]">
+          <paper-button class="primary" hidden$="[[!editing]]" on-click="switchEdit">Cancelar</paper-button>
+          <paper-button class="accent" on-click="edditBusiness">[[localize('update')]]</paper-button>
+        </div>
       </div>
     </paper-card>
     <paper-button class="warning my-2" hidden$="[[creating]]" raised on-click="openDeleteConfirmation">[[localize('delete')]]</paper-button>
   </div>
   <div class="vertical" hidden$="[[editing]]">
-    <paper-card heading="[[business.name]]" >
+    <paper-card heading="[[business.name]]" image="https://unsplash.it/300/300" image-placeholder="https://unsplash.it/300/300">
       <div class="card-content bus-resume">
         <div class="vertical">
           <span class="s-text">Ciudad</span>
@@ -107,27 +119,15 @@
         </div>
         <div class="vertical">
           <span class="s-text">Relacionado con:</span>
-          <label-autocomplete readonly labels="{{business.labels}}" ></label-autocomplete>
+          <label-autocomplete readonly labels="[[business.labels]]" ></label-autocomplete>
         </div>
       </div>
       <div class="card-actions horizontal">
         <div class="flex"></div>
         <paper-button class="primary" on-click="switchEdit">Editar</paper-button>
-        <a href="/acco/business/[[business.id]]/new">
-          <paper-button class="accent">Nuevo anuncio</paper-button>
-        </a>
       </div>
     </paper-card>
   </div>
-
-  <div class="w-100">
-    <template is="dom-if" if="[[!creating]]">
-      <template  is="dom-repeat" items="[[business.posts]]">
-        <account-postcard post="[[item]]" complete></account-postcard>
-      </template>
-    </template>
-  </div>
- 	<paper-toast id="toast"></paper-toast>
   <div id="placesServiceResult"></div>
   <paper-dialog id="dialog">
     <h2>[[localize('delete')]] [[business.name]]</h2>
@@ -304,8 +304,8 @@
       var self = this;
       if(!this.checkForm())return;
       this.dispatch('createBusiness',{business:this.business},function(err){
-        if(err) return self.showMessage(self.localize(err.message));
-        self.showMessage(self.localize('business_created'));
+        if(err) return showMessage(self.localize(err.message));
+        showMessage(self.localize('business_created'));
         self.returnToResume();
       });
     },
@@ -313,8 +313,8 @@
       if(!this.checkForm())return;
       var self=this;
       this.dispatch('edditBusiness',this.business,function(err){
-        if(err) return self.showMessage(self.localize(err.message));
-        self.showMessage(self.localize('business_edited'));
+        if(err) return showMessage(self.localize(err.message));
+        showMessage(self.localize('business_edited'));
         self.editing=false;
       });
     },
@@ -337,14 +337,10 @@
     deleteBusiness : function(e){
       var self = this;
       this.dispatch('deleteBusiness',this.business,function(err){
-        if(err) self.showMessage(self.localize(err.message));
-        self.showMessage(self.localize('business_deleted'));
+        if(err) showMessage(self.localize(err.message));
+        showMessage(self.localize('business_deleted'));
         self.returnToResume();
       });
-    },
-    showMessage : function(message){
-      this.$.toast.text = message;
-      this.$.toast.open();
     },
     resetForm : function(){
       this.set('selectedLabels',[]);
@@ -372,14 +368,14 @@
       if(file == null)return;
       if(self.business.image) self.dispatch('deleteImage',self.business);
       this.signAwsUrl(file,function(response){
-        if(response.message) return self.showMessage(self.localize(response.message));
+        if(response.message) return showMessage(self.localize(response.message));
         self.uploadtoAws(response.signedRequest,file,function(err){
           self.set('uploading',false);
-          if(err) return self.showMessage(self.localize(err.message));
+          if(err) return showMessage(self.localize(err.message));
           self.set('business.image',response.url);
           if(self.creating) return self.createBusiness();
           self.dispatch('edditBusiness',self.business,function(){
-            return self.showMessage(self.localize('image_changed'));
+            return showMessage(self.localize('image_changed'));
           });
         });
       });
@@ -389,8 +385,8 @@
       this.set('uploading',true);
       this.dispatch('deleteImage',this.business,function(err){
         self.set('uploading',false);
-        if(err) return self.showMessage(self.localize(err.message));
-        self.showMessage(self.localize('image_deleted'));
+        if(err) return showMessage(self.localize(err.message));
+        showMessage(self.localize('image_deleted'));
         self.set('business.image','');
       });
     }

@@ -8,6 +8,9 @@
 <link rel="import" href="../elements/business-card.html">
 <link rel="import" href="../elements/business-form.html">
 <link rel="import" href="../elements/post-form.html">
+<link rel="import" href="../elements/post-card.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/business-actions.html">
 <dom-module id="business-section">
   <style include="shared-styles">
     paper-icon-button.giant{
@@ -19,17 +22,6 @@
     paper-toast{
       right: 0 !important;
       left: inherit !important;
-    }
-    business-card{
-      margin-top: 3rem;
-    }
-    .back{
-      width: 4rem;
-      height: 4rem;
-      position: absolute;
-      right: 0 !important;
-      left: inherit !important;
-      top : 4rem;
     }
     paper-card.start-card{
       @apply(--layout-vertical);
@@ -60,9 +52,8 @@
   </style>
   <template>
     <app-location route="{{route}}"></app-location>
-    <app-route route="{{route}}" pattern="/acco/business" data="{{routeData}}" tail="{{busId}}"></app-route>
-    <app-route route="{{busId}}" pattern="/:id" data="{{busIdData}}" tail="{{postId}}"></app-route>
-    <app-route route="{{postId}}" pattern="/:id" data="{{postIdData}}"></app-route>
+    <app-route route="[[route]]" pattern="/acco/business/:id" data="{{busData}}" tail="{{postRoute}}"></app-route>
+    <app-route route="[[postRoute]]" pattern="/:id" data="{{postData}}"></app-route>
     <iron-pages selected="{{section}}" attr-for-selected="name">
       <section name="resume" class="container">
         <div class="row">
@@ -94,11 +85,6 @@
                           <span>[[item.name]]</span>
                           <span class="s-text">[[item.posts.length]] anuncios</span>
                         </div>
-                        <div>
-                          <a href="/acco/business/[[business.id]]">
-                            <paper-button class="primary">Ver</paper-button>
-                          </a>
-                        </div>
                         <paper-ripple></paper-ripple>
                       </div>
                     </template>
@@ -114,7 +100,7 @@
             </paper-card>
           </div>
           <div class="col-md-6 py-3">
-            <business-card business="[[currentBusiness]]" hidden$="[[!currentBusiness.id]]"></business-card>
+            <business-card business="[[currentBusiness]]" hidden$="[[!currentBusiness.id]]" no-image></business-card>
             <paper-card class="business-placeholder" hidden$="[[currentBusiness.id]]">
               <div class="card-content vertical center">
                 <span class="font-display1 s-text">
@@ -134,12 +120,50 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-12">
+          <div class="col-6">
             <business-form business="[[currentBusiness]]" hidden$="[[!currentBusiness.id]]"></business-form>
+          </div>
+          <div class="vertical col-6 py-3">
+            <paper-card heading="Anuncios">
+              <div class="card-content" hidden$="[[!hasPosts]]">
+                <template is="dom-repeat" items="[[posts]]" filter="_filterPosts">
+                  <div class="horizontal bus-item">
+                    <div class="vertical flex">
+                      <span>[[item.name]]</span>
+                      <span class="s-text">[[localize('post_type','type',item.type)]]</span>
+                    </div>
+                    <div class="buttons">
+                      <a href="/acco/business/[[currentBusiness.id]]/[[item.id]]">
+                        <paper-button class="primary">Ver</paper-button>
+                      </a>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="card-content" hidden$="[[hasPosts]]">
+                <div class="vertical flex">
+                  <h5 class="text-accent">Este negocio no tiene ningún anuncio</h5>
+                  <span class="s-text">Los anuncios te permiten promover una oportunidad de inversión para tu empresa.Cuando creas un anuncio, este se publica en nuestro portal de búsqueda, donde las personas se pueden poner en contacto contigo para hacer negocios.</span>
+                  <span class="s-text">A continuación puedes crear tu primer anuncio:</span>
+                  <br>
+                  <a href="/acco/business/[[currentBusiness.id]]/new">
+                    <paper-button raised class="accent">Anunciar</paper-button>
+                  </a>
+                  <br>
+                  <div class="flex"></div>
+                  <span class="font-caption">Si deseas saber más sobre nuestro sistema puedes hacerlo desde <a href="/faq">Aquí</a> </span>
+                </div>
+              </div>
+              <div class="card-actions vertical" hidden$="[[!hasPosts]]">
+                <a href="/acco/business/[[currentBusiness.id]]/new" class="self-end">
+                  <paper-button class="accent">Nuevo anuncio</paper-button>
+                </a>
+              </div>
+            </paper-card>
           </div>
         </div>
       </section>
-      <section name="new" class="container">
+      <section name="newBus" class="container">
         <div class="row">
           <div class="col-12 horizontal p-1">
             <a href="/acco/business">Mis negocios</a>
@@ -149,19 +173,37 @@
         </div>
         <div class="row">
           <div class="col-12">
-            <business-form id="businessNewForm" creating ></business-form>
+            <business-form id="businessNewForm" creating editing></business-form>
           </div>
         </div>
       </section>
-      <section name="newPost">
-        <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
-        <h5 class="col-sm-8 col-7">[[localize('new_post')]]</h5>
-        <post-form id="postNewForm" creating business="[[currentBusiness]]" class="col-sm-6 offset-sm-2"></post-form>
+      <section name="newPost" class="container">
+        <div class="row">
+          <div class="col-12">
+            <a href="/acco/business">Mis negocios</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <a href="/acco/business/[[currentBusiness.id]]">[[currentBusiness.name]]</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <span>Nuevo anuncio</span>
+          </div>
+        </div>
+        <div class="col-12">
+          <post-form creating business="[[currentBusiness]]"></post-form>
+        </div>
       </section>
-      <section name="edditPost" class="row">
-        <a href="/acco/business"><paper-icon-button icon="arrow-back" class="back"></paper-icon-button></a>
-        <h5 class="col-sm-12">[[localize('editing_post')]]</h5>
-        <post-form post="[[currentPost]]" business="[[currentBusiness]]" class="col-sm-6 offset-sm-2"></post-form>
+      <section name="editPost" class="container">
+        <div class="row">
+          <div class="col-12">
+            <a href="/acco/business">Mis negocios</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <a href="/acco/business/[[currentBusiness.id]]">[[currentBusiness.name]]</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <span>[[currentPost.name]]</span>
+          </div>
+          <div class="col-12">
+            <post-form post="{{currentPost}}" business="[[currentBusiness]]"></post-form>
+          </div>
+        </div>
       </section>
     </iron-pages>
     <paper-toast id="toast" duration="4000"></paper-toast>
@@ -171,7 +213,8 @@
       is : 'business-section',
       behaviors : [
         Polymer.AppLocalizeBehavior,
-        GlobalStoreBehavior
+        GlobalStoreBehavior,
+        BusinessActionsBehavior
       ],
       properties : {
         language:{
@@ -180,8 +223,13 @@
         },
         business : {
           type : Array,
-          statePath : 'business.entities',
+          statePath : 'business.business',
           observer : '_businessChanged'
+        },
+        posts: {
+          type: Array,
+          statePath: 'business.posts',
+          observer : '_postsChanged'
         },
         section : {
           type: String,
@@ -205,7 +253,8 @@
                 'type' : 'type',
                 'new_buss' : 'New Business',
                 'new_post' : 'New Post',
-                'add_a_buss' : 'Add a bussiness'
+                'add_a_buss' : 'Add a bussiness',
+                'post_type': '{type,select, i{Investment} d{Donation} j{Job}}'
               } ,
               'es' : {
                 'your_business' : 'Tus negocios',
@@ -222,7 +271,8 @@
                 'type' : 'tipo',
                 'new_buss' : 'Nuevo negocio',
                 'new_post' : 'Nueva publicación',
-                'add_a_buss' : 'Agregar un negocio'
+                'add_a_buss' : 'Agregar un negocio',
+                'post_type': '{type,select, i{Inversión} d{Donación} j{Trabajo}}'
               }
             }
           }
@@ -241,68 +291,95 @@
           value: function(){
             return {};
           }
+        },
+        currentPost:{
+          type:Object,
+          value:function(){
+            return {}
+          }
+        },
+        hasPosts:{
+          type:Boolean,
+          computed:'_computeHasPosts(currentBusiness)'
         }
       },
       observers : [
-        '_onRouteChanged(busIdData,postIdData)'
+        '_onRouteChanged(route.path)'
       ],
-      _businessChanged(newValue,lastValue){
-        if(lastValue && newValue.length < lastValue.length){
-          this.$.toast.text = this.localize('business_deleted');
-          this.$.toast.open();
-        }
-        if(newValue.length > 0) this._onRouteChanged(this.busIdData,{});
+      _computeHasPosts:function(current){
+        if(current===undefined)return false;
+        if(!current.posts)return false;
+        return current.posts.length>0;
       },
-      _onRouteChanged : function(bus,post){
-        if(bus===undefined&&post===undefined){
+      _businessChanged(newValue,lastValue){
+        if(newValue){
+          if(newValue.length>0||this.busData.id){
+            this._selectBusinessById(this.busData.id);
+          }
+        }
+      },
+      _postsChanged:function(newValue,lastValue){
+        if(newValue){
+          if(newValue.length>0||this.postData.id){
+            this._selectPostById(this.postData.id);
+          }
+        }
+      },
+      _onRouteChanged : function(route){
+        console.log(route,this.busData,this.postData);
+        if(route===undefined){
           return;
         }
-        bus=bus.id;
-        post=post.id;
-        console.log(bus,post);
-        if(bus){
-          if(bus==='new'){
-            return this.set('section','newBus');
-          }else{
-            this._selectBusinessById(bus);
-            if(post){
-              if(post==='new'){
-                return this.set('section','newPost')
+        var s = route.split('').reduce((count,item)=>{
+          if(item==='/'){
+            return count+1;
+          }
+          return count;
+        },0);
+        var bus=this.busData || {};
+        var post=this.postData || {};
+
+        switch (s) {
+          case 2:
+            this.set('section','resume');
+            break;
+          case 3:
+            if(bus.id){
+              if(bus.id==='new'){
+                this.set('section','newBus');
               }else{
-                this._selectPostById(post);
-                return this.set('section','postDetail');
+                this._selectBusinessById(bus.id);
+                this.set('section','editBus');
               }
             }
-            return this.set('section','editBus');
-          }
-
+            break;
+          case 4:
+            if(post.id){
+              if(post.id==='new'){
+                this.set('currentPost',{id:'new'});
+                this.set('section','newPost');
+              }else{
+                this._selectPostById(post.id);
+                this.set('section','editPost');
+              }
+            }
+            break;
+          default:
+          this.set('section','resume');
         }
-        return this.set('section','resume');
-        // var business = this.business;
-        // if(business == undefined && this.businessIdSubRouteData && this.businessIdSubRouteData.businessId&& this.businessIdSubRouteData.businessId != 'new')return;
-        // if(this.businessIdSubRoute.path == '')return this.set('section','resume');
-        // if(this.businessIdSubRouteData && this.businessIdSubRouteData.businessId == 'new') return this.set('section','new');
-        // for(var current in business){
-        //   if(this.business[current].id == this.businessIdSubRouteData.businessId){
-        //     this.set('currentBusiness',this.business[current]);
-        //     this.set('section','editBusiness');
-        //     if(this.postActionSubRoute.path == '')return;
-        //     if(this.postActionSubRouteData.postAction == 'new')return this.set('section','newPost');
-        //     var posts = this.currentBusiness.posts;
-        //     for(var post in posts){
-        //       if(posts[post].id == this.postIdSubRouteData.postId){
-        //         this.set('currentPost',posts[post]);
-        //         return this.set('section','edditPost');
-        //       }
-        //     }
-        //   }
-        // }
-        // this.set('businessIdSubRoute.path','');
-        // return this.set('section','resume');
+
       },
       _lastErrorObserver : function(error){
         if(error){
           this.showToast(error);
+        }
+      },
+      _filterPosts:function(post){
+        if(!this.currentBusiness)return false;
+        if(post.business===this.currentBusiness.id){
+          return true;
+        }else{
+          return false;
         }
       },
       showToast : function(message){
@@ -318,12 +395,22 @@
         this.set('currentBusiness',business);
       },
       _selectBusinessById:function(id){
-        if(!this.business)return ;
-        if(this.currentBusiness.id===id)return;
+        if(!this.business){
+          return ;
+        };
         this.business.forEach((item)=>{
           if(item.id===id){
-            console.log('selected');
-            this.set('currentBusiness',item);
+            return this.set('currentBusiness',item);
+          }
+        });
+      },
+      _selectPostById:function(id){
+        if(!this.posts){
+          return ;
+        };
+        this.posts.forEach((item)=>{
+          if(item.id===id){
+            return this.set('currentPost',item);
           }
         });
       }

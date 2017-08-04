@@ -20,18 +20,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <!-- Elements  -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
-<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
-<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
-<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
-<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
-<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="redux/global-store.html">
 <link rel="import" href="redux/actions/auth-actions.html">
 <link rel="import" href="my-icons.html">
@@ -64,8 +56,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <rcp-view name="rcp" route="[[subroute]]"></rcp-view>
       <recw-view name="recw" on-route-change="changeRoute"></recw-view>
       <srch-view name="srch" on-route-change="changeRoute"></recw-view>
-
     </iron-pages>
+    <paper-toast id="toast"></paper-toast>
+
   </template>
 
   <script>
@@ -86,6 +79,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if(this.checkLogIn()){
           this.dispatch('loadUserInfo');
         }
+        window.addEventListener('show-message',(e)=>{
+          var message = e.detail.message,
+              duration = e.detail.duration,
+              extras = e.detail.extras;
+          this.$.toast.text=message;
+          this.$.toast.duration=duration||3000;
+          this.$.toast.show();
+        });
       },
       _routePageChanged: function(page) {
         this.page = page || 'main';

@@ -5,7 +5,7 @@
       case 'LOAD_BUSS':
         switch (action.status) {
           case 'success':
-            return Object.assign({},state,{entities:action.businesses});
+            return Object.assign({},state,{business:action.businesses,posts:action.posts});
             break;
           case 'error':
             return Object.assign({},state,{lastError:action.error});
@@ -18,7 +18,7 @@
       case 'ADD_BUSS':
         switch (action.status) {
           case 'success':
-            return Object.assign({},state,{entities:[...state.entities,action.business]});
+            return Object.assign({},state,{business:[...state.business,action.business]});
             break;
           case 'error':
             return Object.assign({},state,{lastError:action.error});
@@ -31,14 +31,14 @@
       case 'EDD_BUSS':
         switch (action.status) {
           case 'success':
-            var newBuss=state.entities.map((item)=>{
+            var newBuss=state.business.map((item)=>{
               if(item.id===action.business.id){
                 return action.business;
               }else{
                 return item;
               }
             });
-            return Object.assign({},state,{entities:newBuss});
+            return Object.assign({},state,{business:newBuss});
             break;
           case 'error':
             return Object.assign({},state,{lastError:action.error});
@@ -51,13 +51,13 @@
       case 'DEL_BUSS':
         switch (action.status) {
           case 'success':
-            var newBuss = state.entities.reduce((result,item)=>{
+            var newBuss = state.business.reduce((result,item)=>{
               if(item.id!==action.business.id){
                 result.push(item);
               }
               return result;
             },[]);
-            return Object.assign({},state,{entities:newBuss});
+            return Object.assign({},state,{business:newBuss});
             break;
           case 'error':
             return Object.assign({},state,{lastError:action.error});
@@ -70,14 +70,7 @@
       case 'ADD_POST':
         switch (action.status) {
           case 'success':
-            var newBuss = state.entities.map((item)=>{
-              if(item.id===action.post.business){
-                return Object.assign({},item,{posts : [...item.posts,action.post]});
-              }else{
-                return item;
-              }
-            });
-            return Object.assign({},state,{entities:newBuss});
+            return Object.assign({},state,{posts:[...state.posts,action.post]});
             break;
           case 'error':
             return Object.assign({},state,{lastError:action.error});
@@ -90,18 +83,14 @@
         case 'EDD_POST':
           switch (action.status) {
             case 'success':
-              var newBuss = state.entities.map((item)=>{
-                if(item.id===action.post.business){
-                  var posts = item.posts.map((post)=>{
-                    if(post.id == action.post.id)return action.post;
-                    return post
-                  });
-                  return Object.assign({},item,{posts : posts});
+              var newPosts = state.posts.map((item)=>{
+                if(item.id===action.post.id){
+                  return action.post;
                 }else{
                   return item;
                 }
               });
-              return Object.assign({},state,{entities:newBuss});
+              return Object.assign({},state,{posts:newPosts});
               break;
             case 'error':
               return Object.assign({},state,{lastError:action.error});
@@ -114,18 +103,13 @@
         case 'DEL_POST':
           switch (action.status) {
             case 'success':
-              var newBuss = state.entities.map((item)=>{
-                if(item.id===action.post.business){
-                  var posts = item.posts.reduce((result,post)=>{
-                    if(post.id != action.post.id)result.push(post);
-                    return result;
-                  },[]);
-                  return Object.assign({},item,{posts : posts});
-                }else{
-                  return item;
+              var newPosts = state.posts.reduce((result,item)=>{
+                if(item.id!==action.post.id){
+                  result.push(item);
                 }
-              });
-              return Object.assign({},state,{entities:newBuss});
+                return result;
+              },[]);
+              return Object.assign({},state,{posts:newPosts});
               break;
             case 'error':
               return Object.assign({},state,{lastError:action.error});

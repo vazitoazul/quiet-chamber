@@ -10,11 +10,10 @@ module.exports = {
   attributes: {
     business : { model : 'business', required : true },
     type : { type : 'string', required : true},
-    description : {type : 'string', required : true},
     labels : { type : 'array', defaultsTo : []},
     placesIds : { type : 'array'},
-    name : { type: 'string', required : true},
-    amount : { type: 'float', required : true}
+    details:{type:'json',defaultsTo:{}},
+    name : { type: 'string', required : true}
   },
 
   beforeCreate : function(values,next){

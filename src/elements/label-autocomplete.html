@@ -77,11 +77,11 @@
           value: false
         }
       },
-      observers : ['_labelsChanged(labels.splices)'],
       _labelsChanged : function(splices){
         //this function takes care of maintaining values syncronized with labels array
         if (splices) {
           //check every change on the array
+          console.log(splices);
           splices.indexSplices.forEach((s)=> {
             s.removed.forEach((label)=>{
               //for every removed label, remove corresponding value
@@ -119,13 +119,14 @@
       },
       labelSelected: function(e){
         //Check if there is no duplicates with same value
-        this.labels.forEach((item)=>{
+        this.value.forEach((item)=>{
           if(item===e.detail.option.value){
             return ;
           }
         });
         //if not, push into labels the option
         this.push('labels',e.detail.option);
+        this.push('value',e.detail.option.value);
         //clear the input
         this.$.autocompleteInput.value='';
       },
@@ -133,6 +134,7 @@
         //remove values from label and value arrays
         this.labels.forEach((label,index)=>{
           if(label.value===e.detail.value){
+            this.splice('value',index,1);
             this.splice('labels',index,1);
           }
         });

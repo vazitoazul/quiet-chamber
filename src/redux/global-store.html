@@ -19,6 +19,9 @@
       return Promise.reject(Object.assign(error, { response }))
     })
   };
+  function showMessage(message,duration,extras){
+    window.dispatchEvent(new CustomEvent('show-message',{bubbles:false,detail:{message:message,duration:duration,extras:extras}}));
+  }
   const globalReducer = (state={},action)=>{
     return{
       user:user(state.user,action),

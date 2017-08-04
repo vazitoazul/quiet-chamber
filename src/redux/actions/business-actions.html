@@ -40,7 +40,15 @@ const BusinessActionsBehavior = {
         .then(handleReqError)
         .then((response)=>{
           response.json().then((json)=>{
-            dispatch({type:'LOAD_BUSS',status:'success',businesses:json});
+            var posts=[];
+            var businesses=json.map((bus)=>{
+              bus.posts=bus.posts.map((p)=>{
+                posts.push(p);
+                return p.id;
+              });
+              return bus;
+            });
+            dispatch({type:'LOAD_BUSS',status:'success',businesses:businesses,posts:posts});
             callback();
           });
         })
