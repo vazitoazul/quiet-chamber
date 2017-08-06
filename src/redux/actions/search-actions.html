@@ -1,28 +1,47 @@
 <script>
+  function removeNull(obj){
+    Object.keys(obj).forEach((key)=>{
+      if(obj[key]===undefined||obj[key]===null){
+        delete obj[key];
+      }else{
+        if(typeof obj[key]==='object'){
+          obj[key]=removeNull(obj[key]);
+        }
+      }
+
+    });
+    return obj;
+  }
   const SearchActionsBehavior = {
     actions : {
-      searchPosts : function(query){
+      searchPosts : function(){
         return function(dispatch){
+          //slice the object to obtain only values that are not null
+          var body = removeNull(this.getState().search.query);
+          console.log(body);
           dispatch({type:'SCH_POSTS'});
           let request = new Request(
-            'searchPosts',{
+            '/searchPosts',{
               method:'POST',
               headers: standardHeaders,
               credentials: 'include',
-              body: JSON.stringify(query)
+              body: JSON.stringify(body)
             }
           );
           window.fetch(request)
           .then(handleReqError)
           .then((response)=>{
             response.json().then((json)=>{
-              dispatch({type:'SCH_POSTS',status:'success',results:json, query : query});
+              dispatch({type:'SCH_POSTS',status:'success',results:json});
             });
           })
           .catch((e)=>{
             dispatch({type:'SCH_POSTS',status:'error',error:e.message});
           });
         }
+      },
+      updateQuery:function(query){
+        return {type:'UPDATE_QUERY',query:query};
       }
     }
   }

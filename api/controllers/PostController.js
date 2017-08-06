@@ -55,7 +55,7 @@ module.exports = {
 			*@param {string} type - post type
 			*/
 	searchPosts : function(req,res,next){
-		var params = req.allParams();
+		var params = req.body;
 		var query = {};
 		const labels = params.labels;
 		const places = params.location;
@@ -71,9 +71,6 @@ module.exports = {
 				query['$or'].push({'placesIds' : places[place]});
 			}
 		}
-		if(params.amountTo || params.amountFrom)query['amount']= {};
-		if(params.amountFrom)query['amount'].$gt = parseInt(params.amountFrom);
-		if(params.amountTo)query['amount'].$lte = parseInt(params.amountTo);
 		if(params.type)query['type'] = params.type;
 		Post.find(query).populate('business').exec(function(err,found){
 			if(err)return next(err);

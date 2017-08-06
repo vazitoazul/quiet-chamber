@@ -11,60 +11,171 @@
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
-<link rel="import" href="../elements/label-element.html">
-<link rel="import" href="../elements/label-chip.html">
-<link rel="import" href="../elements/search-bar.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../elements/label-autocomplete.html">
+<link rel="import" href="../elements/login-button.html">
 <link rel="import" href="../elements/post-card.html">
 <link rel="import" href="../redux/actions/search-actions.html">
 <link rel="import" href="../redux/global-store.html">
 <link rel="import" href="../shared-styles.html">
 <dom-module id="srch-view">
-  <style include="app-grid-style shared-styles">
-    div.search-bar{
-        background-color: rgba(0, 0, 0, 0.6);
-        padding-bottom: 2rem;
-        padding-left: 2rem;
-        padding-right: 2rem;
-        min-width: 32rem !important;
+  <style include="shared-styles">
+    div.start{
+        width: 100%;
+        max-width: 761px;
     }
-    paper-material{
-      padding-bottom: 1rem;
+    paper-material.jobs ,paper-material.invest, paper-material.donation{
+      color:#fff;
+      margin: 0.5rem;
+      padding: 1rem;
+      @apply(--layout-flex);
+      text-align: center;
+      height: 120px;
+      @apply(--layout-vertical);
+      @apply(--layout-center-center);
+    }
+    paper-material.jobs{
+      background-color: var(--job-color);
+    }
+    paper-material.invest{
+      background-color: var(--investment-color);
+    }
+    paper-material.donation{
+      background-color: var(--donation-color);
     }
     div.results {
       margin-top: 2rem;
     }
+    paper-input#placeInput{
+      min-width: 200px;
+    }
+    div.placeholder{
+      height: 70vh;
+      width: 100%;
+    }
+    div.placeholder h3 {
+      max-width: 500px;
+      text-align: center;
+    }
   </style>
    <template>
-     <app-location route="{{route}}"></app-location>
-      <app-route
-         route="{{route}}"
-         pattern="/srch"
-         tail="{{subroute}}"></app-route>
-     <app-drawer-layout>
-       <app-drawer align="left">
-         <h5>Filtros</h5>
+    <google-maps-api version="3.exp" on-api-load="apiLoaded" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY"></google-maps-api>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+       route="{{route}}"
+       pattern="/srch/:type"
+       data="{{routeData}}"
+       tail="{{subroute}}"
+       query-params="[[query]]"
+       ></app-route>
+     <app-drawer-layout force-narrow>
+       <app-drawer align="left" id="drawer">
+         <div class="p-2">
+           <h5>Filtros</h5>
+           <label-autocomplete value="{{params.labels}}"></label-autocomplete>
+           <iron-pages selected="[[params.type]]" attr-for-selected="name">
+             <section name="j" class="vertical">
+               <paper-input class="self-start" label="Sueldo" name="salary" value="{{query.salary}}" required allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
+                 <span suffix>$</span>
+               </paper-input>
+               <paper-dropdown-menu required label="Plan de pagos">
+                 <paper-listbox class="dropdown-content" selected="{{query.time}}"  attr-for-selected="value" >
+                   <paper-item value="m">Mensual</paper-item>
+                   <paper-item value="w">Semanal</paper-item>
+                   <paper-item value="h">Por hora</paper-item>
+                 </paper-listbox>
+               </paper-dropdown-menu>
+             </section>
+             <section name="i" class="vertical">
+               <paper-input label="Inversión mínima" class="self-start" name="minInvestment" value="{{params.minInvestment}}" required allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
+                 <span suffix>$</span>
+               </paper-input>
+               <paper-input label="Porcentaje de retorno (anual)" class="self-start" name="returnPercentage" value="{{params.returnPercentage}}" required allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
+                 <span suffix>%</span>
+               </paper-input>
+               <div class="ligth">Tiempo para recuperar la inversión</div>
+               <paper-range-slider pin single-slider slider-width="300px" value-max="{{params.returnTime}}" max="100" min="1"></paper-range-slider>
+               <span>[[post.details.returnTime]] Mes(es)</span>
+             </section>
+             <section name="d">
+
+             </section>
+           </iron-pages>
+           <paper-button raised class="accent" on-tap="search">Buscar</paper-button>
+         </div>
        </app-drawer>
        <app-header-layout>
          <app-header>
           <app-toolbar>
+            <div class="horizontal flex">
               <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-              <div main-title><span class="text-display-2">Dinabun</span></div>
-              <div class="hidden-sm-down">
-                <a href="/help"><paper-button>[[localize('help')]]</paper-button></a>
-              </div>
+              <div main-title class="self-center"><span class="text-display-2">Dinabun</span></div>
+              <div class="flex"></div>
+              <login-button></login-button>
+            </div>
           </app-toolbar>
          </app-header>
+         <div class="main">
+           <iron-pages selected="[[page]]" attr-for-selected="name">
+             <section name="start" class="vertical center">
+               <div class="start vertical center">
+                 <h3>Bienvenido!</h3>
+                 <h5 class="light">Aquí podrás encontrar oportunidades para invertir el dinero de tu negocio.</h5>
+                 <div class="horizontal around-justified">
+                   <a href="/srch/jobs">
+                     <paper-material elevation="3" class="jobs" >
+                       <h4>Trabajos</h4>
+                       <paper-ripple></paper-ripple>
+                     </paper-material>
+                   </a>
+                   <a href="/srch/investments">
+                     <paper-material elevation="3" class="invest" >
+                       <h4>Oportunidades inversión</h4>
+                       <paper-ripple></paper-ripple>
+                     </paper-material>
+                   </a>
+                   <a href="/srch/donations">
+                     <paper-material elevation="3" class="donation">
+                       <h4>Donaciones</h4>
+                       <paper-ripple></paper-ripple>
+                     </paper-material>
+                   </a>
+
+                 </div>
+               </div>
+             </section>
+             <section name="results">
+               <div class="row">
+                 <div class="col-12 horizontal center">
+                   <paper-material elevation="1" class="p-1 mt-3 horizontal">
+                     <paper-dropdown-menu label="Estás buscando...">
+                       <paper-listbox class="dropdown-content" selected="{{params.type}}"  attr-for-selected="value">
+                         <paper-item value="i">Inversiones</paper-item>
+                         <paper-item value="d">Donaciones</paper-item>
+                         <paper-item value="j">Trabajos</paper-item>
+                       </paper-listbox>
+                     </paper-dropdown-menu>
+                     <paper-input label="En...(lugar)" id="placeInput" class="mx-1"></paper-input>
+                     <paper-button class="accent self-center" on-tap="openFilters">Más filtros</paper-button>
+                     <paper-button raised class="accent self-center" on-tap="search">Buscar</paper-button>
+                   </paper-material>
+                 </div>
+               </div>
+               <div class="row">
+                 <div class="col-12 horizontal">
+                   <template is="dom-repeat" items="[[results]]">
+                     <post-card post="[[item]]" class="m-2"></post-card>
+                   </template>
+                   <div class="placeholder vertical center" hidden$="[[results.0]]">
+                     <h3 class="light">Selecciona una ciudad para empezar la búsqueda.</h3>
+                   </div>
+                 </div>
+               </div>
+             </section>
+           </iron-pages>
+         </div>
        </app-header-layuout>
-       <div class="row">
-         <paper-material class="col-sm-6 offset-sm-2 search-bar container">
-            <search-bar class="horizontal center"></search-bar>
-         </paper-material>
-       </div>
-       <div class="row results">
-         <template is="dom-repeat" items="[[results]]">
-          <post-card post="[[item]]" class="col-sm-4 offset-sm-1"></post-card>
-         </template>
-       </div>
       <app-drawer-layout>
    </template>
    <script>
@@ -80,12 +191,23 @@
       properties:{
         query : {
           type: Object,
-          statePath : 'search.query',
-          observer : 'setUrlParams'
+          statePath : 'search.query'
+        },
+        params:{
+          type: Object,
+          value:function(){
+            return {
+              type:null,
+              labels:[]
+            };
+          }
         },
         language:{
           type:String,
           statePath:'language'
+        },
+        page:{
+          type:String
         },
         resources:{
           value:function(){
@@ -118,70 +240,62 @@
           }
         },
         results : {
-          type : Object,
-          statePath : 'search.lastResult',
-          observer : '_resultsChanged'
+          type : Array,
+          statePath : 'search.lastResult'
         },
         firstLoad : {
           type : Object,
-          statePath : 'search.firstLoad',
-          observer : 'setSearchParams'
+          statePath : 'search.firstLoad'
         }
       },
 
       observers : [
-        '_routeObserver(subroute)'
+        '_routeObserver(routeData.path)',
+        '_paramsChanged(params.*)'
       ],
-
-      observe : function(result){
-        console.log(result);
-      },
-
       _routeObserver : function(route){
-        // if(firstLoad){
-        //   this.dispatch('searchPosts',this.route.__queryParams);
-        //   return;
-        // }else{
-
-        // }
-        // console.log('this.route');
-      },
-
-      setSearchParams : function(firstLoad){
-        console.log('first load',firstLoad);
-        if(firstLoad){
-          this.dispatch('searchPosts',this.route.__queryParams);
-          return;
+        if(route==='/srch'){
+          return this.page='start';
         }
-        // console.log(query);
-        // var strQuery = "/srch?";
-        // for (var key in query) {
-        //     if (strQuery != "/srch?") {
-        //         strQuery += "&";
-        //     }
-        //     strQuery += key + "=" + encodeURIComponent(query[key]);
-        // };
-        // window.history.pushState('',"", strQuery);
-        // console.log(this.route);
-      },
-
-      _resultsChanged : function(results){
-        console.log(results);
-      },
-
-      setUrlParams : function(query){
-        console.log('query changed',query);
-
-        if(query != this.route.__queryParams){
-          var strQuery = '/srch?';
-          for (var key in query) {
-              if (strQuery != '/srch?') {
-                  strQuery += '&';
-              }
-              strQuery += key + '=' + encodeURIComponent(query[key]);
+        if(this.routeData===undefined||this.routeData.type===undefined){
+          this.page='start';
+        }else{
+          this.page='results';
+          if(!this.params.type){
+            this.set('params.type',this.routeData.type.split('')[0]);
           }
-          window.history.pushState('','', strQuery);
         }
+      },
+      _paramsChanged:function(params){
+        this.dispatch('updateQuery',params.base);
+      },
+      search:function(){
+        if(this.$.drawer.opened){
+          this.$.drawer.close();
+        }
+        if(!this.params.type||!this.params.place){
+          return showMessage('Debes seleccionar un lugar.');
+        }
+        this.dispatch('searchPosts');
+      },
+      openFilters:function(){
+        this.$.drawer.open();
+      },
+      apiLoaded:function(){
+        var googleMapsApiRestrictions = {
+          type : Object,
+          value : {types : ['(regions)'],componentRestrictions: {country: 'ec'}}
+        };
+        var input = this.$.placeInput.inputElement;
+        var placeAutocomplete= new google.maps.places.Autocomplete(input,googleMapsApiRestrictions);
+        google.maps.event.addListener(placeAutocomplete,'place_changed', ()=>{
+          var city = placeAutocomplete.getPlace();
+          if(!city.geometry){
+            showMessage('No hemos encontrado ese lugar');
+          }else{
+            this.set('params.place',city.id);
+          }
+        });
       }
     })
    </script>

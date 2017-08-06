@@ -81,7 +81,6 @@
         //this function takes care of maintaining values syncronized with labels array
         if (splices) {
           //check every change on the array
-          console.log(splices);
           splices.indexSplices.forEach((s)=> {
             s.removed.forEach((label)=>{
               //for every removed label, remove corresponding value
@@ -94,7 +93,6 @@
             for (var i=0; i<s.addedCount; i++) {
               var index = s.index + i;
               var newLabel = s.object[index];
-              console.log(this.value);
               this.push('value',newLabel.value);
             }
           });
@@ -118,6 +116,9 @@
         });
       },
       labelSelected: function(e){
+        if(this.value===undefined){
+          this.value=[];
+        }
         //Check if there is no duplicates with same value
         this.value.forEach((item)=>{
           if(item===e.detail.option.value){

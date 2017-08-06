@@ -56,12 +56,17 @@
         color: #fff;
       }
     }
+    iron-image.image{
+      height: 200px;
+      width: 300px;
+    }
  </style>
  <template>
   <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
   <div class="vertical w-100" hidden$="[[!editing]]">
     <paper-card class="form-container">
       <div class="card-content">
+
         <form is="iron-form" id="businessForm" action="[[ironFormAction]]" method="post" class="vertical">
           <paper-input name="name" label="[[localize('name')]]" required  value="{{business.name}}" error-message="[[localize('add_name')]]"></paper-input>
           <paper-textarea label="[[localize('description')]]" name="description" value="{{business.description}}" required error-message="[[localize('add_description')]]" rows="3" max-rows="3"></paper-textarea>
@@ -77,16 +82,18 @@
           <paper-input name="telephones" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','1')]]" value="{{business.telephones.1}}"></paper-input>
           <gold-email-input required name="email" label="[[localize('email')]]" value="{{business.email}}" error-message="[[localize('valid_email')]]" ></gold-email-input>
           <template is="dom-if" if="[[business.image]]">
-            <img src="[[business.image]]">
+            <iron-image src="[[business.image]]" preload sizing="cover" class="image self-center"></iron-image>
           </template>
-          <paper-spinner active="[[uploading]]"></paper-spinner>
+          <paper-spinner active="[[uploading]]" class="self-center"></paper-spinner>
           <template is="dom-if" if="[[!business.image]]">
-            <paper-button id="uploadButton" name="button" class="primary" on-click="openFileInput" raised>[[localize('upload_image')]]</paper-button>
+            <paper-button class="primary self-center" on-click="openFileInput" raised disabled="[[uploading]]">[[localize('upload_image')]]</paper-button>
           </template>
           <input type="file" id="imageInput" hidden accept=".jpg,.jpeg,.png" on-change="uploadImage">
           <template is="dom-if" if="[[business.image]]">
-            <paper-button id="uploadButton" name="button" class="primary" on-click="openFileInput" raised>[[localize('change_image')]]</paper-button>
-            <paper-button raised class="primary" on-click="deleteImage">[[localize('delete_image')]]</paper-button>
+            <div class="horizontal">
+              <paper-button class="primary mx-2" on-click="openFileInput" raised disabled="[[uploading]]">[[localize('change_image')]]</paper-button>
+              <paper-button raised class="warning mx-2" on-click="deleteImage" disabled="[[uploading]]">[[localize('delete_image')]]</paper-button>
+            </div>
           </template>
         </form>
       </div>
@@ -95,14 +102,15 @@
         <paper-button class="primary" hidden="[[!creating]]" on-click="createBusiness">[[localize('create')]]</paper-button>
         <div hidden$="[[creating]]">
           <paper-button class="primary" hidden$="[[!editing]]" on-click="switchEdit">Cancelar</paper-button>
+          <paper-button class="warning" hidden$="[[creating]]" on-click="openDeleteConfirmation">Eliminar negocio</paper-button>
           <paper-button class="accent" on-click="edditBusiness">[[localize('update')]]</paper-button>
         </div>
       </div>
     </paper-card>
-    <paper-button class="warning my-2" hidden$="[[creating]]" raised on-click="openDeleteConfirmation">[[localize('delete')]]</paper-button>
+
   </div>
   <div class="vertical" hidden$="[[editing]]">
-    <paper-card heading="[[business.name]]" image="https://unsplash.it/300/300" image-placeholder="https://unsplash.it/300/300">
+    <paper-card heading="[[business.name]]" image="[[business.image]]" image-placeholder="https://unsplash.it/300/300">
       <div class="card-content bus-resume">
         <div class="vertical">
           <span class="s-text">Ciudad</span>
@@ -365,8 +373,8 @@
       var self = this;
       this.set('uploading',true);
       const file = e.target.files[0];
-      if(file == null)return;
-      if(self.business.image) self.dispatch('deleteImage',self.business);
+      if(file == null)return this.set('uploading',false);
+      if(self.business.image) return self.dispatch('deleteImage',self.business);
       this.signAwsUrl(file,function(response){
         if(response.message) return showMessage(self.localize(response.message));
         self.uploadtoAws(response.signedRequest,file,function(err){

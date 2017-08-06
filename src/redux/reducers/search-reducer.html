@@ -5,7 +5,7 @@
       case 'SCH_POSTS':
         switch (action.status) {
           case 'success':
-            return Object.assign({},state,{lastResult: action.results, query: action.query});
+            return Object.assign({},state,{lastResult: action.results});
             break;
           case 'error':
             return Object.assign({},state,{lastError:action.error,status:'error'});
@@ -14,6 +14,10 @@
             return Object.assign({},state,{status:'loading', firstLoad : false});
             break;
         }
+        break;
+      case 'UPDATE_QUERY':
+        var newQuery = Object.assign({},state.query,action.query);
+        return Object.assign({},state,{query:newQuery});
         break;
       default :
       return state;
