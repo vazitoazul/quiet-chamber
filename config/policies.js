@@ -38,7 +38,7 @@ module.exports.policies = {
   },
 
   'PaymentController'  : {
-    'ipnListener' : [],
+    'paymentListener' : [],
     '*' : ['passport','sessionAuth','intlCredential']
   },
 

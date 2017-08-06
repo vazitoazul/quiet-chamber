@@ -3,9 +3,11 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/global-store.html">
-<link rel="import" href="../redux/actions/payments-actions.html">
+<link rel="import" href="../redux/actions/payouts-actions.html">
+<link rel="import" href="../shared-styles.html">
 <dom-module id="membership-panel">
   <template>
     <style include="shared-styles">
@@ -13,9 +15,10 @@
         display: block;
         height: 90vh;
       }
-      #dialog{
+      #dialog , #payoutDialog{
         max-height: 90vh;
         width: 50%;
+        background-color: #fff;
       }
       span.value{
         font-size: 1.3rem;
@@ -27,78 +30,103 @@
         top: -15px;
         background-color: rgba(0,0,0,0.2);
       }
+      iron-image.qr{
+        height: 200px;
+        width: 200px;
+        @apply(--layout-self-center);
+      }
+      #dialog{
+
+      }
     </style>
     <div class="vertical">
       <div class="horizontal">
         <div hidden$="[[user.isSuscribed]]">
           <paper-card  class="vertical subscription">
             <div class="card-content flex">
-              <h3>No tienes una suscripción activa</h3>
+              <h4>No tienes una suscripción activa</h4>
               <span>Encuentra todos los beneficios de suscribirte <a href="#">Aquí</a></span>
             </div>
-            <div class="card-actions">
-              <span>Utiliza PayPal para pagar tu suscripción de manera segura</span>
+            <div class="card-actions horizontal center">
+              <b>Inicia una subscripción ahora</b>
+              <div class="flex"></div>
+              <paper-button class="accent" on-tap="openDialog">Iniciar Subscripción</paper-button>
             </div>
           </paper-card>
         </div>
         <div hidden$="[[!user.isSuscribed]]">
-          <paper-card  class="vertical subscription m-2">
-            <div class="card-content">
-              <h3>Tienes una suscripción activa</h3>
-              <span>Tu suscripción se encuentra activa hasta el: [[localize('date','value',user.subscribedUntil)]]</span>
+          <paper-card  class="vertical subscription">
+            <div class="card-content flex">
+              <h4>Tienes una subscripción activa</h4>
+              <span>Tu subscripción es válida hasta [[localize('date','value',user.subscribedUntil)]]</span>
             </div>
-          </paper-card>
-          <paper-card class="m-2">
-            <div class="card-content">
-              <h5>Tu saldo actual es de: <b>[[showDecimal(user.totalBalance)]]$</b></h5>
+            <div class="card-content flex">
+              <div class="">
+                <h5>Tu saldo</h5>
+              </div>
+              <div hidden$="[[!userHasBalance]]">
+                Tu saldo es de: [[toRegBitcoin(user.totalBalance)]] BTC
+              </div>
+              <div hidden$="[[userHasBalance]]" class="vertical">
+                <span>Todavía no tienes saldo a tu favor.</span>
+                <span>Para empezar a ganar <a href="/acco/recommended">Agrega recomendados</a></span>
+              </div>
             </div>
-            <div class="card-actions horizontal">
-              <div class="vertical" hidden="[[state.canRequest]]">
-                <span class="text-accent">Ya has solicitado un cobro en las últimas 24 horas. Debes esperar para solicitar uno nuevamente.</span>
-              </div>
-              <div class="vertical" hidden="[[!state.canRequest]]">
-                <span>Pudes solicitar una transferencia hacia tu cuenta de paypal aquí</span>
-                <paper-button raised on-click="openDialog">Cobrar</paper-button>
-              </div>
+            <div hidden$="[[!userHasBalance]]" class="card-actions horizontal center">
+              <b>Aquí puedes retirar saldo de tu cuenta: </b>
+              <div class="flex"></div>
+              <paper-button class="accent" on-tap="openPayoutDialog">Retirar Dinero</paper-button>
             </div>
           </paper-card>
         </div>
       </div>
     </div>
-    <paper-dialog id="dialog">
-      <h2>Cobrar</h2>
-      <div class="vertical">
-        <span>Aquí puedes enviar tu saldo hacia tu cuenta de PayPal</span>
-        <span>Tu saldo actual es de <b>[[showDecimal(user.totalBalance)]]$</b> </span>
+    <paper-dialog id="dialog" >
+      <h2>Iniciar una subscripción</h2>
+      <div>
         <div class="vertical">
-          <paper-input label="Monto a retirar" value="{{amount}}" id="amountInput" auto-validate allowed-pattern="[0-9.]"></paper-input>
-          <div class="horizontal">
-            <b class="flex">Valor de la transferencia:</b>
-            <span class="text-secondary value">[[showDecimal(amount)]]$</span>
+          <b>Lee con atención los pasos que debes seguir:</b>
+          <ol>
+            <li>A continuación te vamos a redirigir a la página donde puedes realizar el pago. </li>
+            <li>Allí encontrarás la dirección de bitcoin a la cual debes realizar el depósito. Recuerda que Alfacoin (la red mediante la cual manejamos los pagos) cobra un cargo extra por la transferencia del dinero.</li>
+            <li>Una vez recibida tu transacción, espera a que se confirme en la red de bitcoins. Puedes visitar la sección de <b>Membrecia</b> dentro de tu cuenta para mantenerte al tanto. </li>
+            <li>Recuerda que debes depositar el valor exacto, de otro modo, tendrás problemas iniciando tu subscripción.</li>
+            <li>Disfruta tu subscripción y gana dinero!</li>
+          </ol>
+        </div>
+        <div class="horizontal layout">
+          <div class="flex">
+            <paper-checkbox checked="{{stepsUnderstand}}">Entiendo los pasos, continuar con el pago.</paper-checkbox>
           </div>
-          <div class="horizontal">
-            <b class="flex">Costo por la transferencia:</b>
-            <span class="text-secondary value">+[[showDecimal(tCost)]]$</span>
-          </div>
-          <div class="horizontal">
-            <b class="flex ">Total:</b>
-            <span class="text-secondary value">[[showDecimal(finalValue)]]$</span>
-          </div>
+          <paper-button class="accent" disabled="{{!stepsUnderstand}}" on-click="continuePayment">Continuar al pago</paper-button>
         </div>
       </div>
-      <div class="vertical">
-        <span>El costo por la transferencia se debe al uso de la plataforma de PayPal</span>
-        <span><b>Nota:</b> Recuerda que el pago se toma hasta 24 horas en procesarse. No podrás solicitar otro cobro en este tiempo.</span>
-      </div>
-      <div class="horizontal">
-        <div class="flex">
-        </div>
-        <paper-button raised class="primary" on-click="requestPayout">Cobrar</paper-button>
-      </div>
-      <div class="loading-overlay vertical center" hidden="[[!state.loading]]">
-          <paper-spinner active></paper-spinner>
-      </div>
+    </paper-dialog>
+    <paper-dialog id="payoutDialog" >
+      <h2>Retirar Dinero</h2>
+      <div>
+        <div class="vertical">
 
+          <paper-input label="Cantidad a retirar" value="{{sendValue}}" autocorrect allowed-pattern="^(?:\d*\.)?\d{0,8}$">
+            <div prefix>BTC &nbsp;</div>
+            <div suffix>
+              Saldo restante [[showDecimal(remainingValue)]]
+            </div>
+          </paper-input>
+          <div class="horizonal">
+            <b class="flex">Costo por la transferencia</b>
+            <span>[[showDecimal(feeValue)]]</span>
+          </div>
+          <div class="horizonal">
+            <b class="flex">Total a transferir</b>
+            <span>[[showDecimal(totalValue)]]</span>
+          </div>
+          <paper-input label="Dirección a depositar" value="{{sendAdress}}"></paper-input>
+        </div>
+        <div class="horizontal layout">
+          <paper-button raised on-tap="requestPayout">Retirar dinero</paper-button>
+        </div>
+      </div>
     </paper-dialog>
     <paper-toast id="toast" ></paper-toast>
 
@@ -109,26 +137,35 @@
       behaviors:[
         Polymer.AppLocalizeBehavior,
         GlobalStoreBehavior,
-        PaymentsActionsBehavior
+        PayoutsActionsBehavior
       ],
       properties:{
-        state:{
-          type:Object,
-          statePath:'payouts',
-          observer:'_payoutChange'
-        },
         user:{
           type:Object,
           statePath:'user.info'
         },
-        amount:{
-          type:Object,
-          observer:'_getAmounts',
-          value:0
-        },
         language:{
           type:String,
           statePath:'language'
+        },
+        payouts:{
+          type:Object,
+          statePath:'payouts'
+        },
+        totalValue:{
+          type:Number,
+          computed:'_computeTotal(sendValue)'
+        },
+        feeValue:{
+          type:Number,
+          computed:'_computeFee(sendValue)'
+        },
+        remainingValue:{
+          type:Number
+        },
+        userHasBalance:{
+          type:Boolean,
+          computed:'_computeHasBalance(user.totalBalance)'
         },
         resources:{
           value:function(){
@@ -143,6 +180,10 @@
           }
         }
       },
+      observers:['_computeRemaining(sendValue,user.totalBalance)'],
+      toRegBitcoin:function(value){
+        return (value/100000000);
+      },
       showMessage:function(text,duration){
         this.$.toast.text=text;
         this.$.toast.duration=duration||3000;
@@ -153,46 +194,48 @@
         if(typeof decimal!=='number'){
           decimal = Number(decimal);
         }
-        return decimal.toFixed(2);
+        return decimal.toFixed(8);
       },
       attached:function(){
         this.$.dialog.fitInto=this;
         this.$.toast.fitInto=this;
-        this.dispatch('getPayoutState');
-      },
-      requestPayout:function(amount){
-        if(this.user.totalBalance<=this.finalValue){
-          this.showMessage('No tienes suficiente dinero en tu cuenta para realizar la transacción.');
-          return;
-        }
-        this.dispatch('requestPayout',{amount:this.amount});
-      },
-      _payoutChange:function(newVal,oldVal){
-        if(!newVal) return ;
-        if(oldVal){
-          if(!newVal.loading&&oldVal.loading){
-            if(newVal.lastAction==='REQUEST_PAYOUT'){
-              this.$.dialog.close();
-              this.showMessage('Has solicitado un pago exitosamente.Se confirmará dentro de 24 horas.');
-            }
-          }
-        }
-
-      },
-      _getAmounts:function(newVal){
-        if(!newVal){
-          this.tCost=0;
-          this.finalValue=0;
-        };
-
-        this.tCost=newVal*0.02
-        if(this.tCost>=20){
-          this.tCost=20;
-        }
-        this.finalValue=newVal-(-this.tCost);
       },
       openDialog:function(){
         this.$.dialog.open();
+      },
+      _computeTotal:function(value){
+        if(!value)return 0
+        return (parseFloat(value)*0.99)-0.0001;
+      },
+      _computeFee:function(value){
+        if(!value)return 0.0001
+        return (parseFloat(value)*0.01)+0.0001;
+      },
+      _computeRemaining:function(value,balance){
+        if(!balance)return 0;
+        var parsed = balance/100000000;
+        if(!value)return parsed
+        this.remainingValue= parsed-parseFloat(value);
+      },
+      _computeHasBalance:function(balance){
+        return balance>0;
+      },
+      openPayoutDialog:function(){
+        this.$.payoutDialog.open();
+      },
+      continuePayment:function(){
+        window.location=window.location.origin+'/payment/requestOrder';
+      },
+      requestPayout:function(){
+        var body = {
+          address:this.sendAdress,
+          amount:this.sendValue
+        }
+        this.dispatch('requestPayout',body,(err,payout)=>{
+          if(err) return this.showMessage('Hubo un error enviando tu dinero');
+          this.showMessage('Se ha enviado tu dinero.');
+        });
+
       }
 
     });

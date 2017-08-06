@@ -66,13 +66,6 @@ module.exports.routes = {
   '/getRecommenderUser' : 'UserController.getRecommenderUser',
   '/setRecommender' : 'UserController.setRecommender',
 
-  //PayPal Payments related routes
-  'post /checkoutPayment' : 'PaymentController.setExpressCheckout',
-  '/cancelPaypal' : 'PaymentController.cancelPayment',
-  '/returnPaypal' : 'PaymentController.returnPayment',
-  '/paypalipn' : 'PaymentController.ipnListener',
-  '/requestPayout' : 'PaymentController.createPayout',
-  '/checkPayout' : 'PaymentController.getPayoutState',
   //General Payments related routes
   'get /allPayments' : 'PaymentController.getAll',
 
@@ -86,7 +79,9 @@ module.exports.routes = {
   '/createPost' : 'PostController.createPost',
   '/updatePost/:id' : 'PostController.updatePost',
   '/deletePost/:id' : 'PostController.deletePost',
-  '/searchPosts' : 'PostController.searchPosts'
+  '/searchPosts' : 'PostController.searchPosts',
+
+  '/paylistener' : 'PaymentController.paymentListener'
 
   /***************************************************************************
   *                                                                          *

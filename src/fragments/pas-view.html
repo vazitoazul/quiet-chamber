@@ -1,0 +1,33 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="pas-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        height: 95vh;
+      }
+      div.main{
+        width: 90%;
+        max-width: 600px;
+      }
+    </style>
+    <div class="vertical center h-100">
+      <div class="main">
+        <paper-card>
+          <div class="card-content vertical">
+            <h3 class="title">Pago Recibido!</h3>
+            <span class="s-text">Ahora estamos esperando a la confirmación de la red de Bicoins. Puedes ver el estado de tu pago desde <a href="/acco/membership">Tu cuenta -> Membrecía</a></span>
+          </div>
+        </paper-card>
+      </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'pas-view'
+    });
+  </script>
+</dom-module>

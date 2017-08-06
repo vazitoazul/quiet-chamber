@@ -8,6 +8,7 @@ const GlobalState={
     info:{
       email:null,
       mailVerified:false,
+      walletAddress:null,
       intlCredential:null,
       firstName:null,
       lastName:null,
@@ -23,21 +24,8 @@ const GlobalState={
         location:{},
         email:null,
         address:null
-      },
-      billingInfo:{
-        idType:'05',
-        name:'',
-        identifier:'',
-        address:'',
-        email:''
       }
     }
-  },
-  entities: {
-    businesses:[],
-    posts:[],
-    payments:[],
-    recommended:[]
   },
   recommender:{
     exists:false,
@@ -59,12 +47,6 @@ const GlobalState={
     addressUsed:null
   },
   route:null,
-  bills:{
-    entities:[],
-    loading:false,
-    lastError:null,
-    lastAction:null
-  },
   payments:{
     entities:[],
     loading:false,
@@ -72,9 +54,11 @@ const GlobalState={
     lastAction:null
   },
   payouts:{
+    entities:[],
     canRequest:false,
     loading:false,
-    lastError:null
+    lastError:null,
+    rate:null
   },
   business:{
     business:[],

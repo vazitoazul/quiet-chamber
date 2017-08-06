@@ -3,7 +3,7 @@
     actions:{
       getPayments:function(){
         return function(dispatch){
-          dispatch({type:'GET_PAYMENTS'});
+          dispatch({type:'LOAD_PAYMENTS'});
           let request = new Request('/allPayments',{
             method:'GET',
             headers: standardHeaders,
@@ -13,103 +13,11 @@
           .then(handleReqError)
           .then((response)=>{
             response.json().then((json)=>{
-              var payments = json.payments.map((item)=>{
-                item.hasBill= item.bill ? true : false;
-                item.parsedCreatedAt = (new Date(item.createdAt)).toFormat('DD-MM-YYYY');
-                return item;
-              });
-              dispatch({type:'GET_PAYMENTS',status:'success',payments:payments});
+              dispatch({type:'LOAD_PAYMENTS',status:'success',payments:json.payments});
             });
           })
           .catch((e)=>{
-            dispatch({type:'GET_PAYMENTS',status:'error',error:e.message});
-          });
-        }
-      },
-      getBills:function(){
-        return function(dispatch){
-          dispatch({type:'GET_BILLS'});
-          let request = new Request('/allBills',{
-            method:'GET',
-            headers: standardHeaders,
-            credentials: 'include'
-          });
-          window.fetch(request)
-          .then(handleReqError)
-          .then((response)=>{
-            response.json().then((json)=>{
-              var bills = json.bills.map((item)=>{
-                item.parsedCreatedAt = (new Date(item.createdAt)).toFormat('DD-MM-YYYY');
-                item.detail.total = item.detail.total.toFixed(2);
-                return item;
-              });
-              dispatch({type:'GET_BILLS',status:'success',bills:bills});
-            });
-          })
-          .catch((e)=>{
-            dispatch({type:'GET_BILLS',status:'error',error:e.message});
-          });
-        }
-      },
-      requestBill:function(payments){
-        return function(dispatch){
-          dispatch({type:'REQUEST_BILL'});
-          let request = new Request('/requestBill',{
-            method:'POST',
-            headers: standardHeaders,
-            credentials: 'include',
-            body:JSON.stringify({payments:payments})
-          });
-          window.fetch(request)
-          .then(handleReqError)
-          .then((response)=>{
-            response.json().then((json)=>{
-              json.bill.parsedCreatedAt = (new Date(json.bill.createdAt)).toFormat('DD-MM-YYYY');
-              json.bill.detail.total = json.bill.detail.total.toFixed(2);
-              dispatch({type:'REQUEST_BILL',status:'success',newBill:json.bill});
-            });
-          })
-          .catch((e)=>{
-            dispatch({type:'REQUEST_BILL',status:'error',error:e.message});
-          });
-        }
-      },
-      getPayoutState:function(next){
-        return function(dispatch){
-          dispatch({type:'GET_PAYOUT_STATE'});
-          let request = new Request('/checkPayout',{
-            method:'POST',
-            headers: standardHeaders,
-            credentials: 'include',
-          });
-          window.fetch(request)
-          .then(handleReqError)
-          .then((response)=>{
-            response.json().then((json)=>{
-              dispatch({type:'GET_PAYOUT_STATE',status:'success',canRequest:json.canRequestPayout});
-            });
-          })
-          .catch((e)=>{
-            dispatch({type:'GET_PAYOUT_STATE',status:'error',error:e.message});
-          });
-        }
-      },
-      requestPayout:function(body){
-        return function(dispatch){
-          dispatch({type:'REQUEST_PAYOUT'});
-          let request = new Request('/requestPayout',{
-            method:'POST',
-            headers: standardHeaders,
-            credentials: 'include',
-            body:JSON.stringify(body)
-          });
-          window.fetch(request)
-          .then(handleReqError)
-          .then((response)=>{
-            dispatch({type:'REQUEST_PAYOUT',status:'success'});
-          })
-          .catch((e)=>{
-            dispatch({type:'REQUEST_PAYOUT',status:'error',error:e.message});
+            dispatch({type:'LOAD_PAYMENTS',status:'error',error:e.message});
           });
         }
       }

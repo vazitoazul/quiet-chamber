@@ -15,6 +15,9 @@ const userInfo = (state=userInfoInit,action)=>{
     case 'SET_USER_BILLING_INFO':
       return Object.assign({},state,{billingInfo:action.info});
       break;
+    case 'SET_USER_WALLET_ADDRESS':
+      return Object.assign({},state,{walletAddress:action.address});
+      break;
     default:
       return state;
   }
@@ -48,6 +51,7 @@ const user = (state=userInit,action)=>{
           break;
       }
       break;
+
     case 'SET_USER_RECO':
       switch (action.status) {
         case 'success':
