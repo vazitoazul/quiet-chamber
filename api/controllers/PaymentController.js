@@ -63,7 +63,7 @@ module.exports = {
     var detail={
       user:user.id,
       amount: amount,
-      fee:(amount*0.01)+0.0001,
+      fee:(amount*0.01)+10000,
       address:req.body.address
     };
     Payout.create(detail,function(err,newPayout){

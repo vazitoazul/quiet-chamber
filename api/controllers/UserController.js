@@ -8,13 +8,19 @@ module.exports = {
     *@param {object} req.user - current logged user
     */
 	getCurrentUser : function(req,res,next){
-		User.findOne(req.user.id).populate('payments').exec( function(err, user){
+		User.findOne(req.user.id).populate('payments').populate('payouts').exec( function(err, user){
 			if(err) return next(err);
 			if(!user){
 				return res.badRequest();
 			}
 			user.isSuscribed=user.isSuscribed();
 			user.totalBalance=user.balance.reduce((a, b) => a + b,0);
+      user.payoutRequested=false;
+      user.payouts.forEach((pay)=>{
+        if(!pay.payed){
+          user.payoutRequested=true;
+        }
+      });
 			User.find({recommender : user.id}, (err,found) => {
 				if(err) return res.badRequest();
 				user.recommended = found;
@@ -305,50 +311,24 @@ module.exports = {
 			});
 		});
 	},
-
-	/**
-	*
-	*Updates current user's billing Info
-	*
-	*@param {!string} name - User's Legal name
-	*@param {!string} identifier - User's identification number
-	*@param {!string} idType - User's identification type. Has to be one inside User.billingInfo.idType definned on user Model
-	*@param {?string} email - User's email
-	*@param {?string} address  - User's billing Address
-	*
-	*
-	*/
-	updateBillingInfo:function(req,res,next){
-		var info = {
-			name:req.body.name,
-			identifier:req.body.identifier,
-			idType:req.body.idType
-		};
-		if(req.body.email){
-			info.email=req.body.email;
-		}
-		if(req.body.address){
-			info.address=req.body.address;
-		}
-		User.update(req.user.id,{billingInfo:info},function(err,updated){
-			if(err){
-				if(err.code === 'E_VALIDATION'){
-					return res.json(409,{error:'invalid_info'});
-				}else {
-					return next(err);
-				}
-			}
-			return res.json({info:updated[0].billingInfo});
-		})
+  /**
+  *
+  *Updates a user to activate or deactivate automatic subscription
+  *
+  */
+	activateAutoSub: function(req,res,next){
+		User.update(req.user.id,{autoSub:req.body.autoSub},(err,updated)=>{
+      if(err)return next(err);
+      res.json({autoSub:updated[0].autoSub});
+    });
 	},
-	test: function(req,res,next){
-		User.findOne({email:'pacho-uno@hotmail.com'},(err,user)=>{
-			console.log(user);
-			user.balance.push(10);
-			User.update({id:user.id},{balance:user.balance},(err,updated)=>{
-				res.json(err||updated);
-			});
+  test:function(req,res,next){
+    Payout.find({payed:false}).exec((err,payouts)=>{
+      console.log(payouts[1]);
+      bitcoins.bitsendStatus(payouts[1].txId,(err,result)=>{
+        res.send(result);
+      });
+    });
 
-		});
-	}
+  }
 }

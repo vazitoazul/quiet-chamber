@@ -46,10 +46,12 @@
 
     <paper-material class="table vertical">
       <div class="horizontal">
-        <paper-tabs selected="{{selectedFilter}}" hidden$="[[billing]]">
+        <paper-tabs selected="{{selectedFilter}}">
           <paper-tab>Todos</paper-tab>
-          <paper-tab>Sin facturar</paper-tab>
-          <paper-tab>Facturados</paper-tab>
+          <paper-tab>Iniciados</paper-tab>
+          <paper-tab>Pagados</paper-tab>
+          <paper-tab>Completados</paper-tab>
+          <paper-tab>Expirados</paper-tab>
         </paper-tabs>
       </div>
       <brainy-table items="[[payments]]" page-size="5" id="table">
@@ -59,58 +61,18 @@
         <brainy-table-column name="Monto" sort-by="amount">
           <template>[[item.amount]]</template>
         </brainy-table-column>
-        <brainy-table-column hidden filter-by="hasBill" filter-value="[[billedFilter]]">
+        <brainy-table-column hidden filter-by="txStatus" filter-value="[[paymentsFilter]]">
           <template>
           </template>
         </brainy-table-column>
-        <brainy-table-column name="Facturada" width="100px">
+        <brainy-table-column name="Estado" width="100px">
           <template>
-            <div hidden$="[[!item.hasBill]]">Facturado</div>
-            <div hidden$="[[item.hasBill]]">Sin facturar</div>
-          </template>
-        </brainy-table-column>
-        <brainy-table-column hidden="[[!billing]]" align-right width="100px">
-          <template>
-            <paper-checkbox on-change="_addForBilling" checked="{{item.selected}}">Agregar</paper-checkbox>
+            [[item.txStatus]]
           </template>
         </brainy-table-column>
         <div no-results>No has realizado ningún pago</div>
       </brainy-table>
-      <br>
-      <div class="horizontal">
-        <div class="flex"></div>
-        <div hidden$="[[!billing]]" class="text-accent select-payments">Selecciona los pagos a facturar</div>
-        <paper-button class="accent" raised$="[[billing]]" on-click="billingCallback">
-          <div hidden$="[[billing]]">Facturar</div>
-          <div hidden$="[[!billing]]">Terminar</div>
-        </paper-button>
-      </div>
     </paper-material>
-    <paper-dialog id="dialog" on-iron-overlay-canceled="closeDialog" on-iron-overlay-closed="closeDialog">
-      <h2 class="text-accent">Facturar</h2>
-      <paper-dialog-scrollable class="horizontal ">
-        <div class="vertical p-2">
-          <h2>Resumen</h2>
-          <br>
-          <div class="horizontal">
-            Estás a punto de facturar [[selectedPayments.length]] pagos por un total de : [[selectedPaymentsTotal]]
-          </div>
-          <div class="flex">
-
-          </div>
-          <div class="">
-            <paper-button class="accent" dialog-dismiss>Cancelar</paper-button>
-          </div>
-        </div>
-        <div class="vertica p-2">
-          <h2>Datos para la factura</h2>
-          <payment-info button-text="Guardar y Facturar" on-info-updated="getBill"></payment-info>
-        </div>
-      </paper-dialog-scrollable>
-      <div class="loading-overlay vertical center" hidden="[[!billsState.loading]]">
-          <paper-spinner active></paper-spinner>
-      </div>
-    </paper-dialog>
     <paper-toast id="toast"></paper-toast>
 
   </template>
@@ -132,11 +94,7 @@
           statePath:'bills',
           observer:'_billsStateChange'
         },
-        billing:{
-          type:Boolean,
-          value:null
-        },
-        billedFilter:{
+        paymentsFilter:{
           type:Boolean,
           value:null,
         },
@@ -144,93 +102,32 @@
           type:String,
           observer:'_filterChange',
           value:0
-        },
-        selectedPayments:{
-          type:Array,
-          value:[]
-        },
-        selectedPaymentsTotal:{
-          type:Number,
-          calculated:'_getSelectedPaymentsTot'
         }
       },
       attached:function(){
         this.dispatch('getPayments');
-        this.$.dialog.fitInto=this;
         this.$.table.notifyResize();
-      },
-      _addForBilling:function(e){
-        var item = e.model.__data__.item;
-        if(!item.selected) return;
-        this.push('selectedPayments',item);
-      },
-      billingCallback:function(){
-        if(this.billing){
-          if(this.selectedPayments.length>0){
-            this.$.dialog.open();
-          }else{
-            this.billing=false;
-            this.selectedFilter=0;
-            this.set('selectedPayments',[]);
-          }
-        }else{
-          this.$.table.render();
-          this.billing=true;
-          this.selectedFilter=1;
-        }
       },
       _filterChange:function(newValue){
         switch (newValue) {
           case 0:
-            this.billedFilter=null;
+            this.paymentsFilter=null;
             break;
           case 1:
-            this.billedFilter=false;
+            this.paymentsFilter='new';
             break;
           case 2:
-            this.billedFilter=true;
+            this.paymentsFilter='paid';
+            break;
+          case 3:
+            this.paymentsFilter='completed';
+            break;
+          case 4:
+            this.paymentsFilter='expired';
             break;
           default:
-            this.billedFilter=null;
+            this.paymentsFilter=null;
         }
-      },
-      _getSelectedPaymentsTot:function(arr){
-        var tot=0;
-        arr.forEach(function(item){
-          tot+=tiem.amount;
-        });
-        return tot;
-      },
-      _billsStateChange:function(newVal,oldVal){
-        if(!newVal)return;
-        if(oldVal){
-          if(!newVal.loading&&oldVal.loading){
-            if(newVal.lastAction==='REQUEST_BILL'){
-              this.$.dialog.close();
-              this.dispatch('getPayments');
-              this.fire('bill-added');
-            }
-          }
-        }
-
-      },
-      getBill:function(){
-        var payments=[];
-        this.selectedPayments.forEach(function(item){
-          payments.push(item.id);
-        });
-        this.dispatch('requestBill',payments);
-      },
-      closeDialog:function(){
-        //force all the checkboxes to be unchecked
-        this.payments.forEach((item,index)=>{
-          this.set(['payments',index,'selected'],true);
-          this.set(['payments',index,'selected'],false);
-        });
-        //reset selected payments
-        this.set('selectedPayments',[]);
-        this.billing=false;
-        this.selectedFilter=0;
       }
     });
   </script>

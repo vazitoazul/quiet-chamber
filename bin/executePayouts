@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 var url = require('url');
 var path= require('path'),
-    async = require('async'),
-    paypal = require('paypal-rest-sdk');
+    async = require('async');
 process.chdir(path.resolve(__dirname,'../'));
 (function() {
   var sails;
@@ -38,20 +37,31 @@ process.chdir(path.resolve(__dirname,'../'));
     Payout.find({payed:false},(err,payouts)=>{
       if(err) throw err;
       async.each(payouts,(value,callback)=>{
-        paypal.payout.get(value.payPalData.payout_batch_id,(error,payout)=>{
-          if(err) return callback();
-          if(payout.batch_header.batch_status==='SUCCESS'){
-            Payout.update(value.id,{status:'SUCCESS',payed:true},(error,updated)=>{
-              if(error) return callback(error);
-              User.findOne(value.user,(error,user)=>{
-                if(error) return callback(error);
-                user.balance.push(-(value.amount+value.fee));
-                User.update(user.id,{balance:user.balance},(error,updated)=>{
-                  if(error) return callback(error);
+        bitcoins.bitsendStatus(value.txId,(err,result)=>{
+          if(err)return callback(err);
+          if(result.status==='completed'){
+            User.findOne(value.user).exec((err,user)=>{
+              if(err) return callback(err);
+              var total =user.balance.reduce((sum,q)=>{
+                return sum+q;
+              },0);;
+              total=total-value.amount-value.fee;
+              User.update(user.id,{balance:[total],totalBalance:total},(err,updatedUser)=>{
+                if(err) {
+                  console.log('Problem updating user balance',err,value);
+                  return callback(err);
+                }
+                Payout.update(value.id,{payed:true},(err,updatedPayout)=>{
+                  if(err){
+                    console.log('Problem updating payout',err,value);
+                    return callback(err);
+                  }
                   callback();
                 });
               });
             });
+          }else{
+            callback();
           }
         });
       },(err)=>{

@@ -86,17 +86,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-item><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
           <paper-item><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('recommended')]]</a></paper-item>
           <paper-item><a class="menu-item" href="/acco/business"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('bussiness')]]</a></paper-item>
-          <paper-item><a class="menu-item" href="/acco/payments"><iron-icon item-icon icon="card-membership"></iron-icon>Pagos y Facturas</a></paper-item>
+          <paper-item><a class="menu-item" href="/acco/payments"><iron-icon item-icon icon="card-membership"></iron-icon>Pagos</a></paper-item>
         </paper-menu>
       </app-drawer>
       <app-header-layout>
         <app-header>
-         <app-toolbar>
+         <app-toolbar class="horizontal">
              <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
              <div main-title><span>Dinabun</span></div>
              <div class="hidden-sm-down">
                <a href="/help"><paper-button>[[localize('help')]]</paper-button></a>
              </div>
+             <div class="flex"></div>
+             <a href="/logout" rel="external">
+               <paper-button raised class="accent">Salir</paper-button>
+             </a>
          </app-toolbar>
         </app-header>
       </app-header-layuout>
@@ -108,9 +112,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="vertical">
             <div class="horizontal">
               <payments-grid class="flex" on-bill-added="billAdded"></payments-grid>
-            </div>
-            <div class="horizontal">
-              <bills-grid class="flex"></bills-grid>
             </div>
           </div>
         </section>

@@ -62,7 +62,7 @@ module.exports.routes = {
   '/getcurrentuser' : 'UserController.getCurrentUser',
   '/updateintlcredential' : 'UserController.updateIntlCredential',
   '/updateuserinfo' : 'UserController.updateUserInfo',
-  'post /updatebillinginfo' : 'UserController.updateBillingInfo',
+  '/updateuserautosub' : 'UserController.activateAutoSub',
   '/getRecommenderUser' : 'UserController.getRecommenderUser',
   '/setRecommender' : 'UserController.setRecommender',
 

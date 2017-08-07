@@ -6,6 +6,7 @@
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/user-actions.html">
 <link rel="import" href="../redux/actions/payouts-actions.html">
 <link rel="import" href="../shared-styles.html">
 <dom-module id="membership-panel">
@@ -15,7 +16,7 @@
         display: block;
         height: 90vh;
       }
-      #dialog , #payoutDialog{
+      #dialog , #payoutDialog , #confirmDialog{
         max-height: 90vh;
         width: 50%;
         background-color: #fff;
@@ -35,11 +36,12 @@
         width: 200px;
         @apply(--layout-self-center);
       }
-      #dialog{
-
+      paper-card{
+        max-width: 700px;
       }
+
     </style>
-    <div class="vertical">
+    <div class="vertical p-3">
       <div class="horizontal">
         <div hidden$="[[user.isSuscribed]]">
           <paper-card  class="vertical subscription">
@@ -48,7 +50,7 @@
               <span>Encuentra todos los beneficios de suscribirte <a href="#">Aquí</a></span>
             </div>
             <div class="card-actions horizontal center">
-              <b>Inicia una subscripción ahora</b>
+              <b>Inicia una suscripción ahora</b>
               <div class="flex"></div>
               <paper-button class="accent" on-tap="openDialog">Iniciar Subscripción</paper-button>
             </div>
@@ -57,32 +59,58 @@
         <div hidden$="[[!user.isSuscribed]]">
           <paper-card  class="vertical subscription">
             <div class="card-content flex">
-              <h4>Tienes una subscripción activa</h4>
-              <span>Tu subscripción es válida hasta [[localize('date','value',user.subscribedUntil)]]</span>
+              <h4>Tienes una suscripción activa</h4>
+              <span class="accent">Tu suscripción es válida hasta [[localize('date','value',user.subscribedUntil)]]</span>
+              <br>
+              <div class="horizontal">
+                <span class="light flex">Recueda que cada mes debes renovar tu suscripción. Si deseas pagar por adelantado puedes hacerlo ahora.</span>
+                <paper-button raised class="accent self-center" on-tap="openDialog">Renovar subsciripción</paper-button>
+              </div>
+              <br>
+              <div class="vertical">
+                <div class="horizontal" hidden$="[[user.autoSub]]">
+                  <span class="light flex">También puedes activar la suscripción automática para que se te debite automáticamente cada mes el valor de la misma.</span>
+                  <paper-button raised class="accent self-center" on-tap="openAutoSubConfirm">Activar</paper-button>
+                </div>
+                <div class="horizontal" hidden$="[[!user.autoSub]]">
+                  <span class="light flex">Tienes activado la suscripción automática. Cada mes se debitarán 0.007 BTC de tu cuenta de manera automática.</span>
+                  <paper-button raised class="warning self-center" on-tap="openAutoSubConfirm">Desactivar</paper-button>
+                </div>
+
+              </div>
+              <br>
+              <span class="warning">Recuerda que si no estás suscrito no recibes los beneficios de las personas que enlistaste como tus recomendados.</span>
             </div>
             <div class="card-content flex">
               <div class="">
                 <h5>Tu saldo</h5>
               </div>
-              <div hidden$="[[!userHasBalance]]">
-                Tu saldo es de: [[toRegBitcoin(user.totalBalance)]] BTC
+              <div hidden$="[[!userHasBalance]]" class="vertical">
+                <span>Tu saldo es de: [[toRegBitcoin(user.totalBalance)]] BTC</span>
+                <span hidden$="[[!user.payoutRequested]]" class="text-accent">Este saldo cambiará después de que se confirme tu retiro.</span>
               </div>
               <div hidden$="[[userHasBalance]]" class="vertical">
                 <span>Todavía no tienes saldo a tu favor.</span>
-                <span>Para empezar a ganar <a href="/acco/recommended">Agrega recomendados</a></span>
+                <span>Para empezar a ganar puedes <a href="/acco/recommended">agregar recomendados</a></span>
               </div>
             </div>
             <div hidden$="[[!userHasBalance]]" class="card-actions horizontal center">
-              <b>Aquí puedes retirar saldo de tu cuenta: </b>
-              <div class="flex"></div>
-              <paper-button class="accent" on-tap="openPayoutDialog">Retirar Dinero</paper-button>
+              <div class="horizontal center flex" hidden$="[[user.payoutRequested]]">
+                <b>Aquí puedes retirar saldo de tu cuenta: </b>
+                <div class="flex"></div>
+                <paper-button class="accent" on-tap="openPayoutDialog" >Retirar Dinero</paper-button>
+              </div>
+              <div class="horizontal center flex" hidden$="[[!user.payoutRequested]]">
+                <span class="warning">Has solicitado un retiro en las últimas 12 horas. Debes esperar a que se confirme.</span>
+              </div>
+
             </div>
           </paper-card>
         </div>
       </div>
     </div>
     <paper-dialog id="dialog" >
-      <h2>Iniciar una subscripción</h2>
+      <h2 hidden="[[user.isSuscribed]]">Iniciar una suscripción</h2>
       <div>
         <div class="vertical">
           <b>Lee con atención los pasos que debes seguir:</b>
@@ -90,8 +118,8 @@
             <li>A continuación te vamos a redirigir a la página donde puedes realizar el pago. </li>
             <li>Allí encontrarás la dirección de bitcoin a la cual debes realizar el depósito. Recuerda que Alfacoin (la red mediante la cual manejamos los pagos) cobra un cargo extra por la transferencia del dinero.</li>
             <li>Una vez recibida tu transacción, espera a que se confirme en la red de bitcoins. Puedes visitar la sección de <b>Membrecia</b> dentro de tu cuenta para mantenerte al tanto. </li>
-            <li>Recuerda que debes depositar el valor exacto, de otro modo, tendrás problemas iniciando tu subscripción.</li>
-            <li>Disfruta tu subscripción y gana dinero!</li>
+            <li>Recuerda que debes depositar el valor exacto, de otro modo, tendrás problemas iniciando tu suscripción.</li>
+            <li>Disfruta tu suscripción y gana dinero!</li>
           </ol>
         </div>
         <div class="horizontal layout">
@@ -106,7 +134,6 @@
       <h2>Retirar Dinero</h2>
       <div>
         <div class="vertical">
-
           <paper-input label="Cantidad a retirar" value="{{sendValue}}" autocorrect allowed-pattern="^(?:\d*\.)?\d{0,8}$">
             <div prefix>BTC &nbsp;</div>
             <div suffix>
@@ -123,9 +150,28 @@
           </div>
           <paper-input label="Dirección a depositar" value="{{sendAdress}}"></paper-input>
         </div>
-        <div class="horizontal layout">
-          <paper-button raised on-tap="requestPayout">Retirar dinero</paper-button>
+        <div class="vertical">
+          <paper-button on-tap="requestPayout" class="accent self-end">Retirar dinero</paper-button>
         </div>
+      </div>
+      <div class="loading-overlay" hidden$="[[!payouts.loading]]">
+        <paper-spinner active></paper-spinner>
+      </div>
+    </paper-dialog>
+    <paper-dialog id="confirmDialog" class="vertical">
+      <h2>Suscripción automática</h2>
+      <div class="vertical" hidden$="[[user.autoSub]]">
+        <span class="light">Al activar esta opción se debitará automáticamente de tu saldo <b>0.007</b> cada mes para pagar tu suscripción.</span>
+        <paper-button class="accent self-end" on-tap="activateAutoSub">Activar</paper-button>
+        <br>
+      </div>
+      <div class="vertical" hidden$="[[!user.autoSub]]">
+        <span class="light">Si desactivas esta opción tu suscripción puede caducar lo que haría que no recibas los beneficios de las personas que se encuentran registrados como tus recomendados.</span>
+        <paper-button class="warning self-end" on-tap="deactivateAutoSub">Desactivar</paper-button>
+        <br>
+      </div>
+      <div class="loading-overlay" hidden$="[[!payouts.loading]]">
+        <paper-spinner active></paper-spinner>
       </div>
     </paper-dialog>
     <paper-toast id="toast" ></paper-toast>
@@ -137,7 +183,8 @@
       behaviors:[
         Polymer.AppLocalizeBehavior,
         GlobalStoreBehavior,
-        PayoutsActionsBehavior
+        PayoutsActionsBehavior,
+        UserActionsBehavior
       ],
       properties:{
         user:{
@@ -229,13 +276,33 @@
       requestPayout:function(){
         var body = {
           address:this.sendAdress,
-          amount:this.sendValue
-        }
+          amount:this.sendValue*100000000
+        };
         this.dispatch('requestPayout',body,(err,payout)=>{
           if(err) return this.showMessage('Hubo un error enviando tu dinero');
           this.showMessage('Se ha enviado tu dinero.');
+          this.$.payoutDialog.close();
+
         });
 
+      },
+      openAutoSubConfirm:function(){
+        this.$.confirmDialog.open();
+      },
+      activateAutoSub:function(){
+        this.dispatch('updateAutoSub',true,(e)=>{
+          if(e)return showMessage(this.localize(e.message));
+          showMessage('Ahora te suscribes automáticamente.');
+          this.$.confirmDialog.close();
+        });
+      },
+      deactivateAutoSub:function(){
+        this.dispatch('updateAutoSub',false,(e)=>{
+          if(e)return showMessage(this.localize(e.message));
+          showMessage('Ya no te suscribes automáticamente.');
+          this.$.confirmDialog.close();
+
+        });
       }
 
     });

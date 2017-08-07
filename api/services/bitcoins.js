@@ -71,10 +71,9 @@ module.exports = {
     })
   },
   bitSend:function(amount,address,user,callback){
-
-
     checkRate((err,rate)=>{
-      console.log(rate);
+      //convert from satoshis to regular bitcoins
+      amount= amount/100000000;
       var reqBody ={
         "name": config.name,
         "secret_key": config.secret,
@@ -104,6 +103,26 @@ module.exports = {
         callback({err:err.message});
       });
     });
+  },
+  bitsendStatus:function(txId,callback){
+    rp({
+      method:'POST',
+      uri:'https://www.alfacoins.com/api/bitsend_status',
+      body:{
+        name:config.name,
+        secret_key:config.secret,
+        password:config.pass,
+        bitsend_id:txId
+      },
+      json:true
+    }).then((data)=>{
+      if(data.error) {
+        return callback(data.error);
+      }
+      callback(null,data);
+    }).catch((err)=>{
+      callback(err);
+    })
   },
   rate: checkRate
 

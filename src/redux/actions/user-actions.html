@@ -26,6 +26,30 @@
             });
         }
       },
+      updateAutoSub:function(autoSub,callback){
+        return function(dispatch){
+            dispatch({type:'SET_USER_AUTO_SUB'});
+            let request = new Request(
+              '/updateuserautosub',{
+              method:'POST',
+              headers: standardHeaders,
+              body: JSON.stringify({autoSub:autoSub}),
+              credentials: 'include'
+            });
+            window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              response.json().then((json)=>{
+                dispatch({type:'SET_USER_AUTO_SUB',status:'success',autoSub:json.autoSub});
+                callback();
+              });
+            })
+            .catch((e)=>{
+              dispatch({type:'SET_USER_AUTO_SUB',status:'error',error:e.message});
+              callback(e);
+            });
+        }
+      },
       updateIntlCredential:function(newCredential,callback){
         return function(dispatch){
           dispatch({type:'SET_USER_INF'});
@@ -101,28 +125,6 @@
           .catch((e)=>{
             dispatch({type:'SET_USER_RECO',status:'error',error:e.message});
             callback({message:e.message});
-          });
-        }
-      },
-      updateUserBillingInfo : function(info){
-        return function(dispatch){
-          dispatch({type:'SET_USER_BILLING_INFO'});
-          let request = new Request(
-            '/updatebillinginfo',{
-            method:'POST',
-            headers: standardHeaders,
-            credentials: 'include',
-            body: JSON.stringify(info),
-          });
-          window.fetch(request)
-          .then(handleReqError)
-          .then((res)=>{
-            res.json().then((json)=>{
-              dispatch({type:'SET_USER_BILLING_INFO',status:'success',info:json.info});
-            });
-          })
-          .catch((e)=>{
-            dispatch({type:'SET_USER_BILLING_INFO',status:'error',error:e.message});
           });
         }
       }

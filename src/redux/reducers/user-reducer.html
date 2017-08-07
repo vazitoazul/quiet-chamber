@@ -12,11 +12,11 @@ const userInfo = (state=userInfoInit,action)=>{
       }
       return Object.assign({},state,info);
       break;
-    case 'SET_USER_BILLING_INFO':
-      return Object.assign({},state,{billingInfo:action.info});
+    case 'SET_USER_AUTO_SUB':
+      return Object.assign({},state,{autoSub:action.autoSub});
       break;
-    case 'SET_USER_WALLET_ADDRESS':
-      return Object.assign({},state,{walletAddress:action.address});
+    case 'SET_USER_PAYOUT_REQ':
+      return Object.assign({},state,{payoutRequested:action.payoutRequested});
       break;
     default:
       return state;
@@ -37,8 +37,9 @@ const user = (state=userInit,action)=>{
           break;
       }
       break;
-    case 'SET_USER_BILLING_INFO':
+    case 'SET_USER_AUTO_SUB':
     case 'SET_USER_INF':
+    case 'SET_USER_PAYOUT_REQ':
       switch (action.status) {
         case 'success':
           return Object.assign({},state,{loading:false,info:userInfo(state.info,action),lastAction:action.type});

@@ -42,7 +42,7 @@ var subsValue;
         fourthlvl = [];
     Payment.find({ confirmed : false}, function (err , payments){
       if(err) throw err;
-      subsValue=payments[0].amount - payments[0].tax;
+      subsValue=payments[0].amount;
       async.eachOfLimit(payments,10,
         function(value,index,callback){
           Payment.update({id : value.id},{confirmed : true}, function(err,updated){

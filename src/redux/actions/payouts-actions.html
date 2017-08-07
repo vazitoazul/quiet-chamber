@@ -37,6 +37,7 @@ const PayoutsActionsBehavior={
         .then((response)=>{
           response.json().then((json)=>{
             dispatch({type:'ADD_PAYOUT',status:'success',payout:json});
+            dispatch({type:'SET_USER_PAYOUT_REQ',payoutRequested:true});
             callback(null,json);
           });
         })
