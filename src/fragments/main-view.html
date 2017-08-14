@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
 <link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
@@ -28,6 +29,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../elements/page-footer.html">
 <link rel="import" href="../elements/login-button.html">
 <link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/actions/search-actions.html">
 <link rel="import" href="../redux/global-store.html">
 <dom-module id="main-view">
   <template>
@@ -48,9 +50,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         height: 20vh;
       }
       .third{
+        background-image: url('https://unsplash.it/1200/500?image=1002');
+        background-size: cover;
+        color:white;
+        min-height: 40vh;
+        padding-bottom: 3rem;
+      }
+      .third paper-material{
         background-color: white;
-        height: 95vh;
-        color: white;
       }
       .last{
         height: 70vh;
@@ -168,30 +175,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
           </div>
         </section>
-        <section>
-          <app-box class="third" effects="parallax-background">
-            <img background src="//app-layout-assets.appspot.com/assets/bg2.jpg" style="width:100%; height: 900px" />
-            <div class="container-fluid h-100">
-              <div class="row h-100">
-                <div class="col-xs-12 col-sm-12 vertical center">
-                  <h3 class="text-center strong">buscas trabajo o l oque sea?</h3>
-                  <h4 class="text-center">Encuentraloou</h4>
-                  <div class="w-100 horizontal center search-box ">
-                    <paper-dropdown-menu label="Estoy buscando" id="typeDropDown" required>
-                      <paper-listbox id="paperList" class="dropdown-content" selected="{{query.type}}"  attr-for-selected="value">
-                        <paper-item value="f">Franquicia</paper-item>
-                        <paper-item value="d">Donación</paper-item>
-                        <paper-item value="i">Inversiones</paper-item>
-                        <paper-item value="j">Trabajos</paper-item>
-                        <paper-item value="a">Publicidad</paper-item>
-                      </paper-listbox>
-                    </paper-dropdown-menu>
-                    <label-autocomplete></label-autocomplete>
-                  </div>
-                </div>
+        <section class="third">
+          <google-maps-api version="3.exp" on-api-load="apiLoaded" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY"></google-maps-api>
+          <div class="container h-100">
+            <div class="row h-100">
+              <div class="col-12 col-md-8 push-md-2 col-lg-6 push-lg-3">
+                <h3 class="text-center">Busca para empezar a emprender</h3>
+                <span class="text-center">Encuentra una oportunidad de trabajo o una opción para invertir tu dinero. Crea conexiones, levántate con el éxito.</span>
+              </div>
+              <div class="col-12 vertical center">
+                <paper-material elevation="1" class="px-3 mt-3 horizontal">
+                  <paper-dropdown-menu label="Estás buscando...">
+                    <paper-listbox class="dropdown-content" selected="{{params.type}}"  attr-for-selected="value">
+                      <paper-item value="i">Inversiones</paper-item>
+                      <paper-item value="d">Donaciones</paper-item>
+                      <paper-item value="j">Trabajos</paper-item>
+                    </paper-listbox>
+                  </paper-dropdown-menu>
+                  <paper-input label="En...(lugar)" id="placeInput" class="mx-1"></paper-input>
+                  <paper-button raised class="accent self-center" on-tap="search">Buscar</paper-button>
+                </paper-material>
               </div>
             </div>
-          </app-box>
+          </div>
         </section>
         <section class="forth">
           <div class="container h-100">
@@ -266,7 +272,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       behaviors : [
         Polymer.AppLocalizeBehavior,
-        GlobalStoreBehavior
+        GlobalStoreBehavior,
+        SearchActionsBehavior
       ],
 
       properties : {
@@ -279,11 +286,62 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         route : {
           type : String
+        },
+        params: {
+          type : Object,
+          value: function(){
+            return{
+              type:null,
+              place:null
+            }
+          }
         }
       },
-
+      observers : [
+        '_paramsChanged(params.*)',
+      ],
       attached : function() {
         this.loadResources( this.resolveUrl('../locales/main-view.json'));
+      },
+      apiLoaded:function(){
+        var googleMapsApiRestrictions = {
+          type : Object,
+          value : {types : ['(regions)'],componentRestrictions: {country: 'ec'}}
+        };
+        var input = this.$.placeInput.inputElement;
+        var placeAutocomplete= new google.maps.places.Autocomplete(input,googleMapsApiRestrictions);
+        google.maps.event.addListener(placeAutocomplete,'place_changed', ()=>{
+          var city = placeAutocomplete.getPlace();
+          if(!city.geometry){
+            showMessage('No hemos encontrado ese lugar');
+          }else{
+            this.set('params.place',city.place_id);
+          }
+        });
+      },
+      _paramsChanged:function(params){
+        this.dispatch('updateQuery',params.base);
+      },
+      search:function(){
+        if(!this.params.type||!this.params.place){
+          return showMessage('Debes seleccionar un lugar y un tipo de anuncio.');
+        }
+        this.dispatch('searchPosts');
+        var route;
+        switch (this.params.type) {
+          case 'j':
+            route='/srch/jobs';
+            break;
+          case 'i':
+            route='/srch/investments';
+            break;
+          case 'd':
+            route='/srch/donations';
+            break;
+        }
+        route+='?type='+this.params.type+'&place='+this.params.place;
+        window.history.pushState({}, null, route);
+        window.dispatchEvent(new CustomEvent('location-changed'));
       }
     });
   </script>

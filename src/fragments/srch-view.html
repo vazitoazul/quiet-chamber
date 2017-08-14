@@ -267,6 +267,7 @@
               freshParams.labels=[];
             }
           }
+          console.log(freshParams);
           this.set('params',freshParams);
           this.queryLoaded=true;
         }
@@ -324,6 +325,7 @@
         };
         var input = this.$.placeInput.inputElement;
         var placeAutocomplete= new google.maps.places.Autocomplete(input,googleMapsApiRestrictions);
+
         google.maps.event.addListener(placeAutocomplete,'place_changed', ()=>{
           var city = placeAutocomplete.getPlace();
           if(!city.geometry){
@@ -332,21 +334,25 @@
             this.set('params.place',city.place_id);
           }
         });
-        if(this.params.place){
-          var geocoder = new google.maps.Geocoder;
-          geocoder.geocode({'placeId': this.params.place},(results, status)=>{
-            if (status === 'OK') {
-              if (results[0]) {
-                this.$.placeInput.value=results[0].formatted_address;
-                this.dispatch('searchPosts');
+        //deffer the search for the name of that place so the we make sure there is a value on params too look for
+        this.async(()=>{
+          if(this.params.place){
+            var geocoder = new google.maps.Geocoder;
+            geocoder.geocode({'placeId': this.params.place},(results, status)=>{
+              if (status === 'OK') {
+                if (results[0]) {
+                  this.$.placeInput.value=results[0].formatted_address;
+                  this.dispatch('searchPosts');
+                } else {
+                  showMessage('Vuelve a seleccionar un lugar');
+                }
               } else {
                 showMessage('Vuelve a seleccionar un lugar');
               }
-            } else {
-              showMessage('Vuelve a seleccionar un lugar');
-            }
-          });
-        }
+            });
+          }
+        },100);
+
       }
     })
    </script>

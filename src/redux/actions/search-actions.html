@@ -18,7 +18,6 @@
         return function(dispatch){
           //slice the object to obtain only values that are not null
           var body = removeNull(this.getState().search.query);
-          console.log(body);
           dispatch({type:'SCH_POSTS'});
           let request = new Request(
             '/searchPosts',{
@@ -50,8 +49,6 @@
               return dispatch({type:'SET_SELECTED_POST',post:p});
             }
           });
-          console.log('failed');
-
           dispatch({type:'SCH_POSTS'});
           let request = new Request(
             '/singlePost',{
