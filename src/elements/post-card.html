@@ -8,7 +8,7 @@
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/global-store.html">
 <dom-module id="post-card">
-  <style include="app-grid-style shared-styles">
+  <style include="shared-styles">
     span.heading{
       @apply(--paper-font-display1);
     }
@@ -48,8 +48,7 @@
       		</div>
           <div class="card-actions horizontal">
             <div class="flex"></div>
-            <paper-button class="accent self-end">Contactar</paper-button>
-            <paper-button class="accent self-end">Detalles</paper-button>
+            <a href="/post/[[post.id]]"><paper-button class="accent self-end">Detalles</paper-button></a>
           </div>
       	</paper-card>
       </section>
@@ -75,8 +74,7 @@
       		</div>
           <div class="card-actions horizontal">
             <div class="flex"></div>
-            <paper-button class="accent self-end">Contactar</paper-button>
-            <paper-button class="accent self-end">Detalles</paper-button>
+            <a href="/post/[[post.id]]"><paper-button class="accent self-end">Detalles</paper-button></a>
           </div>
       	</paper-card>
       </section>
@@ -96,8 +94,7 @@
       		</div>
           <div class="card-actions horizontal">
             <div class="flex"></div>
-            <paper-button class="accent self-end">Contactar</paper-button>
-            <paper-button class="accent self-end">Detalles</paper-button>
+            <a href="/post/[[post.id]]"><paper-button class="accent self-end">Detalles</paper-button></a>
           </div>
       	</paper-card>
       </section>

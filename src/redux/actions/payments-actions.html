@@ -13,7 +13,11 @@
           .then(handleReqError)
           .then((response)=>{
             response.json().then((json)=>{
-              dispatch({type:'LOAD_PAYMENTS',status:'success',payments:json.payments});
+              var result = json.payments.map((item)=>{
+                item.createdAt= (new Date(item.createdAt)).getTime();
+                return item;
+              });
+              dispatch({type:'LOAD_PAYMENTS',status:'success',payments:result});
             });
           })
           .catch((e)=>{

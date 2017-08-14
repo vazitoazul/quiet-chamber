@@ -40,6 +40,40 @@
           });
         }
       },
+      getPost : function(id){
+        return function(dispatch){
+          //Look for the post on the results, if it's not there fetch for it
+          var results=this.getState().search.lastResult;
+          results.forEach((p)=>{
+            //check if the post is already on memory and if it has his business setted up
+            if(p.id===id&&typeof p.business==='object'){
+              return dispatch({type:'SET_SELECTED_POST',post:p});
+            }
+          });
+          console.log('failed');
+
+          dispatch({type:'SCH_POSTS'});
+          let request = new Request(
+            '/singlePost',{
+              method:'POST',
+              headers: standardHeaders,
+              credentials: 'include',
+              body: JSON.stringify({id:id})
+            }
+          );
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            response.json().then((json)=>{
+              dispatch({type:'SCH_POSTS',status:'success',results:[json]});
+              dispatch({type:'SET_SELECTED_POST',post:json});
+            });
+          })
+          .catch((e)=>{
+            dispatch({type:'SCH_POSTS',status:'error',error:e.message});
+          });
+        }
+      },
       updateQuery:function(query){
         return {type:'UPDATE_QUERY',query:query};
       }

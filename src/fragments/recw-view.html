@@ -101,7 +101,7 @@
           <div class="vertical center">
             <div class="capped">
               <h5>[[localize('change_recommender','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
-              <paper-button raised class="secondary col-sm-3 offset-sm-4 change-rec" on-click="openDialog">[[localize('change')]]</paper-button>
+              <paper-button class="secondary col-sm-3 offset-sm-4 change-rec" on-click="openDialog">[[localize('change')]]</paper-button>
             </div>
           </div>
         </section>
@@ -114,8 +114,8 @@
                   <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b>
                 </span>
               </div>
-              <div class="card-actions">
-                <paper-button raised class="primary" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
+              <div class="card-actions vertical">
+                <paper-button class="primary self-end" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
               </div>
             </paper-card>
           </div>

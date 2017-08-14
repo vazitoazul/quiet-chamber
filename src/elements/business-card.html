@@ -1,14 +1,16 @@
 isi<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../elements/label-autocomplete.html">
+<link rel="import" href="../elements/login-button.html">
 <link rel="import" href="../elements/account-postcard.html">
 <link rel="import" href="../redux/global-store.html">
 <dom-module id="business-card">
-  <style include="app-grid-style shared-styles">
+  <style include="shared-styles">
     :host{
       display: block;
     }
@@ -35,7 +37,7 @@ isi<link rel="import" href="../../bower_components/polymer/polymer.html">
               <span>[[business.cityLabel]]</span>
             </div>
             <a href="/acco/business/[[business.id]]">
-              <paper-button class="primary" raised>Ver</paper-button>
+              <paper-button class="primary" raised hidden$="[[readOnly]]">Ver</paper-button>
             </a>
           </div>
           <div class="vertical">
@@ -49,10 +51,10 @@ isi<link rel="import" href="../../bower_components/polymer/polymer.html">
           </div>
           <div class="vertical">
             <span class="s-text">[[localize('labels')]]</span>
-            <label-autocomplete readonly labels="[[business.labels]]" ></label-autocomplete>
+            <label-autocomplete readonly value="[[business.labels]]"></label-autocomplete>
           </div>
         </div>
-        <div class="card-actions horizontal">
+        <div class="card-actions horizontal" hidden$="[[readOnly]]">
           <div class="flex"></div>
           <a href="/acco/business/[[business.id]]/new">
             <paper-button class="accent">Nuevo anuncio</paper-button>
@@ -72,7 +74,8 @@ isi<link rel="import" href="../../bower_components/polymer/polymer.html">
       ],
       properties : {
         business : {
-          type : Object
+          type : Object,
+          notify:true
         },
         language:{
           type:String,
@@ -82,32 +85,36 @@ isi<link rel="import" href="../../bower_components/polymer/polymer.html">
           value :  function(){
             return  {
               'en' : {
-                'name' : 'name',
-                'city' : 'city',
-                'labels' : 'labels',
-                'telephones' : 'telephones',
-                'number' : 'phone number {number}',
+                'name' : 'Name',
+                'city' : 'City',
+                'labels' : 'Labels',
+                'telephones' : 'Telephones',
+                'number' : 'Phone number {number}',
                 'email' : 'Email',
                 'mobile' : 'Mobile phone',
-                'description' : 'description',
+                'description' : 'Description',
                 'posts' : 'Posts',
                 'edit' : 'Edit'
               } ,
               'es' : {
-                'name' : 'nombre',
-                'city' : 'ciudad',
-                'labels' : 'etiquetas',
-                'telephones' : 'teléfonos',
+                'name' : 'Nombre',
+                'city' : 'Ciudad',
+                'labels' : 'Etiquetas',
+                'telephones' : 'Teléfonos',
                 'number' : 'Teléfono {number}',
                 'email' : 'Correo electrónico',
                 'mobile' : 'Teléfono celular',
-                'description' : 'Descripccion',
+                'description' : 'Descripción',
                 'posts' : 'Publicaciones',
                 'edit' : 'Editar'
               }
             }
           }
         },
+        readOnly:{
+          type:Boolean,
+          reflectToAttribute:true
+        }
       }
     });
   </script>

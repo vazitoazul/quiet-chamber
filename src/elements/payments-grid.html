@@ -19,6 +19,7 @@
     <style include="shared-styles">
       :host {
         display: block;
+        padding: 1rem;
         @apply(--layout-vertical);
       }
       .table{
@@ -56,7 +57,7 @@
       </div>
       <brainy-table items="[[payments]]" page-size="5" id="table">
         <brainy-table-column name="Fecha" sort-by="createdAt" width="100px">
-          <template>[[item.parsedCreatedAt]]</template>
+          <template>[[localize('date','time',item.createdAt)]]</template>
         </brainy-table-column>
         <brainy-table-column name="Monto" sort-by="amount">
           <template>[[item.amount]]</template>
@@ -67,7 +68,7 @@
         </brainy-table-column>
         <brainy-table-column name="Estado" width="100px">
           <template>
-            [[item.txStatus]]
+            [[localize('pay_status','status',item.txStatus)]]
           </template>
         </brainy-table-column>
         <div no-results>No has realizado ningún pago</div>
@@ -89,11 +90,6 @@
           type:Array,
           statePath:'payments.entities'
         },
-        billsState:{
-          type:Object,
-          statePath:'bills',
-          observer:'_billsStateChange'
-        },
         paymentsFilter:{
           type:Boolean,
           value:null,
@@ -102,6 +98,24 @@
           type:String,
           observer:'_filterChange',
           value:0
+        },
+        resources:{
+          value:function(){
+            return{
+              'es':{
+                'pay_status':'{status,select, completed{Completado} new{Iniciado} paid{Pagado} expired{Expirado}}',
+                'date':'{time, date, medium}'
+              },
+              'en':{
+                'pay_status':'{status,select, completed{Completed} new{Started} paid{Paid} expired{Expired}}',
+                'date':'{time, date, medium}'
+              }
+            }
+          }
+        },
+        language:{
+          type:String,
+          statePath:'language'
         }
       },
       attached:function(){

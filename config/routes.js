@@ -80,6 +80,7 @@ module.exports.routes = {
   '/updatePost/:id' : 'PostController.updatePost',
   '/deletePost/:id' : 'PostController.deletePost',
   '/searchPosts' : 'PostController.searchPosts',
+  '/singlePost' : 'PostController.singlePost',
 
   '/paylistener' : 'PaymentController.paymentListener'
 

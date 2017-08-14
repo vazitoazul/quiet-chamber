@@ -49,6 +49,7 @@ module.exports.policies = {
   },
 
   'PostController' : {
+    'singlePost' : ['passport'],
     'searchPosts' : ['passport'],
     'signAwsUrl' : ['passport','sessionAuth'],
     '*' : ['passport','sessionAuth','intlCredential','businessOwner']

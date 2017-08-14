@@ -123,13 +123,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <section section="recommended">
           <div class="container-fluid">
             <div class="row">
-              <div class="col-xs-9 offset-xs-1">
+              <div class="col-9 mt-3">
                 <paper-card class="w-100">
                   <div class="card-content vertical layout">
                     <span>[[localize('for_recommend_a_user')]]</span>
                     <b>https://quiet-chamber-staging.herokuapp.com/recw/[[user.id]]</b>
                   </div>
-                  <div class="card-actions"><paper-button raised class="primary" on-click="copyRecLink">Copiar</paper-button>
+                  <div class="card-actions vertical"><paper-button class="primary self-end" on-click="copyRecLink">Copiar</paper-button>
                    </div>
                 </paper-card>
               </div>
@@ -139,13 +139,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <template is="dom-repeat" items="[[user.recommended]]">
                 <div class="paper-card col-sm-3">
                   <paper-card >
-                    <div class="card-content">
-                      [[item.email]]
-                      [[item.firstName]] [[item.lastName]]
-                      [[item.contactInfo.telephones.0]]
-                    </div>
-                    <div class="card-actions">
-                      <paper-button raised class="primary"> Acciones</paper-button>
+                    <div class="card-content vertical">
+                      <span class="light">Nombre</span>
+                      <span>[[item.firstName]] [[item.lastName]]</span>
+                      <span class="light">Email</span>
+                      <span>[[item.email]]</span>
+                      <div hidden="[[item.contactInfo.telephones.0]]">
+                        <span class="light">Teléfono</span>
+                        <span>[[item.contactInfo.telephones.0]]</span>
+                      </div>
+
                     </div>
                   </paper-card>
                 </div>

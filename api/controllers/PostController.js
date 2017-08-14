@@ -57,22 +57,43 @@ module.exports = {
 	searchPosts : function(req,res,next){
 		var params = req.body;
 		var query = {};
-		const labels = params.labels;
-		const places = params.location;
-		if(labels&&labels.length>0){
-			query['$or']=[];
-			for(var label in labels){
-				query['$or'].push({'labels' : labels[label]});
-			}
-		}
-		if(places&&places.length>0){
-			query['$or']= query['$or'] || [];
-			for(var place in places){
-				query['$or'].push({'placesIds' : places[place]});
-			}
-		}
+    console.log(params);
+    if(params.hasOwnProperty('salary')&&params.salary>0){
+      query['details.salary']={'$gt':params.salary};
+    }
+    if(params.hasOwnProperty('time')){
+      query['details.time']={'$gt':params.time};
+    }
+    if(params.hasOwnProperty('returnPercentage')&&params.returnPercentage>0){
+      query['details.returnPercentage']={'$gt':params.returnPercentage};
+    }
+    if(params.hasOwnProperty('returnTime')&&params.returnTime>0){
+      query['details.returnTime']={'$gt':params.returnTime};;
+    }
+    if(params.hasOwnProperty('minInvestment')&&params.minInvestment>0){
+      query['details.minInvestment']={'$gt':params.minInvestment};;
+    }
+    if(params.hasOwnProperty('labels')&&params.labels.length>0){
+      query.labels={'$in':params.labels};
+    }
+    //this are not checked so heavily because are expected to come in every request
 		if(params.type)query['type'] = params.type;
-		Post.find(query).populate('business').exec(function(err,found){
+    if(params.place)query['placesIds'] = params.place;
+    console.log(query);
+    Post.native((err,collection)=>{
+      if(err)return next(err);
+      collection.find(query).toArray((err,docs)=>{
+        if(err)return next(err);
+        docs = docs.map((d)=>{
+          d.id=d._id;
+          return d;
+        });
+        return res.json(200,docs);
+      });
+    });
+	},
+	singlePost : function(req,res,next){
+		Post.findOne(req.body.id).populate('business').exec(function(err,found){
 			if(err)return next(err);
 			return res.json(200,found);
 		});

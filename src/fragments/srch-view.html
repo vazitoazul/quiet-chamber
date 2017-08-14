@@ -13,6 +13,7 @@
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-range-slider/paper-range-slider.html">
 <link rel="import" href="../elements/label-autocomplete.html">
 <link rel="import" href="../elements/login-button.html">
 <link rel="import" href="../elements/post-card.html">
@@ -67,11 +68,11 @@
        pattern="/srch/:type"
        data="{{routeData}}"
        tail="{{subroute}}"
-       query-params="[[query]]"
+       id="route"
        ></app-route>
      <app-drawer-layout force-narrow>
        <app-drawer align="left" id="drawer">
-         <div class="p-2">
+         <div class="p-2 vertical">
            <h5>Filtros</h5>
            <label-autocomplete value="{{params.labels}}"></label-autocomplete>
            <iron-pages selected="[[params.type]]" attr-for-selected="name">
@@ -96,13 +97,14 @@
                </paper-input>
                <div class="ligth">Tiempo para recuperar la inversión</div>
                <paper-range-slider pin single-slider slider-width="300px" value-max="{{params.returnTime}}" max="100" min="1"></paper-range-slider>
-               <span>[[post.details.returnTime]] Mes(es)</span>
+               <span>[[params.returnTime]] Mes(es)</span>
              </section>
              <section name="d">
 
              </section>
            </iron-pages>
-           <paper-button raised class="accent" on-tap="search">Buscar</paper-button>
+           <br>
+           <paper-button raised class="accent self-center" on-tap="search">Buscar</paper-button>
          </div>
        </app-drawer>
        <app-header-layout>
@@ -181,17 +183,18 @@
    <script>
     Polymer({
       is: 'srch-view',
-
       behaviors : [
         Polymer.AppLocalizeBehavior,
         GlobalStoreBehavior,
         SearchActionsBehavior
       ],
-
       properties:{
         query : {
           type: Object,
           statePath : 'search.query'
+        },
+        urlQuery : {
+          type:Object
         },
         params:{
           type: Object,
@@ -243,16 +246,36 @@
           type : Array,
           statePath : 'search.lastResult'
         },
-        firstLoad : {
-          type : Object,
-          statePath : 'search.firstLoad'
+        queryLoaded : {
+          type : Boolean
         }
       },
-
       observers : [
         '_routeObserver(routeData.path)',
-        '_paramsChanged(params.*)'
+        '_paramsChanged(params.*)',
+        '_updateUrl(query)'
       ],
+      attached:function(){
+        if(this.$.route.queryParams!==undefined){
+          var freshParams=Object.assign({},this.params,this.$.route.queryParams);
+          //make sure labels is an array
+          if(typeof freshParams.labels!='object'){
+            //labels can also be an empty string when parsed from the url so we also check for that
+            if(freshParams.labels){
+              freshParams.labels=[freshParams.labels];
+            }else{
+              freshParams.labels=[];
+            }
+          }
+          this.set('params',freshParams);
+          this.queryLoaded=true;
+        }
+      },
+      _updateUrl:function(query){
+        if(this.queryLoaded){
+          this.$.route.queryParams=query;
+        }
+      },
       _routeObserver : function(route){
         if(route==='/srch'){
           return this.page='start';
@@ -268,6 +291,19 @@
       },
       _paramsChanged:function(params){
         this.dispatch('updateQuery',params.base);
+        if(params.path==='params.type'){
+          switch (params.value) {
+            case 'j':
+              this.set('routeData.type','jobs');
+              break;
+            case 'i':
+              this.set('routeData.type','investments');
+              break;
+            case 'd':
+              this.set('routeData.type','donations');
+              break;
+          }
+        }
       },
       search:function(){
         if(this.$.drawer.opened){
@@ -293,9 +329,24 @@
           if(!city.geometry){
             showMessage('No hemos encontrado ese lugar');
           }else{
-            this.set('params.place',city.id);
+            this.set('params.place',city.place_id);
           }
         });
+        if(this.params.place){
+          var geocoder = new google.maps.Geocoder;
+          geocoder.geocode({'placeId': this.params.place},(results, status)=>{
+            if (status === 'OK') {
+              if (results[0]) {
+                this.$.placeInput.value=results[0].formatted_address;
+                this.dispatch('searchPosts');
+              } else {
+                showMessage('Vuelve a seleccionar un lugar');
+              }
+            } else {
+              showMessage('Vuelve a seleccionar un lugar');
+            }
+          });
+        }
       }
     })
    </script>

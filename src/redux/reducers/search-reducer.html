@@ -19,6 +19,9 @@
         var newQuery = Object.assign({},state.query,action.query);
         return Object.assign({},state,{query:newQuery});
         break;
+      case 'SET_SELECTED_POST':
+        return Object.assign({},state,{selectedPost:action.post});
+        break;
       default :
       return state;
     }
