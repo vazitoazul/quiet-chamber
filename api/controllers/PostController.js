@@ -57,7 +57,6 @@ module.exports = {
 	searchPosts : function(req,res,next){
 		var params = req.body;
 		var query = {};
-    console.log(params);
     if(params.hasOwnProperty('salary')&&params.salary>0){
       query['details.salary']={'$gt':params.salary};
     }
@@ -79,7 +78,6 @@ module.exports = {
     //this are not checked so heavily because are expected to come in every request
 		if(params.type)query['type'] = params.type;
     if(params.place)query['placesIds'] = params.place;
-    console.log(query);
     Post.native((err,collection)=>{
       if(err)return next(err);
       collection.find(query).toArray((err,docs)=>{
