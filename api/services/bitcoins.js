@@ -4,7 +4,8 @@ var config = {
   pass:crypto.createHash('md5').update(sails.config.keys.bitcoin.pass).digest("hex"),
   name:sails.config.keys.bitcoin.name,
   secret:sails.config.keys.bitcoin.secret
-}
+};
+var appUrl = sails.config.keys.appUrl;
 function checkRate(callback){
   rp({
     method:'GET',
@@ -34,8 +35,8 @@ module.exports = {
         "order_id" : paymentId,
         "description": "Pago por subscripción a Dinabun",
         "options" : {
-          "notificationURL": "http://a0d756fe.ngrok.io/paylistener",
-          "redirectURL": "http://a0d756fe.ngrok.io/pas",
+          "notificationURL": appUrl+"/paylistener",
+          "redirectURL": appUrl+"/pas",
           "payerName": user.firstName + user.lastName,
           "payerEmail": user.email
         }

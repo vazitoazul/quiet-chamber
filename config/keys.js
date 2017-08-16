@@ -4,6 +4,7 @@ module.exports.keys={
   bitcoin:{
     name:process.env.BIT_NAME,
     pass:process.env.BIT_PASS,
-    secret:process.env.BIT_SECRET  
-  }
+    secret:process.env.BIT_SECRET
+  },
+  appUrl:process.env.APP_URL
 };
