@@ -163,7 +163,8 @@
               return {
                 labels : [],
                 telephones : [],
-                posts : []
+                posts : [],
+                placesIds:[]
               }
             }
 	        },
@@ -262,6 +263,12 @@
           editing : {
             type : Boolean,
             value : false
+          },
+          placesIds:{
+            type: Object,
+            value: function(){
+              return [];
+            }
           }
 		},
     ready : function(){
@@ -296,6 +303,7 @@
           if (status != google.maps.places.PlacesServiceStatus.OK) {
               return;
           }
+
           if(self.placesIds.indexOf(predictions[0].place_id)===-1){
             self.push('business.placesIds',predictions[0].place_id);
           }
