@@ -1,14 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
-<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
-<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
-<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
-<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
-<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
@@ -24,9 +16,39 @@
       :host {
         display: block;
       }
-      app-header-layout{
+      @media (min-width: 768px) {
+        div.main{
+          background-size: contain !important;
+        }
+      }
+      @media (max-width: 768px) {
+        div.main{
+          padding-top: 70px;
+        }
+        div.line {
+          position: absolute;
+          width: 100%;
+        }
+        div.line div{
+          margin-top: -10px;
+          margin-bottom: 150px;
+          width: 100%;
+        }
+        div.line div:last-child{
+          display: none;
+        }
+        div.values div:last-child{
+          display: none;
+        }
+        div.mission{
+          text-align: left !important;
+        }
+      }
+      div.main{
         background-image: url('/images/homepage/3.jpg');
         background-size: cover;
+        background-repeat: no-repeat;
+        margin-top: -70px;
       }
       .first{
         height: 70vh;
@@ -38,22 +60,6 @@
       .third{
         background-color: rgb(250,250,250);
         color:var(--primary-text-color);
-      }
-      app-header {
-        background-color: transparent;
-        --app-header-background-rear-layer: {
-          /* The header is blue when condensed */
-          background-color: var(--dark-primary-color);
-        };
-      }
-      paper-tab[link] a {
-       @apply(--layout-horizontal);
-       @apply(--layout-center-center);
-       color: var(--light-primary-text-color);
-       text-decoration: none;
-      }
-      paper-tabs{
-        min-width:450px;
       }
       div.member{
         height: 300px;
@@ -90,15 +96,21 @@
       }
       div.mission{
         text-align: right;
+        background-color: #fff;
       }
       div.vision{
         text-align: left;
+        background-color: #fff;
+
       }
       div.mission-counter{
-        background-image: url('//dummyimage.com/960x555/cccccc/949494.jpg');
+        background-image: url('/images/abt/1.jpg');
+        background-size: cover;
       }
       div.vision-counter{
-        background-image: url('//dummyimage.com/960x555/cccccc/949494.jpg');
+        background-image: url('/images/abt/2.jpg');
+        background-size: cover;
+
       }
       div.contact-top{
         background-color: var(--accent-color);
@@ -114,191 +126,97 @@
         background-color: #FFFFFF;
       }
     </style>
-    <app-header-layout fullbleed>
-      <app-header fixed reveals effects="fade-background">
-        <app-toolbar>
-            <iron-image height="50" width="80" src="/images/logo.png" preload sizing="cover"></iron-image>
-            <div main-title><span class="text-display-2">Dinabun</span></div>
-            <paper-tabs selected="[[route]]" attr-for-selected="route" align-bottom >
-              <paper-tab link route="main">
-                <a href="/main">Inicio</a>
-              </paper-tab>
-              <paper-tab link route="sytm">
-                <a href="/sytm">Cómo funciona</a>
-              </paper-tab>
-              <paper-tab link route="opo">
-                <a href="/opo">Oportunidades</a>
-              </paper-tab>
-              <paper-tab link route="abt">
-                <a href="/abt">Sobre Nosotros</a>
-              </paper-tab>
-            </paper-tabs>
-            <a href="/lgin"><paper-button raised class="accent"><h6>Ingresar</h6></paper-button></a>
-        </app-toolbar>
-      </app-header>
-      <div>
-        <section class="first">
-          <div class="container-fluid h-100">
-            <div class="row h-100">
-              <div class="col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 vertical center">
-                <h3 class="text-center"> <strong>¿Quienes somos?</strong></h3>
-                <span class="text-center">Somos un pequeño grupo con el objetivo de mejorar la calidad de vida de las personas.</span>
-              </div>
+    <div class="main">
+      <section class="first">
+        <div class="container-fluid h-100">
+          <div class="row h-100">
+            <div class="col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 vertical center">
+              <h3 class="text-center"> <strong>¿Quienes somos?</strong></h3>
+              <span class="text-center">Somos un pequeño grupo con el objetivo de mejorar la calidad de vida de las personas.</span>
             </div>
           </div>
-        </section>
-        <section class="second">
-          <div class="container h-100 text-center">
-            <div class="row">
-              <div class="col-12 vertical center flex mt-3">
-                <h4>Este es nuestro equipo</h4>
-                <span class="light">Nuestro personal trabaja día y noche para asegurar que la plataforma funcione en excelentes condiciones. </span>
-                <br>
-                <br>
-              </div>
-            </div>
-            <div class="row horizontal center">
-              <div class="member col-12 col-sm-2 col-md-4 vertical center">
-                <iron-image src="https://scontent.fuio4-1.fna.fbcdn.net/v/t1.0-9/318224_10200759683937310_384025799_n.jpg?oh=8c08906c3dd6eefa0276afc642903621&oe=5967DAE8" preload sizing="cover"></iron-image>
-                <br>
-                <h5 class="text-accent">Juan Rosero</h5>
-                <strong>Programador</strong>
-                <span>Joven filantrópico. Músico de Ukelele y ciclista de sange y nación. También sabe cocinar.</span>
-              </div>
-              <div class="member col-12 col-sm-2 col-md-4 vertical center">
-                <iron-image src="https://scontent.fuio4-1.fna.fbcdn.net/v/t1.0-9/318224_10200759683937310_384025799_n.jpg?oh=8c08906c3dd6eefa0276afc642903621&oe=5967DAE8" preload sizing="cover"></iron-image>
-                <br>
-                <h5 class="text-accent">Juan Rosero</h5>
-                <strong>Programador</strong>
-                <span>Joven filantrópico. Músico de Ukelele y ciclista de sange y nación. También sabe cocinar.</span>
-              </div>
-              <div class="member col-12 col-sm-2 col-md-4 vertical center">
-                <iron-image src="https://scontent.fuio4-1.fna.fbcdn.net/v/t1.0-9/318224_10200759683937310_384025799_n.jpg?oh=8c08906c3dd6eefa0276afc642903621&oe=5967DAE8" preload sizing="cover"></iron-image>
-                <br>
-                <h5 class="text-accent">Juan Rosero</h5>
-                <strong>Programador</strong>
-                <span>Joven filantrópico. Músico de Ukelele y ciclista de sange y nación. También sabe cocinar.</span>
-              </div>
-              <div class="member col-12 col-sm-2 col-md-4 vertical center">
-                <iron-image src="https://scontent.fuio4-1.fna.fbcdn.net/v/t1.0-9/318224_10200759683937310_384025799_n.jpg?oh=8c08906c3dd6eefa0276afc642903621&oe=5967DAE8" preload sizing="cover"></iron-image>
-                <br>
-                <h5 class="text-accent">Juan Rosero</h5>
-                <strong>Programador</strong>
-                <span>Joven filantrópico. Músico de Ukelele y ciclista de sange y nación. También sabe cocinar.</span>
-              </div>
-              <div class="member col-12 col-sm-2 col-md-4 vertical center">
-                <iron-image src="https://scontent.fuio4-1.fna.fbcdn.net/v/t1.0-9/318224_10200759683937310_384025799_n.jpg?oh=8c08906c3dd6eefa0276afc642903621&oe=5967DAE8" preload sizing="cover"></iron-image>
-                <br>
-                <h5 class="text-accent">Juan Rosero</h5>
-                <strong>Programador</strong>
-                <span>Joven filantrópico. Músico de Ukelele y ciclista de sange y nación. También sabe cocinar.</span>
-              </div>
+        </div>
+      </section>
+      <section class="third">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12 vertical center flex mt-3">
+              <h4>Nuestros valores</h4>
+              <span class="light">Nuestro personal trabaja día y noche para asegurar que la plataforma funcione en excelentes condiciones. </span>
+              <br>
+              <br>
             </div>
           </div>
-        </section>
-        <section class="third">
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-12 vertical center flex mt-3">
-                <h4>Nuestros valores</h4>
-                <span class="light">Nuestro personal trabaja día y noche para asegurar que la plataforma funcione en excelentes condiciones. </span>
-                <br>
-                <br>
-              </div>
+          <div class="row line">
+            <div class="col-12 col-md-3 horizontal center">
+              <paper-fab icon="lightbulb-outline"></paper-fab>
             </div>
-            <div class="row line">
-              <div class="col-12 col-sm-3 col-md-3 horizontal center">
-                <paper-fab icon="lightbulb-outline"></paper-fab>
-              </div>
-              <div class="col-12 col-sm-3 col-md-3 horizontal center">
-                <paper-fab icon="help-outline"></paper-fab>
-              </div>
-              <div class="col-12 col-sm-3 col-md-3 horizontal center">
-                <paper-fab icon="help-outline"></paper-fab>
-              </div>
-              <div class="col-12 col-sm-3 col-md-3 horizontal center">
-              </div>
+            <div class="col-12 col-md-3 horizontal center">
+              <paper-fab icon="hourglass-full"></paper-fab>
             </div>
-            <div class="row values">
-              <div class="col-12 col-sm-3 col-md-3 vertical center">
-                <strong>Valor 1</strong>
-                <span class="s-text text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris urna purus, tristique in risus eu, posuere lobortis enim. In convallis tincidunt ipsum.</span>
-              </div>
-              <div class="col-12 col-sm-3 col-md-3 vertical center">
-                <strong>Valor 2</strong>
-                <span class="s-text text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris urna purus, tristique in risus eu, posuere lobortis enim. In convallis tincidunt ipsum.</span>
-              </div>
-              <div class="col-12 col-sm-3 col-md-3 vertical center">
-                <strong>Valor 3</strong>
-                <span class="s-text text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris urna purus, tristique in risus eu, posuere lobortis enim. In convallis tincidunt ipsum.</span>
-              </div>
-              <div class="col-12 col-sm-3 col-md-3 horizontal center">
-              </div>
+            <div class="col-12 col-md-3 horizontal center">
+              <paper-fab icon="loyalty"></paper-fab>
+            </div>
+            <div class="col-12 col-md-3 horizontal center"></div>
+          </div>
+          <div class="row values">
+            <div class="col-12 col-md-3 vertical center">
+              <strong>Creatividad</strong>
+              <span class="s-text text-center">Siempre vamos a encontrar la manera de solucionar los problemas que se nos presenten.</span>
+            </div>
+            <div class="col-12 col-md-3 vertical center">
+              <strong>Constancia</strong>
+              <span class="s-text text-center">Estamos decididos a alcanzar nuestras metas y vamos a sudar la camiseta hasta conseguirlos.</span>
+            </div>
+            <div class="col-12 col-md-3 vertical center">
+              <strong>Responsabilidad Social</strong>
+              <span class="s-text text-center">Estamos comprometidos con nuestra comunidad. Queremos crear un modelo de negocio rentable que al mismo tiempo beneficie a nuestra comunidad.</span>
+            </div>
+            <div class="col-12 col-md-3 horizontal center">
             </div>
           </div>
-        </section>
-        <section>
-          <div class="container">
-            <div class="row pb-3">
-                <div class="mission col-xs-0 col-sm-0 col-md-6 vertical center">
-                  <h5 class="w-100">Nuestra Misión</h5>
-                  <span class="s-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris urna purus, tristique in risus eu, posuere lobortis enim. In convallis tincidunt ipsum. Donec convallis quam congue quam suscipit vulputate. Sed eget sodales purus, ac rutrum massa. Integer id posuere ipsum, id pretium arcu. </span>
-                </div>
-                <div class="mission-counter col-xs-0 col-sm-0 col-md-6 ">
+        </div>
+      </section>
+      <section style="background-color:#fff;">
+        <div class="container" >
+          <div class="row pb-3">
+              <div class="mission col-xs-0 col-sm-0 col-md-6 vertical center">
+                <h5 class="w-100">Nuestra Misión</h5>
+                <span class="s-text">Crear y mantener una plataforma de negocios con monedas virtuales que les permita a las personas que ingresan conseguir los medios para invertir y los lugares donde invertir. Conseguir ser la primera plataforma Ecuatoriana en tener éxito en este campo.</span>
+              </div>
+              <div class="mission-counter col-xs-0 col-sm-0 col-md-6 ">
 
-                </div>
-                <div class="vision-counter col-xs-0 col-sm-0 col-md-6 ">
-
-                </div>
-                <div class="vision col-xs-0 col-sm-0 col-md-6 vertical center">
-                  <h5 class="w-100">Nuestra Visión</h5>
-                  <span class="s-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris urna purus, tristique in risus eu, posuere lobortis enim. In convallis tincidunt ipsum. Donec convallis quam congue quam suscipit vulputate. Sed eget sodales purus, ac rutrum massa. Integer id posuere ipsum, id pretium arcu. </span>
-                </div>
-            </div>
-          </div>
-        </section>
-        <section class="contact pb-3">
-          <div class="container">
-            <div class="row horizontal center">
-              <h3 class="s-text">¿Quieres saber más sobre nosotros?</h3>
-            </div>
-            <div class="row horizontal center">
-              <div class="col-12 col-sm-8 col-md-6">
-                <paper-card class="w-100">
-                  <div class="card-content contact-top">
-                    <h5><strong>Contáctanos</strong></h5>
-                  </div>
-                  <div class="card-content vertical">
-                    <div class="horizontal">
-                      <paper-input class="flex pr-2" label="Nombre"></paper-input>
-                      <paper-input class="flex " label="Correo"></paper-input>
-                    </div>
-                    <paper-textarea label="Mensaje" rows="3"></paper-textarea>
-                  </div>
-                  <div class="card-actions horizontal">
-                    <div class="flex"></div>
-                    <paper-button raised class="accent">Enviar</paper-button>
-                  </div>
-                </paper-card>
               </div>
+              <div class="vision-counter col-xs-0 col-sm-0 col-md-6 ">
+
+              </div>
+              <div class="vision col-xs-0 col-sm-0 col-md-6 vertical center">
+                <h5 class="w-100">Nuestra Visión</h5>
+                <span class="s-text">Ser una empresa que emprende constantemente aprovechando las oportunidades que las tecnologías actuales proporcionan. Ser la empresa lider en compromiso social, demostrando que al mismo tiempo que se puede crear una empresa estable se puede ayudar a nuestra comunidad a salir adelante y emprender.</span>
+              </div>
+          </div>
+        </div>
+      </section>
+      <section class="contact pb-3">
+        <div class="container">
+          <div class="row horizontal center">
+            <h4 class="s-text text-center">¿Quieres saber más sobre nosotros?</h4>
+          </div>
+          <div class="row">
+            <div class="col-12 vertical center">
+              <a href="mailto:info@dinabun.com">
+                <paper-button raised class="accent">Escríbenos</paper-button>
+              </a>
             </div>
           </div>
-        </section>
-        <section>
-          <div class="container-fluid">
-              <page-footer></page-footer>
-          </div>
-        </section>
-      </div>
-    </app-header-layout>
+        </div>
+      </section>
+    </div>
   </template>
   <script>
     Polymer({
       is: 'abt-view',
       properties:{
-        route:{
-          type:String
-        }
       }
     });
   </script>

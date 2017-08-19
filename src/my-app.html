@@ -24,6 +24,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="fragments/main-view.html">
 <link rel="import" href="redux/global-store.html">
 <link rel="import" href="redux/actions/auth-actions.html">
 <link rel="import" href="my-icons.html">
@@ -39,12 +40,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-pages
         selected="[[page]]"
         attr-for-selected="name"
-        fallback-selection="notfound"
+        fallback-selection="main"
         role="main">
       <main-view name="main" route="[[page]]"></main-view>
-      <sytm-view name="sytm" route="[[page]]" ></sytm-view>
-      <abt-view name="abt" route="[[page]]" ></abt-view>
-      <opo-view name="opo" route="[[page]]" ></opo-view>
       <acco-view name="acco" on-route-change="changeRoute"></acco-view>
       <notfound-view name="notfound"></notfound-view>
       <forbidden-view name="forbidden"></forbidden-view>
@@ -95,10 +93,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.page = page || 'main';
       },
       _pageChanged: function(page) {
-        if(page==='auth' || page === 'logout'){
-          window.location = this.route.path;
-          return;
-        }
         // Load page import on demand. Show 404 page if fails
         var resolvedPageUrl = this.resolveUrl('fragments/'+ page +'-view.html');
         this.importHref(resolvedPageUrl, null, this._showPage404, true);

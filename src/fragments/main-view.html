@@ -34,16 +34,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="main-view">
   <template>
     <style include="shared-styles">
-      app-header-layout{
+      @media screen and (min-width: 768px) {
+        div.main{
+          background-size: contain !important;
+
+        }
+        paper-icon-button[drawer-toggle]{
+          display: none;
+        }
+        .search-box {
+          max-width: 38rem;
+          width : 74%;
+          @apply(--layout-horizontal);
+        }
+      }
+      @media screen and (max-width: 768px) {
+        paper-tabs{
+          display: none;
+        }
+        div.main{
+          padding-top: 70px;
+        }
+        .search-box {
+          width : 90%;
+          @apply(--layout-vertical);
+        }
+      }
+      div.main{
         background-image: url('/images/homepage/1.jpg');
         background-size: cover;
+        background-repeat: no-repeat;
+        margin-top: -70px;
       }
       .first{
         height: 70vh;
         color: white;
       }
       .second{
-
         background-color: white;
       }
       div.feauture{
@@ -60,7 +87,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: white;
       }
       .last{
-        height: 70vh;
+        padding: 1rem;
         background-color: var(--default-primary-color);
         color: var(--light-primary-text-color);
       }
@@ -74,6 +101,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           /* The header is blue when condensed */
           background-color: var(--dark-primary-color);
         };
+      }
+      div.feauture {
+        height: 200px;
+        @apply(--layout-vertical);
+        @apply(--layout-start);
+        @apply(--layout-center-center);
       }
       div.feauture iron-icon{
         height: 50px;
@@ -92,177 +125,191 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       paper-tabs{
         min-width:450px;
       }
-      div.search-box {
-        background-color: rgba(255, 255, 255, 0.6);
-        width : 54%!important;
-        padding-bottom: 2rem;
-        padding-left: 2rem;
-        padding-right: 2rem;
-        min-width: 32rem !important;
-        color : white;
-      }
     </style>
     <app-location route="{{route}}"></app-location>
-    <app-header-layout fullbleed>
-      <app-header fixed reveals effects="fade-background">
-        <app-toolbar>
-            <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
-            <div main-title><span class="text-display-2">Dinabun</span></div>
-            <paper-tabs selected="[[route]]" attr-for-selected="route" align-bottom >
-              <paper-tab link route="main">
-                <a href="/main">Inicio</a>
-              </paper-tab>
-              <paper-tab link route="sytm">
-                <a href="/sytm">Cómo funciona</a>
-              </paper-tab>
-              <paper-tab link route="opo">
-                <a href="/opo">Oportunidades</a>
-              </paper-tab>
-              <paper-tab link route="abt">
-                <a href="/abt">Sobre Nosotros</a>
-              </paper-tab>
-            </paper-tabs>
-            <login-button></login-button>
-        </app-toolbar>
-      </app-header>
-      <div>
-        <section class="first">
-          <div class="container-fluid h-100">
-            <div class="row h-100">
-              <div class="col-xs-12 col-sm-6 vertical center">
-                <h3 class="text-center strong">Descubre un mundo de oportunidades</h3>
-                <h4 class="text-center">Encuentra los recursos para avanzar en tu entorno.</h4>
-                <div class="w-100 horizontal center">
-                  <a href="/rgst"><paper-button raised class="accent">Empezar</paper-button></a>
+    <app-drawer-layout responsive-width="768px" force-narrow>
+      <app-drawer class="vertical" id="drawer">
+        <paper-menu>
+          <a href="/"><paper-item>Inicio</paper-item></a>
+          <a href="/sytm"><paper-item>Cómo funciona</paper-item></a>
+          <a href="/opo"><paper-item>Oportunidades</paper-item></a>
+          <a href="/abt"><paper-item>Sobre Nosotros</paper-item></a>
+        </paper-menu>
+      </app-drawer>
+      <app-header-layout fullbleed>
+        <app-header fixed reveals effects="fade-background">
+          <app-toolbar>
+              <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+              <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
+              <div main-title><span class="text-display-2">Dinabun</span></div>
+              <paper-tabs selected="[[route]]" attr-for-selected="route" align-bottom>
+                <paper-tab link route="main">
+                  <a href="/">Inicio</a>
+                </paper-tab>
+                <paper-tab link route="sytm">
+                  <a href="/sytm">Cómo funciona</a>
+                </paper-tab>
+                <paper-tab link route="opo">
+                  <a href="/opo">Oportunidades</a>
+                </paper-tab>
+                <paper-tab link route="abt">
+                  <a href="/abt">Sobre Nosotros</a>
+                </paper-tab>
+              </paper-tabs>
+              <login-button></login-button>
+          </app-toolbar>
+        </app-header>
+        <iron-pages selected="[[route]]" attr-for-selected="route">
+          <section route="main">
+            <div class="main">
+              <section class="first">
+                <div class="container-fluid h-100">
+                  <div class="row h-100">
+                    <div class="col-xs-12 col-sm-6 vertical center">
+                      <h3 class="text-center strong">Descubre un mundo de oportunidades</h3>
+                      <h5 class="text-center thin">Regístrate ahora y accede a todos los beneficios que brinda nuestro portal.</h5>
+                      <div class="w-100 horizontal center">
+                        <a href="/rgst"><paper-button raised class="accent">Registrarme</paper-button></a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section class="second">
-          <div class="container h-100 text-center">
-            <div class="row">
-              <div class="col-xs-12 vertical center flex mt-3">
-                <h4>Mira lo que podemos hacer contigo</h4>
-                <span class="light">Con tu ayuda, podemos ayudarte a ti y a todas las personas a tu alrededor.</span>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-xs-12 col-sm-12 col-md-4 vertical center feauture">
-                <iron-icon icon="close"></iron-icon>
-                <br>
-                <span class="strong">Consigue empleo</span>
-                <span class="light">Busca enrtre cientos de oportunidades de empleo esperándote para que apliques.</span>
-              </div>
-              <div class="col-xs-12 col-sm-12 col-md-4 vertical center feauture">
-                <iron-icon icon="close"></iron-icon>
-                <br>
-                <span class="strong">Consigue empleo</span>
-                <span class="light">Busca enrtre cientos de oportunidades de empleo esperándote para que apliques.</span>
-              </div>
-              <div class="col-xs-12 col-sm-12 col-md-4 vertical center feauture">
-                <iron-icon icon="close"></iron-icon>
-                <br>
-                <span class="strong">Consigue empleo</span>
-                <span class="light">Busca enrtre cientos de oportunidades de empleo esperándote para que apliques.</span>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-xs-12 vertical center flex" >
-                <span class="light mt-3 ">Regístrate para empezar a recibir estos beneficios</span>
-                <a href="/rgst"><paper-button raised class="primary my-1">Registrarme</paper-button></a>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section class="third">
-          <google-maps-api version="3.exp" on-api-load="apiLoaded" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY"></google-maps-api>
-          <div class="container h-100">
-            <div class="row h-100">
-              <div class="col-12 col-md-8 push-md-2 col-lg-6 push-lg-3">
-                <h3 class="text-center">Busca para empezar a emprender</h3>
-                <span class="text-center">Encuentra una oportunidad de trabajo o una opción para invertir tu dinero. Crea conexiones, levántate con el éxito.</span>
-              </div>
-              <div class="col-12 vertical center">
-                <paper-material elevation="1" class="px-3 mt-3 horizontal">
-                  <paper-dropdown-menu label="Estás buscando...">
-                    <paper-listbox class="dropdown-content" selected="{{params.type}}"  attr-for-selected="value">
-                      <paper-item value="i">Inversiones</paper-item>
-                      <paper-item value="d">Donaciones</paper-item>
-                      <paper-item value="j">Trabajos</paper-item>
-                    </paper-listbox>
-                  </paper-dropdown-menu>
-                  <paper-input label="En...(lugar)" id="placeInput" class="mx-1"></paper-input>
-                  <paper-button raised class="accent self-center" on-tap="search">Buscar</paper-button>
-                </paper-material>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section class="forth">
-          <div class="container h-100">
-            <div class="row">
-              <div class="col-xs-12 vertical center flex py-2 ">
-                <h4>Conoce a nuestro equipo</h4>
-                <span class="light">Las personas que van a atender tus necesidades en este proceso</span>
-              </div>
-            </div>
-            <div class="row pb-3 center">
-              <div class="py-1 col-xs-12 col-sm-4 col-md-3 horizontal center">
-                <paper-card image="//dummyimage.com/360x557/cccccc/949494.jpg">
-                  <div class="card-content vertical center">
-                    <span class="strong">Nombre numero 1</span>
-                    <span class="light">Cargo del brow</span>
+              </section>
+              <section class="second">
+                <div class="container h-100 text-center">
+                  <div class="row">
+                    <div class="col-12 vertical center flex mt-3">
+                      <h4>Esto es lo que puedes conseguir de Dinabun</h4>
+                      <span class="light">Nuestros servicios te permiten conseguir capital y oportunidades para invertirlo.</span>
+                    </div>
                   </div>
-               </paper-card>
-              </div>
-              <div class="py-1 col-xs-12 col-sm-4 col-md-3 horizontal center">
-                <paper-card image="//dummyimage.com/360x557/cccccc/949494.jpg">
-                  <div class="card-content vertical center">
-                    <span class="strong">Nombre numero 1</span>
-                    <span class="light">Cargo del brow</span>
+                  <div class="row">
+                    <div class="mt-3 col-12 col-sm-12 col-md-4 vertical center feauture">
+                      <iron-icon icon="custom:share" class="text-accent"></iron-icon>
+                      <span class="strong mt-1">Crea tu red de recomendados</span>
+                      <span class="light">Nuestra plataforma provee un sistema de recomendos mediante suscripción. Consigue beneficios por las personas con membrecía debajo tuyo.</span>
+                    </div>
+                    <div class="mt-3 col-12 col-sm-12 col-md-4 vertical center feauture">
+                      <iron-icon icon="feedback" class="text-accent"></iron-icon>
+                      <span class="strong mt-1">Publica tus ideas</span>
+                      <span class="light">Tu cuenta también te da la capacidad de promocionar tu negocio y conseguir capital de otros miembros para hacer realidad tu emprendimiento.</span>
+                    </div>
+                    <div class="mt-3 col-12 col-sm-12 col-md-4 vertical center feauture">
+                      <iron-icon icon="card-travel" class="text-accent"></iron-icon>
+                      <span class="strong mt-1">Busca empleo</span>
+                      <span class="light">Nuestro sistema de búsqueda te permite encontrar trabajo además de  oportunidades de inversión.</span>
+                    </div>
                   </div>
-               </paper-card>
-              </div>
-              <div class="py-1 col-xs-12 col-sm-4 col-md-3 horizontal center">
-                <paper-card image="//dummyimage.com/360x557/cccccc/949494.jpg">
-                  <div class="card-content vertical center">
-                    <span class="strong">Nombre numero 1</span>
-                    <span class="light">Cargo del brow</span>
+                  <div class="row mb-3">
+                    <div class="col-12 vertical center flex" >
+                      <span class="light mt-3 ">Regístrate para empezar a recibir estos beneficios</span>
+                      <a href="/rgst"><paper-button raised class="primary my-1">Registrarme</paper-button></a>
+                    </div>
                   </div>
-               </paper-card>
-              </div>
+                </div>
+              </section>
+              <section class="third">
+                <google-maps-api version="3.exp" on-api-load="apiLoaded" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY"></google-maps-api>
+                <div class="container h-100">
+                  <div class="row h-100">
+                    <div class="col-12 col-md-8 push-md-2 col-lg-6 push-lg-3">
+                      <h3 class="text-center">Busca para empezar a emprender</h3>
+                      <span class="text-center">Encuentra una oportunidad de trabajo o una opción para invertir tu dinero. Crea conexiones, levántate con el éxito.</span>
+                    </div>
+                    <div class="col-12 vertical center">
+                      <paper-material elevation="1" class="px-3 mt-3 search-box">
+                        <paper-dropdown-menu label="Estás buscando...">
+                          <paper-listbox class="dropdown-content" selected="{{params.type}}"  attr-for-selected="value">
+                            <paper-item value="i">Inversiones</paper-item>
+                            <paper-item value="d">Donaciones</paper-item>
+                            <paper-item value="j">Trabajos</paper-item>
+                          </paper-listbox>
+                        </paper-dropdown-menu>
+                        <paper-input label="En...(lugar)" id="placeInput" class="mx-1 flex"></paper-input>
+                        <paper-button raised class="accent self-center" on-tap="search">Buscar</paper-button>
+                        <br>
+                      </paper-material>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <!-- <section class="forth">
+                <div class="container h-100">
+                  <div class="row">
+                    <div class="col-xs-12 vertical center flex py-2 ">
+                      <h4>Conoce a nuestro equipo</h4>
+                      <span class="light">Las personas que van a atender tus necesidades en este proceso</span>
+                    </div>
+                  </div>
+                  <div class="row pb-3 center">
+                    <div class="py-1 col-xs-12 col-sm-4 col-md-3 horizontal center">
+                      <paper-card image="//dummyimage.com/360x557/cccccc/949494.jpg">
+                        <div class="card-content vertical center">
+                          <span class="strong">Nombre numero 1</span>
+                          <span class="light">Cargo del brow</span>
+                        </div>
+                     </paper-card>
+                    </div>
+                    <div class="py-1 col-xs-12 col-sm-4 col-md-3 horizontal center">
+                      <paper-card image="//dummyimage.com/360x557/cccccc/949494.jpg">
+                        <div class="card-content vertical center">
+                          <span class="strong">Nombre numero 1</span>
+                          <span class="light">Cargo del brow</span>
+                        </div>
+                     </paper-card>
+                    </div>
+                    <div class="py-1 col-xs-12 col-sm-4 col-md-3 horizontal center">
+                      <paper-card image="//dummyimage.com/360x557/cccccc/949494.jpg">
+                        <div class="card-content vertical center">
+                          <span class="strong">Nombre numero 1</span>
+                          <span class="light">Cargo del brow</span>
+                        </div>
+                     </paper-card>
+                    </div>
+                  </div>
+                </div>
+              </section> -->
+              <section class="last">
+                <div class="container h-100 mt-2">
+                  <div class="row">
+                    <div class="col-12 horizontal center">
+                      <h4>Mira un video sobre nosotros</h4>
+                    </div>
+                    <div class="col-12 col-sm-8 offset-sm-2 col-md-8 offset-md-2">
+                      <paper-card class="h-100 w-100">
+                        <div class="card-content">
+                          <google-youtube
+                            video-id="d0wC-Sm280w"
+                            fluid
+                            rel="0"
+                            start="5">
+                          </google-youtube>
+                        </div>
+                      </paper-card>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-12">
+                      <br>
+                      <br>
+                    </div>
+                  </div>
+                </div>
+              </section>
             </div>
-          </div>
-        </section>
-        <section class="last">
-          <div class="container h-100 mt-2">
-            <div class="row vertical">
-              <div class="col-xs-12 horizontal center">
-                <h4>Mira un video sobre nosotros</h4>
-              </div>
-              <div class="col-xs-12 col-sm-8 offset-sm-2 col-md-8 offset-md-2 flex">
-                <paper-card class="h-100 w-100">
-                  <div class="card-content">
-                    <google-youtube
-                      video-id="d0wC-Sm280w"
-                      fluid
-                      rel="0"
-                      start="5">
-                    </google-youtube>
-                  </div>
-                </paper-card>
-              </div>
-            </div>
-          </div>
-        </section>
+          </section>
+          <abt-view route="abt"></abt-view>
+          <opo-view route="opo"></opo-view>
+          <sytm-view route="sytm"></sytm-view>
+        </iron-pages>
         <section>
           <div class="container-fluid">
               <page-footer></page-footer>
           </div>
         </section>
-      </div>
-    </app-header-layout>
+      </app-header-layout>
+    </app-drawer-layout>
+
     <paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
 
@@ -299,6 +346,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
       observers : [
         '_paramsChanged(params.*)',
+        '_routeChange(route)'
       ],
       attached : function() {
         this.loadResources( this.resolveUrl('../locales/main-view.json'));
@@ -318,6 +366,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.set('params.place',city.place_id);
           }
         });
+      },
+      _routeChange:function(route){
+
+        if(this.$.drawer.opened){
+          this.$.drawer.close();
+        }
       },
       _paramsChanged:function(params){
         this.dispatch('updateQuery',params.base);

@@ -1,14 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
-<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
-<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
-<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
-<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
-<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
@@ -23,12 +15,24 @@
       :host {
         display: block;
       }
-      app-header-layout{
+      @media (min-width: 768px) {
+        div.main{
+          background-size: contain;
+        }
+      }
+      @media (max-width: 768px) {
+        div.main{
+          padding-top: 70px;
+          background-size: 1200px;
+        }
+      }
+      div.main{
         background-image: url('/images/homepage/4.jpg');
-        background-size: cover;
+        background-repeat: no-repeat;
+        margin-top: -70px;
       }
       .first{
-        height: 70vh;
+        height: 50vh;
         color: var(--light-primary-text-color);
       }
       .second{
@@ -37,22 +41,6 @@
       .third{
         background-color: rgb(250,250,250);
         color:var(--primary-text-color);
-      }
-      app-header {
-        background-color: transparent;
-        --app-header-background-rear-layer: {
-          /* The header is blue when condensed */
-          background-color: var(--dark-primary-color);
-        };
-      }
-      paper-tab[link] a {
-       @apply(--layout-horizontal);
-       @apply(--layout-center-center);
-       color: var(--light-primary-text-color);
-       text-decoration: none;
-      }
-      paper-tabs{
-        min-width:450px;
       }
       div.type-1 paper-card{
         background-color: #283593;
@@ -69,174 +57,140 @@
       }
       .divider{
         background-color: var(--primary-background-color);
-        height: 15vh;
+        padding: 1rem;
       }
       .opo-1,.opo-2,.opo-3,.opo-4,.opo-1-count,.opo-2-count,.opo-3-count,.opo-4-count {
         height: 300px;
       }
       .opo-1-count{
-        background-image: url('//dummyimage.com/960x555/cccccc/949494.jpg');
+        background-image: url('/images/opo/1.jpg');
+        background-size: cover;
+        background-position: center;
       }
       .opo-2-count{
-        background-image: url('//dummyimage.com/960x555/cccccc/949494.jpg');
+        background-image: url('/images/opo/2.jpg');
+        background-size: cover;
+        background-position: center;
       }
       .opo-3-count{
-        background-image: url('//dummyimage.com/960x555/cccccc/949494.jpg');
-      }
-      .opo-4-count{
-        background-image: url('//dummyimage.com/960x555/cccccc/949494.jpg');
+        background-image: url('/images/opo/3.jpg');
+        background-size: cover;
+        background-position: center;
       }
     </style>
-    <app-header-layout fullbleed>
-      <app-header fixed reveals effects="fade-background">
-        <app-toolbar>
-            <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
-            <div main-title><span class="text-display-2">Dinabun</span></div>
-            <paper-tabs selected="[[route]]" attr-for-selected="route" align-bottom >
-              <paper-tab link route="main">
-                <a href="/main">Inicio</a>
-              </paper-tab>
-              <paper-tab link route="sytm">
-                <a href="/sytm">Cómo funciona</a>
-              </paper-tab>
-              <paper-tab link route="opo">
-                <a href="/opo">Oportunidades</a>
-              </paper-tab>
-              <paper-tab link route="abt">
-                <a href="/abt">Sobre Nosotros</a>
-              </paper-tab>
-            </paper-tabs>
-            <a href="/lgin"><paper-button raised class="accent"><h6>Ingresar</h6></paper-button></a>
-        </app-toolbar>
-      </app-header>
-      <div>
-        <section class="first">
-          <div class="container-fluid h-100">
-            <div class="row h-100">
-              <div class="col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 vertical center">
-                <h3 class="text-center"><strong>Toma el siguiente paso</strong></h3>
-                <span class="text-center">Encuentra oportunidades de todo tipo dentro de nuestro portal.</span>
-              </div>
+    <div class="main">
+      <section class="first">
+        <div class="container-fluid h-100">
+          <div class="row h-100">
+            <div class="col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 vertical center">
+              <h3 class="text-center"><strong>Toma el siguiente paso</strong></h3>
+              <span class="text-center">Encuentra oportunidades de todo tipo dentro de nuestro portal.</span>
             </div>
           </div>
-        </section>
-        <section class="second pb-5">
-          <div class="container-fluid h-100 text-center">
-            <div class="row">
-              <div class="col-12 vertical centert">
-                <h4><strong>Empieza a emprender</strong></h4>
-                <span class="s-text">Nuestro portal te permite ponerte en contacto con las personas que necesitas para dar el siguiente paso.</span>
-              </div>
-            </div>
-            <div class="row horizontal center">
-              <div class="col-12 col-sm-4 type-1">
-                <paper-card class="my-3 vertical" elevation="4">
-                  <div class="card-content flex">
-                    <h5>¿Buscas personas?</h5>
-                    <span class="s-text">
-                      Publica oportunidades de trabajo o de inversión desde tu cuenta.
-                    </span>
-                  </div>
-                  <div class="card-actions horizontal">
-                    <div class="flex"></div>
-                    <a href="/acco"><paper-button raised class="primary">Publicar Oportunidades</paper-button></a>
-                  </div>
-                </paper-card>
-              </div>
-              <div class="col-12 col-sm-4 type-2">
-                <paper-card class="my-3 vertical" elevation="4">
-                  <div class="card-content flex">
-                    <h5>¿Buscas oportunidades?</h5>
-                    <span class="s-text">
-                      Utiliza nuestra herramienta para encontrar trabajos o oportunidades de inversión.
-                    </span>
-                  </div>
-                  <div class="card-actions horizontal">
-                    <div class="flex"></div>
-                    <a href="/acco"><paper-button raised class="accent">Buscar Oportunidades</paper-button></a>
-                  </div>
-                </paper-card>
-              </div>
+        </div>
+      </section>
+      <section class="second pb-5">
+        <div class="container-fluid h-100 text-center">
+          <div class="row">
+            <div class="col-12 vertical centert">
+              <h4><strong>Empieza a emprender</strong></h4>
+              <span class="s-text">Nuestro portal te permite ponerte en contacto con las personas que necesitas para dar el siguiente paso.</span>
             </div>
           </div>
-        </section>
-        <section>
-          <div class="container-fluid divider">
-            <div class="row h-100 center">
-              <div class="col-10 offset-1 col-md-4 offset-md-2 vertical text-left">
-                <h5><strong>¿Aún no tienes una cuenta?</strong></h5>
-                <span class="s-text">Regístrate en nuestro portal y aprovecha sus beneficios. Es grátis!</span>
-              </div>
-              <div class="col-10 offset-1 col-md-4 offset-md-0 horizontal center">
-                <a href="/rgst" target="_blank">
-                  <paper-button raised class="accent">Registrarme</paper-button>
-                 </a>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section class="third">
-          <div class="container">
-            <div class="row">
-              <div class="col-10 offset-1 vertical text-center pb-4">
-                <h4>Mira lo que puedes encontrar en nuestro portal</h4>
-                <h5 class="s-text">Con nuestro sistema puedes publicar y encontrar los siguientes tipos de oportunidades.</h5>
-              </div>
-            </div>
-            <div class="row pb-3">
-                <div class="col-xs-0 col-sm-0 col-md-6 vertical center text-right opo-1">
-                  <h5 class="w-100">Trabajos</h5>
+          <div class="row horizontal center">
+            <div class="col-12 col-sm-4 type-1">
+              <paper-card class="my-3 vertical" elevation="4">
+                <div class="card-content flex">
+                  <h5>¿Quieres promocionarte?</h5>
                   <span class="s-text">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin accumsan bibendum porttitor. Vestibulum non ligula egestas, faucibus eros nec, rutrum magna. In scelerisque auctor magna, a semper est aliquam at. Mauris porttitor sapien eget leo scelerisque eleifend. Vivamus ut consequat urna. Nullam rhoncus varius pulvinar. Praesent vel nisi et est mattis consectetur.
+                    Publica anuncios sobre oportunidades de trabajo o de inversión desde tu cuenta.
                   </span>
                 </div>
-                <div class="col-xs-0 col-sm-0 col-md-6 opo-1-count">
-
+                <div class="card-actions horizontal">
+                  <div class="flex"></div>
+                  <a href="/acco"><paper-button raised class="primary">Publicar un Anuncio</paper-button></a>
                 </div>
-                <div class="col-xs-0 col-sm-0 col-md-6 opo-2-count">
-
-                </div>
-                <div class="col-xs-0 col-sm-0 col-md-6 vertical center text-left opo-2">
-                  <h5 class="w-100">Franquicias</h5>
+              </paper-card>
+            </div>
+            <div class="col-12 col-sm-4 type-2">
+              <paper-card class="my-3 vertical" elevation="4">
+                <div class="card-content flex">
+                  <h5>¿Buscas oportunidades?</h5>
                   <span class="s-text">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin accumsan bibendum porttitor. Vestibulum non ligula egestas, faucibus eros nec, rutrum magna. In scelerisque auctor magna, a semper est aliquam at. Mauris porttitor sapien eget leo scelerisque eleifend. Vivamus ut consequat urna. Nullam rhoncus varius pulvinar. Praesent vel nisi et est mattis consectetur.
+                    Utiliza nuestra herramienta para encontrar trabajos o oportunidades de inversión.
                   </span>
                 </div>
-                <div class="col-xs-0 col-sm-0 col-md-6 vertical center text-right opo-3">
-                  <h5 class="w-100">Inversiones</h5>
-                  <span class="s-text">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin accumsan bibendum porttitor. Vestibulum non ligula egestas, faucibus eros nec, rutrum magna. In scelerisque auctor magna, a semper est aliquam at. Mauris porttitor sapien eget leo scelerisque eleifend. Vivamus ut consequat urna. Nullam rhoncus varius pulvinar. Praesent vel nisi et est mattis consectetur.
-                  </span>
+                <div class="card-actions horizontal">
+                  <div class="flex"></div>
+                  <a href="/srch"><paper-button raised class="accent">Buscar Oportunidades</paper-button></a>
                 </div>
-                <div class="col-xs-0 col-sm-0 col-md-6 opo-3-count">
-
-                </div>
-                <div class="col-xs-0 col-sm-0 col-md-6 opo-4-count">
-
-                </div>
-                <div class="col-xs-0 col-sm-0 col-md-6 vertical center text-left opo-4">
-                  <h5 class="w-100">Start-ups</h5>
-                  <span class="s-text">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin accumsan bibendum porttitor. Vestibulum non ligula egestas, faucibus eros nec, rutrum magna. In scelerisque auctor magna, a semper est aliquam at. Mauris porttitor sapien eget leo scelerisque eleifend. Vivamus ut consequat urna. Nullam rhoncus varius pulvinar. Praesent vel nisi et est mattis consectetur.
-                  </span>
-                </div>
+              </paper-card>
             </div>
           </div>
-        </section>
-        <section>
+        </div>
+      </section>
+      <section>
+        <div class="container-fluid divider">
+          <div class="row h-100 center">
+            <div class="col-10 offset-1 col-md-4 offset-md-2 vertical text-left">
+              <h5><strong>¿Aún no tienes una cuenta?</strong></h5>
+              <span class="s-text">Regístrate en nuestro portal y aprovecha sus beneficios. Es grátis!</span>
+            </div>
+            <div class="col-10 offset-1 col-md-4 offset-md-0 horizontal center">
+              <a href="/rgst" target="_blank">
+                <paper-button raised class="accent">Registrarme</paper-button>
+               </a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="third">
+        <div class="container">
+          <div class="row">
+            <div class="col-10 offset-1 vertical text-center pb-4">
+              <h4>Mira lo que puedes encontrar en nuestro portal</h4>
+              <h5 class="s-text">Con nuestro sistema puedes publicar y encontrar los siguientes tipos de oportunidades.</h5>
+            </div>
+          </div>
+          <div class="row pb-3">
+              <div class="col-xs-0 col-sm-0 col-md-6 vertical center text-right opo-1">
+                <h5 class="w-100">Trabajos</h5>
+                <span class="s-text">
+                  Encuentra trabajos en cualquier parte del país. Las descripciones de los mismos son rápidas y están pensadas para que busques entre la mayor cantidad de oportunidades posibles.
+                </span>
+              </div>
+              <div class="col-xs-0 col-sm-0 col-md-6 opo-1-count">
 
-        </section>
-        <section class="contact pb-3">
-          <div class="container">
+              </div>
+              <div class="col-xs-0 col-sm-0 col-md-6 opo-2-count">
+
+              </div>
+              <div class="col-xs-0 col-sm-0 col-md-6 vertical center text-left opo-2">
+                <h5 class="w-100">Inversiones</h5>
+                <span class="s-text">
+                  Las inversiones son propuestas por parte de un negocio para algún proyecto en particular. Las personas que estén interesadas en esta propuesta pueden contactarse con el anunciante para invertir en el proyecto y obtener un beneficio por su inversión.
+                </span>
+              </div>
+              <div class="col-xs-0 col-sm-0 col-md-6 vertical center text-right opo-3">
+                <h5 class="w-100">Donaciones</h5>
+                <span class="s-text">
+                  Organizaciones sin fines de lucro pueden también publicar sus causas en nuestra página. Las personas interesadas en donar pueden también contactarse con ellas para ayudar.
+                </span>
+              </div>
+              <div class="col-xs-0 col-sm-0 col-md-6 opo-3-count">
+
+              </div>
           </div>
-        </section>
-        <section>
-          <div class="container-fluid">
-              <page-footer></page-footer>
-          </div>
-        </section>
-      </div>
-    </app-header-layout>
+        </div>
+      </section>
+      <section>
+
+      </section>
+      <section class="contact pb-3">
+        <div class="container">
+        </div>
+      </section>
+    </div>
   </template>
   <script>
     Polymer({
