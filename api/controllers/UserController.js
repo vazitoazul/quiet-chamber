@@ -26,7 +26,12 @@ module.exports = {
 				user.recommended = found;
 				User.findOne({id : user.recommender}, (err,recommender) => {
 					if(err) return res.badRequest();
-					user.recommender = recommender;
+					user.recommender = {
+            firstName:recommender.firstName,
+            lastName:recommender.lastName,
+            email:recommender.email
+          };
+          console.log(user);
 					return res.json(user);
 				});
 			});

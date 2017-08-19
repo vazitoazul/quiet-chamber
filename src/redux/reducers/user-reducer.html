@@ -10,6 +10,7 @@ const userInfo = (state=userInfoInit,action)=>{
       if(info.subscribedUntil){
         info.subscribedUntil = (new Date(info.subscribedUntil)).getTime();
       }
+      console.log(info);
       return Object.assign({},state,info);
       break;
     case 'SET_USER_AUTO_SUB':

@@ -2,11 +2,6 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/app-layout/app-grid/app-grid-style.html">
-<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
-<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
-<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
-<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
-<link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
@@ -26,7 +21,7 @@
 
 
 <dom-module id="recw-view">
-  <style include="app-grid-style shared-styles">
+  <style include="shared-styles">
     div#recaptchaStaf{
       height: 100px;
     }
@@ -60,94 +55,96 @@
       pattern="/:page/:recommenderId"
       data="{{data}}"
       tail="{{tail}}"></app-route>
-    <app-drawer-layout>
-      <main-toolbar></main-toolbar>
-      <iron-pages selected="[[section]]" attr-for-selected="section">
-        <section class="col" section="noLogged" class="horizontal">
-          <div class="vertical center">
-            <h4>[[localize('welcome')]]</h4>
-            <paper-card class="capped">
-              <div class="card-content">
-                <h5>[[localize('you_are_here_because')]]</h5>
-                <div class="vertical">
-                  <span>[[localize('your_recommender_is')]]</span>
-                  <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b>
-                </div>
+    <app-toolbar>
+        <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
+        <div main-title><span class="text-display-2">Dinabun</span></div>
+        <login-button></login-button>
+    </app-toolbar>
+    <iron-pages selected="[[section]]" attr-for-selected="section">
+      <section class="col" section="noLogged" class="horizontal">
+        <div class="vertical center">
+          <h4>[[localize('welcome')]]</h4>
+          <paper-card class="capped">
+            <div class="card-content">
+              <h5>[[localize('you_are_here_because')]]</h5>
+              <div class="vertical">
+                <span>[[localize('your_recommender_is')]]</span>
+                <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b>
               </div>
-              <div class="card-actions">
-                <div class="vertical flex">
-                  <span>[[localize('if_you_have_an_acco')]]</span>
-                  <paper-button on-click="goLogin" class="primary">[[localize('log_in')]]</paper-button>
-                </div>
-              </div>
-              <div class="card-actions">
-                <div class="vertical flex">
-                  <span>[[localize('or_if_you_havent_registered')]]</span>
-                  <paper-button on-click="goRegister" class="primary">[[localize('register')]]</paper-button>
-                </div>
-              </div>
-            </paper-card>
-          </div>
-        </section>
-        <section class="col" section="malformed">
-          <div class="vertical center">
-            <div class="capped">
-              <h2>[[localize('something_is_wrong')]]</h2>
-              <h4>[[localize('the_url_is_wrong')]]</h4>
             </div>
-          </div>
-        </section>
-        <section class="col" section="changeRecommender">
-          <div class="vertical center">
-            <div class="capped">
-              <h5>[[localize('change_recommender','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
-              <paper-button class="secondary col-sm-3 offset-sm-4 change-rec" on-click="openDialog">[[localize('change')]]</paper-button>
-            </div>
-          </div>
-        </section>
-        <section class="col" section="setRecommender">
-          <div class="vertical center">
-            <h4>[[localize('youre_about_to_finish')]]</h4>
-            <paper-card>
-              <div class="card-content">
-                <span>[[localize('confirm_now_to_become')]]
-                  <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b>
-                </span>
+            <div class="card-actions">
+              <div class="vertical flex">
+                <span>[[localize('if_you_have_an_acco')]]</span>
+                <paper-button on-click="goLogin" class="primary">[[localize('log_in')]]</paper-button>
               </div>
-              <div class="card-actions vertical">
-                <paper-button class="primary self-end" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
+            </div>
+            <div class="card-actions">
+              <div class="vertical flex">
+                <span>[[localize('or_if_you_havent_registered')]]</span>
+                <paper-button on-click="goRegister" class="primary">[[localize('register')]]</paper-button>
               </div>
-            </paper-card>
-          </div>
-        </section>
-        <section class="col" section="sameRecommenderThanBefore">
-          <div class="vertical center">
-            <div class="capped">
-              <h4>[[localize('same_recommender_than_before','recommender',recommender.info.firstName)]]</h4>
             </div>
+          </paper-card>
+        </div>
+      </section>
+      <section class="col" section="malformed">
+        <div class="vertical center">
+          <div class="capped">
+            <h2>[[localize('something_is_wrong')]]</h2>
+            <h4>[[localize('the_url_is_wrong')]]</h4>
           </div>
-        </section>
-        <section class="col" section="recommendedFull">
-          <div class="vertical center">
-            <div class="capped">
-              <h4>[[localize('recommended_full','recommender',recommender.info.firstName)]]</h4>
+        </div>
+      </section>
+      <section class="col" section="changeRecommender">
+        <div class="vertical center">
+          <div class="capped">
+            <h5>[[localize('change_recommender','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
+            <paper-button class="secondary col-sm-3 offset-sm-4 change-rec" on-click="openDialog">[[localize('change')]]</paper-button>
+          </div>
+        </div>
+      </section>
+      <section class="col" section="setRecommender">
+        <div class="vertical center">
+          <h4>[[localize('youre_about_to_finish')]]</h4>
+          <paper-card>
+            <div class="card-content">
+              <span>[[localize('confirm_now_to_become')]]
+                <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b>
+              </span>
             </div>
+            <div class="card-actions vertical">
+              <paper-button class="primary self-end" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
+            </div>
+          </paper-card>
+        </div>
+      </section>
+      <section class="col" section="sameRecommenderThanBefore">
+        <div class="vertical center">
+          <div class="capped">
+            <h4>[[localize('same_recommender_than_before','recommender',recommender.info.firstName)]]</h4>
           </div>
-        </section>
-        <section class="col" section="success">
-          <div class="vertical center">
-            <h4>[[localize('all_set')]]</h4>
-            <span>[[localize('now_youre_one_of','recommender',recommender.info.firstName)]]</span>
-            <paper-button raised class="accent" on-click="goAccount">[[localize('go_to_my_account')]]</paper-button>
+        </div>
+      </section>
+      <section class="col" section="recommendedFull">
+        <div class="vertical center">
+          <div class="capped">
+            <h4>[[localize('recommended_full','recommender',recommender.info.firstName)]]</h4>
           </div>
-        </section>
-      </iron-pages>
-      <paper-toast duration="5000" id="toast"></paper-toast>
-      <paper-dialog class="row" id="dialog" with-backdrop>
-        <h5 class="col-sm-10">[[localize('confirm_change','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
-        <paper-button id="confirmButton" raised class="primary col-sm-3 offset-sm-4" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
-      </paper-dialog>
-    </app-drawer-layout>
+        </div>
+      </section>
+      <section class="col" section="success">
+        <div class="vertical center">
+          <h4>[[localize('all_set')]]</h4>
+          <span>[[localize('now_youre_one_of','recommender',recommender.info.firstName)]]</span>
+          <paper-button raised class="accent" on-click="goAccount">[[localize('go_to_my_account')]]</paper-button>
+        </div>
+      </section>
+    </iron-pages>
+    <paper-toast duration="5000" id="toast"></paper-toast>
+    <paper-dialog class="row" id="dialog" with-backdrop>
+      <h5 class="col-sm-10">[[localize('confirm_change','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
+      <paper-button id="confirmButton" raised class="primary col-sm-3 offset-sm-4" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
+    </paper-dialog>
   </template>
   <script>
     Polymer({
@@ -317,7 +314,7 @@
         this.dispatch('waitForUserAuthForRecommeder','rgst');
       },
       goAccount:function(){
-        window.history.pushState({}, null, '/acco');
+        window.history.pushState({}, null, '/acco/recommended');
         window.dispatchEvent(new CustomEvent('location-changed'));
       }
     });

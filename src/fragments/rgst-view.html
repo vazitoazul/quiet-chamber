@@ -23,10 +23,10 @@
       :host {
         display: block;
         padding: 10px 20px;
-        height: 100vh;
+        height: 95vh;
       }
       paper-card {
-        width: 320px;
+        min-width: 320px;
       }
       .divider{
         border-style: solid;
@@ -40,7 +40,7 @@
         background: var(--dark-primary-color);
         color:var(--light-primary-text-color);
       }
-      div.top h2{
+      div.top h3{
         margin: 0;
         text-align: center;
       }
@@ -51,10 +51,10 @@
         pattern="/:route/:section"
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
-    <div class="container vertical center h-100">
+    <div class="vertical center">
       <paper-card>
         <div class="card-content top">
-          <h2>[[localize('register')]]</h2>
+          <h3>[[localize('register')]]</h3>
         </div>
         <div class="card-content">
           <div class="text-center">
@@ -65,26 +65,30 @@
             <google-login recommender=[[recommender]]></google-login>
           </div>
           <div class="text-center">
-            <br>
             <span class="s-text">[[localize('or_your_email')]]</span>
           </div>
-          <form is="iron-form" id="registerForm" on-change="validateForm">
+          <form is="iron-form" id="registerForm">
+            <paper-input name="firstName" label="[[localize('name')]]" required pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+            <paper-input name="lastName" label="[[localize('last_name')]]" required pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
         	  <paper-input name="email" label="[[localize('email')]]" required auto-validate pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" error-message="[[localize('email_form')]]"></paper-input>
             <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
         	  <paper-input name="confirmation" id="confirmation" label="[[localize('confirmation')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('repeat_pass')]]"></paper-input>
             <br>
             <input hidden name="g-recaptcha-response" value="[[recaptchaToken]]">
             <input hidden name="recommender" value="[[recommender]]">
-            <div id="recaptchaDiv"></div>
+            <div id="recaptchaDiv" class="vertical center">
+              <paper-spinner active hidden$="[[captchaLoaded]]"></paper-spinner>
+            </div>
       	  </form>
         </div>
         <div class="card-actions horizontal">
           <div class="flex">
           </div>
           <paper-button on-click="reset" class="secondary">[[localize('reset')]]</paper-button>
-          <paper-button raised on-click="submit" disabled id="submitButton" class="secondary">
-          [[localize('submit')]]</paper-button>
-          <paper-spinner active="[[user.loading]]" ></paper-spinner>
+          <paper-button on-click="submit" id="submitButton" class="accent">
+          [[localize('register_me')]]
+          <paper-spinner hidden$="[[!user.loading]]" active></paper-spinner>
+          </paper-button>
         </div>
       </paper-card>
       <paper-card hidden="[[!recommender.watingAuthorization]]">
@@ -133,8 +137,13 @@
               return {
                 'en': {
                   'register':'Register',
+                  'register_me':'Register',
                   'you_can_use':'You can use',
                   'or_your_email':'Or your email address:',
+                  'name' : 'First Name',
+                  'last_name' : 'Last name',
+                  'must_fill_this_just_letters' : 'This field is required, use just letters',
+                  'must_fill_this' : 'This field is required',
                   'email' : 'Email',
                   'password' : 'Password' ,
                   'confirmation' : 'Repeat password',
@@ -154,14 +163,19 @@
                 },
                 'es': {
                   'register':'Regístrate',
+                  'register_me':'Registrarme',
                   'you_can_use':'Puedes utilizar:',
                   'or_your_email':'O tu dirección de correo electrónico:',
+                  'name' : 'Nombre',
+                  'last_name' : 'Apellido',
+                  'must_fill_this_just_letters' : 'Este campo es obligatorio, solo letras',
+                  'must_fill_this' : 'Debes llenar este campo',
                   'email' : 'Correo electrónico',
                   'password' : 'Contraseña' ,
                   'confirmation' : 'Repita contraseña',
                   'submit' : 'Enviar',
                   'reset' : 'Limpiar forma',
-                  'pass_form' : 'Debe tener al menos 8 caracteres, una letra mayúscula y un número',
+                  'pass_form' : '8 caracteres, una mayúscula y un número',
                   'email_form' : 'Debe ser una dirección de correo válida',
                   'repeat_pass' : 'Repita la contraseña',
                   'not_robot' : "Comprueba que no eres un robot.",
@@ -190,10 +204,13 @@
         }
         this.recaptcha = document.createElement('re-captcha');
         this.recaptcha.style.position = 'absolute';
-        var position = this.$.recaptchaDiv.getBoundingClientRect();
+        var bodyRect = document.body.getBoundingClientRect(),
+            elemRect = this.$.recaptchaDiv.getBoundingClientRect(),
+            top   = elemRect.top - bodyRect.top,
+            left   = elemRect.left - bodyRect.left;
         this.recaptcha.id = "recaptchaElement";
-        this.recaptcha.style.left = (position.left-6) + 'px';
-        this.recaptcha.style.top = (position.top) + 'px';
+        this.recaptcha.style.left = (left-6) + 'px';
+        this.recaptcha.style.top = (top) + 'px';
         this.recaptcha.setAttribute('sitekey','6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq');
         var self=this;
         this.recaptcha.addEventListener('captcha-response',function(e){
@@ -204,6 +221,12 @@
           this.set('recaptchaResponse',false);
         });
         document.body.appendChild(this.recaptcha);
+        this.async(()=>{
+          this.captchaLoaded=true;
+          var position = this.$.recaptchaDiv.getBoundingClientRect();
+          console.log(position);
+        },500)
+
       },
 
       submit : function(e){
@@ -214,12 +237,12 @@
             if(this.$.registerForm.validate()){
               this.dispatch('register',this.$.registerForm.serialize(),(err)=>{
                 if(err) {
-
                   if(this.recaptcha)(this.recaptcha.reload());
                   this.set('recaptchaResponse',false);
                   return this.showMessage(this.localize(err.message));
                 }
-                this.showMessage(this.localize('welcome'));
+                this.dispatch('loadUserInfo');
+                showMessage(this.localize('welcome'));
               });
             }
           }else{
@@ -236,7 +259,6 @@
       reset : function(e){
         this.$.registerForm.reset();
       },
-
       routeObserver : function(newValue,lastValue){
         if(this.route.path === '/rgst'){
           var self = this;

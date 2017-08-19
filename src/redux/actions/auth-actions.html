@@ -15,7 +15,6 @@
               body: JSON.stringify(body),
               credentials: 'include'
             });
-            console.log(request,body);
             window.fetch(request)
             .then(handleReqError)
             .then((response)=>{
@@ -49,16 +48,19 @@
             window.fetch(request)
             .then(handleReqError)
             .then((response)=>{
-              dispatch({type:'LOG_IN',status:'success'});
-              var state = this.getState();
-              if(state.recommender.watingAuthorization){
-                window.history.pushState({}, null, '/recw/'+state.recommender.info.id);
-                dispatch({type:'SET_WAITING_AUTH_RECO',isWating:false});
-              }else{
-                window.history.pushState({},null,'/')
-              }
-              window.dispatchEvent(new CustomEvent('location-changed'));
-              callback();
+              response.json().then((json)=>{
+                dispatch({type:'LOG_IN',status:'success'});
+                var state = this.getState();
+                if(state.recommender.watingAuthorization){
+                  window.history.pushState({}, null, '/recw/'+state.recommender.info.id);
+                  dispatch({type:'SET_WAITING_AUTH_RECO',isWating:false});
+                }else{
+                  window.history.pushState({},null,'/wlcm')
+                }
+                window.dispatchEvent(new CustomEvent('location-changed'));
+                callback();
+              });
+
             })
             .catch((e)=>{
               dispatch({type:'LOG_IN',status:'error',error:e.message});
@@ -104,7 +106,9 @@
           window.fetch(request)
             .then(handleReqError)
             .then((response)=>{
-              dispatch({type:'REQ_MAIL_VERIF',status:'success',address:json.address});
+              response.json().then((json)=>{
+                dispatch({type:'REQ_MAIL_VERIF',status:'success',address:json.address});
+              });
             })
             .catch((e)=>{
               dispatch({type:'REQ_MAIL_VERIF',status:'error',error:e.message});

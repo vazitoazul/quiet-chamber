@@ -63,12 +63,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       paper-card{
         width: 18rem;
       }
-      div#paypalDiv{
-        height: 90px;
-        padding: 10px;
-      }
       paper-card.subscription{
         width: 300px;
+      }
+      paper-card.reco{
+        max-width: 800px;
       }
     </style>
     <app-location route="{{route}}"></app-location>
@@ -122,9 +121,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </section>
         <section section="recommended">
           <div class="container-fluid">
+            <div class="row" >
+              <div class="col-12 my-3">
+                <paper-card class="w-100 reco" heading="Estás debajo de:" hidden$="[[!recommender.email]]">
+                  <div class="card-content vertical layout">
+                    <span class="s-text">Nombre</span>
+                    <span>[[recommender.firstName]] [[recommender.lastName]]</span>
+                    <span class="s-text">Email</span>
+                    <span>[[recommender.email]]</span>
+                  </div>
+                </paper-card>
+                <paper-card class="w-100 reco" hidden$="[[recommender.email]]">
+                  <div class="card-content vertical layout">
+                    <h5>No tienes un recomendador</h5>
+                  </div>
+                </paper-card>
+              </div>
+            </div>
             <div class="row">
-              <div class="col-9 mt-3">
-                <paper-card class="w-100">
+              <div class="col-12">
+                <paper-card class="w-100 reco">
                   <div class="card-content vertical layout">
                     <span>[[localize('for_recommend_a_user')]]</span>
                     <b>https://quiet-chamber-staging.herokuapp.com/recw/[[user.id]]</b>
@@ -135,7 +151,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </div>
             </div>
             <div class="row">
-              <h5 class="col-sm-9 offset-sm-1">[[localize('your_recommended')]]</h5>
+              <div class="col-12">
+                <h5>[[localize('your_recommended')]]</h5>
+                <span class="s-text" hidden$="[[user.recommended.0]]"></span>
+              </div>
               <template is="dom-repeat" items="[[user.recommended]]">
                 <div class="paper-card col-sm-3">
                   <paper-card >
@@ -148,7 +167,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <span class="light">Teléfono</span>
                         <span>[[item.contactInfo.telephones.0]]</span>
                       </div>
-
                     </div>
                   </paper-card>
                 </div>
@@ -189,8 +207,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       properties:{
         user :{
           type : Object,
-          statePath : 'user.info',
-          // observer : 'userObserver'
+          statePath : 'user.info'
         },
         authenticated : {
           type: Boolean,
@@ -203,6 +220,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         recommended:{
           type:String,
           computed:'_getArrayFromObj(entities.recommended)'
+        },
+        recommender:{
+          type:Object,
+          statePath:'user.info.recommender'
         },
         countryCode :{
           type: String,
@@ -241,17 +262,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     'es': {
                       'hello' : 'Hola',
                       'enter_your_credential' : 'Ingresa tu identificacion para asegurarnos que eres el unico tu',
-                      'enter_country' : 'ingresa tu país',
-                      'enter_credential_number' : 'ingresa el numero de tu identicicación',
-                      'not_valid_country' : 'país no válido, por favor escribe y seleccion otro',
-                      'must_enter_id' : 'debes ingresar tu identificación!',
+                      'enter_country' : 'Ingresa tu país',
+                      'enter_credential_number' : 'Ingresa el numero de tu identicicación',
+                      'not_valid_country' : 'País no válido, por favor escribe y seleccion otro',
+                      'must_enter_id' : 'Debes ingresar tu identificación!',
                       'submit' : 'ENVIAR',
                       'credential_used' : 'Esta credencial ya esta siendo usada',
                       'subscribed_until' : 'Estas subscrito hasta {start, date , short}',
                       'membership' : 'Membrecía',
                       'userInfo' : 'Mi información',
                       'recommended':'Recomendados',
-                      'for_recommend_a_user':'Para que un usuario este recomendado por ti debe subscribirse o aceptar por este link :',
+                      'for_recommend_a_user':'Para que un usuario este recomendado por ti debe subscribirse o aceptar mediante el siguiente enlace :',
                       'your_recommended' : 'Tus recomendados :',
                       'bussiness' : 'Negocio',
                       'no_credential' : 'No se a ingresado una credencial',

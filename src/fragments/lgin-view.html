@@ -20,13 +20,12 @@
     <style include="shared-styles">
       :host {
         display: block;
-        height: 100vh;
         padding: 10px 20px;
         @apply(--layout-vertical);
         @apply(--layout-center-center);
       }
       paper-card {
-        width: 320px;
+        min-width: 300px;
       }
       .divider{
         border-style: solid;
@@ -34,7 +33,7 @@
         border-width: 0 0 1px 0;
       }
       paper-input.recover{
-        width: 320px;
+        width: 300px;
       }
       paper-button.recover{
         @apply(--layout-self-center);
@@ -43,7 +42,7 @@
     <h2>[[localize('log_in_tittle')]]</h2>
     <paper-card>
       <div class="card-content">
-        <div class="row horizontal center">
+        <div class="horizontal center">
           <facebook-login on-show-message="showMessage"></facebook-login>
           <google-login  on-show-message="showMessage"></google-login>
         </div>
@@ -52,11 +51,12 @@
             <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate ></paper-input>
       	</form>
         <br>
-        <div class="flex-items-xs-center row">
-          <paper-button raised class="secondary" on-click="submit" disabled="[[userLoading]]">
+        <div class="horizontal">
+          <div class="flex"></div>
+          <paper-button raised class="accent" on-click="submit" disabled="[[userLoading]]">
             <span>[[localize('log_in')]]</span>
           </paper-button>
-          <paper-spinner active="[[userLoading]]"></paper-spinner>
+          <paper-spinner hidden$="[[!userLoading]]" active></paper-spinner>
         </div>
       </div>
     </paper-card>
@@ -75,7 +75,8 @@
           </form>
           <br>
           <div class="horizontal">
-            <paper-button raised class="secondary recover" on-click="submitRecover" disabled="[[passRecoveryLoading]]">
+            <div class="flex"></div>
+            <paper-button raised class="accent recover" on-click="submitRecover" disabled="[[passRecoveryLoading]]">
               <span>[[localize('recover_pass')]]</span>
             </paper-button>
             <paper-spinner active="[[passRecoveryLoading]]"></paper-spinner>

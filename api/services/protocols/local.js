@@ -28,6 +28,8 @@ var captcha = new recaptcha({secret:keys.private_key});
  */
 exports.register = function (req, res, next) {
   var email    = req.param('email')
+    , firstName = req.param('firstName')
+    , lastName = req.param('lastName')
     , password = req.param('password')
     , confirmation = req.param('confirmation')
     , recommenderId = req.param('recommender');
@@ -54,8 +56,10 @@ exports.register = function (req, res, next) {
            User.findOne({id : recommenderId}, function(err,recommender){
              if(err) return next(err,false,{message:'error_finding_recomender'});
              var newUser = {
-               email : email
-             }
+               email : email,
+               firstName : firstName,
+               lastName : lastName
+             };
              if(recommender && recommender.canRecomend() ){
                newUser['recommender'] = recommender.id;
              }

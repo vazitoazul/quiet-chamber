@@ -94,7 +94,6 @@ var AuthController = {
 
       }
     }
-    console.log('callb',req.body);
     passport.callback(req, res, function (err, user, info) {
       if (err || !user) {
         var code=409;
