@@ -22,6 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-pages/social-icons.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
@@ -69,6 +70,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       paper-card.reco{
         max-width: 800px;
       }
+      div.no-recommended{
+        margin-top: 4rem;
+      }
+      b.reco-link{
+        margin-top: 0.6rem;
+      }
     </style>
     <app-location route="{{route}}"></app-location>
     <app-route
@@ -81,11 +88,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <app-drawer align="left">
         <h5>Menu</h5>
         <paper-menu>
-          <paper-item><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="verified-user"></iron-icon>[[localize('userInfo')]]</a></paper-item>
+          <paper-item><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="info"></iron-icon>[[localize('userInfo')]]</a></paper-item>
           <paper-item><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
-          <paper-item><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('recommended')]]</a></paper-item>
-          <paper-item><a class="menu-item" href="/acco/business"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('bussiness')]]</a></paper-item>
-          <paper-item><a class="menu-item" href="/acco/payments"><iron-icon item-icon icon="card-membership"></iron-icon>Pagos</a></paper-item>
+          <paper-item><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="social:people"></iron-icon>[[localize('recommended')]]</a></paper-item>
+          <paper-item><a class="menu-item" href="/acco/business"><iron-icon item-icon icon="work"></iron-icon>[[localize('bussiness')]]</a></paper-item>
+          <paper-item><a class="menu-item" href="/acco/payments"><iron-icon item-icon icon="payment"></iron-icon>[[localize('payments')]]</a></paper-item>
         </paper-menu>
       </app-drawer>
       <app-header-layout>
@@ -133,7 +140,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-card>
                 <paper-card class="w-100 reco" hidden$="[[recommender.email]]">
                   <div class="card-content vertical layout">
-                    <h5>No tienes un recomendador</h5>
+                    <h6>[[localize('no_recommender')]]</h6>
                   </div>
                 </paper-card>
               </div>
@@ -143,17 +150,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-card class="w-100 reco">
                   <div class="card-content vertical layout">
                     <span>[[localize('for_recommend_a_user')]]</span>
-                    <b>https://quiet-chamber-staging.herokuapp.com/recw/[[user.id]]</b>
+                    <div class="horizontal">
+                      <b class="reco-link">https://quiet-chamber-staging.herokuapp.com/recw/[[user.id]]</b>
+                      <paper-icon-button icon="content-copy" title="heart" on-click="copyRecLink"></paper-icon-button>
+                    </div>
                   </div>
-                  <div class="card-actions vertical"><paper-button class="primary self-end" on-click="copyRecLink">Copiar</paper-button>
-                   </div>
                 </paper-card>
               </div>
             </div>
             <div class="row">
-              <div class="col-12">
+              <div class="col-12" hidden$=[[!user.recommended.0]]>
                 <h5>[[localize('your_recommended')]]</h5>
-                <span class="s-text" hidden$="[[user.recommended.0]]"></span>
+              </div>
+              <div class="col-10 offset-sm-2 no-recommended" hidden$=[[user.recommended.0]]>
+                <h6>[[localize('no_recommended')]]</h6>
               </div>
               <template is="dom-repeat" items="[[user.recommended]]">
                 <div class="paper-card col-sm-3">
@@ -256,7 +266,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'for_recommend_a_user':'In order to recommend a user it must subscribed or confirm the action on the next link :',
                       'your_recommended' : 'Your recommended :',
                       'bussiness' : 'Bussiness',
+                      'payments' : 'Payments',
                       'no_credential' : 'No credential inserted',
+                      'no_recommended' : "You don't have recommended yet",
+                      'no_recommender' : 'No te has marcado bajo la linea de nadie aun',
                       'credential_in_use' : 'The crediantal is already used'
                     },
                     'es': {
@@ -275,7 +288,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'for_recommend_a_user':'Para que un usuario este recomendado por ti debe subscribirse o aceptar mediante el siguiente enlace :',
                       'your_recommended' : 'Tus recomendados :',
                       'bussiness' : 'Negocio',
+                      'payments' : 'Pagos',
                       'no_credential' : 'No se a ingresado una credencial',
+                      'no_recommended' : 'No tienes recomendados aun..',
+                      'no_recommender' : 'No te has marcado bajo la linea de nadie aun',
                       'credential_in_use' : 'La credencial ya esta siendo usada'
 
                     }

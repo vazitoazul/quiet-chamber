@@ -24,6 +24,7 @@ module.exports = {
 			User.find({recommender : user.id}, (err,found) => {
 				if(err) return res.badRequest();
 				user.recommended = found;
+				if(!user.recommender) return  res.json(user);
 				User.findOne({id : user.recommender}, (err,recommender) => {
 					if(err) return res.badRequest();
 					user.recommender = {
