@@ -256,7 +256,8 @@
       },
       _computeFee:function(value){
         if(!value)return 0.0001
-        return (parseFloat(value)*0.01)+0.0001;
+        //0.0001
+        return (parseFloat(value)*0.01)+0.00000001;
       },
       _computeRemaining:function(value,balance){
         if(!balance)return 0;
