@@ -92,9 +92,9 @@
               <span>Se aceptan donaciones desde <b>$[[post.details.minDonation]]</b> </span>
             </div>
       		</div>
-          <div class="card-actions horizontal">
+          <div class="card-actions horizontal" hidden$="[[!post.id]]">
             <div class="flex"></div>
-            <a href="/post/[[post.id]]"><paper-button class="accent self-end">Detalles</paper-button></a>
+            <a href="/post/[[post.id]]" ><paper-button class="accent self-end">Detalles</paper-button></a>
           </div>
       	</paper-card>
       </section>

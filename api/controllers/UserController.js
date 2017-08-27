@@ -205,7 +205,18 @@ module.exports = {
 							newRecommender.recommended[currentUser.id] = true;
 							User.update({id:newRecommender.id},{recommended:newRecommender.recommended},(err,saved)=>{
 								if(err)return next(err);
-								return res.ok();
+                var info={
+      						recommender:newRecommender,
+                  recommended:req.user
+      					};
+      					var destination = {
+      						to:newRecommender.email,
+      						subject:'Tienes un nuevo recomendado - Dinabun'
+      					};
+      					mailgun.send('recoadded',info,destination,(err,result)=>{
+      						if(err) return next(err);
+      						return res.ok();
+      					});
 							});
 						});
 					});
@@ -217,7 +228,18 @@ module.exports = {
 						newRecommender.recommended[currentUser.id] = true;
 						newRecommender.save((err,saved)=>{
 							if(err)return next(err);
-							return res.ok();
+              var info={
+                recommender:newRecommender,
+                recommended:req.user
+              };
+              var destination = {
+                to:newRecommender.email,
+                subject:'Tienes un nuevo recomendado - Dinabun'
+              };
+              mailgun.send('recoadded',info,destination,(err,result)=>{
+                if(err) return next(err);
+                return res.ok();
+              });
 						});
 					});
 				}

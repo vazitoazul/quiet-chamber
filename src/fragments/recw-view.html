@@ -288,6 +288,7 @@
             return this.showMessage(this.localize(err.message));
           }
           this.section='success';
+          this.dispatch('loadUserInfo');
         });
       },
 

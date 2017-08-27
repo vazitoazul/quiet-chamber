@@ -26,10 +26,15 @@
     paper-card.start-card{
       @apply(--layout-vertical);
       margin-top: 1rem;
-      height: 70vh;
+      min-height: 500px;
       --paper-card-header-color:#fff;
       --paper-card-header:{
         background-color:var(--default-primary-color);
+      }
+    }
+    @media(max-width: 768px){
+      paper-card.start-card{
+        height: 450px;
       }
     }
     div.bus-item{
@@ -120,10 +125,10 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-6">
+          <div class="col-12 col-md-6">
             <business-form business="[[currentBusiness]]" hidden$="[[!currentBusiness.id]]"></business-form>
           </div>
-          <div class="vertical col-6 py-3">
+          <div class="vertical col-12 col-md-6 py-3">
             <paper-card heading="Anuncios">
               <div class="card-content" hidden$="[[!hasPosts]]">
                 <template is="dom-repeat" items="[[posts]]" filter="_filterPosts">
@@ -187,9 +192,11 @@
             <span>Nuevo anuncio</span>
           </div>
         </div>
-        <div class="col-12">
-          <post-form creating business="[[currentBusiness]]"></post-form>
-        </div>
+        <div class="row">
+          <div class="col-12">
+            <post-form creating business="[[currentBusiness]]"></post-form>
+          </div>
+        </div>      
       </section>
       <section name="editPost" class="container">
         <div class="row">

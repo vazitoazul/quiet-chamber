@@ -31,7 +31,7 @@
     }
   </style>
   <template>
-    <div class="horizontal">
+    <div class="vth">
       <div class="flex">
         <paper-card>
           <div class="card-content">
@@ -115,9 +115,13 @@
       </div>
       <div class="flex vertical px-3" hidden$="[[!post.type]]">
         <span class="light self-center">El resumen de tu anuncio se verá así:</span>
-        <post-card post="[[post]]" alt-business="[[business]]"></post-card>
-        <span class="light self-center">También hay una página dedicada a tu anuncio que puedes ver desde aquí:</span>
-        <paper-button raised class="primary self-center" on-tap="watchPost">Ver mi anuncio</paper-button>
+        <post-card post="[[post]]" alt-business="[[business]]" class="py-2"></post-card>
+        <div class="vertical" hidden$="[[!post.id]]">
+          <span class="light self-center">También hay una página dedicada a tu anuncio que puedes ver desde aquí:</span>
+          <a href="/post/[[post.id]]" target="_blank">
+            <paper-button raised class="primary self-center" on-tap="watchPost">Ver mi anuncio</paper-button>
+          </a>
+        </div>
       </div>
     </div>
 

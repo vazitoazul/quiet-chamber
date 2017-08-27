@@ -116,6 +116,24 @@ module.exports = {
   *
   *
   */
+  paymentStatus:function(req,res,next){
+    if(!req.param('id'))return res.json(409,{error:'missing_payment_id'});
+    Payment.findOne(req.param('id'),(err,payment)=>{
+      if(err)return next(err);
+      if(!payment)return res.json(404,{error:'payment_not_found'});
+      if(payment.txStatus==='new'){
+        return res.redirect(`/pas/${payment.txStatus}?url=${encodeURIComponent(payment.url)}`)
+      }else{
+        return res.redirect(`/pas/${payment.txStatus}`);
+      }      
+    });
+  },
+  /**
+  *
+  *Listener for the Alfacoins calls on payments/orders updates
+  *
+  *
+  */
   paymentListener: function(req,res,next){
     //Chech if alfacoins is the one doing the calls
     if(req.headers['user-agent']!=='ALFAcoins (+https://alfacoins.com)'){

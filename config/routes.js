@@ -82,7 +82,8 @@ module.exports.routes = {
   '/searchPosts' : 'PostController.searchPosts',
   '/singlePost' : 'PostController.singlePost',
 
-  '/paylistener' : 'PaymentController.paymentListener'
+  '/paylistener' : 'PaymentController.paymentListener',
+  '/paymentStatus' : 'PaymentController.paymentStatus'
 
   /***************************************************************************
   *                                                                          *

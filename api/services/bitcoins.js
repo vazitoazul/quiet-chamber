@@ -24,7 +24,6 @@ function checkRate(callback){
 module.exports = {
   createOrder : (user,paymentId,callback)=>{
     checkRate((err,rate)=>{
-      console.log(rate);
       var reqBody ={
         "name": config.name,
         "secret_key": config.secret,
@@ -36,7 +35,7 @@ module.exports = {
         "description": "Pago por subscripción a Dinabun",
         "options" : {
           "notificationURL": appUrl+"/paylistener",
-          "redirectURL": appUrl+"/pas",
+          "redirectURL": appUrl+"/paymentStatus/"+paymentId,
           "payerName": user.firstName + user.lastName,
           "payerEmail": user.email
         }

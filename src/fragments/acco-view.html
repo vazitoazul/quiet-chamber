@@ -75,6 +75,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       b.reco-link{
         margin-top: 0.6rem;
+        overflow-wrap: break-word;
+        width: 100%;
       }
     </style>
     <app-location route="{{route}}"></app-location>
@@ -84,8 +86,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         data="{{routeData}}"
         ></app-route>
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
-    <app-drawer-layout>
-      <app-drawer align="left">
+    <app-drawer-layout id="drawerLayout" responsive-width="768px">
+      <app-drawer align="left" id="drawer">
         <h5>Menu</h5>
         <paper-menu>
           <paper-item><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="info"></iron-icon>[[localize('userInfo')]]</a></paper-item>
@@ -151,9 +153,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <div class="card-content vertical layout">
                     <span>[[localize('for_recommend_a_user')]]</span>
                     <div class="horizontal">
-                      <b class="reco-link">https://quiet-chamber-staging.herokuapp.com/recw/[[user.id]]</b>
-                      <paper-icon-button icon="content-copy" title="heart" on-click="copyRecLink"></paper-icon-button>
+                      <b class="reco-link">https://dinabun.com/recw/[[user.id]]</b>
+
                     </div>
+                  </div>
+                  <div class="card-actions vertical">
+                    <paper-button class="accent self-end" on-click="copyRecLink">Copiar enlace</paper-button>
                   </div>
                 </paper-card>
               </div>
@@ -269,7 +274,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'payments' : 'Payments',
                       'no_credential' : 'No credential inserted',
                       'no_recommended' : "You don't have recommended yet",
-                      'no_recommender' : 'No te has marcado bajo la linea de nadie aun',
+                      'no_recommender' : 'You are the first on your network. There is nobody below you',
                       'credential_in_use' : 'The crediantal is already used'
                     },
                     'es': {
@@ -291,7 +296,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'payments' : 'Pagos',
                       'no_credential' : 'No se a ingresado una credencial',
                       'no_recommended' : 'No tienes recomendados aun..',
-                      'no_recommender' : 'No te has marcado bajo la linea de nadie aun',
+                      'no_recommender' : 'Eres el primero en tu red. No hay nadie encima tuyo',
                       'credential_in_use' : 'La credencial ya esta siendo usada'
 
                     }
@@ -344,6 +349,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
       _sectionChanged : function(section){
+        if(this.$.drawer.opened&&this.$.drawerLayout.narrow){
+          this.$.drawer.close();
+        }
         switch(section){
           case 'business':
             this.dispatch('getBusiness');
