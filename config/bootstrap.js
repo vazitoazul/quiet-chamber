@@ -18,12 +18,7 @@ module.exports.bootstrap = function(cb) {
   sails.services.passport.loadStrategies();
   sails.models.token.native(function(err,collection){
    collection.ensureIndex({'expireAt':1},{expireAfterSeconds:0},function(){
-      sails.services.xmlsig.setUp('sri.p12',(err)=>{
-        if(err){
-          throw new Error(err);
-        }
-        cb();
-      });
+      cb();
     });
   });
 
