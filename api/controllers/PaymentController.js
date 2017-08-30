@@ -125,7 +125,8 @@ module.exports = {
         return res.redirect(`/pas/${payment.txStatus}?url=${encodeURIComponent(payment.url)}`)
       }else{
         return res.redirect(`/pas/${payment.txStatus}`);
-      }      
+      }
+
     });
   },
   /**
