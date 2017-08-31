@@ -84,7 +84,7 @@
                     <template is="dom-repeat" items="[[business]]">
                       <div class="horizontal bus-item">
                         <div class="photo">
-                          <iron-image src="[[item.image]]" preload sizing="cover" placeholder="https://images.unsplash.com/photo-1473187983305-f615310e7daa?dpr=1&auto=format&fit=crop&w=1500&h=1000&q=80&cs=tinysrgb"></iron-image>
+                          <iron-image src="[[item.image]]" preload sizing="cover" placeholder="https://images.unsplash.com/photo-1473187983305-f615310e7daa?dpr=1&auto=format&fit=crop&w=100&h=100&q=80&cs=tinysrgb"></iron-image>
                         </div>
                         <div class="vertical flex" on-tap="_selectBusiness">
                           <span>[[item.name]]</span>
@@ -196,7 +196,7 @@
           <div class="col-12">
             <post-form creating business="[[currentBusiness]]"></post-form>
           </div>
-        </div>      
+        </div>
       </section>
       <section name="editPost" class="container">
         <div class="row">
@@ -286,7 +286,9 @@
         },
         noBusiness : {
           type : Boolean,
-          computed : 'computeNoBusiness(business)'
+          statePath(state){
+            return state.business.business.length<=0
+          }
         },
         lastError : {
           type : Boolean,
@@ -295,29 +297,28 @@
         },
         currentBusiness:{
           type:Object,
-          value: function(){
-            return {};
-          }
+          statePath:'business.selectedBusiness'
         },
         currentPost:{
           type:Object,
-          value:function(){
-            return {}
-          }
+          statePath:'business.selectedPost'
         },
         hasPosts:{
           type:Boolean,
-          computed:'_computeHasPosts(currentBusiness)'
+          statePath(state){
+            var selectedId=state.business.selectedBusiness.id;
+            return state.business.posts.reduce((result,item)=>{
+              if(item.business===selectedId){
+                return true;
+              }
+              return result;
+            },false);
+          }
         }
       },
       observers : [
         '_onRouteChanged(route.path)'
       ],
-      _computeHasPosts:function(current){
-        if(current===undefined)return false;
-        if(!current.posts)return false;
-        return current.posts.length>0;
-      },
       _businessChanged(newValue,lastValue){
         if(newValue){
           if(newValue.length>0||this.busData.id){
@@ -398,27 +399,13 @@
       },
       _selectBusiness: function(e){
         var business= e.model.__data__.item;
-        this.set('currentBusiness',business);
+        this.dispatch('selectBusiness',business.id)
       },
       _selectBusinessById:function(id){
-        if(!this.business){
-          return ;
-        };
-        this.business.forEach((item)=>{
-          if(item.id===id){
-            return this.set('currentBusiness',item);
-          }
-        });
+        this.dispatch('selectBusiness',id);
       },
       _selectPostById:function(id){
-        if(!this.posts){
-          return ;
-        };
-        this.posts.forEach((item)=>{
-          if(item.id===id){
-            return this.set('currentPost',item);
-          }
-        });
+        this.dispatch('selectPost',id);
       }
     });
   </script>

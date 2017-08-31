@@ -119,6 +119,12 @@
               break;
           }
           break;
+        case 'SELECT_BUSS':
+          return Object.assign({},state,{selectedBusiness:action.business});
+          break;
+        case 'SELECT_POST':
+          return Object.assign({},state,{selectedPost:action.post});    
+          break;
       default:
         return state;
     }

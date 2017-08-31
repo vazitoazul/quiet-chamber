@@ -56,8 +56,10 @@
       data="{{data}}"
       tail="{{tail}}"></app-route>
     <app-toolbar>
-        <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
-        <div main-title><span class="text-display-2">Dinabun</span></div>
+        <a href="/">
+          <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
+        </a>
+        <div main-title><span class="dinabun-title">Dinabun</span></div>
         <login-button></login-button>
     </app-toolbar>
     <iron-pages selected="[[section]]" attr-for-selected="section">

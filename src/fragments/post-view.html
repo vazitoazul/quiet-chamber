@@ -58,7 +58,7 @@
       <app-header fixed reveals effects="fade-background">
         <app-toolbar>
             <iron-image height="50" width="80" src="/images/logo.png" preload sizing="cover"></iron-image>
-            <div main-title><span class="text-display-2">Dinabun</span></div>
+            <div main-title><span class="dinabun-title">Dinabun</span></div>
             <login-button></login-button>
         </app-toolbar>
       </app-header>
@@ -71,7 +71,7 @@
               <iron-pages selected="[[post.type]]" attr-for-selected="name">
                 <section name="i">
                   <div class="horizontal">
-                    <div class="vertical">
+                    <div class="vertical flex">
                       <br>
                       <b class="s-text">Se busca financiamiento para:</b>
                       <span>[[post.details.description]]</span>
@@ -99,7 +99,7 @@
                 </section>
                 <section name="d">
                   <div class="horizontal">
-                    <div class="vertical">
+                    <div class="vertical flex">
                       <br>
                       <b class="s-text">Se busca financiamiento para:</b>
                       <span>[[post.details.description]]</span>
@@ -117,7 +117,7 @@
                 </section>
                 <section name="j">
                   <div class="horizontal">
-                    <div class="vertical">
+                    <div class="vertical flex">
                       <br>
                       <b class="s-text">Descripción</b>
                       <span>[[post.details.description]]</span>
@@ -137,8 +137,28 @@
             </div>
           </div>
           <div class="col-5 vertical">
-            <span>Sobre el anunciante:</span>
-            <business-card business="[[post.business]]" read-only></business-card>
+            <iron-pages selected="[[userSubscriptionState]]" attr-for-selected="state" class="h-100">
+              <section state="subscribed">
+                <span>Sobre el anunciante:</span>
+                <business-card business="[[post.business]]" read-only></business-card>
+              </section>
+              <section state="registered" class="h-100">
+                <div class="capped vertical center ">
+                  <h4 class="s-text">Solo los usuarios con una suscripción pueden ver los datos de contacto de las publicaciones.</h4>
+                  <a href="/acco/membership">
+                    <paper-button raised class="accent">Inicia una suscripción</paper-button>
+                  </a>
+                </div>
+              </section>
+              <section state="notLogged" class="vertical center h-100">
+                <div class="capped vertical center ">
+                  <h4 class="s-text">Primero regístrate para poder ver los datos de contacto de esta publicación.</h4>
+                  <a href="/rgst">
+                    <paper-button raised class="accent">Registrarme</paper-button>
+                  </a>
+                </div>
+              </section>
+            </iron-pages>
           </div>
         </div>
       </div>
@@ -153,6 +173,18 @@
         post:{
           type:Object,
           statePath:'search.selectedPost'
+        },
+        userSubscriptionState:{
+          type:String,
+          statePath(state){
+            if(!state.user.authenticated){
+              return 'notLogged';
+            }else if(!state.user.info.isSubscribed){
+              return 'registered';
+            }else {
+              return 'subscribed';
+            }
+          }
         },
         language:{
           statePath:'language'

@@ -208,6 +208,22 @@ const BusinessActionsBehavior = {
           callback(e);
         });
       }
+    },
+    selectBusiness:function(id){
+      var selected = this.getState().business.business.reduce((result,item)=>{
+        if(item.id===id){
+          return item;
+        }
+      },{});
+      return {type:'SELECT_BUSS',business:selected};
+    },
+    selectPost:function(id){
+      var selected = this.getState().business.posts.reduce((result,item)=>{
+        if(item.id===id){
+          return item;
+        }
+      },{});
+      return {type:'SELECT_POST',post:selected};
     }
   },
   signAwsUrl : function(file,callback){

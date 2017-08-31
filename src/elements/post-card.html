@@ -34,7 +34,7 @@
   <template>
     <iron-pages selected="[[post.type]]" attr-for-selected="name">
       <section name="j">
-        <paper-card image="[[business.image]]" heading="[[business.name]]">
+        <paper-card placeholder-image="https://unsplash.it/300/300" image="[[business.image]]" heading="[[business.name]]">
       		<div class="card-content vertical">
             <span class="title">[[post.name]]</span>
             <span class="ligth">[[localize('post_type','type','j')]]</span>
@@ -48,12 +48,12 @@
       		</div>
           <div class="card-actions horizontal">
             <div class="flex"></div>
-            <a href="/post/[[post.id]]"><paper-button class="accent self-end">Detalles</paper-button></a>
+            <a href="/post/[[post.id]]" target="_blank"><paper-button class="accent self-end">Detalles</paper-button></a>
           </div>
       	</paper-card>
       </section>
       <section name="i">
-        <paper-card heading="[[business.name]]" image="[[business.image]]">
+        <paper-card placeholder-image="https://unsplash.it/300/300" heading="[[business.name]]" image="[[business.image]]">
       		<div class="card-content vertical">
             <span class="light">[[localize('post_type','type','i')]]</span>
             <span>[[business.cityLabel]]</span>
@@ -74,12 +74,12 @@
       		</div>
           <div class="card-actions horizontal">
             <div class="flex"></div>
-            <a href="/post/[[post.id]]"><paper-button class="accent self-end">Detalles</paper-button></a>
+            <a href="/post/[[post.id]]" target="_blank"><paper-button class="accent self-end">Detalles</paper-button></a>
           </div>
       	</paper-card>
       </section>
       <section name="d">
-        <paper-card image="[[business.image]]" heading="[[business.name]]">
+        <paper-card placeholder-image="https://unsplash.it/300/300" image="[[business.image]]" heading="[[business.name]]">
       		<div class="card-content vertical">
             <h4 class="title">[[post.name]]</h4>
             <span class="light">[[localize('post_type','type','d')]]</span>
@@ -94,7 +94,7 @@
       		</div>
           <div class="card-actions horizontal" hidden$="[[!post.id]]">
             <div class="flex"></div>
-            <a href="/post/[[post.id]]" ><paper-button class="accent self-end">Detalles</paper-button></a>
+            <a href="/post/[[post.id]]" target="_blank" ><paper-button class="accent self-end">Detalles</paper-button></a>
           </div>
       	</paper-card>
       </section>

@@ -261,8 +261,14 @@
       },
       routeObserver : function(newValue,lastValue){
         if(this.route.path === '/rgst'){
+
           var self = this;
-          this.async(function(){
+          this.async(function(){      
+            if(self.user.authenticated){
+              window.history.pushState({},null,'/wlcm');
+              window.dispatchEvent(new CustomEvent('location-changed'));
+              return;
+            }
             if(!document.querySelector('#recaptchaElement')){
               self._setUpRecaptcha()
             }

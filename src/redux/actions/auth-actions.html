@@ -55,7 +55,7 @@
                   window.history.pushState({}, null, '/recw/'+state.recommender.info.id);
                   dispatch({type:'SET_WAITING_AUTH_RECO',isWating:false});
                 }else{
-                  window.history.pushState({},null,'/wlcm')
+                  window.history.pushState({},null,'/wlcm');
                 }
                 window.dispatchEvent(new CustomEvent('location-changed'));
                 callback();

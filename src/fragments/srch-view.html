@@ -112,7 +112,7 @@
           <app-toolbar>
             <div class="horizontal flex">
               <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-              <div main-title class="self-center"><span class="text-display-2">Dinabun</span></div>
+              <div main-title class="self-center"><span class="dinabun-title">Dinabun</span></div>
               <div class="flex"></div>
               <login-button></login-button>
             </div>
@@ -268,7 +268,6 @@
               freshParams.labels=[];
             }
           }
-          console.log(freshParams);
           this.set('params',freshParams);
           this.queryLoaded=true;
         }

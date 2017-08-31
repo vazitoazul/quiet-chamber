@@ -13,7 +13,7 @@ module.exports = {
 			if(!user){
 				return res.badRequest();
 			}
-			user.isSuscribed=user.isSuscribed();
+			user.isSubscribed=user.isSubscribed();
 			user.totalBalance=user.balance.reduce((a, b) => a + b,0);
       user.payoutRequested=false;
       user.payouts.forEach((pay)=>{

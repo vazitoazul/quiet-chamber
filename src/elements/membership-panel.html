@@ -53,44 +53,50 @@
       paper-card{
         max-width: 700px;
       }
-
+      .susbcribed-until{
+        @apply(--paper-font-subtitle);
+        margin-bottom: 0.5rem;
+        font-weight: 300;
+        font-size: 18px;
+        color: var(--accent-color);
+      }
     </style>
     <div class="vertical p-3">
       <div class="horizontal">
-        <div hidden$="[[user.isSuscribed]]">
+        <div hidden$="[[user.isSubscribed]]">
           <paper-card  class="vertical subscription">
             <div class="card-content flex">
               <h4>No tienes una suscripción activa</h4>
-              <span>Encuentra todos los beneficios de suscribirte <a href="#">Aquí</a></span>
+              <span>Encuentra todos los beneficios de suscribirte <a href="/sytm" target="_blank">Aquí</a></span>
             </div>
             <div class="card-actions horizontal center">
               <b>Inicia una suscripción ahora</b>
               <div class="flex"></div>
-              <paper-button class="accent" on-tap="openDialog">Iniciar Subscripción</paper-button>
+              <paper-button class="accent" on-tap="openDialog">Iniciar Suscripción</paper-button>
             </div>
           </paper-card>
         </div>
-        <div hidden$="[[!user.isSuscribed]]">
+        <div hidden$="[[!user.isSubscribed]]">
           <paper-card  class="vertical subscription">
             <div class="card-content flex">
               <h4>Tienes una suscripción activa</h4>
-              <span class="accent">Tu suscripción es válida hasta [[localize('date','value',user.subscribedUntil)]]</span>
-              <br>
+              <div class="susbcribed-until">
+                Tu suscripción es válida hasta : <b>[[localize('date','value',user.subscribedUntil)]]</b>
+              </div>
               <div class="vth">
                 <span class="light flex">Recueda que cada mes debes renovar tu suscripción. Si deseas pagar por adelantado puedes hacerlo ahora.</span>
-                <paper-button raised class="accent self-center" on-tap="openDialog">Renovar subsciripción</paper-button>
+                <paper-button raised class="accent self-center" on-tap="openDialog">Renovar susciripción</paper-button>
               </div>
               <br>
               <div class="vertical">
                 <div class="vth" hidden$="[[user.autoSub]]">
                   <span class="light flex">También puedes activar la suscripción automática para que se te debite automáticamente cada mes el valor de la misma.</span>
-                  <paper-button raised class="accent self-center" on-tap="openAutoSubConfirm">Activar</paper-button>
+                  <paper-button class="accent self-center" on-tap="openAutoSubConfirm">Activar</paper-button>
                 </div>
                 <div class="vth" hidden$="[[!user.autoSub]]">
                   <span class="light flex">Tienes activado la suscripción automática. Cada mes se debitarán 0.007 BTC de tu cuenta de manera automática.</span>
-                  <paper-button raised class="warning self-center" on-tap="openAutoSubConfirm">Desactivar</paper-button>
+                  <paper-button class="warning self-center" on-tap="openAutoSubConfirm">Desactivar</paper-button>
                 </div>
-
               </div>
               <br>
               <span class="warning">Recuerda que si no estás suscrito no recibes los beneficios de las personas que enlistaste como tus recomendados.</span>
@@ -105,7 +111,13 @@
               </div>
               <div hidden$="[[userHasBalance]]" class="vertical">
                 <span>Todavía no tienes saldo a tu favor.</span>
-                <span>Para empezar a ganar puedes <a href="/acco/recommended">agregar recomendados</a></span>
+                <div class="vth">
+                  <span class="s-text flex self-center">Para empezar a ganar puedes agregar recomendados</span>
+                  <a href="/acco/recommended">
+                    <paper-button class="accent">Agregar recomendados</paper-button>
+                  </a>
+                </div>
+
               </div>
             </div>
             <div hidden$="[[!userHasBalance]]" class="card-actions horizontal center">
@@ -124,7 +136,7 @@
       </div>
     </div>
     <paper-dialog id="dialog" >
-      <h2 hidden="[[user.isSuscribed]]">Iniciar una suscripción</h2>
+      <h2 hidden="[[user.isSubscribed]]">Iniciar una suscripción</h2>
       <paper-dialog-scrollable>
         <b>Lee con atención los pasos que debes seguir:</b>
         <ol>

@@ -50,7 +50,7 @@ var User = {
     canRecomend:function(){
       return Object.keys(this.recommended).length < 3;
     },
-    isSuscribed:function(){
+    isSubscribed:function(){
       return this.subscribedUntil==null ? false :  Date.compare(this.subscribedUntil, Date.today()) >= 0;
     }
   },

@@ -139,8 +139,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-header fixed reveals effects="fade-background">
           <app-toolbar>
               <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-              <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
-              <div main-title><span class="text-display-2">Dinabun</span></div>
+              <a href="/">
+                <iron-image height="50" width="50" src="/images/logo.png" preload sizing="contain"></iron-image>
+              </a>
+              <div main-title><span class="dinabun-title">Dinabun</span></div>
               <paper-tabs selected="[[route]]" attr-for-selected="route" align-bottom>
                 <paper-tab link route="main">
                   <a href="/">Inicio</a>

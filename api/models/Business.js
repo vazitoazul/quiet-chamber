@@ -20,6 +20,7 @@ module.exports = {
   	cityLabel : { type : 'json', required : true},
     email : { type : 'string' , defaultsTo : ''},
     telephones: { type : 'array' , defaultsTo : []},
+    image:{type:'string',defaultsTo:''},
     labels : { type : 'array', defaultsTo : [], required : true},
     posts : { collection : 'post', via : 'business'}
   },

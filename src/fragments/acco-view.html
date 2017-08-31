@@ -22,7 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../../bower_components/iron-pages/social-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/social-icons.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
@@ -101,7 +101,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-header>
          <app-toolbar class="horizontal">
              <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-             <div main-title><span>Dinabun</span></div>
+             <div main-title><span class="dinabun-title">Dinabun</span></div>
              <div class="hidden-sm-down">
                <a href="/help"><paper-button>[[localize('help')]]</paper-button></a>
              </div>
@@ -153,8 +153,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <div class="card-content vertical layout">
                     <span>[[localize('for_recommend_a_user')]]</span>
                     <div class="horizontal">
-                      <b class="reco-link">https://dinabun.com/recw/[[user.id]]</b>
-
+                      <b class="reco-link">https://www.dinabun.com/recw/[[user.id]]</b>
                     </div>
                   </div>
                   <div class="card-actions vertical">
@@ -286,11 +285,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'must_enter_id' : 'Debes ingresar tu identificación!',
                       'submit' : 'ENVIAR',
                       'credential_used' : 'Esta credencial ya esta siendo usada',
-                      'subscribed_until' : 'Estas subscrito hasta {start, date , short}',
+                      'subscribed_until' : 'Estas suscrito hasta {start, date , short}',
                       'membership' : 'Membrecía',
                       'userInfo' : 'Mi información',
                       'recommended':'Recomendados',
-                      'for_recommend_a_user':'Para que un usuario este recomendado por ti debe subscribirse o aceptar mediante el siguiente enlace :',
+                      'for_recommend_a_user':'Puedes invitar a cualquier persona a ser tu recomendado mediante el siguiente enlace:',
                       'your_recommended' : 'Tus recomendados :',
                       'bussiness' : 'Negocio',
                       'payments' : 'Pagos',
