@@ -40,7 +40,7 @@ var subsValue;
   sails.lift(rc('sails'),function(done){
     //start logger to log error events when this happens
     var logger = new Logger({
-      token:sails.config.keys.scheduledLogEntriesKey;
+      token:sails.config.keys.scheduledLogEntriesKey
     });
     var firstlvl = [],
         secondlvl = [],
@@ -74,7 +74,7 @@ var subsValue;
       async.eachOfLimit(payments,20,(payment,index,cb)=>{
         //this function gets executed for each payment
         //first, mark the payment as distributed
-        pc.update({_id:payment._id},{distributed:true},{w:1},(err,updatedPayment)=>{
+        pc.update({_id:payment._id},{$set:{distributed:true}},{w:1},(err,updatedPayment)=>{
           if(err)return cb(new Error(`Error updating payment on ${payment._id} payment`));
           //then, fetch the owner of the payment, we will call this user "son"
           uc.findOne({_id:payment.user},{fields:{recommender:1}},(err,son)=>{
@@ -144,14 +144,14 @@ var subsValue;
             reduced[item]=distValue*0.2;
           }
         });
-        result.first.forEach((item,key)=>{
+        result.third.forEach((item,key)=>{
           if(reduced[item]){
             reduced[item]+=distValue*0.1;
           }else{
             reduced[item]=distValue*0.1;
           }
         });
-        result.first.forEach((item,key)=>{
+        result.fourth.forEach((item,key)=>{
           if(reduced[item]){
             reduced[item]+=distValue*0.1;
           }else{
@@ -159,7 +159,7 @@ var subsValue;
           }
         });
         //Finally, update each user
-        async.eachOf(reduced,(userId,value,cb)=>{
+        async.eachOf(reduced,(value,userId,cb)=>{
           uc.update({ _id : new ObjectId(userId)} , { $push : { balance : [value] }},{w:1},(err,updatedUser)=>{
             if(err){
               logger.err(`User missing balance ${userId} ${balance}`,err);
@@ -168,7 +168,7 @@ var subsValue;
           });
         },(err)=>{
           //Now, we just have to find the payments again and repeat the operation
-          pc.find({realized:true,distributed:false},{fields:{_id:1,user:1}},(err,remainingPayments)=>{
+          pc.find({realized:true,distributed:false},{fields:{_id:1,user:1}}).toArray((err,remainingPayments)=>{
             if(err)return callback(err);
             distributePayments(remainingPayments,uc,pc,callback);
           });
@@ -186,7 +186,7 @@ var subsValue;
           console.log('Iterative Payment Failed',err);
           throw err;
         }
-        paymentCol.find({realized:true,distributed:false},{fields:{_id:1,user:1}},(err,startPayments)=>{
+        paymentCol.find({realized:true,distributed:false},{fields:{_id:1,user:1}}).toArray((err,startPayments)=>{
           if(err)return callback(err);
           distributePayments(startPayments,userCol,paymentCol,(err)=>{
             if(err)logger.err('Error finding payments on IterativePayment',err);
