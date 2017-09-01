@@ -349,14 +349,5 @@ module.exports = {
       if(err)return next(err);
       res.json({autoSub:updated[0].autoSub});
     });
-	},
-  test:function(req,res,next){
-    Payout.find({payed:false}).exec((err,payouts)=>{
-      console.log(payouts[1]);
-      bitcoins.bitsendStatus(payouts[1].txId,(err,result)=>{
-        res.send(result);
-      });
-    });
-
-  }
+	}
 }

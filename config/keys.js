@@ -6,5 +6,6 @@ module.exports.keys={
     pass:process.env.BIT_PASS,
     secret:process.env.BIT_SECRET
   },
-  appUrl:process.env.APP_URL
+  appUrl:process.env.APP_URL,
+  scheduledLogEntriesKey:process.env.SCHED_LOG_KEY
 };

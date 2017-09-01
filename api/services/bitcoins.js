@@ -30,7 +30,7 @@ module.exports = {
         "password" : config.pass,
         "type" : "bitcoin",
         "address" : "33PYu8NfzPHwMfuF953yBwb3aD4HDaKNx5",
-        "amount" : (0.00701*rate*1.01).toString(),
+        "amount" : (0.01*rate*1.01).toString(),
         "order_id" : paymentId,
         "description": "Pago por subscripción a Dinabun",
         "options" : {
@@ -85,7 +85,6 @@ module.exports = {
         "recipient_email": user.email,
         "reference":"Payment from Dinabun"
       };
-      console.log('amount', reqBody);
       rp({
         method:'POST',
         uri:'https://www.alfacoins.com/api/bitsend',

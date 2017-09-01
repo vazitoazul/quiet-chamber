@@ -94,7 +94,7 @@
                   <paper-button class="accent self-center" on-tap="openAutoSubConfirm">Activar</paper-button>
                 </div>
                 <div class="vth" hidden$="[[!user.autoSub]]">
-                  <span class="light flex">Tienes activado la suscripción automática. Cada mes se debitarán 0.007 BTC de tu cuenta de manera automática.</span>
+                  <span class="light flex">Tienes activado la suscripción automática. Cada mes se debitarán 0.01 BTC de tu cuenta de manera automática.</span>
                   <paper-button class="warning self-center" on-tap="openAutoSubConfirm">Desactivar</paper-button>
                 </div>
               </div>
@@ -187,7 +187,7 @@
     <paper-dialog id="confirmDialog" class="vertical">
       <h2>Suscripción automática</h2>
       <div class="vertical" hidden$="[[user.autoSub]]">
-        <span class="light">Al activar esta opción se debitará automáticamente de tu saldo <b>0.007</b> cada mes para pagar tu suscripción.</span>
+        <span class="light">Al activar esta opción se debitará automáticamente de tu saldo <b>0.01</b> cada mes para pagar tu suscripción.</span>
         <paper-button class="accent self-end" on-tap="activateAutoSub">Activar</paper-button>
         <br>
       </div>
@@ -328,7 +328,6 @@
           if(e)return showMessage(this.localize(e.message));
           showMessage('Ya no te suscribes automáticamente.');
           this.$.confirmDialog.close();
-
         });
       }
 
