@@ -2,24 +2,40 @@
   "entrypoint": "index.html",
   "shell": "src/my-app.html",
   "fragments": [
+    "src/fragments/abt-view.html",
     "src/fragments/acco-view.html",
-    "src/fragments/main-view.html",
-    "src/fragments/notfound-view.html",
     "src/fragments/forbidden-view.html",
-    "src/fragments/servererror-view.html",
-    "src/fragments/rgst-view.html",
     "src/fragments/lgin-view.html",
-    "src/fragments/info-view.html",
-    "src/fragments/recw-view.html"
+    "src/fragments/main-view.html",
+    "src/fragments/mvf-view.html",
+    "src/fragments/notfound-view.html",
+    "src/fragments/opo-view.html",
+    "src/fragments/pas-view.html",
+    "src/fragments/post-view.html",
+    "src/fragments/rcp-view.html",
+    "src/fragments/recw-view.html",
+    "src/fragments/rgst-view.html",
+    "src/fragments/servererror-view.html",
+    "src/fragments/srch-view.html",
+    "src/fragments/sytm-view.html",
+    "src/fragments/wlcm-view.html"
   ],
-  "sourceGlobs": [
+  "sources": [
    "src/**/*",
    "src/elements/**/*",
    "images/**/*",
    "bower.json"
   ],
-  "includeDependencies": [
+  "extraDependencies": [
     "manifest.json",
-    "bower_components/webcomponentsjs/webcomponents-lite.min.js"
+    "bower_components/webcomponentsjs/webcomponents-lite.min.js",
+    "bower_components/redux.min/index.js",
+    "bower_components/redux-thunk.min/index.js"
+  ],
+  "lint": {
+    "rules": ["polymer-2"]
+  },
+  "builds": [
+     { "preset": "es5-bundled" }
   ]
 }

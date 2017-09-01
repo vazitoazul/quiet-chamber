@@ -402,9 +402,11 @@
         this.dispatch('selectBusiness',business.id)
       },
       _selectBusinessById:function(id){
+        if(!id)return;
         this.dispatch('selectBusiness',id);
       },
       _selectPostById:function(id){
+        if(!id)return;
         this.dispatch('selectPost',id);
       }
     });
