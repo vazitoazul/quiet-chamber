@@ -38,6 +38,19 @@ const user = (state=userInit,action)=>{
           break;
       }
       break;
+    case 'LOG_OUT':
+      switch (action.status) {
+        case 'success':
+          return Object.assign({},state,{loading:false,authenticated:false,info:GlobalState.user.info,lastAction:action.type});
+          break;
+        case 'error':
+          return Object.assign({},state,{loading:false,lastError:action.error});
+          break;
+        default:
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
     case 'SET_USER_AUTO_SUB':
     case 'SET_USER_INF':
     case 'SET_USER_PAYOUT_REQ':

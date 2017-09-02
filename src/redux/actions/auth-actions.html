@@ -35,6 +35,28 @@
             });
         }
       },
+      logOut:function(callback){
+        return function(dispatch){
+            dispatch({type:'LOG_OUT'});
+            let request = new Request('/logout',{
+              method:'GET',
+              headers: standardHeaders,
+              credentials: 'include'
+            });
+            window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              dispatch({type:'LOG_OUT',status:'success'});
+              window.history.pushState({},null,'/');
+              window.dispatchEvent(new CustomEvent('location-changed'));
+              callback();
+            })
+            .catch((e)=>{
+              dispatch({type:'LOG_OUT',status:'error',error:e.message});
+              callback({message:e.message});
+            });
+        }
+      },
       register:function(body,callback){
         return function(dispatch){
             dispatch({type:'LOG_IN'});

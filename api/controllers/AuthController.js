@@ -29,7 +29,11 @@ var AuthController = {
     // mark the user as logged out for auth purposes
     req.session.authenticated = false;
     res.clearCookie('authenticated');
-    res.redirect('/');
+    if(req.wantsJSON){
+      res.ok();
+    }else{
+      res.redirect('/');
+    }    
   },
 
   /**

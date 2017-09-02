@@ -94,6 +94,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.page = page || 'main';
       },
       _pageChanged: function(page) {
+        if(page==='logout'){
+          return this.dispatch('logOut',(err)=>{
+            if(err){
+              console.log(err);
+            }
+          });
+        }
         // Load page import on demand. Show 404 page if fails
         var resolvedPageUrl = this.resolveUrl('fragments/'+ page +'-view.html');
         this.importHref(resolvedPageUrl, null, this._showPage404, true);

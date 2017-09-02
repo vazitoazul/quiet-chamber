@@ -27,6 +27,7 @@
       }
       paper-card {
         min-width: 320px;
+        max-width: 400px;
       }
       .divider{
         border-style: solid;
@@ -81,10 +82,12 @@
             </div>
       	  </form>
         </div>
+        <div class="card-actions">
+          <span class="s-text">Al hacer click en Registrarme aceptas nuestros <a href="/images/Terminos_Condiciones.pdf" target="_blank">Términos y condiciones</a></span>
+        </div>
         <div class="card-actions horizontal">
           <div class="flex">
           </div>
-          <paper-button on-click="reset" class="secondary">[[localize('reset')]]</paper-button>
           <paper-button on-click="submit" id="submitButton" class="accent">
           [[localize('register_me')]]
           <paper-spinner hidden$="[[!user.loading]]" active></paper-spinner>
@@ -263,7 +266,7 @@
         if(this.route.path === '/rgst'){
 
           var self = this;
-          this.async(function(){      
+          this.async(function(){
             if(self.user.authenticated){
               window.history.pushState({},null,'/wlcm');
               window.dispatchEvent(new CustomEvent('location-changed'));
