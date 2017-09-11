@@ -37,19 +37,29 @@ module.exports = {
 	*/
 	requestOrder:function(req,res,next){
     var user = req.user;
-    Payment.create({user:user.id},(err,payment)=>{
+    Payment.find({user:req.user.id,txStatus:['new','paid']},(err,previous)=>{
       if(err) return next(err);
-      bitcoins.createOrder(user,payment.id,(err,response)=>{
-        if(err) return next(err);
-        payment.amount=Math.ceil((parseFloat(response.coin_amount))*100000000);
-        payment.txId=response.id;
-        payment.url=response.url;
-        payment.save((err)=>{
-          if(err){return next(err)};
-          res.redirect(response.url);
+      if(previous[0]){
+        return res.redirect('/paymentStatus/'+previous[0].id);
+      }else{
+        Payment.create({user:user.id},(err,payment)=>{
+          if(err) return next(err);
+          bitcoins.createOrder(user,payment.id,(err,response)=>{
+            if(err) return next(err);
+            payment.amount=Math.ceil((parseFloat(response.coin_amount))*100000000);
+            payment.txId=response.id;
+            payment.url=response.url;
+            payment.save((err)=>{
+              if(err){return next(err)};
+              console.log(response);
+              res.redirect(response.url);
+            });
+          });
         });
-      });
+      }
+
     });
+
   },
   requestPayout:function(req,res,next){
     var user = req.user;
