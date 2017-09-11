@@ -1,0 +1,61 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../shared-styles.html">
+
+
+<dom-module id="trms-view">
+  <template>
+    <style include="shared-styles">
+    </style>
+    <app-toolbar>
+        <a href="/" class="horizontal">
+          <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
+          <div main-title><span class="dinabun-title">Dinabun</span></div>
+        </a>
+        <div class="flex"></div>
+        <login-button></login-button>
+    </app-toolbar>
+    <div class="vertical center main row">
+      <div class="col-12 offset-sm-4 ">
+        <h4 class="center">TÉRMINOS Y CONDICIONES</h4>
+        <h5 class="">Politicas de uso</h5>
+        <br>
+        <h6>1- Condiciones de uso</h6>
+      </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'trms-view',
+      behaviors:[
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior
+      ],
+      properties:{
+        user: {
+          type:Object,
+          statePath:'user.info'
+        },
+        language :{
+          tpye : String,
+          statePath:'language'
+        },
+        resources:{
+          value:function(){
+            return {
+              "es":{
+                "success":"Se ha enviado un correo a {address} con un link para la verificación",
+                "failure":"Ya se ha enviado un correo de verificación o ya has confirmado tu correo"
+              },
+              "en":{
+                "success":"An email with a verification link has been sent to {address}",
+                "failure":"An email has already been sent or that address is already verified"
+              }
+            };
+          }
+        }
+      }
+
+    });
+  </script>
+</dom-module>
