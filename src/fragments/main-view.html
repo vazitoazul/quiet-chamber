@@ -124,6 +124,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       paper-tabs{
         min-width:450px;
       }
+      div.top-spaced{
+        margin-top : 2rem;
+      }
     </style>
     <app-location route="{{route}}"></app-location>
     <app-drawer-layout responsive-width="768px" force-narrow>
@@ -142,7 +145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <a href="/">
                 <iron-image height="50" width="50" src="/images/logo.png" preload sizing="contain"></iron-image>
               </a>
-              <div main-title><span class="dinabun-title">Dinabun</span></div>
+              <div main-title><a href="/"><span class="dinabun-title">Dinabun</span></a></div>
               <paper-tabs selected="[[route]]" attr-for-selected="route" align-bottom>
                 <paper-tab link route="main">
                   <a href="/">Inicio</a>
@@ -188,20 +191,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div class="mt-3 col-12 col-sm-12 col-md-4 vertical center feauture">
                       <iron-icon icon="custom:share" class="text-accent"></iron-icon>
                       <span class="strong mt-1">Crea tu red de recomendados</span>
-                      <span class="light">Nuestra plataforma provee un sistema de recomendos mediante suscripción. Consigue beneficios por las personas con membrecía debajo tuyo.</span>
+                      <!-- <span class="light">Nuestra plataforma provee un sistema de recomendos mediante suscripción. Consigue beneficios por las personas con membrecía debajo tuyo.</span> -->
+                      <span class="light">Ayudanos a que nos conozcan. Invita a 3 amgios y Dinabun te paga por esto.</span>
                     </div>
                     <div class="mt-3 col-12 col-sm-12 col-md-4 vertical center feauture">
                       <iron-icon icon="feedback" class="text-accent"></iron-icon>
-                      <span class="strong mt-1">Publica tus ideas</span>
+                      <span class="strong mt-1">Publica tu negocio  </span>
                       <span class="light">Tu cuenta también te da la capacidad de promocionar tu negocio y conseguir capital de otros miembros para hacer realidad tu emprendimiento.</span>
                     </div>
                     <div class="mt-3 col-12 col-sm-12 col-md-4 vertical center feauture">
                       <iron-icon icon="card-travel" class="text-accent"></iron-icon>
-                      <span class="strong mt-1">Busca empleo</span>
-                      <span class="light">Nuestro sistema de búsqueda te permite encontrar trabajo además de  oportunidades de inversión.</span>
+                      <span class="strong mt-1">Crea tu Franquicia</span>
+                      <span class="light">Nuestro sistema te permite expandir tu negocio a cualquier parte del mundo, ademas puedes encontrar el trabajo perfecto para ti</span>
+                      <!-- <span class="light">Nuestro sistema de búsqueda te permite encontrar trabajo además de  oportunidades de inversión.</span> -->
                     </div>
                   </div>
-                  <div class="row mb-3">
+                  <div class="row mb-3 top-spaced">
                     <div class="col-12 vertical center flex" >
                       <span class="light mt-3 ">Regístrate para empezar a recibir estos beneficios</span>
                       <a href="/rgst"><paper-button raised class="primary my-1">Registrarme</paper-button></a>

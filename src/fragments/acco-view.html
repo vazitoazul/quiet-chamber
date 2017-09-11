@@ -101,7 +101,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-header>
          <app-toolbar class="horizontal">
              <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-             <div main-title><span class="dinabun-title">Dinabun</span></div>
+             <a href="/"><div main-title><span class="dinabun-title">Dinabun</span></div></a>
+             <div main-title><a href="/srch"><span class="dinabun-title">Buscar</span></a></div>
              <div class="hidden-sm-down">
                <a href="/help"><paper-button>[[localize('help')]]</paper-button></a>
              </div>
@@ -195,7 +196,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </app-drawer-layout>
     <paper-dialog modal id="credentialDialog" class="userCredential">
       <h4 class="text-xs-left">[[localize('hello')]]</h4>
-      <h4>[[localize('enter_your_credential')]]</h4>
+      <div class="horizontal">
+        <h5>[[localize('enter_your_credential')]]</h5>
+      </div>
       <form id="userIntlCredentialForm" is="iron-form" action="/updateintlcredential" method="post">
         <paper-input id="countryInput" label="[[localize('enter_country')]]" value="Ecuador"></paper-input>
         <paper-input required auto-validate id="credentialNumber" label="[[localize('enter_credential_number')]]" error-message="[[localize('must_enter_id')]]"></paper-input>
@@ -256,6 +259,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   return {
                     'en': {
                       'hello' : 'Hi there',
+                      'terms' : 'Terminos y Condiciones',
                       'enter_your_credential' : 'Enter your credential to make sure you are the only you',
                       'enter_country' : 'enter your country',
                       'enter_credential_number' : 'enter your ID number',
@@ -278,9 +282,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     'es': {
                       'hello' : 'Hola',
-                      'enter_your_credential' : 'Ingresa tu identificacion para asegurarnos que eres el unico tu',
+                      'terms' : 'Terminos y Condiciones',
+                      'enter_your_credential' : 'Para asegurarnos de que cada usuario es único, necesitamos que registres un número de identificación. Si tienes dudas puedes consultar nuestros Términos y condiciones',
                       'enter_country' : 'Ingresa tu país',
-                      'enter_credential_number' : 'Ingresa el numero de tu identicicación',
+                      'enter_credential_number' : 'Ingresa el numero de tu identificación',
                       'not_valid_country' : 'País no válido, por favor escribe y seleccion otro',
                       'must_enter_id' : 'Debes ingresar tu identificación!',
                       'submit' : 'ENVIAR',
