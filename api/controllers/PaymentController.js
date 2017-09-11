@@ -39,7 +39,6 @@ module.exports = {
     var user = req.user;
     Payment.find({user:req.user.id,txStatus:['new','paid']},(err,previous)=>{
       if(err) return next(err);
-      console.log(previous);
       if(previous[0]){
         return res.redirect('/paymentStatus/'+previous[0].id);
       }else{
