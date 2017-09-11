@@ -178,8 +178,19 @@
         },
         userAuth : {
           type : Boolean,
-          statePath : 'user.authenticated',
-          observer: '_userAuthChange'
+          statePath : 'user.authenticated'
+        },
+        watingAuth :{
+          type:Boolean,
+          statePath : (state)=>{
+            //this becomes true when user is no longer wating for authorization and use info is lodaded
+            if(state.user.info.email&&state.user.authenticated&&!state.recommender.watingAuthorization){
+              return true;
+            }else{
+              return false;
+            }
+          },
+          observer:'_watchWaitingAuth'
         },
         recommender : {
           type : Object,
@@ -276,7 +287,10 @@
         }else{
           //if it gets here user has a recommender and wants to change him
           //if he wants to change by the same recommender that he already has, show sameRecommenderThanBefore
-          if(this.user.recommender.id == this.recommender.info.id)return this.set('section','sameRecommenderThanBefore');
+          if(this.user.recommender.id == this.recommender.info.id){
+            return this.set('section','sameRecommenderThanBefore');
+          }
+
           //if not, just show him changeRecommender
           this.set('section','changeRecommender');
         }
@@ -300,14 +314,12 @@
         this.$.toast.show();
       },
 
-      _userAuthChange : function(auth){
-        //when auth changes it means that the user just logged in
-        if(auth){
-          //check if it is not waiting for authorization anymore and it is not loading
-          if(!recommender.watingAuthorization&&!recommender.loading){
-            //if so, use the _recommenderExists method to show user the appropiate page
-            this._recommenderExists(recommender.exists);
-          }
+      _watchWaitingAuth : function(newVal){
+        //check if the user just returned from logging or registering
+        if(newVal){
+          //if so, run the function to place the user in the acording section
+          if(!this.recommender)return;
+          this._recommenderExists(this.recommender.exists);
         }
       },
       goLogin:function(){

@@ -42,7 +42,6 @@
     <paper-button raised on-click="login" class="facebook" disabled="[[!fbLoaded]]">
       <iron-icon icon="custom:facebook" class="facebook"></iron-icon>
     </paper-button>
-
   </template>
   <script>
     Polymer({
@@ -56,6 +55,11 @@
           type: Boolean,
           value:false
         }
+      },
+      attached:function(){
+        window.addEventListener('facebook-loaded',()=>{
+          this.fbLoaded=true;
+        });
       },
       login:function(){
         self=this;
@@ -97,7 +101,7 @@
             xfbml      : true,
             version    : 'v2.8'
           });
-          this.fbLoaded=true;
+          window.dispatchEvent(new CustomEvent('facebook-loaded',{bubbles:false}));
         };
       },
       callback:function(response){
