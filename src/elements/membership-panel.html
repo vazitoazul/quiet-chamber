@@ -64,6 +64,18 @@
       .capped{
         max-width: 500px;
       }
+      #payoutDialog{
+        min-width: 300px;
+        width: 50%;
+        max-width: 500px;
+      }
+      .capped-value{
+        font-size: 20px;
+        width: 120px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        text-align: right;
+      }
     </style>
 
     <div class="vertical p-3">
@@ -180,28 +192,32 @@
     </paper-dialog>
     <paper-dialog id="payoutDialog" >
       <h2>Retirar Dinero</h2>
-      <div>
+      <div class="vertical">
+        <span class="s-text">Recuerda que solamente puedes hacer un retiro cada <b>12</b> horas. Durante este tiempo, nuestro sistema se encarga de verificar la transacción y actualizar tu saldo. El costo de la transferencia es procesado por la </span>
         <div class="vertical">
-          <paper-input label="Cantidad a retirar" value="{{sendValue}}" autocorrect allowed-pattern="^(?:\d*\.)?\d{0,8}$">
+          <paper-input label="Cantidad a retirar" value="{{sendValue}}" auto-validate pattern="^(?:\d*\.)?\d{0,8}$" id="sendValueInput" error-message="Máximo 8 decimales.">
             <div prefix>BTC &nbsp;</div>
           </paper-input>
-          <div class="vth">
-            <b class="flex">Saldo restante </b>
-            <span>[[showDecimal(remainingValue)]]</span>
-          </div>
+          <br>
           <div class="vth">
             <b class="flex">Costo por la transferencia</b>
-            <span>[[showDecimal(feeValue)]]</span>
+            <span class="capped-value">[[showDecimal(feeValue)]]</span>
           </div>
           <div class="vth">
-            <b class="flex">Total a transferir</b>
-            <span>[[showDecimal(totalValue)]]</span>
+            <b class="flex">Total a recibir</b>
+            <span class="capped-value">[[showDecimal(totalValue)]]</span>
+          </div>
+          <div class="vth">
+            <b class="flex">Saldo restante </b>
+            <span class="capped-value">[[showDecimal(remainingValue)]]</span>
           </div>
           <paper-input label="Dirección a depositar" value="{{sendAdress}}"></paper-input>
         </div>
-        <div class="vertical">
-          <paper-button on-tap="requestPayout" class="accent self-end">Retirar dinero</paper-button>
-        </div>
+
+      </div>
+      <div class="vertical">
+        <paper-button on-tap="requestPayout" class="accent self-end" raised>Retirar dinero</paper-button>
+        <br>
       </div>
       <div class="loading-overlay" hidden$="[[!payouts.loading]]">
         <paper-spinner active></paper-spinner>
@@ -333,8 +349,9 @@
       _computeRemaining:function(value,balance){
         if(!balance)return 0;
         var parsed = balance/100000000;
-        if(!value)return parsed
-        this.remainingValue= parsed-parseFloat(value);
+        if(!value)return parsed;
+        //this is the remaining Balance that the user will have taking in account the amount to be withdraw
+        this.remainingValue= parsed-parseFloat(value)-(parseFloat(value)*0.01)-0.00000001;
       },
       _computeHasBalance:function(balance){
         return balance>0;
@@ -346,15 +363,25 @@
         window.location=window.location.origin+'/payment/requestOrder';
       },
       requestPayout:function(){
+        if(!this.$.sendValueInput.validate()){
+          return showMessage('Ingresa un valor correcto para retirar.');
+        }
+        if(this.remainingValue<=0){
+          return showMessage('No tienes suficientes fondos para retirar.');
+        }
+        if(!body.address){
+          return showMessage('Debes ingresar una dirección para depositar.')
+        }
         var body = {
           address:this.sendAdress,
           amount:this.sendValue*100000000
         };
         this.dispatch('requestPayout',body,(err,payout)=>{
-          if(err) return this.showMessage('Hubo un error enviando tu dinero');
+          if(err) return this.showMessage('Hubo un error enviando tu dinero. Revisa tu diección o intenta más tarde.');
           this.showMessage('Se ha enviado tu dinero.');
           this.$.payoutDialog.close();
-
+          this.sendAdress=null;
+          this.sendValue=null;
         });
 
       },

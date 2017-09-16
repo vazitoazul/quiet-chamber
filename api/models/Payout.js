@@ -7,6 +7,5 @@ module.exports = {
       fee:{type:'float',required:true},
       address:{type:'string',required:true},
       txId:{type:'string'}
-
     }
 };

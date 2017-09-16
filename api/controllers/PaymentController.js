@@ -76,23 +76,37 @@ module.exports = {
       fee:(amount*0.01)+10000,
       address:req.body.address
     };
-    Payout.create(detail,function(err,newPayout){
-      if(err) return res.json(500,{error:'server_error'});
-      bitcoins.bitSend(detail.amount,detail.address,user,function(err,response){
-        if(err){
-          Payout.destroy({id:newPayout.id},function(err,deleted){
-            if(err) console.log('Error deleting payout on alfacoin fail',err);
-            return res.json(500,{error:'network_fail'});
-          });
-        }else{
-          Payout.update({id:newPayout.id},{txId:response.txId},function(err,updated){
+    var total=detail.amount+detail.fee;
+    User.findOne(user.id,(err,user)=>{
+      if(err)return res.json(500,{error:'server_error'});
+      var available = user.balance.reduce((res,val)=>{
+        return res+val;
+      },0);
+      if(total>available){
+        return res.json(409,{error:'balance_not_available'});
+      }
+      Payout.findOne({user:user.id},(err,lastPayout)=>{
+        if(err)return res.json(500,{error:'server_error'});
+        if(lastPayout)return res.json(409,{error:'payout_already_requested'});
+        Payout.create(detail,function(err,newPayout){
+          if(err) return res.json(500,{error:'server_error'});
+          bitcoins.bitSend(detail.amount,detail.address,user,function(err,response){
             if(err){
-              console.log('Error updating payout transaction Id');
-              return res.json(500,{error:'server_error'});
+              Payout.destroy({id:newPayout.id},function(err,deleted){
+                if(err) console.log('Error deleting payout on alfacoin fail',err);
+                return res.json(500,{error:'network_fail'});
+              });
+            }else{
+              Payout.update({id:newPayout.id},{txId:response.txId},function(err,updated){
+                if(err){
+                  console.log('Error updating payout transaction Id');
+                  return res.json(500,{error:'server_error'});
+                }
+                res.json(updated[0]);
+              });
             }
-            res.json(updated[0]);
           });
-        }
+        });
       });
     });
 

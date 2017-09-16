@@ -37,7 +37,7 @@ var subsValue;
     }
   }
   // Start server
-  sails.lift(rc('sails'),function(done){
+  sails.lift(rc('sails'),function(err){
     //start logger to log error events when this happens
     var logger = new Logger({
       token:sails.config.keys.scheduledLogEntriesKey
@@ -187,7 +187,12 @@ var subsValue;
           throw err;
         }
         paymentCol.find({realized:true,distributed:false},{fields:{_id:1,user:1}}).toArray((err,startPayments)=>{
-          if(err)return callback(err);
+          if(err){
+            logger.err('Error finding payments on IterativePayment',err);
+            return sails.lower(()=>{
+              process.exit();
+            });
+          }
           distributePayments(startPayments,userCol,paymentCol,(err)=>{
             if(err)logger.err('Error finding payments on IterativePayment',err);
             sails.lower(()=>{
