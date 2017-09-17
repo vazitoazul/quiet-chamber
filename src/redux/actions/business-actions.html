@@ -212,16 +212,19 @@ const BusinessActionsBehavior = {
     selectBusiness:function(id){
       var selected = this.getState().business.business.reduce((result,item)=>{
         if(item.id===id){
-          return item;
+          result=item;
         }
+        return result;
       },{});
+
       return {type:'SELECT_BUSS',business:selected};
     },
     selectPost:function(id){
       var selected = this.getState().business.posts.reduce((result,item)=>{
         if(item.id===id){
-          return item;
+          result=item;
         }
+        return result;
       },{});
       return {type:'SELECT_POST',post:selected};
     }

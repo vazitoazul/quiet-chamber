@@ -139,7 +139,7 @@
                     </div>
                     <div class="buttons">
                       <a href="/acco/business/[[currentBusiness.id]]/[[item.id]]">
-                        <paper-button class="primary">Ver</paper-button>
+                        <paper-button class="primary" raised>Ver</paper-button>
                       </a>
                     </div>
                   </div>
@@ -306,6 +306,7 @@
         hasPosts:{
           type:Boolean,
           statePath(state){
+            if(!state.business.selectedBusiness)return false;
             var selectedId=state.business.selectedBusiness.id;
             return state.business.posts.reduce((result,item)=>{
               if(item.business===selectedId){

@@ -78,6 +78,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         overflow-wrap: break-word;
         width: 100%;
       }
+      .dinabun-title{
+        color: #fff;
+      }
+      paper-item.aditionla{
+        color:var(--accent-color);
+      }
     </style>
     <app-location route="{{route}}"></app-location>
     <app-route
@@ -88,24 +94,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <app-drawer-layout id="drawerLayout" responsive-width="768px">
       <app-drawer align="left" id="drawer">
-        <h5>Menu</h5>
-        <paper-menu>
-          <paper-item><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="info"></iron-icon>[[localize('userInfo')]]</a></paper-item>
-          <paper-item><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
-          <paper-item><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="social:people"></iron-icon>[[localize('recommended')]]</a></paper-item>
-          <paper-item><a class="menu-item" href="/acco/business"><iron-icon item-icon icon="work"></iron-icon>[[localize('bussiness')]]</a></paper-item>
-          <paper-item><a class="menu-item" href="/acco/payments"><iron-icon item-icon icon="payment"></iron-icon>[[localize('payments')]]</a></paper-item>
-        </paper-menu>
+        <div class="h-100 vertical">
+          <h5>Menu</h5>
+          <paper-menu>
+            <paper-item><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="info"></iron-icon>[[localize('userInfo')]]</a></paper-item>
+            <paper-item><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
+            <paper-item><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="social:people"></iron-icon>[[localize('recommended')]]</a></paper-item>
+            <paper-item><a class="menu-item" href="/acco/business"><iron-icon item-icon icon="work"></iron-icon>[[localize('bussiness')]]</a></paper-item>
+            <paper-item><a class="menu-item" href="/acco/payments"><iron-icon item-icon icon="payment"></iron-icon>[[localize('payments')]]</a></paper-item>
+          </paper-menu>
+          <div class="flex"></div>
+          <a href="/srch"><paper-item class="aditional"><iron-icon item-icon icon="search"></iron-icon>Buscar Anuncios</paper-item></a>
+          <a href="/sytm"><paper-item class="aditional"><iron-icon item-icon icon="info"></iron-icon>Ayuda</paper-item></a>
+        </div>
       </app-drawer>
       <app-header-layout>
         <app-header>
          <app-toolbar class="horizontal">
              <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
              <a href="/"><div main-title><span class="dinabun-title">Dinabun</span></div></a>
-             <div main-title><a href="/srch"><span class="dinabun-title">Buscar</span></a></div>
-             <div class="hidden-sm-down">
-               <a href="/help"><paper-button>[[localize('help')]]</paper-button></a>
-             </div>
              <div class="flex"></div>
              <a href="/logout" rel="external">
                <paper-button raised class="accent">Salir</paper-button>

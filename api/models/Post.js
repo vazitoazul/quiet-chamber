@@ -11,7 +11,8 @@ module.exports = {
     business : { model : 'business', required : true },
     type : { type : 'string', required : true},
     labels : { type : 'array', defaultsTo : []},
-    placesIds : { type : 'array'},
+    placesIds : { type : 'array',defaultsTo:[]},
+    cityLabel : { type : 'string',required:true},
     details:{type:'json',defaultsTo:{}},
     name : { type: 'string', required : true}
   },
@@ -20,8 +21,8 @@ module.exports = {
     Business.findOne(values.business,function(err,business){
       if(err) return next(err);
       values.labels = business.labels;
-      values.placesIds = business.placesIds;
       return next();
     });
   }
+
 };

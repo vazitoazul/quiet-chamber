@@ -26,14 +26,7 @@ module.exports = {
 		*/
 	createBusiness : function(req,res,next){
 		var business = req.body.business;
-		var posts = req.body.posts;
 		business['user'] = req.user.id;
-		if(posts){
-			var aux = Object.keys(posts).map(function(e) {
-        return posts[e];
-      });
-			business['posts'] = aux;
-		}
 		Business.create(business,function(err,newBusiness){
 			if(err)return next(err);
 			business['id'] = newBusiness.id;
@@ -52,7 +45,7 @@ module.exports = {
 		});
 	},
 	/**
-    *create a business for the current logged user
+    *Update a business given data and the id
     *
 		*@param {string} id - uniqe business id
 		*@param {string} name
@@ -69,7 +62,11 @@ module.exports = {
 		Business.update({id : id},req.body,function(err,updated){
 			if(err)return next(err);
 			if(!updated[0])return res.badRequest();
-			return res.json(updated[0]);
+      //Also update all the ascociated posts with the corresponding labels
+      Post.update({business:updated[0].id},{labels:updated[0].labels},(err,updatedPosts)=>{
+        if(err)return next(err);
+        return res.json(updated[0]);
+      })	
 		});
 	},
 	/**

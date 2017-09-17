@@ -254,7 +254,7 @@
           },
           googleMapsApiRestrictions : {
             type : Object,
-            value : {types : ['(regions)'],componentRestrictions: {country: 'ec'}}
+            value : {types : ['(regions)']}
           },
           creating : {
             type : Boolean,
@@ -263,12 +263,6 @@
           editing : {
             type : Boolean,
             value : false
-          },
-          placesIds:{
-            type: Object,
-            value: function(){
-              return [];
-            }
           }
 		},
     ready : function(){
@@ -281,8 +275,7 @@
         google.maps.event.addListener(citySearch,'place_changed', function(){
           var city = citySearch.getPlace();
           if(!city.geometry){
-            self.$.toast.text = self.localize('not_valid_city');
-            self.$.toast.open();
+            showMessage(self.localize('not_valid_city'));
           }else{
             self.setPlacesIdsArray(city);
           }
@@ -303,10 +296,7 @@
           if (status != google.maps.places.PlacesServiceStatus.OK) {
               return;
           }
-
-          if(self.placesIds.indexOf(predictions[0].place_id)===-1){
-            self.push('business.placesIds',predictions[0].place_id);
-          }
+          self.push('business.placesIds',predictions[0].place_id);
         });
       }
     },

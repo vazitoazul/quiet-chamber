@@ -1,5 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
@@ -31,12 +31,15 @@
     }
   </style>
   <template>
+    <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
     <div class="vth">
       <div class="flex">
         <paper-card>
           <div class="card-content">
               <form is="iron-form" id="topForm" >
                 <div>
+                  <paper-input id="cityInput" name="cityLabel" label="[[localize('city')]]" required value="{{post.cityLabel}}" error-message="[[localize('add_city')]]"></paper-input>
+                  <input name="placesIds" hidden value="{{post.placesIds}}"></input>
                   <paper-dropdown-menu label="[[localize('type')]]" required>
                     <paper-listbox id="paperList" class="dropdown-content" selected="{{post.type}}"  attr-for-selected="value">
                       <paper-item value="i">[[localize('investment')]]</paper-item>
@@ -74,7 +77,7 @@
                     <paper-input label="Con el dinero voy a..." required value="{{post.name}}" allowed-pattern="^.{1,}$"></paper-input>
                     <paper-textarea label="Describe tu causa" name="description" value="{{post.details.description}}" required error-message="Al menos 20 caracteres." rows="3" allowed-pattern="^.{20,}$" maxlength="500" char-counter></paper-textarea>
                     <paper-textarea label="En qué vas a utilizar el dinero?" name="reason" value="{{post.details.reason}}" required error-message="Al menos 20 caracteres." rows="3" allowed-pattern="^.{20,}$" maxlength="500" char-counter></paper-textarea>
-                    <paper-input class="self-start" label="Monto mínimo (0 si lo dejas en blanco)" name="minDonation" value="{{post.details.minDonation}}" required allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
+                    <paper-input class="self-start" label="Monto mínimo (0 si lo dejas en blanco)" name="minDonation" value="{{post.details.minDonation}}"  allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
                       <span suffix>$</span>
                     </paper-input>
                   </form>
@@ -124,7 +127,6 @@
         </div>
       </div>
     </div>
-
     <paper-dialog id="dialog">
       <h2>[[localize('delete')]] [[business.name]]</h2>
       <paper-dialog-scrollable>
@@ -134,6 +136,7 @@
         <paper-button dialog-confirm autofocus on-click="deletePost">[[localize('delete')]]</paper-button>
       </div>
     </paper-dialog>
+    <div id="placesServiceResult"></div>
   </template>
   <script>
     Polymer({
@@ -171,6 +174,8 @@
                   'job' : 'Job',
                   'create' : 'Create',
                   'name' : 'Name',
+                  'city':'City',
+                  'add_city':'You must select a city',
                   'amount' : 'Amount',
                   'update' : 'Update',
                   'cancel' : 'Cancel',
@@ -188,6 +193,8 @@
                   'investment' : 'Inversión',
                   'job' : 'Trabajo',
                   'create' : 'Crear',
+                  'city':'Ciudad',
+                  'add_city':'Debes seleccionar una ciudad',
                   'name' : 'Nombre',
                   'amount' : 'Inversión mínima',
                   'update' : 'Actualizar',
@@ -209,9 +216,18 @@
         },
         business : {
           type : Object
-        }
+        },
+        googleMapsApiRestrictions : {
+          type : Object,
+          value : {types : ['(regions)']}
+        },
       },
       validateForm : function(){
+        if(this.post.placesIds.length<0){
+          this.$.cityInput.focus();
+          this.$.cityInput.invalid=true;
+          return false;
+        }
         switch (this.post.type) {
           case 'j':
             return this.$.jobForm.validate() &&this.$.topForm.validate();
@@ -234,6 +250,7 @@
         this.dispatch('createPost',this.post,function(err){
           if(err) return showMessage(self.localize(err.message));
           showMessage(self.localize('post_created'));
+          //reset form before after post is created
           self.set('post',{
             details:{
               time:'m'
@@ -245,12 +262,43 @@
       edditPost : function(){
         var self = this;
         if(!this.validateForm())return;
-        console.log(this.post);
         this.dispatch('edditPost',this.post,function(err){
           if(err) return showMessage(self.localize(err.message));
           showMessage(self.localize('post_edited'));
           self.returnToResume();
         });
+      },
+      handleApiLoad : function(){
+          var self = this;
+          var cityInput = self.$.cityInput.inputElement;
+          var citySearch = new google.maps.places.Autocomplete(cityInput,this.googleMapsApiRestrictions);
+          google.maps.event.addListener(citySearch,'place_changed', function(){
+            var city = citySearch.getPlace();
+            if(!city.geometry){
+              showMessage(self.localize('not_valid_city'));
+            }else{
+              self.setPlacesIdsArray(city);
+            }
+          });
+  		},
+      setPlacesIdsArray : function(address){
+        var self = this;
+        var service = new google.maps.places.AutocompleteService();
+        var placesService = new google.maps.places.PlacesService(self.$.placesServiceResult);
+        this.set('post.placesIds',[]);
+        this.set('post.cityLabel',address.formatted_address);
+        for(var place in address.address_components){
+          service.getPlacePredictions({
+              input: address.address_components[place].long_name,
+              componentRestrictions: self.googleMapsApiRestrictions.componentRestrictions,
+              types: self.googleMapsApiRestrictions.types
+          }, function(predictions,status){
+            if (status != google.maps.places.PlacesServiceStatus.OK) {
+                return;
+            }
+            self.push('post.placesIds',predictions[0].place_id);
+          });
+        }
       },
       _responseHandler : function(){
         this.$.toast.text = 'creado';
@@ -274,9 +322,7 @@
         });
       },
       watchPost : function(e){
-        if(this.post.id){
-          window.open('/pst/'+this.business.id);
-        }else{
+        if(!this.post.id){
           this.createPost();
         }
       },
