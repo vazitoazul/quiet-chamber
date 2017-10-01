@@ -18,9 +18,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         padding: 10px 20px;
       }
+      div.main{
+        @apply(--layout-fullbleed);
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
     </style>
+    <div class="main">
+      <h1>Opps!</h1>
+      <h4>La página que buscas no existe.</h4>
+      <h4><a href="/">Regresar al inicio</a></h4>
+    </div>
 
-    Oops you hit a 404. <a href="/">Head back to home.</a>
   </template>
 
   <script>
