@@ -8,7 +8,6 @@
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/re-captcha/re-captcha.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../elements/main-toolbar.html">
@@ -142,7 +141,6 @@
         </div>
       </section>
     </iron-pages>
-    <paper-toast duration="5000" id="toast"></paper-toast>
     <paper-dialog class="row" id="dialog" with-backdrop>
       <h5 class="col-sm-10">[[localize('confirm_change','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
       <paper-button id="confirmButton" raised class="primary col-sm-3 offset-sm-4" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
@@ -301,17 +299,11 @@
       changeRecommender : function(){
         this.dispatch('updateUserRecommender', this.recommender.info.id,(err)=>{
           if(err){
-            return this.showMessage(this.localize(err.message));
+            return showMessage(this.localize(err.message));
           }
           this.section='success';
           this.dispatch('loadUserInfo');
         });
-      },
-
-      showMessage : function(message,time){
-        this.$.toast.text = message;
-        this.$.toast.duration= time || 3000;
-        this.$.toast.show();
       },
 
       _watchWaitingAuth : function(newVal){

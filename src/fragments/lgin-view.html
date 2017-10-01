@@ -3,7 +3,6 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
@@ -43,8 +42,8 @@
     <paper-card>
       <div class="card-content">
         <div class="horizontal center">
-          <facebook-login on-show-message="showMessage"></facebook-login>
-          <google-login  on-show-message="showMessage"></google-login>
+          <facebook-login></facebook-login>
+          <google-login ></google-login>
         </div>
         <form is="iron-form" id="loginForm">
         	  <paper-input name="identifier" label="[[localize('email')]]" required auto-validate  error-message="[[localize('email_form')]]"></paper-input>
@@ -85,7 +84,6 @@
       </iron-collapse>
     </div>
     <h5>[[localize('no_account')]]<a href="/rgst">[[localize('register')]]</a></h5>
-  	<paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
 
   <script>
@@ -168,16 +166,11 @@
               }
         }
       },
-      showMessage:function(message,duration){
-        this.$.toast.text=message;
-        this.$.toast.duration=duration||4000;
-        this.$.toast.open();
-      },
       submit : function(e){
         if(this.$.loginForm.validate()){
           var body = this.$.loginForm.serialize();
           this.dispatch('logIn','local',body,(err)=>{
-            if(err)return this.showMessage(this.localize(err.message));
+            if(err)return showMessage(this.localize(err.message));
             this.dispatch('loadUserInfo');
           });
         }
@@ -186,8 +179,8 @@
         if(this.$.recoverForm.validate()){
           var body = this.$.recoverForm.serialize();
           this.dispatch('recoverPassword',body,(err)=>{
-            if(err)return this.showMessage(this.localize(err.message));
-            this.showMessage(this.localize('mail_sent'));
+            if(err)return showMessage(this.localize(err.message));
+            showMessage(this.localize('mail_sent'));
           });
         }
       },

@@ -25,6 +25,9 @@ const userInfo = (state=userInfoInit,action)=>{
 };
 const user = (state=userInit,action)=>{
   switch (action.type) {
+    case 'USER_START_LOADING':
+      return Object.assign({},state,{loading:true});
+      break;
     case 'LOG_IN':
       switch (action.status) {
         case 'success':

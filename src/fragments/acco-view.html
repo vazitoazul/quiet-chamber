@@ -14,7 +14,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
@@ -214,7 +213,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
       </form>
     </paper-dialog>
-    <paper-toast id="toast" duration="5000"></paper-toast>
   </template>
 
   <script>
@@ -322,11 +320,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       attached : function(){
         this.checkUserIntCred();
       },
-      showMessage:function(message,duration){
-        this.$.toast.text = message;
-        this.$.toast.duration=duration || 3000;
-        this.$.toast.open();
-      },
       googleApiReady : function(e){
         var countrySearch = new google.maps.places.Autocomplete(this.$.countryInput.inputElement,{types : ['(regions)']});
         var that = this;
@@ -354,7 +347,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if(form.validate()){
           var newCredential = this.countryCode.concat(this.$.credentialNumber.value);
           this.dispatch('updateIntlCredential',{newCredential : newCredential},function(err){
-            if(err) return self.showMessage(self.localize(err.message));
+            if(err) return showMessage(self.localize(err.message));
             self.checkUserIntCred();
           });
         }
@@ -397,18 +390,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         try {
           var successful = document.execCommand('copy');
           var msg = successful ? 'successful' : 'unsuccessful';
-          this.showMessage('Se ha copiado el link a tu portapapeles');
+          showMessage('Se ha copiado el link a tu portapapeles');
         } catch (err) {
-          this.showMessage('Lo sentimos, no tu navegador no lo permite :(');
+          showMessage('Lo sentimos, no tu navegador no lo permite :(');
         }
         document.body.removeChild(textArea);
       },
       userBusinessHandler : function(e){
         this.set('user.business',e.detail.__data__.response);
       },
-      // userObserver : function(newVal,oldVal){
-      //   this.checkUserIntCred();
-      // },
       computeSection : function(section){
         if(!section || (section != 'membership' && section != 'payments' && section != 'userInfo' && section != 'business')){
           this.set('route.path','acco/userInfo');
@@ -424,9 +414,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }else {
           this.$.credentialDialog.close();
         }
-      },
-      billAdded:function(){
-        this.showMessage('Se te ha emitido una factura exitosamente.')
       },
       changeRoute : function(route){
         this.fire('route-change',{route : route})

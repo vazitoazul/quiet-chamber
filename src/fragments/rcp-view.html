@@ -7,7 +7,6 @@
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../redux/global-store.html">
 <link rel="import" href="../redux/actions/auth-actions.html">
@@ -74,8 +73,6 @@
       </iron-pages>
 
     </div>
-    <paper-toast id="toast"></paper-toast>
-
   </template>
   <script>
     Polymer({
@@ -139,11 +136,6 @@
       observers: [
         '_passwordMatch(confirm)'
       ],
-      showMessage:function(message,duration){
-        this.$.toast.text=message;
-        this.$.toast.duration=duration||3000;
-        this.$.toast.open();
-      },
       _routePageChanged: function(page) {
         this.page = page || 'succes';
       },
@@ -155,7 +147,7 @@
           this.dispatch('changePassword',this.$.mainForm.serialize(),(err)=>{
             if(err){
               this.page='failure';
-              return this.showMessage(this.localize(err.message));
+              return showMessage(this.localize(err.message));
             }
             this.page='success';
           });

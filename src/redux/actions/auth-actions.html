@@ -184,6 +184,9 @@
               dispatch({type:'SET_USER_INF',status:'error',error:e.message})
             });
         };
+      },
+      userStartLoading:function(){
+        return {type:'USER_START_LOADING'};
       }
     },
     checkLogIn:function(){
@@ -196,5 +199,6 @@
       })
       return found;
     }
+
   };
 </script>

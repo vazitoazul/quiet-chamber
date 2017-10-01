@@ -60,7 +60,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <trms-view name="trms"></trms-view>
 
     </iron-pages>
-    <paper-toast id="toast"></paper-toast>
+    <paper-toast id="toast" class="vertical">
+      <paper-button class="accent self-end" on-tap="closeToast" hidden$="[[!infiniteToast]]">Cerrar</paper-button>
+    </paper-toast>
 
   </template>
 
@@ -83,12 +85,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.dispatch('loadUserInfo');
         }
         window.addEventListener('show-message',(e)=>{
-          var message = e.detail.message,
-              duration = e.detail.duration,
-              extras = e.detail.extras;
-          this.$.toast.text=message;
-          this.$.toast.duration=duration||3000;
-          this.$.toast.show();
+          this.debounce('showMessage',()=>{
+            var toast = this.$.toast;
+            toast.text = e.detail.message;
+            if(e.detail.duration===0){
+              this.infiniteToast=true;
+              toast.duration=0;
+            }else{
+              this.infiniteToast=false;
+              toast.duration=e.detail.duration||4000;
+            }
+            toast.show();
+          },100);
         });
       },
       _routePageChanged: function(page) {
@@ -113,6 +121,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var newPath = e.detail.route
         this.page = newPath;
         this.set('route.path','/'+newPath);
+      },
+      closeToast:function(){
+        this.$.toast.close();
       }
     });
   </script>

@@ -52,10 +52,6 @@
         </iron-pages>
       </paper-material>
     </div>
-    <paper-toast id="toast" duration="0">
-      <paper-button calss="secondary" on-click="closeToast">Cerrar</paper-button>
-    </paper-toast>
-
   </template>
   <script>
     Polymer({
@@ -106,16 +102,10 @@
       },
       _mailVerifChange:function(newVal){
         if(newVal.success){
-          this.$.toast.text=this.localize('success','address',newVal.addressUsed);
-          this.$.toast.show();
+          showMessage(this.localize('success','address',newVal.addressUsed),0);
         }else if(newVal.lastError){
-          this.$.toast.text=this.localize('failure');
-          this.$.toast.show();
+          showMessage(this.localize('failure'),0);
         }
-
-      },
-      closeToast:function(){
-        this.$.toast.close();
       }
 
     });

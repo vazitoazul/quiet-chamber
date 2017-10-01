@@ -39,7 +39,7 @@
       handle-as="json"
       method="GET"
       on-response="handleKeyResponse"></iron-ajax>
-    <paper-button raised on-click="login" class="facebook" disabled="[[!fbLoaded]]">
+    <paper-button raised on-click="login" class="facebook">
       <iron-icon icon="custom:facebook" class="facebook"></iron-icon>
     </paper-button>
   </template>
@@ -53,7 +53,17 @@
         },
         fbLoaded:{
           type: Boolean,
+          value:false,
+          observer:'_watchFbLoaded'
+        },
+        wantsLogin:{
+          true:Boolean,
           value:false
+        }
+      },
+      _watchFbLoaded:function(loaded){
+        if(loaded&&this.wantsLogin){
+          return this.login();
         }
       },
       attached:function(){
@@ -62,6 +72,10 @@
         });
       },
       login:function(){
+        if(!this.fbLoaded){
+          this.dispatch('userStartLoading');
+          return this.wantsLogin=true;
+        }
         self=this;
         FB.getLoginStatus(function(response){
           if (response.status === 'connected') {
@@ -117,7 +131,7 @@
             this.dispatch('loadUserInfo');
           });
         } else {
-          this.fire('show-message','error_log_with_fb');
+          showMessage('Hubo un error autenticándote con facebook.');
         }
       }
     });

@@ -8,9 +8,17 @@
 
         padding: 10px 20px;
       }
+      div.main{
+        @apply(--layout-fullbleed);
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
     </style>
-
-    There was an internal error, try again <a href="/">Head back to home.</a>
+    <div class="main">
+      <h1>Algo salió muy mal :(</h1>
+      <h4>Tu operación no puede ser atendida por el momento. Por favor intenta nuevamente</h4>
+      <h4><a href="/">Regresar al inicio</a></h4>
+    </div>
   </template>
 
   <script>
