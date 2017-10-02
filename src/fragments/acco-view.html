@@ -11,6 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
@@ -83,6 +84,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       paper-item.aditionla{
         color:var(--accent-color);
       }
+      #credentialDialog{
+        max-width: 500px;
+
+      }
     </style>
     <app-location route="{{route}}"></app-location>
     <app-route
@@ -96,6 +101,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="h-100 vertical">
           <h5>Menu</h5>
           <paper-menu>
+            <paper-item><a class="menu-item" href="/acco"><iron-icon item-icon icon="star"></iron-icon>Inicio</a></paper-item>
             <paper-item><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="info"></iron-icon>[[localize('userInfo')]]</a></paper-item>
             <paper-item><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
             <paper-item><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="social:people"></iron-icon>[[localize('recommended')]]</a></paper-item>
@@ -119,11 +125,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          </app-toolbar>
         </app-header>
       </app-header-layuout>
-      <iron-pages selected='[[routeData.section]]' attr-for-selected="section" fallback-selection="userInfo">
+      <iron-pages selected='[[page]]' attr-for-selected="section" fallback-selection="resume">
+        <section section="resume" class="p-2">
+          <h3 class="mb-2">Tu cuenta</h3>
+          <div class="vth">
+            <paper-card heading="Tu suscripción" class="m-2 vertical">
+              <div class="card-content flex" hidden$="[[user.isSuscribed]]">
+                <span>No cuentas con una suscripción. Suscríbete y aprovecha <a href="/sytm">los beneficios de nuestro portal</a>.</span>
+              </div>
+              <div class="card-content flex" hidden$="[[!user.isSuscribed]]">
+                <span>Tu suscripción es válida hasta : <b>[[localize('date','value',user.subscribedUntil)]]</b></span>
+              </div>
+              <div class="card-actions horizontal" hidden$="[[user.isSuscribed]]">
+                <div class="flex"></div>
+                <a href="/acco/membership">
+                  <paper-button class="accent">Suscribirme</paper-button>
+                </a>
+              </div>
+            </paper-card>
+            <paper-card heading="Tus recomendados" class="m-2 vertical">
+              <div class="card-content flex" hidden$="[[user.recommended.0]]">
+                <span>Todavía no cuentas con recomendados. Invita personas para que sean tus recomendados para recibir beneficios por sus suscripciones.</span>
+              </div>
+              <div class="card-content flex" hidden$="[[!user.recommended.0]]">
+                <span>Cuentas con <b>[[user.recommended.lenght]]/3</b> recomendados.</span>
+              </div>
+              <div class="card-actions horizontal" hidden$="[[user.recommended.2]]">
+                <div class="flex"></div>
+                <a href="/acco/membership">
+                  <paper-button class="accent" hidden$="[[user.recommended.0]]">Invitar</paper-button>
+                  <paper-button class="accent" hidden$="[[!user.recommended.0]]">Detalles</paper-button>
+                </a>
+              </div>
+            </paper-card>
+          </div>
+
+        </section>
         <section section="membership">
           <membership-panel></membership-panel>
         </section>
-        <section section="payments">
+        <section section="payments" >
           <div class="vertical">
             <div class="horizontal">
               <payments-grid class="flex" on-bill-added="billAdded"></payments-grid>
@@ -170,10 +211,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </div>
             </div>
             <div class="row">
-              <div class="col-12" hidden$=[[!user.recommended.0]]>
+              <div class="col-12" hidden$="[[!user.recommended.0]]">
                 <h5>[[localize('your_recommended')]]</h5>
               </div>
-              <div class="col-10 offset-sm-2 no-recommended" hidden$=[[user.recommended.0]]>
+              <div class="col-10 offset-sm-2 no-recommended" hidden$="[[user.recommended.0]]">
                 <h6>[[localize('no_recommended')]]</h6>
               </div>
               <template is="dom-repeat" items="[[user.recommended]]">
@@ -201,17 +242,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </iron-pages>
     </app-drawer-layout>
     <paper-dialog modal id="credentialDialog" class="userCredential">
-      <h4 class="text-xs-left">[[localize('hello')]]</h4>
-      <div class="horizontal">
-        <h5>[[localize('enter_your_credential')]]</h5>
-      </div>
-      <form id="userIntlCredentialForm" is="iron-form" action="/updateintlcredential" method="post">
-        <paper-input id="countryInput" label="[[localize('enter_country')]]" value="Ecuador"></paper-input>
-        <paper-input required auto-validate id="credentialNumber" label="[[localize('enter_credential_number')]]" error-message="[[localize('must_enter_id')]]"></paper-input>
-        <div class="buttons">
-          <paper-button on-click="updateIntlCredential" class="secondary">[[localize('submit')]]</paper-button>
+      <h4 class="text-xs-left">Bienvenido</h4>
+      <paper-dialog-scrollable>
+        <div class="horizontal">
+          <span>[[localize('enter_your_credential')]]</span>
         </div>
-      </form>
+        <form id="userIntlCredentialForm" is="iron-form" action="/updateintlcredential" method="post">
+          <paper-input id="countryInput" label="[[localize('enter_country')]]" value="Ecuador"></paper-input>
+          <paper-input required auto-validate id="credentialNumber" label="[[localize('enter_credential_number')]]" error-message="[[localize('must_enter_id')]]"></paper-input>
+        </form>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button on-click="updateIntlCredential" class="secondary">[[localize('submit')]]</paper-button>
+      </div>
     </paper-dialog>
   </template>
 
@@ -259,6 +302,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type : String,
           statePath : 'user.lastError'
         },
+        page:{
+          type:String,
+          value:''
+        },
+        routeData:{
+          type:Object,
+          value:function(){
+            return {};
+          }
+        },
         resources: {
                 value: function() {
                   return {
@@ -273,7 +326,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'submit' : 'SUBMIT',
                       'credential_used' : 'this credential is already being used',
                       'subscribed_until' : 'You are subscribed until {start , date , short}',
-                      'membership' : 'Membership',
+                      'membership' : 'Subscription',
                       'userInfo' : 'My information',
                       'recommended':'Recomended',
                       'for_recommend_a_user':'In order to recommend a user it must subscribed or confirm the action on the next link :',
@@ -283,7 +336,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'no_credential' : 'No credential inserted',
                       'no_recommended' : "You don't have recommended yet",
                       'no_recommender' : 'You are the first on your network. There is nobody below you',
-                      'credential_in_use' : 'The crediantal is already used'
+                      'credential_in_use' : 'The crediantal is already used',
+                      'date': '{ value , date , medium}'
                     },
                     'es': {
                       'hello' : 'Hola',
@@ -296,7 +350,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'submit' : 'ENVIAR',
                       'credential_used' : 'Esta credencial ya esta siendo usada',
                       'subscribed_until' : 'Estas suscrito hasta {start, date , short}',
-                      'membership' : 'Membrecía',
+                      'membership' : 'Suscripción',
                       'userInfo' : 'Mi información',
                       'recommended':'Recomendados',
                       'for_recommend_a_user':'Puedes invitar a cualquier persona a ser tu recomendado mediante el siguiente enlace:',
@@ -306,7 +360,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'no_credential' : 'No se a ingresado una credencial',
                       'no_recommended' : 'No tienes recomendados aun..',
                       'no_recommender' : 'Eres el primero en tu red. No hay nadie encima tuyo',
-                      'credential_in_use' : 'La credencial ya esta siendo usada'
+                      'credential_in_use' : 'Ese número de identifiación ya esta siendo utilizado',
+                      'date': '{ value , date , medium}'
 
                     }
                   }
@@ -314,7 +369,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
       observers : [
-          '_sectionChanged(routeData.section)',
+          '_sectionChanged(route.path)',
           '_routeChanged(route)'
       ],
       attached : function(){
@@ -352,11 +407,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           });
         }
       },
-      _sectionChanged : function(section){
+      _sectionChanged : function(path){
         if(this.$.drawer.opened&&this.$.drawerLayout.narrow){
           this.$.drawer.close();
         }
-        switch(section){
+
+        this.page=this.routeData.section||'resume';
+        if(path==='/acco'){
+          this.page='resume';
+        }
+        switch(this.routeData.section){
           case 'business':
             this.dispatch('getBusiness');
           break;

@@ -93,8 +93,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       }
     </script>
-    <!-- PayPal Checkout needs to be loaded at this level  -->
-    <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+    <!-- Load facebook SDK -->
+    <script>
+      var fbKey=window.location.hostname==='www.dinabun.com'? '1831240160443972':'1248819911894556';
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+       window.fbAsyncInit = ()=> {
+         FB.init({
+           appId      : fbKey,
+           xfbml      : true,
+           version    : 'v2.8'
+         });
+       };
+    </script>
+
+
     <link rel="import" href="/src/root-styles.html">
     <link rel="import" href="/src/my-app.html">
 
