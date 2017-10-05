@@ -1,0 +1,132 @@
+<script>
+  const {business:businessInit} = GlobalState;
+  const business = (state=businessInit,action) => {
+    switch (action.type) {
+      case 'LOAD_BUSS':
+        switch (action.status) {
+          case 'success':
+            return Object.assign({},state,{business:action.businesses,posts:action.posts});
+            break;
+          case 'error':
+            return Object.assign({},state,{lastError:action.error});
+            break;
+          default:
+            return Object.assign({},state);
+            break;
+        }
+        break;
+      case 'ADD_BUSS':
+        switch (action.status) {
+          case 'success':
+            return Object.assign({},state,{business:[...state.business,action.business]});
+            break;
+          case 'error':
+            return Object.assign({},state,{lastError:action.error});
+            break;
+          default:
+            return Object.assign({},state);
+            break;
+        }
+        break;
+      case 'EDD_BUSS':
+        switch (action.status) {
+          case 'success':
+            var newBuss=state.business.map((item)=>{
+              if(item.id===action.business.id){
+                return action.business;
+              }else{
+                return item;
+              }
+            });
+            return Object.assign({},state,{business:newBuss});
+            break;
+          case 'error':
+            return Object.assign({},state,{lastError:action.error});
+            break;
+          default:
+            return Object.assign({},state);
+            break;
+        }
+        break;
+      case 'DEL_BUSS':
+        switch (action.status) {
+          case 'success':
+            var newBuss = state.business.reduce((result,item)=>{
+              if(item.id!==action.business.id){
+                result.push(item);
+              }
+              return result;
+            },[]);
+            return Object.assign({},state,{business:newBuss});
+            break;
+          case 'error':
+            return Object.assign({},state,{lastError:action.error});
+            break;
+          default:
+            return Object.assign({},state);
+            break;
+        }
+        break;
+      case 'ADD_POST':
+        switch (action.status) {
+          case 'success':
+            return Object.assign({},state,{posts:[...state.posts,action.post]});
+            break;
+          case 'error':
+            return Object.assign({},state,{lastError:action.error});
+            break;
+          default:
+            return Object.assign({},state);
+            break;
+        }
+        break;
+        case 'EDD_POST':
+          switch (action.status) {
+            case 'success':
+              var newPosts = state.posts.map((item)=>{
+                if(item.id===action.post.id){
+                  return action.post;
+                }else{
+                  return item;
+                }
+              });
+              return Object.assign({},state,{posts:newPosts});
+              break;
+            case 'error':
+              return Object.assign({},state,{lastError:action.error});
+              break;
+            default:
+              return Object.assign({},state);
+              break;
+          }
+          break;
+        case 'DEL_POST':
+          switch (action.status) {
+            case 'success':
+              var newPosts = state.posts.reduce((result,item)=>{
+                if(item.id!==action.post.id){
+                  result.push(item);
+                }
+                return result;
+              },[]);
+              return Object.assign({},state,{posts:newPosts});
+              break;
+            case 'error':
+              return Object.assign({},state,{lastError:action.error});
+              break;
+            default:
+              return Object.assign({},state);
+              break;
+          }
+          break;
+        case 'SELECT_BUSS':
+          return Object.assign({},state,{selectedBusiness:action.business});
+          break;
+        case 'SELECT_POST':
+          return Object.assign({},state,{selectedPost:action.post});    
+          break;
+      default:
+        return state;
+    }
+  };
+</script>

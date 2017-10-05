@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>forbidden-view</title>
+
+    <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../../bower_components/web-component-tester/browser.js"></script>
+
+    <!-- Import the element to test -->
+    <link rel="import" href="../../../src/fragments/forbidden-view.html">
+  </head>
+  <body>
+    <test-fixture id="basic">
+      <template>
+        <forbidden-view></forbidden-view>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('forbidden-view tests', function() {
+        var view;
+
+        setup(function() {
+          view = fixture('basic');
+        });
+
+        test('forbidden-view must return its name', function() {
+          assert.equal(view.is, 'forbidden-view');
+        })
+      });
+    </script>
+  </body>
+</html>

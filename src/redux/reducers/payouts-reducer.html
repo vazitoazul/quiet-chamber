@@ -1,0 +1,49 @@
+<script>
+  const {payouts:payoutsInit} = GlobalState;
+  const payouts = (state=payoutsInit,action)=>{
+    switch (action.type) {
+      case 'GET_RATE':
+        switch (action.status) {
+          case 'success':
+            return Object.assign({},state,{loading:false,rate:action.rate});
+            break;
+          case 'error':
+            return Object.assign({},state,{loading:false,lastError:action.error});
+            break;
+          default:
+            return Object.assign({},state,{loading:true});
+            break;
+        }
+        break;
+      case 'ADD_PAYOUT':
+        switch (action.status) {
+          case 'success':
+            return Object.assign({},state,{loading:false,entities:[...state.entities,action.payout]});
+            break;
+          case 'error':
+            return Object.assign({},state,{loading:false,lastError:action.error});
+            break;
+          default:
+            return Object.assign({},state,{loading:true});
+            break;
+        }
+        break;
+      case 'LOAD_PAYOUTS':
+        switch (action.status) {
+          case 'success':
+            return Object.assign({},state,{loading:false,entities:action.payouts});
+            break;
+          case 'error':
+            return Object.assign({},state,{loading:false,lastError:action.error});
+            break;
+          default:
+            return Object.assign({},state,{loading:true});
+            break;
+        }
+        break;
+      default:
+        return state;
+    }
+  };
+
+</script>

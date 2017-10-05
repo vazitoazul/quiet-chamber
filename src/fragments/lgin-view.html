@@ -1,0 +1,193 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../my-icons.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
+<link rel="import" href="../elements/facebook-login.html">
+<link rel="import" href="../elements/google-login.html">
+
+<dom-module id="lgin-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px 20px;
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
+      paper-card {
+        min-width: 300px;
+      }
+      .divider{
+        border-style: solid;
+        border-color: #bdced7;
+        border-width: 0 0 1px 0;
+      }
+      paper-input.recover{
+        width: 300px;
+      }
+      paper-button.recover{
+        @apply(--layout-self-center);
+      }
+    </style>
+    <h2>[[localize('log_in_tittle')]]</h2>
+    <paper-card>
+      <div class="card-content">
+        <div class="horizontal center">
+          <facebook-login></facebook-login>
+          <google-login ></google-login>
+        </div>
+        <form is="iron-form" id="loginForm">
+        	  <paper-input name="identifier" label="[[localize('email')]]" required auto-validate  error-message="[[localize('email_form')]]"></paper-input>
+            <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate ></paper-input>
+      	</form>
+        <br>
+        <div class="horizontal">
+          <div class="flex"></div>
+          <paper-button raised class="accent" on-click="submit" disabled="[[userLoading]]">
+            <span>[[localize('log_in')]]</span>
+          </paper-button>
+          <paper-spinner hidden$="[[!userLoading]]" active></paper-spinner>
+        </div>
+      </div>
+    </paper-card>
+    <paper-card hidden="[[!recommender.watingAuthorization]]" class="my-1">
+      <div class="card-content vertical layout">
+        <span class="warning">[[localize('you_are_about_to_register_under')]] <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b></span>
+        <span>[[localize('log_in_to_later_confirm')]]</span>
+      </div>
+    </paper-card>
+    <div class="vertical center recover">
+      <paper-button class="primary" on-click="openCollapse">[[localize('pass_forgot')]]</paper-button>
+      <iron-collapse id="collapse">
+        <div class="vertical">
+          <form is="iron-form" id="recoverForm">
+            <paper-input name="email" label="[[localize('enter_your_email')]]" required auto-validate  error-message="[[localize('email_form')]]" pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" class="recover"></paper-input>
+          </form>
+          <br>
+          <div class="horizontal">
+            <div class="flex"></div>
+            <paper-button raised class="accent recover" on-click="submitRecover" disabled="[[passRecoveryLoading]]">
+              <span>[[localize('recover_pass')]]</span>
+            </paper-button>
+            <paper-spinner active="[[passRecoveryLoading]]"></paper-spinner>
+          </div>
+        </div>
+      </iron-collapse>
+    </div>
+    <h5>[[localize('no_account')]]<a href="/rgst">[[localize('register')]]</a></h5>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'lgin-view',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        AuthActionsBehavior
+      ],
+
+      properties : {
+        userLoading:{
+          type:Boolean,
+          statePath:'user.loading'
+        },
+        passRecoveryLoading : {
+          type:Boolean,
+          statePath:'passRecovery.loading'
+        },
+        user:{
+          type:Boolean,
+          statePath:'user'
+        },
+        passRecovery : {
+          type:Object,
+          statePath:'passRecovery'
+        },
+        recommender:{
+          type:Object,
+          statePath:'recommender'
+        },
+        language : {
+          type:String,
+          statePath:'language'
+        },
+        resources: {
+                value: function() {
+                  return {
+                    'en': {
+                      'log_in_tittle' : 'Log In',
+                      'email' : 'Email',
+                      'password' : 'Password' ,
+                      'log_in' : 'Log in',
+                      'email_form' : 'Must be a valid email',
+                      'repeat_pass' : 'Repeat your password',
+                      'email_or_pass_invalid' : 'Invalid email or password.',
+                      'mail_sent':'An email has been sent. Check your inbox',
+                      'token_already_issued':'An email has already been sent. Check your inbox',
+                      'user_does_not_exists':'We don\'t have that address registered.',
+                      'pass_forgot':'Forgot your password?',
+                      'enter_your_email':'Email',
+                      'recover_pass':'Recover my password',
+                      'no_account':'Need an account?',
+                      'register':'Register',
+                      'you_are_about_to_register_under':'Your recommender is going to be: ',
+                      'log_in_to_later_confirm':'Log in to contiue the process.'
+                    },
+                    'es': {
+                      'log_in_tittle' : 'Ingreso',
+                      'email' : 'Correo electrónico',
+                      'password' : 'Contraseña' ,
+                      'log_in' : 'Ingresar',
+                      'email_form' : 'Debe ser una direccion de correo válida',
+                      'repeat_pass' : 'Repite tu contraseña',
+                      'email_or_pass_invalid' : 'Correo o contraseña incorrectos.',
+                      'mail_sent':'Se te ha enviado un correo de recuperación.',
+                      'token_already_issued':'Ya has solicitado una recuperación de contraseña',
+                      'user_does_not_exists':'No existe una cuenta con esa dirección',
+                      'pass_forgot':'Olvidé mi contraseña',
+                      'enter_your_email':'Ingresa tu correo electrónico',
+                      'recover_pass':'Recuperar contraseña',
+                      'no_account':'No tienes una cuenta?',
+                      'register':'Regístrate',
+                      'you_are_about_to_register_under':'Estas por registrarte debajo de: ',
+                      'log_in_to_later_confirm':'Inicia sesión para luego confirmar esta acción.'
+                    }
+                  }
+              }
+        }
+      },
+      submit : function(e){
+        if(this.$.loginForm.validate()){
+          var body = this.$.loginForm.serialize();
+          this.dispatch('logIn','local',body,(err)=>{
+            if(err)return showMessage(this.localize(err.message));
+            this.dispatch('loadUserInfo');
+          });
+        }
+      },
+      submitRecover:function(e){
+        if(this.$.recoverForm.validate()){
+          var body = this.$.recoverForm.serialize();
+          this.dispatch('recoverPassword',body,(err)=>{
+            if(err)return showMessage(this.localize(err.message));
+            showMessage(this.localize('mail_sent'));
+          });
+        }
+      },
+      openCollapse:function(e){
+        this.$.collapse.toggle();
+      }
+
+    });
+  </script>
+</dom-module>

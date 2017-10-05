@@ -1,0 +1,220 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../redux/actions/search-actions.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../elements/page-footer.html">
+<link rel="import" href="../elements/business-card.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="post-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+      div.red{
+        background-color: var(--accent-color);
+      }
+      div.nored{
+        background-color: var(--primary-color);
+      }
+      .title{
+        margin-top: 1rem;
+        @apply(--paper-font-display2);
+      }
+      .type{
+        @apply(--paper-font-display1);
+        color: var(--secondary-text-color);
+      }
+      business-card{
+        margin-top: 1rem;
+      }
+      span.big-number{
+        @apply(--paper-font-display3);
+        color:var(--accent-color);
+        font-weight: 100;
+      }
+      .text-right{
+        text-align: right;
+      }
+      div.main{
+        min-height: 70vh;
+      }
+    </style>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="/post/:id"
+        data="{{routeData}}"></app-route>
+    <app-header-layout fullbleed>
+      <app-header fixed reveals effects="fade-background">
+        <app-toolbar>
+            <iron-image height="50" width="80" src="/images/logo.png" preload sizing="cover"></iron-image>
+            <div main-title><span class="dinabun-title">Dinabun</span></div>
+            <login-button></login-button>
+        </app-toolbar>
+      </app-header>
+      <div class="container main">
+        <div class="row">
+          <div class="col-7 vertical">
+            <span class="title">[[post.name]]</span>
+            <span class="type">[[localize('post_type','type',post.type)]]</span>
+            <div class="vertical">
+              <iron-pages selected="[[post.type]]" attr-for-selected="name">
+                <section name="i">
+                  <div class="horizontal">
+                    <div class="vertical flex">
+                      <br>
+                      <b class="s-text">Se busca financiamiento para:</b>
+                      <span>[[post.details.description]]</span>
+                      <br>
+                      <b class="s-text">El dinero se va a utilizar en:</b>
+                      <span>[[post.details.reason]]</span>
+                    </div>
+                    <div class="vertical">
+                      <div class="vertical">
+                        <span class="big-number self-end">[[post.details.returnPercentage]]%</span>
+                        <span class="light self-end">De retorno</span>
+                      </div>
+                      <br>
+                      <div class="vertical">
+                        <span class="big-number self-end">$[[post.details.minInvestment]]</span>
+                        <span class="light self-end">Inversión mínima</span>
+                      </div>
+                      <br>
+                      <div class="vertical">
+                        <span class="big-number self-end">[[post.details.returnTime]]</span>
+                        <span class="light self-end text-right">Meses para recuperar la inversión</span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <section name="d">
+                  <div class="horizontal">
+                    <div class="vertical flex">
+                      <br>
+                      <b class="s-text">Se busca financiamiento para:</b>
+                      <span>[[post.details.description]]</span>
+                      <br>
+                      <b class="s-text">El dinero se va a utilizar en:</b>
+                      <span>[[post.details.reason]]</span>
+                    </div>
+                    <div class="vertical">
+                      <div class="vertical">
+                        <span class="big-number self-end">$[[post.details.minDonation]]</span>
+                        <span class="light self-end text-right">Donación mínima mínima</span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <section name="j">
+                  <div class="horizontal">
+                    <div class="vertical flex">
+                      <br>
+                      <b class="s-text">Descripción</b>
+                      <span>[[post.details.description]]</span>
+                      <br>
+                      <b class="s-text">Requisitos</b>
+                      <span>[[post.details.requirements]]</span>
+                    </div>
+                    <div class="vertical">
+                      <div class="vertical">
+                        <span class="big-number self-end">$[[post.details.salary]]</span>
+                        <span class="light self-end">[[localize('salary_time','time',post.details.time)]]</span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </iron-pages>
+            </div>
+          </div>
+          <div class="col-5 vertical">
+            <iron-pages selected="[[userSubscriptionState]]" attr-for-selected="state" class="h-100">
+              <section state="subscribed">
+                <span>Sobre el anunciante:</span>
+                <business-card business="[[post.business]]" read-only></business-card>
+              </section>
+              <section state="registered" class="h-100">
+                <div class="capped vertical center ">
+                  <h4 class="s-text">Solo los usuarios con una suscripción pueden ver los datos de contacto de las publicaciones.</h4>
+                  <a href="/acco/membership">
+                    <paper-button raised class="accent">Inicia una suscripción</paper-button>
+                  </a>
+                </div>
+              </section>
+              <section state="notLogged" class="vertical center h-100">
+                <div class="capped vertical center ">
+                  <h4 class="s-text">Primero regístrate para poder ver los datos de contacto de esta publicación.</h4>
+                  <a href="/rgst">
+                    <paper-button raised class="accent">Registrarme</paper-button>
+                  </a>
+                </div>
+              </section>
+            </iron-pages>
+          </div>
+        </div>
+      </div>
+      <page-footer></page-footer>
+    </app-header-layout>
+  </template>
+  <script>
+    Polymer({
+      is: 'post-view',
+      behaviors:[GlobalStoreBehavior,SearchActionsBehavior,Polymer.AppLocalizeBehavior],
+      properties:{
+        post:{
+          type:Object,
+          statePath:'search.selectedPost'
+        },
+        userSubscriptionState:{
+          type:String,
+          statePath(state){
+            if(!state.user.authenticated){
+              return 'notLogged';
+            }else if(!state.user.info.isSubscribed){
+              return 'registered';
+            }else {
+              return 'subscribed';
+            }
+          }
+        },
+        language:{
+          statePath:'language'
+        },
+        resources:{
+          value:function(){
+            return{
+              'es':{
+                'post_type':'{type,select, d{Donación} j{Oportunidad de trabajo} i{Oportunidad de inversión} }',
+                'salary_time' : '{time, select, m {Sueldo Mensual} w {Sueldo semanal} h {Por hora}}',
+              },
+              'en':{
+                'post_type':'{type,select, d{Donation} j{Job Oportinity} i{Investment Oportinity} }',
+                'salary_time' : '{time, select, m {Monthly} w {Weekly} h {Per hour}}',
+              }
+            }
+          }
+        }
+      },
+      observers:['_routeDataChange(route.path)'],
+      _routeDataChange:function(path){
+        if(path===undefined){
+          return;
+        }
+        if(this.routeData.id){
+          this.debounce('search', function() {
+            this.dispatch('getPost',this.routeData.id);
+          }, 100);
+        }
+      }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,130 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
+<link rel="import" href="../shared-styles.html">
+
+
+<dom-module id="wlcm-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        height: 100%;
+        @apply(--layout-vertical)
+
+      }
+      div.main{
+        padding: 1rem;
+        max-width: 800px;
+      }
+      div.options{
+        @apply(--layout-horizontal);
+      }
+      div.options paper-card{
+        margin: 10px;
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+      @media screen and (max-width: 768px) {
+        div.options{
+          @apply(--layout-vertical)
+        }
+      }
+      paper-card{
+        min-width: 20rem;
+        min-height: 23.5rem;
+        --paper-card-header-color:#fff;
+      }
+      paper-card:hover{
+        @apply(--shadow-elevation-4dp);
+      }
+    </style>
+    <app-toolbar>
+        <a href="/">
+          <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
+        </a>
+        <div main-title><span class="dinabun-title">Dinabun</span></div>
+        <div class="flex"></div>
+        <login-button></login-button>
+    </app-toolbar>
+    <div class="vertical center main row">
+      <div class="col-12 offset-sm-4 ">
+        <h3>Bienvenido a nuestra plataforma!</h3>
+        <span class="s-text">Mira lo que puedes hacer ahora:</span>
+        <br>
+        <div class="options">
+          <a href="/acco/recommended">
+            <paper-card elevation="1" heading="Recomienda a tus amigos" image="/images/share.jpg">
+              <div class="card-content flex">
+                <span class="s-text">Has que tus amigos se registren debajo tuyo para empezar a crear tu red. Entre más grande, más beneficios ganas tú.</span>
+              </div>
+              <div class="card-actions vertical">
+                <paper-button class="accent self-end">Recomendar amigos</paper-button>
+              </div>
+            </paper-card>
+          </a>
+          <a href="/acco/membership">
+            <paper-card elevation="1" heading="Inicia una suscripción" image="/images/homepage/2.jpg">
+              <div class="card-content flex">
+                <span class="s-text">Suscríbete a la página y empieza a recibir beneficios por las suscripciones de tus recomendados</span>
+              </div>
+              <div class="card-actions vertical">
+                <paper-button class="accent self-end">Suscribirme</paper-button>
+              </div>
+            </paper-card>
+          </a>
+          <a href="/srch">
+            <paper-card elevation="1" heading="Buscar anuncios" image="/images/abt/2.jpg">
+              <div class="card-content flex">
+                <span class="s-text">Busca entre anuncios de oportunidades de trabajo, inversiónes o donaciones.</span>
+              </div>
+              <div class="card-actions vertical">
+                <paper-button class="accent self-end">Buscar anuncios</paper-button>
+              </div>
+            </paper-card>
+          </a>
+        </div>
+      </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'wlcm-view',
+      behaviors:[
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior
+      ],
+      properties:{
+        user: {
+          type:Object,
+          statePath:'user.info'
+        },
+        language :{
+          tpye : String,
+          statePath:'language'
+        },
+        resources:{
+          value:function(){
+            return {
+              "es":{
+                "success":"Se ha enviado un correo a {address} con un link para la verificación",
+                "failure":"Ya se ha enviado un correo de verificación o ya has confirmado tu correo"
+              },
+              "en":{
+                "success":"An email with a verification link has been sent to {address}",
+                "failure":"An email has already been sent or that address is already verified"
+              }
+            };
+          }
+        }
+      }
+
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,155 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../redux/global-store.html">
+
+<dom-module id="label-element">
+	<template>
+	</template>
+</dom-module>
+<script>
+	Polymer({
+		is: 'label-element',
+		behaviors:[
+			GlobalStoreBehavior
+		],
+		properties : {
+	        language :{
+	          type : String,
+						statePath: 'language'
+	        },
+					behaviors:[
+						GlobalStoreBehavior
+					],
+	        resources : {
+						type : Object,
+	        	value :function(){
+							return {
+	        			'en' : {
+                  'advertising' : ['advertising'],
+                  'consulting' : ['consulting'],
+                  'travels': ['travels'],
+                  'charity':['charity'],
+                  'insurance':['insurance'],
+                  'biotech':['bitotechnology'],
+                  'telecom':['telecomunications'],
+                  'shipping':['shipping','transport'],
+                  'indusrty':['industrial production'],
+                  'mining':['mining'],
+                  'education':['education'],
+                  'politics':['politics'],
+	        				'automovile' : ['cars', 'engines','automoviles'],
+	        				'motorcicles' : ['motorcicles'],
+	        				'accesories' : ['accesorios'],
+	        				'mechanic' : ['mecanica'],
+	        				'clothes' : ['clothes'],
+	        				'internet' : ['internet'],
+	        				'movies' : ['movies','cinematography'],
+	        				'technology' : ['tech'],
+	        				'medicine' : ['medicine','health'],
+	        				'spiritualism' : ['spiritualism'],
+	        				'computers' : ['computers'],
+	        				'engineering' : ['engineering'],
+	        				'repairing' : ['repairing'],
+	        				'souvenirs' : ['souvenirs'],
+	        				'plumber' : ['plumber'],
+	        				'electricity' : ['electricity'],
+	        				'food' : ['food'],
+	        				'cellphones' : ['celphones'],
+		       				'construction' : ['construction'],
+		       				'art' : ['art'],
+		       				'fashion' : ['fashion']
+	        			},
+	        			'es' : {
+	        				'advertising' : ['propaganda'],
+                  'consulting' : ['consultoría'],
+                  'travels': ['viajes'],
+                  'charity':['beneficencia'],
+                  'insurance':['seguros'],
+                  'biotech':['biotecnología'],
+                  'telecom':['telecomunicaciones'],
+                  'shipping':['envios','transporte'],
+                  'indusrty':['producción industrial'],
+                  'mining':['minería'],
+                  'education':['educación'],
+                  'politics':['política'],
+	        				'automovile' : ['automoviles', 'carros'],
+                  'motorcicles' : ['motocicletas'],
+	        				'accesories' : ['accesorios'],
+	        				'mechanic' : ['mecanica'],
+	        				'clothes' : ['ropa'],
+	        				'internet' : ['internet'],
+	        				'movies' : ['películas','cinematografía'],
+	        				'technology' : ['tecnología'],
+	        				'medicine' : ['medicina','salud'],
+	        				'spiritualism' : ['espiritualismo'],
+	        				'computers' : ['computadoras'],
+	        				'engineering' : ['ingeniería'],
+	        				'repairing' : ['reparacion'],
+	        				'souvenirs' : ['recuerdos'],
+	        				'plumber' : ['plomeria', 'tuberia'],
+	        				'electricity' : ['electricidad'],
+	        				'food' : ['comida','alimentos'],
+	        				'cellphones' : ['celulares'],
+		       				'construction' : ['construcción'],
+		       				'art' : ['arte'],
+		       				'fashion' : ['moda']
+	        			}
+	        		}
+
+						}
+	        },
+					labels : {
+						type : Object,
+						computed : 'computeLabelArray(language,resources)',
+						notify:true,
+						readOnly:true
+					}
+		},
+
+		computeLabelArray : function(language, resources){
+				if(!language)return[];
+	    	var labelArray = [];
+	    	var labels = resources[language];
+				var keys = Object.keys(labels);
+				var index = 0;
+				for(var item in labels){
+					for(var subitem in labels[item]){
+						labelArray.push({ text : labels[item][subitem], value : keys[index]});
+					}
+					index++;
+				}
+	    	return labelArray;
+	    },
+
+		computeSelectedLabelsObjectArray : function(selectedValues,labels){
+			var labelsObjectsArray = [];
+			if(selectedValues.length == 0) return labelsObjectsArray;
+			for(var label in labels){
+				var aux = 0;
+				for(var selectedLabel in selectedValues){
+					if(selectedValues[selectedLabel]==labels[label].value){
+						aux = labels[label].value;
+						labelsObjectsArray.push(labels[label]);
+						selectedValues.splice(aux,1);
+					}
+					aux++;
+				}
+			}
+			return labelsObjectsArray;
+		},
+
+		getLabelArray  : function(language){
+			var resources = this.resources;
+    	var labelArray = [];
+    	var labels = resources[language];
+			var keys = Object.keys(labels);
+			var index = 0;
+			for(var item in labels){
+				for(var subitem in labels[item]){
+					labelArray.push({ text : labels[item][subitem], value : keys[index]});
+				}
+				index++;
+			}
+    	return labelArray;
+    }
+	});
+</script>

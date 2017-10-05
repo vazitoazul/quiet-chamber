@@ -1,0 +1,268 @@
+<script>
+const BusinessActionsBehavior = {
+  actions:{
+    createBusiness : function(business,callback){
+      return function(dispatch){
+        dispatch({type:'ADD_BUSS'});
+        let request = new Request(
+          '/createBusiness',{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include',
+          body: JSON.stringify(business)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'ADD_BUSS',status:'success',business:json});
+            callback();
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'ADD_BUSS',status:'error',error:e.message});
+          callback(e);
+        });
+      }
+    },
+    getBusiness : function(){
+      return function(dispatch,callback){
+        dispatch({type:'LOAD_BUSS'});
+        let request = new Request(
+          '/getBusiness',{
+          method:'GET',
+          headers: standardHeaders,
+          credentials: 'include'
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            var posts=[];
+            var businesses=json.map((bus)=>{
+              bus.posts=bus.posts.map((p)=>{
+                posts.push(p);
+                return p.id;
+              });
+              return bus;
+            });
+            dispatch({type:'LOAD_BUSS',status:'success',businesses:businesses,posts:posts});
+            callback();
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'LOAD_BUSS',status:'error',error:e.message});
+          callback(e);
+        });
+      }
+    },
+    edditBusiness : function(business,callback){
+      return function(dispatch){
+        dispatch({type:'EDD_BUSS'});
+        delete business.posts;
+        let request = new Request(
+          '/updateBusiness/'+business.id,{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include',
+          body: JSON.stringify(business)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'EDD_BUSS',status:'success',business:json});
+            callback();
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'EDD_BUSS',status:'error',error:e.message});
+          callback(e);
+        });
+      }
+    },
+    deleteBusiness : function(business,callback){
+      return function(dispatch){
+        dispatch({type:'DEL_BUSS'});
+        delete business.posts;
+        let request = new Request(
+          '/deleteBusiness/'+business.id,{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include'
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'DEL_BUSS',status:'success',business:json});
+            callback();
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'DEL_BUSS',status:'error',error:e.message});
+          callback(e);
+        });
+      }
+    },
+    createPost : function(post,callback){
+      return function(dispatch){
+        dispatch({type:'ADD_POST'});
+        let request = new Request(
+          '/createPost',{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include',
+          body: JSON.stringify(post)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'ADD_POST',status:'success',post:json});
+            callback();
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'ADD_POST',status:'error',error:e.message});
+          callback(e);
+        });
+      }
+    },
+    edditPost : function(post,callback){
+      return function(dispatch){
+        dispatch({type:'EDD_POST'});
+        let request = new Request(
+          '/updatePost/'+post.id,{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include',
+          body: JSON.stringify(post)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'EDD_POST',status:'success',post:json});
+            callback();
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'EDD_POST',status:'error',error:e.message});
+          callback(e);
+        });
+      }
+    },
+    deletePost : function(post,callback){
+      return function(dispatch){
+        dispatch({type:'DEL_POST'});
+        let request = new Request(
+          '/deletePost/'+post.id,{
+          method:'POST',
+          headers: standardHeaders,
+          credentials: 'include',
+          body: JSON.stringify(post)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'DEL_POST',status:'success',post:json});
+            callback();
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'DEL_POST',status:'error',error:e.message});
+          callback(e);
+        });
+      }
+    },
+    deleteImage : function(business,callback){
+      return function(dispatch){
+        dispatch({type:'EDD_BUSS'});
+        let request = new Request(
+          '/deleteawsimage',{
+            method:'POST',
+            headers: standardHeaders,
+            credentials: 'include',
+            body: JSON.stringify(business)
+          }
+        );
+        window.fetch(request)
+        .then(handleReqError)
+        .then((response)=>{
+          response.json().then((json)=>{
+            dispatch({type:'EDD_BUSS',status:'success',business:json});
+            if(callback)callback();
+          });
+        })
+        .catch((e)=>{
+          dispatch({type:'EDD_BUSSS',status:'error',error:e.message});
+          callback(e);
+        });
+      }
+    },
+    selectBusiness:function(id){
+      var selected = this.getState().business.business.reduce((result,item)=>{
+        if(item.id===id){
+          result=item;
+        }
+        return result;
+      },{});
+
+      return {type:'SELECT_BUSS',business:selected};
+    },
+    selectPost:function(id){
+      var selected = this.getState().business.posts.reduce((result,item)=>{
+        if(item.id===id){
+          result=item;
+        }
+        return result;
+      },{});
+      return {type:'SELECT_POST',post:selected};
+    }
+  },
+  signAwsUrl : function(file,callback){
+    let request = new Request(
+      '/signawsurl?file='+file.name+'&type='+file.type,{
+        method:'GET',
+        headers: standardHeaders,
+        credentials: 'include'
+      }
+    );
+    window.fetch(request)
+    .then(handleReqError)
+    .then((response)=>{
+      response.json().then((json)=>{
+        callback(json);
+      });
+    })
+    .catch((e)=>{
+      callback(e);
+    });
+  },
+  uploadtoAws : function(url,file,callback){
+    let request = new Request(
+        url,{
+        method:'PUT',
+        body : file
+      }
+    );
+    window.fetch(request)
+    .then(handleReqError)
+    .then((response)=>{
+      if(callback)callback();
+    })
+    .catch((e)=>{
+      callback(e);
+    });
+  }
+}
+</script>

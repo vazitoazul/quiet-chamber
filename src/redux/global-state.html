@@ -1,0 +1,103 @@
+<script>
+
+const GlobalState={
+  user:{
+    loading:false,
+    lastError:null,
+    authenticated:false,
+    info:{
+      email:null,
+      mailVerified:false,
+      walletAddress:null,
+      intlCredential:null,
+      firstName:null,
+      lastName:null,
+      totalBalance:0,
+      autoSub:false,
+      payoutRequested:false,
+      isSubscribed:false,
+      subscribedUntil:null,
+      buisnesses: [],
+      posts:[],
+      recommender:{
+        id:null,
+        firstName:null,
+        email:null,
+        isLoaded:false
+      },
+      recommended : [],
+      contactInfo:{
+        firstName:null,
+        lastName:null,
+        telephones:[],
+        location:{},
+        email:null,
+        address:null
+      }
+    }
+  },
+  recommender:{
+    exists:false,
+    watingAuthorization:false,
+    loading:false,
+    lastError:null,
+    info:{}
+  },
+  passRecovery:{
+    loading:false,
+    lastError:null,
+    recoveryRequested:false,
+    passChanged:false
+  },
+  mailVerification:{
+    loading:false,
+    lastError:null,
+    success:false,
+    addressUsed:null
+  },
+  route:null,
+  payments:{
+    entities:[],
+    loading:false,
+    lastError:null,
+    lastAction:null
+  },
+  payouts:{
+    entities:[],
+    canRequest:false,
+    loading:false,
+    lastError:null,
+    rate:null
+  },
+  business:{
+    business:[],
+    posts:[],
+    selectedBusiness:{
+      posts:[]
+    },
+    selectedPost:{},
+    loading:false,
+    lastError:null
+  },
+  search:{
+    page : null,
+    orderBy : null,
+    receivedAt : null,
+    query : {
+      labels : [],
+      place:null,
+      type:null,
+      minInvestment:null,
+      salary:null,
+      time:null,
+      returnPercentage:null,
+      returnTime:null
+    },
+    lastResult : [],
+    selectedPost : null,
+    lastError:null,
+    firstLoad : true
+  },
+  language:'es'
+};
+</script>

@@ -1,0 +1,87 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-behaviors/iron-button-state.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
+<dom-module id="label-chip">
+  <style>
+    :host {
+      display: inline-block;
+      height: 32px;
+      overflow: visible;
+    }
+    :host[closeable] #label{
+      margin: 0px 4px 12px 12px;
+    }
+    #main {
+      border-radius: 16px;
+      position: relative;
+      @apply(--layout-horizontal);
+    }
+    #label{
+      margin: 0px 12px 0px 12px;
+      @apply(--layout-flex);
+    }
+    paper-material#main{
+      background-color : var(--accent-color);
+      color : white;
+    }
+    paper-icon-button{
+      height: 21px;
+      width: 21px;
+      padding: 3px;
+      margin-right: 4px;
+    }
+  </style>
+  <template>
+    <paper-material elevation="1" id="main" >
+        <div id="label">[[item.text]]</div>
+        <template is="dom-if" if="[[closeable]]">
+          <paper-icon-button class="close" icon="close" on-tap="close"></paper-icon-button>
+        </template>
+    </paper-material>
+  </template>
+  <script>
+    Polymer({
+      is: 'label-chip',
+
+      behaviors: [
+        Polymer.NeonAnimationRunnerBehavior
+      ],
+
+      listeners : {
+        'neon-animation-finish': '_onAnimationFinish'
+      },
+
+      properties : {
+        item : {
+          type : Object
+        },
+        animationConfig: {
+          type: Object,
+          value: function() {
+            return {
+              'exit': [{
+                name: 'fade-out-animation',
+                node: this.$.main
+              }]
+            }
+          }
+        },
+        closeable : {
+          type : Boolean,
+          value : false
+        }
+      },
+
+      close: function() {
+        this.playAnimation('exit');
+      },
+
+      _onAnimationFinish : function(){
+        this.fire('closed',this.item);
+      }
+    });
+  </script>
+</dom-module>

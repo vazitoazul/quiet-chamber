@@ -1,0 +1,86 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/google-signin/google-signin.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../my-icons.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
+<dom-module id="google-login">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      iron-icon.google{
+        height: 5rem;
+        width: 5rem;
+      }
+      iron-icon.google,paper-button.google{
+        color:white;
+        background-color: #d34836;
+      }
+      google-signin{
+        display: none;
+      }
+      paper-button{
+        padding: 0;
+      }
+    </style>
+    <iron-ajax
+      auto
+      url="/auth/key/google"
+      handle-as="json"
+      method="GET"
+      on-response="handleKeyResponse"></iron-ajax>
+      <google-signin need-additional-auth id="signIn" scopes="profile email" on-google-signin-success="signInSuccess" raised width="iconOnly"></google-signin>
+      <paper-button raised on-click="login" class="google">
+        <iron-icon icon="custom:google-plus" class="google"></iron-icon>
+      </paper-button>
+  </template>
+  <script>
+    Polymer({
+      is: 'google-login',
+      behaviors:[GlobalStoreBehavior,AuthActionsBehavior],
+      properties:{
+        wantsLogin:{
+          type:Boolean,
+          value:false
+        }
+      },
+      login:function(e){
+        if(this.$.signIn.signedIn){
+          this._dispatchLogin();
+        }else{
+          this.$.signIn.signIn();
+          this.wantsLogin=true;
+        }
+      },
+      handleKeyResponse:function(e){
+        this.$.signIn.clientId=e.detail.__data__.response.key;
+      },
+      signInSuccess:function(e,detail){
+        if(this.wantsLogin){
+          this._dispatchLogin();
+        }
+
+      },
+      _dispatchLogin:function(){
+        var user = gapi.auth2.getAuthInstance()['currentUser'].get();
+        var authResponse = user.getAuthResponse();
+        var profile = user.getBasicProfile();
+        var body={
+          token: authResponse.id_token,
+          email: profile.getEmail(),
+          familyName: profile.getFamilyName(),
+          givenName:profile.getGivenName(),
+          recommender : this.recommender
+        };
+        this.dispatch('logIn','google',body,(err)=>{
+          if(err)return console.log(err)
+          this.dispatch('loadUserInfo')
+        });
+      }
+    });
+  </script>
+</dom-module>

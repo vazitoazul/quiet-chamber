@@ -1,0 +1,94 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../elements/lang-selector.html">
+<link rel="import" href="../my-icons.html">
+<dom-module id="page-footer">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        min-width: 100%;
+      }
+      div.top{
+        background-color: var(--darker-background-color);
+        color: white;
+        min-height: 30vh;
+      }
+      div.middle{
+        background-color: var(--darker-background-color);
+        color: white;
+        height: 35px;
+      }
+      div.bottom{
+        background-color: var(--dark-background-color);
+        color: white;
+        height: 64px;
+      }
+      div.top span, div.bottom span {
+        color:var(--light-secondary-text-color);
+      }
+      div.top .strong, div.bottom .strong {
+        color:var(--light-primary-text-color);
+      }
+      iron-icon{
+        height: 20px;
+        width: 20px;
+        margin-right: 5px;
+      }
+      iron-icon.big{
+        height: 35px;
+        width: 35px;
+        color: white;
+      }
+    </style>
+    <div class="conainter-fluid">
+        <div class="row top horizontal center">
+          <div class="col-xs-6 col-sm-3 col-md-3 vertical">
+            <h5 class="strong">Dinabun</h5>
+            <div class="horizontal">
+              <iron-icon icon="mail"></iron-icon>
+              <span>info@dinabun.com</span>
+            </div>
+          </div>
+          <div class="col-xs-6 col-sm-3 col-md-3 vertical">
+            <h5 class="strong">Más sobre nosotros</h5>
+            <a href="/abt"><span>Acerca de Dinabun</span></a>
+            <a href="/"><span>Video introductorio</span></a>
+            <a href="/trms"><span>Términos y condiciones</span></a>
+          </div>
+          <div class="col-xs-6 col-sm-3 col-md-3 vertical">
+            <h5 class="strong">Enlaces rápidos</h5>
+            <a href="/sytm"><span>Como conseguir ganancias</span></a>
+            <a href="/opo"><span>Promociona tu negocio</span></a>
+            <a href="/srch/jobs"><span>Encuentra trabajo</span></a>
+            <a href="/srch/donations"><span>Ayuda a otros</span></a>
+          </div>
+          <div class="col-xs-12 col-sm-12 horizontal center">
+            <iron-icon class="big" icon="custom:facebook"></iron-icon>
+            <iron-icon class="big" icon="custom:instagram"></iron-icon>
+            <iron-icon class="big" icon="custom:twitter"></iron-icon>
+            <iron-icon class="big" icon="custom:google-plus"></iron-icon>
+          </div>
+        </div>
+        <div class="row bottom">
+          <div class="horizontal flex px-3">
+            <div class="horizontal center">
+              © 2017 Dinabun
+            </div>
+            <div class="flex"></div>
+            <!-- <div class="horizontal">
+              <lang-selector vertical-align="bottom"></lang-selector>
+            </div> -->
+          </div>
+        </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'page-footer',
+
+    });
+  </script>
+</dom-module>

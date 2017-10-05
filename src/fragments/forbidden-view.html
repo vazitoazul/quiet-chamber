@@ -1,0 +1,29 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="forbidden-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px 20px;
+      }
+      div.main{
+        @apply(--layout-fullbleed);
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
+    </style>
+    <div class="main">
+      <h2>No puedes ver esto!</h2>
+      <h4>Primero debes iniciar sesión.</h4>
+      <h4><a href="/lgin">Iniciar sesión</a></h4>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'forbidden-view'
+    });
+  </script>
+</dom-module>

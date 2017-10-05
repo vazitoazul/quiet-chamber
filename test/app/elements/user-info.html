@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>user-info</title>
+
+    <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../../bower_components/web-component-tester/browser.js"></script>
+    <!-- Polyfills -->
+    <script src="../../../bower_components/promise-polyfill/Promise.min.js"></script>
+    <script src="../../../bower_components/fetch/fetch.js"></script>
+
+    <!-- Date Utils -->
+    <script src="../../../bower_components/date-utils/lib/date-utils.min.js"></script>
+
+    <!-- Redux -->
+    <script src="../../../bower_components/redux.min/index.js"></script>
+    <script src="../../../bower_components/redux-thunk.min/index.js"></script>
+
+    <!-- Import the element to test -->
+    <link rel="import" href="../../../src/elements/user-info.html">
+
+
+  </head>
+  <body>
+    <test-fixture id="basic">
+      <template>
+        <user-info></user-info>
+      </template>
+    </test-fixture>
+    <script>
+
+      describe('<user-info>', function() {
+        var view;
+        before(function() {
+          view = fixture('basic');
+        });
+        it('should return it\'s name',function(){
+          expect(view.is).to.equal('user-info');
+        });
+
+
+      });
+
+    </script>
+  </body>
+</html>

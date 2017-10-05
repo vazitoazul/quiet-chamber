@@ -1,0 +1,223 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../elements/page-footer.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="abt-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+      @media (min-width: 768px) {
+        div.main{
+          background-size: contain !important;
+        }
+      }
+      @media (max-width: 768px) {
+        div.main{
+          padding-top: 70px;
+        }
+        div.line {
+          position: absolute;
+          width: 100%;
+        }
+        div.line div{
+          margin-top: -10px;
+          margin-bottom: 150px;
+          width: 100%;
+        }
+        div.line div:last-child{
+          display: none;
+        }
+        div.values div:last-child{
+          display: none;
+        }
+        div.mission{
+          text-align: left !important;
+        }
+      }
+      div.main{
+        background-image: url('/images/homepage/3.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        margin-top: -70px;
+      }
+      .first{
+        height: 70vh;
+        color: var(--light-primary-text-color);
+      }
+      .second{
+        background-color: #FFFFFF;
+      }
+      .third{
+        background-color: rgb(250,250,250);
+        color:var(--primary-text-color);
+      }
+      div.member{
+        height: 300px;
+        color: var(--secondary-text-color);
+      }
+      div.member iron-image{
+        height: 100px;
+        width: 100px;
+        border-radius: 50%;
+      }
+      div.line{
+        height: 100px;
+      }
+      div.line iron-icon{
+        height: 40px;
+        width: 40px;
+        background-color: var(--accent-color);
+        color: #FFFFFF;
+        z-index: 1;
+      }
+      div.line div:before {
+          border-top: 1px solid var(--accent-color);
+          content:"";
+          margin: 0 auto;
+          position: absolute;
+          top: 50%; left: 0; right: 0; bottom: 0;
+          z-index: 0;
+      }
+      div.values div{
+        height: 200px;
+      }
+      div.mission ,div.mission-counter, div.vision, div.vision-counter{
+        height: 300px;
+      }
+      div.mission{
+        text-align: right;
+        background-color: #fff;
+      }
+      div.vision{
+        text-align: left;
+        background-color: #fff;
+
+      }
+      div.mission-counter{
+        background-image: url('/images/abt/1.jpg');
+        background-size: cover;
+      }
+      div.vision-counter{
+        background-image: url('/images/abt/2.jpg');
+        background-size: cover;
+
+      }
+      div.contact-top{
+        background-color: var(--accent-color);
+        color: #FFFFFF;
+      }
+      .contact{
+        background-color: var(--primary-background-color);
+      }
+      .contact paper-card{
+        background-color: #FFFFFF;
+      }
+      .contact paper-card paper-input, .contact paper-card paper-textarea {
+        background-color: #FFFFFF;
+      }
+    </style>
+    <div class="main">
+      <section class="first">
+        <div class="container-fluid h-100">
+          <div class="row h-100">
+            <div class="col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 vertical center">
+              <h3 class="text-center"> <strong>¿Quienes somos?</strong></h3>
+              <span class="text-center">Somos un grupo corporativo, con el objetivo de promover el comercio global, enlazando empresarios y emprendedores alrededor del mundo, utilizando la vanguardia tecnológica y criptomonedas.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="third">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12 vertical center flex mt-3">
+              <h4>Nuestros valores</h4>
+              <span class="light">Nuestro personal trabaja día y noche para asegurar que la plataforma funcione en excelentes condiciones. </span>
+              <br>
+              <br>
+            </div>
+          </div>
+          <div class="row line">
+            <div class="col-12 col-md-3 horizontal center">
+              <paper-fab icon="loyalty"></paper-fab>
+            </div>
+            <div class="col-12 col-md-3 horizontal center">
+              <paper-fab icon="face"></paper-fab>
+            </div>
+            <div class="col-12 col-md-3 horizontal center">
+              <paper-fab icon="hourglass-full"></paper-fab>
+            </div>
+            <div class="col-12 col-md-3 horizontal center"></div>
+          </div>
+          <div class="row values">
+            <div class="col-12 col-md-3 vertical center">
+              <strong>Compromiso</strong>
+              <span class="s-text text-center">Nos identificamos e involucramos directamente en el desarrollo del emprendimiento, cumpliendo objetivos y metas, desarrollando y fortaleciendo las competencias de nuestros colaboradores. </span>
+            </div>
+            <div class="col-12 col-md-3 vertical center">
+              <strong>Trabajo en Equipo</strong>
+              <span class="s-text text-center">Practicamos diariamente la empatía, Promoviendo una cultura ganar-ganar para asegurar una mejor calidad de los resultados, enfocada al éxito </span>
+            </div>
+            <div class="col-12 col-md-3 vertical center">
+              <strong>Proactividad</strong>
+              <span class="s-text text-center">Emprendemos acciones con perseverancia y responsabilidad, hacemos que las cosas sucedan.</span>
+            </div>
+            <div class="col-12 col-md-3 horizontal center">
+            </div>
+          </div>
+        </div>
+      </section>
+      <section style="background-color:#fff;">
+        <div class="container" >
+          <div class="row pb-3">
+              <div class="mission col-xs-0 col-sm-0 col-md-6 vertical center">
+                <h5 class="w-100">Nuestra Misión</h5>
+                <span class="s-text">Ser la plataforma de negocios más grande del mundo, entrelazando empresarios y emprendedores, fortaleciendo de esta manera la economía global. </span>
+              </div>
+              <div class="mission-counter col-xs-0 col-sm-0 col-md-6 ">
+
+              </div>
+              <div class="vision-counter col-xs-0 col-sm-0 col-md-6 ">
+
+              </div>
+              <div class="vision col-xs-0 col-sm-0 col-md-6 vertical center">
+                <h5 class="w-100">Nuestra Visión</h5>
+                <span class="s-text">Empresa líder de conexión empresarial, precursora de tecnología, reconocimiento mundial y referente de valores éticos y de servicio a la sociedad. .</span>
+              </div>
+          </div>
+        </div>
+      </section>
+      <section class="contact pb-3">
+        <div class="container">
+          <div class="row horizontal center">
+            <h4 class="s-text text-center">¿Quieres saber más sobre nosotros?</h4>
+          </div>
+          <div class="row">
+            <div class="col-12 vertical center">
+              <a href="mailto:info@dinabun.com">
+                <paper-button raised class="accent">Escríbenos</paper-button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'abt-view',
+      properties:{
+      }
+    });
+  </script>
+</dom-module>

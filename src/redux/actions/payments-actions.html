@@ -1,0 +1,32 @@
+<script>
+  const PaymentsActionsBehavior={
+    actions:{
+      getPayments:function(){
+        return function(dispatch){
+          dispatch({type:'LOAD_PAYMENTS'});
+          let request = new Request('/allPayments',{
+            method:'GET',
+            headers: standardHeaders,
+            credentials: 'include'
+          });
+          window.fetch(request)
+          .then(handleReqError)
+          .then((response)=>{
+            response.json().then((json)=>{
+              var result = json.payments.map((item)=>{
+                item.createdAt= (new Date(item.createdAt)).getTime();
+                return item;
+              });
+              dispatch({type:'LOAD_PAYMENTS',status:'success',payments:result});
+            });
+          })
+          .catch((e)=>{
+            dispatch({type:'LOAD_PAYMENTS',status:'error',error:e.message});
+          });
+        }
+      }
+
+
+    }
+  };
+</script>

@@ -1,0 +1,408 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/user-actions.html">
+<link rel="import" href="../redux/actions/payouts-actions.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="membership-panel">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        height: 90vh;
+      }
+      paper-dialog{
+        background-color: #fff
+      }
+      paper-dialog div.bot{
+        position: relative;
+        padding: 8px 8px 8px 24px;
+        margin: 0;
+      }
+      @media (max-width: 768px) {
+        paper-dialog div.bot{
+          @apply(--layout-vertical);
+        }
+      }
+      @media (min-width: 768px) {
+        paper-dialog div.bot{
+          @apply(--layout-horizontal);
+        }
+      }
+      span.value{
+        font-size: 1.3rem;
+      }
+      div.loading-overlay{
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: -15px;
+        background-color: rgba(0,0,0,0.2);
+      }
+      iron-image.qr{
+        height: 200px;
+        width: 200px;
+        @apply(--layout-self-center);
+      }
+      paper-card{
+        max-width: 700px;
+      }
+      .susbcribed-until{
+        @apply(--paper-font-subtitle);
+        margin-bottom: 0.5rem;
+        font-weight: 300;
+        font-size: 18px;
+        color: var(--accent-color);
+      }
+      .capped{
+        max-width: 500px;
+      }
+      #payoutDialog{
+        min-width: 300px;
+        width: 50%;
+        max-width: 500px;
+      }
+      .capped-value{
+        font-size: 20px;
+        width: 120px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        text-align: right;
+      }
+    </style>
+
+    <div class="vertical p-3">
+      <div class="vertical py-2" hidden$="[[!processingPayment]]">
+        <paper-card class="vertical m1-y capped">
+          <div class="card-content flex">
+            <h5>Tienes un pago en proceso</h5>
+            <iron-pages selected="[[lastPendingPayment.txStatus]]" attr-for-selected="status">
+              <section status="new" class="vertical">
+                <span>Tu pago está esperando a ser completado.</span>
+                <br>
+                <a href="[[lastPendingPayment.url]]">
+                  <paper-button raised class="accent">Completar Pago</paper-button>
+                </a>
+              </section>
+              <section status="paid">
+                <span class="s-text">Tu pago ha sido recibido. En cuanto la red de bitcoins confirme tu transacción podrás disfrutar de tu suscripción</span>
+              </section>
+            </iron-pages>
+          </div>
+        </paper-card>
+      </div>
+      <div class="horizontal">
+        <div hidden$="[[user.isSubscribed]]">
+          <paper-card  class="vertical subscription" hidden$="[[processingPayment]]">
+            <div class="card-content flex">
+              <h4>No tienes una suscripción activa</h4>
+              <span>Encuentra todos los beneficios de suscribirte <a href="/sytm" target="_blank">Aquí</a></span>
+            </div>
+            <div class="card-actions horizontal center">
+              <b>Inicia una suscripción ahora</b>
+              <div class="flex"></div>
+              <paper-button class="accent" on-tap="openDialog" >Iniciar Suscripción</paper-button>
+            </div>
+          </paper-card>
+        </div>
+        <div hidden$="[[!user.isSubscribed]]">
+          <paper-card  class="vertical subscription">
+            <div class="card-content flex">
+              <h4>Tienes una suscripción activa</h4>
+              <div class="susbcribed-until">
+                Tu suscripción es válida hasta : <b>[[localize('date','value',user.subscribedUntil)]]</b>
+              </div>
+              <div class="vth">
+                <span class="light flex">Recueda que cada mes debes renovar tu suscripción. Si deseas pagar por adelantado puedes hacerlo ahora.</span>
+                <paper-button raised class="accent self-center" on-tap="openDialog">Renovar susciripción</paper-button>
+              </div>
+              <br>
+              <div class="vertical">
+                <div class="vth" hidden$="[[user.autoSub]]">
+                  <span class="light flex">También puedes activar la suscripción automática para que se te debite automáticamente cada mes el valor de la misma.</span>
+                  <paper-button class="accent self-center" on-tap="openAutoSubConfirm">Activar</paper-button>
+                </div>
+                <div class="vth" hidden$="[[!user.autoSub]]">
+                  <span class="light flex">Tienes activado la suscripción automática. Cada mes se debitarán 0.01 BTC de tu cuenta de manera automática.</span>
+                  <paper-button class="warning self-center" on-tap="openAutoSubConfirm">Desactivar</paper-button>
+                </div>
+              </div>
+              <br>
+              <span class="warning">Recuerda que si no estás suscrito no recibes los beneficios de las personas que enlistaste como tus recomendados.</span>
+            </div>
+            <div class="card-content flex">
+              <div class="">
+                <h5>Tu saldo</h5>
+              </div>
+              <div hidden$="[[!userHasBalance]]" class="vertical">
+                <span>Tu saldo es de: [[toRegBitcoin(user.totalBalance)]] BTC</span>
+                <span hidden$="[[!user.payoutRequested]]" class="text-accent">Este saldo cambiará después de que se confirme tu retiro.</span>
+              </div>
+              <div hidden$="[[userHasBalance]]" class="vertical">
+                <span>Todavía no tienes saldo a tu favor.</span>
+                <div class="vth">
+                  <span class="s-text flex self-center">Para empezar a ganar puedes agregar recomendados</span>
+                  <a href="/acco/recommended">
+                    <paper-button class="accent">Agregar recomendados</paper-button>
+                  </a>
+                </div>
+
+              </div>
+            </div>
+            <div hidden$="[[!userHasBalance]]" class="card-actions horizontal center">
+              <div class="horizontal center flex" hidden$="[[user.payoutRequested]]">
+                <b>Aquí puedes retirar saldo de tu cuenta: </b>
+                <div class="flex"></div>
+                <paper-button class="accent" on-tap="openPayoutDialog" >Retirar Dinero</paper-button>
+              </div>
+              <div class="horizontal center flex" hidden$="[[!user.payoutRequested]]">
+                <span class="warning">Has solicitado un retiro en las últimas 12 horas. Debes esperar a que se confirme.</span>
+              </div>
+            </div>
+          </paper-card>
+        </div>
+      </div>
+    </div>
+    <paper-dialog id="dialog" >
+      <h2 hidden="[[user.isSubscribed]]">Iniciar una suscripción</h2>
+      <paper-dialog-scrollable>
+        <b>Lee con atención los pasos que debes seguir:</b>
+        <ol>
+          <li>A continuación te vamos a redirigir a la página donde puedes realizar el pago. </li>
+          <li>Allí encontrarás la dirección de bitcoin a la cual debes realizar el depósito. Recuerda que Alfacoin (la red mediante la cual manejamos los pagos) cobra un cargo extra por la transferencia del dinero.</li>
+          <li>Una vez recibida tu transacción, espera a que se confirme en la red de bitcoins. Puedes visitar la sección de <b>Membrecia</b> dentro de tu cuenta para mantenerte al tanto. </li>
+          <li>Recuerda que debes depositar el valor exacto, de otro modo, tendrás problemas iniciando tu suscripción.</li>
+          <li>Disfruta tu suscripción y gana dinero!</li>
+        </ol>
+      </paper-dialog-scrollable>
+      <div class="bot">
+        <div class="flex">
+          <paper-checkbox checked="{{stepsUnderstand}}">Entiendo los pasos, continuar con el pago.</paper-checkbox>
+        </div>
+        <br>
+        <paper-button class="accent" disabled="{{!stepsUnderstand}}" on-click="continuePayment">Continuar al pago</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-dialog id="payoutDialog" >
+      <h2>Retirar Dinero</h2>
+      <div class="vertical">
+        <span class="s-text">Recuerda que solamente puedes hacer un retiro cada <b>12</b> horas. Durante este tiempo, nuestro sistema se encarga de verificar la transacción y actualizar tu saldo. El costo de la transferencia es procesado por la </span>
+        <div class="vertical">
+          <paper-input label="Cantidad a retirar" value="{{sendValue}}" auto-validate pattern="^(?:\d*\.)?\d{0,8}$" id="sendValueInput" error-message="Máximo 8 decimales.">
+            <div prefix>BTC &nbsp;</div>
+          </paper-input>
+          <br>
+          <div class="vth">
+            <b class="flex">Costo por la transferencia</b>
+            <span class="capped-value">[[showDecimal(feeValue)]]</span>
+          </div>
+          <div class="vth">
+            <b class="flex">Total a recibir</b>
+            <span class="capped-value">[[showDecimal(totalValue)]]</span>
+          </div>
+          <div class="vth">
+            <b class="flex">Saldo restante </b>
+            <span class="capped-value">[[showDecimal(remainingValue)]]</span>
+          </div>
+          <paper-input label="Dirección a depositar" value="{{sendAdress}}"></paper-input>
+        </div>
+
+      </div>
+      <div class="vertical">
+        <paper-button on-tap="requestPayout" class="accent self-end" raised>Retirar dinero</paper-button>
+        <br>
+      </div>
+      <div class="loading-overlay" hidden$="[[!payouts.loading]]">
+        <paper-spinner active></paper-spinner>
+      </div>
+    </paper-dialog>
+    <paper-dialog id="confirmDialog" class="vertical">
+      <h2>Suscripción automática</h2>
+      <div class="vertical" hidden$="[[user.autoSub]]">
+        <span class="light">Al activar esta opción se debitará automáticamente de tu saldo <b>0.01</b> cada mes para pagar tu suscripción.</span>
+        <paper-button class="accent self-end" on-tap="activateAutoSub">Activar</paper-button>
+        <br>
+      </div>
+      <div class="vertical" hidden$="[[!user.autoSub]]">
+        <span class="light">Si desactivas esta opción tu suscripción puede caducar lo que haría que no recibas los beneficios de las personas que se encuentran registrados como tus recomendados.</span>
+        <paper-button class="warning self-end" on-tap="deactivateAutoSub">Desactivar</paper-button>
+        <br>
+      </div>
+      <div class="loading-overlay" hidden$="[[!payouts.loading]]">
+        <paper-spinner active></paper-spinner>
+      </div>
+    </paper-dialog>
+    <paper-toast id="toast" ></paper-toast>
+  </template>
+  <script>
+    Polymer({
+      is: 'membership-panel',
+      behaviors:[
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        PayoutsActionsBehavior,
+        UserActionsBehavior
+      ],
+      properties:{
+        user:{
+          type:Object,
+          statePath:'user.info'
+        },
+        language:{
+          type:String,
+          statePath:'language'
+        },
+        processingPayment:{
+          type:Object,
+          statePath:(state)=>{
+            var result=false
+            var payments = state.payments.entities;
+            payments.forEach((pay)=>{
+              if(pay.txStatus==='new'||pay.txStatus==='paid'){
+                result=true;
+              }
+            });
+            return result;
+          }
+        },
+        lastPendingPayment:{
+          type:Object,
+          statePath:(state)=>{
+            return state.payments.entities.reduce((result,pay)=>{
+              if(pay.txStatus==='new'||pay.txStatus==='paid'){
+                return pay;
+              }
+            },null);
+          }
+        },
+        payouts:{
+          type:Object,
+          statePath:'payouts'
+        },
+        totalValue:{
+          type:Number,
+          computed:'_computeTotal(sendValue)'
+        },
+        feeValue:{
+          type:Number,
+          computed:'_computeFee(sendValue)'
+        },
+        remainingValue:{
+          type:Number
+        },
+        userHasBalance:{
+          type:Boolean,
+          computed:'_computeHasBalance(user.totalBalance)'
+        },
+        resources:{
+          value:function(){
+            return {
+              'es':{
+                'date': '{ value , date , medium}'
+              },
+              'en':{
+                'date': '{ value , date , medium}'
+              }
+            }
+          }
+        }
+      },
+      observers:['_computeRemaining(sendValue,user.totalBalance)'],
+      toRegBitcoin:function(value){
+        return (value/100000000);
+      },
+      showMessage:function(text,duration){
+        this.$.toast.text=text;
+        this.$.toast.duration=duration||3000;
+        this.$.toast.open();
+      },
+      showDecimal:function(decimal){
+        if(!decimal)return '0.00';
+        if(typeof decimal!=='number'){
+          decimal = Number(decimal);
+        }
+        return decimal.toFixed(8);
+      },
+      attached:function(){
+        this.$.dialog.fitInto=this;
+        this.$.toast.fitInto=this;
+      },
+      openDialog:function(){
+        this.$.dialog.open();
+      },
+      _computeTotal:function(value){
+        if(!value)return 0
+        return (parseFloat(value)*0.99)-0.0001;
+      },
+      _computeFee:function(value){
+        if(!value)return 0.0001
+        //0.0001
+        return (parseFloat(value)*0.01)+0.00000001;
+      },
+      _computeRemaining:function(value,balance){
+        if(!balance)return 0;
+        var parsed = balance/100000000;
+        if(!value)return parsed;
+        //this is the remaining Balance that the user will have taking in account the amount to be withdraw
+        this.remainingValue= parsed-parseFloat(value)-(parseFloat(value)*0.01)-0.00000001;
+      },
+      _computeHasBalance:function(balance){
+        return balance>0;
+      },
+      openPayoutDialog:function(){
+        this.$.payoutDialog.open();
+      },
+      continuePayment:function(){
+        window.location=window.location.origin+'/payment/requestOrder';
+      },
+      requestPayout:function(){
+        if(!this.$.sendValueInput.validate()){
+          return showMessage('Ingresa un valor correcto para retirar.');
+        }
+        if(this.remainingValue<=0){
+          return showMessage('No tienes suficientes fondos para retirar.');
+        }
+        if(!body.address){
+          return showMessage('Debes ingresar una dirección para depositar.')
+        }
+        var body = {
+          address:this.sendAdress,
+          amount:this.sendValue*100000000
+        };
+        this.dispatch('requestPayout',body,(err,payout)=>{
+          if(err) return this.showMessage('Hubo un error enviando tu dinero. Revisa tu diección o intenta más tarde.');
+          this.showMessage('Se ha enviado tu dinero.');
+          this.$.payoutDialog.close();
+          this.sendAdress=null;
+          this.sendValue=null;
+        });
+
+      },
+      openAutoSubConfirm:function(){
+        this.$.confirmDialog.open();
+      },
+      activateAutoSub:function(){
+        this.dispatch('updateAutoSub',true,(e)=>{
+          if(e)return showMessage(this.localize(e.message));
+          showMessage('Ahora te suscribes automáticamente.');
+          this.$.confirmDialog.close();
+        });
+      },
+      deactivateAutoSub:function(){
+        this.dispatch('updateAutoSub',false,(e)=>{
+          if(e)return showMessage(this.localize(e.message));
+          showMessage('Ya no te suscribes automáticamente.');
+          this.$.confirmDialog.close();
+        });
+      }
+
+    });
+  </script>
+</dom-module>

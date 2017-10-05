@@ -1,0 +1,152 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete-suggestions.html">
+<link rel="import" href="../../bower_components/iron-form-element-behavior/iron-form-element-behavior.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../elements/label-element.html">
+<link rel="import" href="../elements/label-chip.html">
+<link rel="import" href="../redux/global-store.html">
+<dom-module id="label-autocomplete">
+   <style include="shared-styles">
+    div.wraper{
+      position:relative;
+      max-width: 300px;
+    }
+    div.labels{
+      max-width: 300px;
+    }
+    paper-autocomplete-suggestions{
+      --suggestions-wrapper:{
+        color:var(--primary-text-color);
+      }
+    }
+   </style>
+   <template>
+     <label-element labels="{{labelArray}}"></label-element>
+     <div class="wraper" hidden$="[[readonly]]">
+       <paper-input label="Relacionado con" id="autocompleteInput"></paper-input>
+       <paper-autocomplete-suggestions for="autocompleteInput" source="[[labelArray]]" on-autocomplete-selected="labelSelected"></paper-autocomplete-suggestions>
+     </div>
+     <div class="labels">
+       <template is="dom-repeat" items="[[labels]]">
+         <label-chip item="[[item]]" on-closed="spliceLabel" closeable="[[!readonly]]"></label-chip>
+       </template>
+     </div>
+   </template>
+   <script>
+    Polymer({
+      is: 'label-autocomplete',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior
+      ],
+
+      properties:{
+        language:{
+          type:String,
+          statePath:'language'
+        },
+        resources:{
+          value:function(){
+            return {
+              'en':{
+              },
+              'es':{
+              }
+            }
+          }
+        },
+        labelArray:Array,
+        value:{
+          type:Array,
+          value: function(){
+            return [];
+          },
+          notify:true,
+          observer:'_valueChanged'
+        },
+        labels : {
+          type : Array,
+          value : function(){
+            return [];
+          }
+        },
+        readonly:{
+          type: Boolean,
+          value: false
+        }
+      },
+      _labelsChanged : function(splices){
+        //this function takes care of maintaining values syncronized with labels array
+        if (splices) {
+          //check every change on the array
+          splices.indexSplices.forEach((s)=> {
+            s.removed.forEach((label)=>{
+              //for every removed label, remove corresponding value
+              this.values.forEach((value,index)=>{
+                if(label.value===value){
+                  this.splice('value',index,1);
+                }
+              });
+            });
+            for (var i=0; i<s.addedCount; i++) {
+              var index = s.index + i;
+              var newLabel = s.object[index];
+              this.push('value',newLabel.value);
+            }
+          });
+        }
+      },
+      _valueChanged : function(newVal,oldVal){
+        //update value array when modified from external source
+        if(!newVal)return;
+        if(newVal.length<1)return;
+        //empty the labels array
+        this.set('labels',[]);
+        //run on every element of the new array
+        newVal.forEach((item)=>{
+          //check if that element value is inside the labels array provided by <label-element>
+          this.labelArray.forEach((label)=>{
+            if(label.value===item){
+              //if values match, push the arrays
+              return this.push('labels',label);
+            }
+          });
+        });
+      },
+      labelSelected: function(e){
+        if(this.value===undefined){
+          this.value=[];
+        }
+        //Check if there is no duplicates with same value
+        this.value.forEach((item)=>{
+          if(item===e.detail.option.value){
+            return ;
+          }
+        });
+        //if not, push into labels the option
+        this.push('labels',e.detail.option);
+        this.push('value',e.detail.option.value);
+        //clear the input
+        this.$.autocompleteInput.value='';
+      },
+      spliceLabel:function(e){
+        //remove values from label and value arrays
+        this.labels.forEach((label,index)=>{
+          if(label.value===e.detail.value){
+            this.splice('value',index,1);
+            this.splice('labels',index,1);
+          }
+        });
+      },
+      focusInput : function(){
+        this.$.autocompleteInput.focus();
+      },
+      isValid:function(){
+        //checks if there is at least one value into values array
+        return this.value.length>0;
+      }
+    })
+   </script>
+</dom-module>

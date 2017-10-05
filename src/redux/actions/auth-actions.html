@@ -1,0 +1,204 @@
+
+<script>
+  const AuthActionsBehavior = {
+    actions:{
+      logIn:function(provider,body,callback){
+        return function(dispatch){
+            dispatch({type:'LOG_IN'});
+            let url = '/auth/'+provider;
+            if(provider!=='local'){
+              url+='/callback'
+            }
+            let request = new Request(url,{
+              method:'POST',
+              headers: standardHeaders,
+              body: JSON.stringify(body),
+              credentials: 'include'
+            });
+            window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              dispatch({type:'LOG_IN',status:'success'});
+              var state = this.getState();
+              if(state.recommender.watingAuthorization){
+                window.history.pushState({}, null, '/recw/'+state.recommender.info.id);
+                dispatch({type:'SET_WAITING_AUTH_RECO',isWating:false});
+              }else{
+                window.history.pushState({},null,'/')
+              }
+              window.dispatchEvent(new CustomEvent('location-changed'));
+              callback();
+            })
+            .catch((e)=>{
+              dispatch({type:'LOG_IN',status:'error',error:e.message});
+              callback({message:e.message});
+            });
+        }
+      },
+      logOut:function(callback){
+        return function(dispatch){
+            dispatch({type:'LOG_OUT'});
+            let request = new Request('/logout',{
+              method:'GET',
+              headers: standardHeaders,
+              credentials: 'include'
+            });
+            window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              dispatch({type:'LOG_OUT',status:'success'});
+              window.history.pushState({},null,'/');
+              window.dispatchEvent(new CustomEvent('location-changed'));
+              callback();
+            })
+            .catch((e)=>{
+              dispatch({type:'LOG_OUT',status:'error',error:e.message});
+              callback({message:e.message});
+            });
+        }
+      },
+      register:function(body,callback){
+        return function(dispatch){
+            dispatch({type:'LOG_IN'});
+            let url = '/auth/local/register';
+            let request = new Request(url,{
+              method:'POST',
+              headers: standardHeaders,
+              body: JSON.stringify(body),
+              credentials: 'include'
+            });
+            window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              response.json().then((json)=>{
+                dispatch({type:'LOG_IN',status:'success'});
+                var state = this.getState();
+                if(state.recommender.watingAuthorization){
+                  window.history.pushState({}, null, '/recw/'+state.recommender.info.id);
+                  dispatch({type:'SET_WAITING_AUTH_RECO',isWating:false});
+                }else{
+                  window.history.pushState({},null,'/wlcm');
+                }
+                window.dispatchEvent(new CustomEvent('location-changed'));
+                callback();
+              });
+
+            })
+            .catch((e)=>{
+              dispatch({type:'LOG_IN',status:'error',error:e.message});
+              callback({message:e.message});
+            });
+        }
+      },
+      recoverPassword:function(body,callback){
+        return function(dispatch){
+          dispatch({type:'REQ_RECOVER_PASS'});
+          let request = new Request(
+            '/getPassRecovery',
+            {
+              method:'POST',
+              headers:standardHeaders,
+              body:JSON.stringify(body),
+              credentials: 'include'
+            }
+          );
+          window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              dispatch({type:'REQ_RECOVER_PASS',status:'success'});
+              callback();
+            })
+            .catch((e)=>{
+              dispatch({type:'REQ_RECOVER_PASS',status:'error',error:e.message});
+              callback({message:e.message});
+            });
+        };
+      },
+      requestMailVerif:function(callback){
+        return function(dispatch){
+          dispatch({type:'REQ_MAIL_VERIF'});
+          let request = new Request(
+            '/getMailVerification',
+            {
+              method:'POST',
+              headers:standardHeaders,
+              credentials: 'include'
+            }
+          );
+          window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              response.json().then((json)=>{
+                dispatch({type:'REQ_MAIL_VERIF',status:'success',address:json.address});
+              });
+            })
+            .catch((e)=>{
+              dispatch({type:'REQ_MAIL_VERIF',status:'error',error:e.message});
+            });
+        };
+      },
+      changePassword:function(body,callback){
+        return function(dispatch){
+          dispatch({type:'CHANGE_PASS'});
+          let request = new Request(
+            '/recoverPass',
+            {
+              method:'POST',
+              headers:standardHeaders,
+              body:JSON.stringify(body),
+              credentials: 'include'
+            }
+          );
+          window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              dispatch({type:'CHANGE_PASS',status:'success'});
+              callback();
+            })
+            .catch((e)=>{
+              dispatch({type:'CHANGE_PASS',status:'error',error:e.message});
+              callback({message:e.message});
+            });
+        };
+      },
+      loadUserInfo:function(){
+        return function(dispatch){
+          dispatch({type:'SET_USER_INF'});
+          let request = new Request(
+            '/getcurrentuser',
+            {
+              method:'GET',
+              headers:standardHeaders,
+              credentials: 'include'
+            }
+          );
+          window.fetch(request)
+            .then(handleReqError)
+            .then((response)=>{
+              response.json().then((json)=>{
+                dispatch({type:'LOG_IN',status:'success'});
+                dispatch({type:'SET_USER_INF',status:'success',info:json});
+              });
+            })
+            .catch((e)=>{
+              dispatch({type:'SET_USER_INF',status:'error',error:e.message})
+            });
+        };
+      },
+      userStartLoading:function(){
+        return {type:'USER_START_LOADING'};
+      }
+    },
+    checkLogIn:function(){
+      var found = false,name='authenticated',value='1';
+      document.cookie.split(";").forEach(function(e) {
+          var cookie = e.split("=");
+          if(name == cookie[0].trim() && (!value || value == cookie[1].trim())) {
+              found = true;
+          }
+      })
+      return found;
+    }
+
+  };
+</script>

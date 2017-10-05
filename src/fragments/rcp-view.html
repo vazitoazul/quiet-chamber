@@ -1,0 +1,158 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
+<dom-module id="rcp-view">
+  <template>
+    <style include="shared-styles ">
+      :host {
+        display: block;
+        min-width: 100%;
+      }
+      div.main *{
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+      }
+      paper-card{
+        min-width: 300px;
+        width: 40%;
+      }
+      section.full-v{
+        height: 100vh;
+      }
+    </style>
+    <app-route
+        route="{{route}}"
+        pattern="/:token"
+        data="{{routeData}}"
+        tail="{{subroute}}"></app-route>
+    <div class="main">
+      <iron-pages selected="[[page]]" attr-for-selected="page" class="self-center">
+        <section page="main" class="full-v">
+          <div class="h-100 vertical">
+            <h3 class="mx-1 text-xs-center">[[localize('enter_new_pass')]]</h3>
+            <paper-card hero>
+              <div class="card-content">
+                <form is="iron-form" id="mainForm">
+                  <paper-input id="newpass" name="newpass" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
+              	  <paper-input id="confirm" name="confirm" label="[[localize('confirmation')]]" type="password" required invalid="[[!passwordsMatch]]" error-message="[[localize('pass_not_match')]]" value="{{confirm}}"></paper-input>
+                  <input type="text" name="token" value="[[routeData.token]]" hidden>
+                </form>
+              </div>
+              <div class="card-actions horizontal">
+                <div class="flex"></div>
+                <paper-button  class="secondary" on-click="sendForm">[[localize('change_pass')]]</paper-button>
+              </div>
+            </paper-card>
+          </div>
+        </section>
+        <section page="success" class="full-v">
+          <div class="h-100 vertical">
+            <paper-card>
+              <h3 class="mx-1 text-xs-center">[[localize('pass_changed')]]</h3>
+              <h4 class="mx-1 text-xs-center"><a href="/lgin">[[localize('go_to_my_acc')]]</a></h4>
+            </paper-card>
+          </div>
+        </section>
+        <section page="failure" class="full-v">
+          <div class="h-100 vertical">
+            <paper-card>
+              <h3 class="mx-1 text-xs-center">[[localize('times_up')]]</h3>
+              <h4 class="mx-1 text-xs-center"><a href="/lgin">[[localize('go_start')]]</a></h4>
+            </paper-card>
+          </div>
+        </section>
+      </iron-pages>
+
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'rcp-view',
+      behaviors:[
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        AuthActionsBehavior
+      ],
+      properties:{
+        route:{
+          type:String
+        },
+        language :{
+          type : String,
+          statePath:'language'
+        },
+        passwordsMatch:{
+          type:Boolean
+        },
+        page:{
+          type:String,
+          value:'main'
+        },
+        passRecovery:{
+          type:Object,
+          statePath:'passRecovery'
+        },
+        resources:{
+          value:function(){
+            return {
+              "es":{
+                "password":"Contraseña",
+                "pass_form":"Debe tener al menos 8 caracteres, una letra mayúscula y un número",
+                "confirmation":"Repite tu contraseña",
+                "pass_not_match":"Las contraseñas no coinciden",
+                "enter_new_pass":"Ingresa tu nueva contraseña a continuanción",
+                "change_pass":"Cambiar Contraseña",
+                "pass_changed":"Se ha cambiado tu contraseña.",
+                "go_to_my_acc":"Ingresar a mi cuenta",
+                "times_up":"El tiempo para recuperar su contraseña ha expirado.",
+                "go_start":"Regresar al inicio"
+
+              },
+              "en":{
+                "password":"Password",
+                "pass_form":"Must have 8 characters, one capital letter and one number",
+                "confirmation":"Repeat your password",
+                "pass_not_match":"Passwords don't match",
+                "enter_new_pass":"Enter your new password",
+                "change_pass":"Change Password",
+                "pass_changed":"Your password has been updated.",
+                "go_to_my_acc":"Go to my Account",
+                "times_up":"The time lapse to recover your password has finished.",
+                "go_start":"Go back to the start"
+              }
+            };
+          }
+        }
+      },
+      observers: [
+        '_passwordMatch(confirm)'
+      ],
+      _routePageChanged: function(page) {
+        this.page = page || 'succes';
+      },
+      _passwordMatch:function(){
+        this.passwordsMatch=this.$.newpass.value===this.$.confirm.value;
+      },
+      sendForm:function(){
+        if(this.$.mainForm.validate()){
+          this.dispatch('changePassword',this.$.mainForm.serialize(),(err)=>{
+            if(err){
+              this.page='failure';
+              return showMessage(this.localize(err.message));
+            }
+            this.page='success';
+          });
+        }
+      }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,415 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../elements/business-card.html">
+<link rel="import" href="../elements/business-form.html">
+<link rel="import" href="../elements/post-form.html">
+<link rel="import" href="../elements/post-card.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/business-actions.html">
+<dom-module id="business-section">
+  <style include="shared-styles">
+    paper-icon-button.giant{
+      width: 5rem;
+      height: 5rem;
+      color: var(--paper-pink-500);
+      --paper-icon-button-ink-color: var(--paper-indigo-500);
+    }
+    paper-toast{
+      right: 0 !important;
+      left: inherit !important;
+    }
+    paper-card.start-card{
+      @apply(--layout-vertical);
+      margin-top: 1rem;
+      min-height: 500px;
+      --paper-card-header-color:#fff;
+      --paper-card-header:{
+        background-color:var(--default-primary-color);
+      }
+    }
+    @media(max-width: 768px){
+      paper-card.start-card{
+        height: 450px;
+      }
+    }
+    div.bus-item{
+      margin-top: 8px;
+      border-top: 1px solid;
+      border-color: rgba(0,0,0,0.12);
+      position: relative;
+    }
+    div.bus-item:first-child{
+      border-top: 0px !important;
+    }
+    div.bus-item div.photo iron-image{
+      width: 60px;
+      height: 60px;
+    }
+    div.bus-item div.photo{
+      margin-right: 8px;
+    }
+
+  </style>
+  <template>
+    <app-location route="{{route}}"></app-location>
+    <app-route route="[[route]]" pattern="/acco/business/:id" data="{{busData}}" tail="{{postRoute}}"></app-route>
+    <app-route route="[[postRoute]]" pattern="/:id" data="{{postData}}"></app-route>
+    <iron-pages selected="{{section}}" attr-for-selected="name">
+      <section name="resume" class="container">
+        <div class="row">
+          <div class="col-12 col-md-6">
+            <paper-card heading="Tus Negocios" class="start-card">
+              <div class="card-content vertical flex">
+                <template is="dom-if" if="[[noBusiness]]">
+                  <div class="vertical flex">
+                    <h5 class="text-accent">No has registrado ningún negocio</h5>
+                    <span class="s-text">Los Negocios están pensados para brindarle al usuario la capacidad de promover sus ideas de negocio en el resto de esta comunidad.</span>
+                    <span class="s-text">Si estás interesado en conseguir capital para tu idea, empieza registrando tu negocio a continuación:</span>
+                    <br>
+                    <a href="/acco/business/new">
+                      <paper-button raised class="accent">Registrar negocio</paper-button>
+                    </a>
+                    <br>
+                    <div class="flex"></div>
+                    <span class="font-caption">Si deseas saber más sobre nuestro sistema puedes hacerlo desde <a href="/faq">Aquí</a> </span>
+                  </div>
+                </template>
+                <template is="dom-if" if="[[!noBusiness]]">
+                  <div class="vertical bus-container">
+                    <template is="dom-repeat" items="[[business]]">
+                      <div class="horizontal bus-item">
+                        <div class="photo">
+                          <iron-image src="[[item.image]]" preload sizing="cover" placeholder="https://images.unsplash.com/photo-1473187983305-f615310e7daa?dpr=1&auto=format&fit=crop&w=100&h=100&q=80&cs=tinysrgb"></iron-image>
+                        </div>
+                        <div class="vertical flex" on-tap="_selectBusiness">
+                          <span>[[item.name]]</span>
+                          <span class="s-text">[[item.posts.length]] anuncios</span>
+                        </div>
+                        <paper-ripple></paper-ripple>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+              </div>
+              <div class="card-actions horizontal" hidden$="[[noBusiness]]">
+                <span class="s-text flex">Puedes registrar hasta 3 negocios por cuenta.</span>
+                <a href="/acco/business/new">
+                  <paper-button class="accent">Nuevo negocio</paper-button>
+                </a>
+              </div>
+            </paper-card>
+          </div>
+          <div class="col-md-6 py-3">
+            <business-card business="[[currentBusiness]]" hidden$="[[!currentBusiness.id]]" no-image></business-card>
+            <paper-card class="business-placeholder" hidden$="[[currentBusiness.id]]">
+              <div class="card-content vertical center">
+                <span class="font-display1 s-text">
+                  Selecciona un negocio para ver sus detalles
+                </span>
+              </div>
+            </paper-card>
+          </div>
+        </div>
+      </section>
+      <section name="editBus" class="container">
+        <div class="row">
+          <div class="col-12">
+            <a href="/acco/business">Mis negocios</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <span>[[currentBusiness.name]]</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 col-md-6">
+            <business-form business="[[currentBusiness]]" hidden$="[[!currentBusiness.id]]"></business-form>
+          </div>
+          <div class="vertical col-12 col-md-6 py-3">
+            <paper-card heading="Anuncios">
+              <div class="card-content" hidden$="[[!hasPosts]]">
+                <template is="dom-repeat" items="[[posts]]" filter="_filterPosts">
+                  <div class="horizontal bus-item">
+                    <div class="vertical flex">
+                      <span>[[item.name]]</span>
+                      <span class="s-text">[[localize('post_type','type',item.type)]]</span>
+                    </div>
+                    <div class="buttons">
+                      <a href="/acco/business/[[currentBusiness.id]]/[[item.id]]">
+                        <paper-button class="primary" raised>Ver</paper-button>
+                      </a>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="card-content" hidden$="[[hasPosts]]">
+                <div class="vertical flex">
+                  <h5 class="text-accent">Este negocio no tiene ningún anuncio</h5>
+                  <span class="s-text">Los anuncios te permiten promover una oportunidad de inversión para tu empresa.Cuando creas un anuncio, este se publica en nuestro portal de búsqueda, donde las personas se pueden poner en contacto contigo para hacer negocios.</span>
+                  <span class="s-text">A continuación puedes crear tu primer anuncio:</span>
+                  <br>
+                  <a href="/acco/business/[[currentBusiness.id]]/new">
+                    <paper-button raised class="accent">Anunciar</paper-button>
+                  </a>
+                  <br>
+                  <div class="flex"></div>
+                  <span class="font-caption">Si deseas saber más sobre nuestro sistema puedes hacerlo desde <a href="/faq">Aquí</a> </span>
+                </div>
+              </div>
+              <div class="card-actions vertical" hidden$="[[!hasPosts]]">
+                <a href="/acco/business/[[currentBusiness.id]]/new" class="self-end">
+                  <paper-button class="accent">Nuevo anuncio</paper-button>
+                </a>
+              </div>
+            </paper-card>
+          </div>
+        </div>
+      </section>
+      <section name="newBus" class="container">
+        <div class="row">
+          <div class="col-12 horizontal p-1">
+            <a href="/acco/business">Mis negocios</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <span>Nuevo negocio</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <business-form id="businessNewForm" creating editing></business-form>
+          </div>
+        </div>
+      </section>
+      <section name="newPost" class="container">
+        <div class="row">
+          <div class="col-12">
+            <a href="/acco/business">Mis negocios</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <a href="/acco/business/[[currentBusiness.id]]">[[currentBusiness.name]]</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <span>Nuevo anuncio</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <post-form creating business="[[currentBusiness]]"></post-form>
+          </div>
+        </div>
+      </section>
+      <section name="editPost" class="container">
+        <div class="row">
+          <div class="col-12">
+            <a href="/acco/business">Mis negocios</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <a href="/acco/business/[[currentBusiness.id]]">[[currentBusiness.name]]</a>
+            <iron-icon icon="chevron-right"></iron-icon>
+            <span>[[currentPost.name]]</span>
+          </div>
+          <div class="col-12">
+            <post-form post="{{currentPost}}" business="[[currentBusiness]]"></post-form>
+          </div>
+        </div>
+      </section>
+    </iron-pages>
+    <paper-toast id="toast" duration="4000"></paper-toast>
+  </template>
+  <script>
+    Polymer({
+      is : 'business-section',
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        BusinessActionsBehavior
+      ],
+      properties : {
+        language:{
+          type:String,
+          statePath:'language'
+        },
+        business : {
+          type : Array,
+          statePath : 'business.business',
+          observer : '_businessChanged'
+        },
+        posts: {
+          type: Array,
+          statePath: 'business.posts',
+          observer : '_postsChanged'
+        },
+        section : {
+          type: String,
+          value : 'resume'
+        },
+        resources : {
+          value :  function(){
+            return  {
+              'en' : {
+                'your_business' : 'Your business',
+                'no_business' : 'You do not have business yet',
+                'more_info' : 'More info',
+                'editing' : 'Editing',
+                'bussines_added' : 'new bussiness added',
+                'business_deleted' : 'bussiness deleted',
+                'business_edited' : 'business edited',
+                'post_added' : 'post added',
+                'post_edited' : 'post edited',
+                'post_deleted' : 'post deleted',
+                'editing_post' : 'Editing post',
+                'type' : 'type',
+                'new_buss' : 'New Business',
+                'new_post' : 'New Post',
+                'add_a_buss' : 'Add a bussiness',
+                'post_type': '{type,select, i{Investment} d{Donation} j{Job}}'
+              } ,
+              'es' : {
+                'your_business' : 'Tus negocios',
+                'no_business' : 'Aun no tienes negocios',
+                'more_info' : 'Más información',
+                'editing' : 'Editando',
+                'bussines_added' : 'nuevo negocio agregado',
+                'business_deleted': 'negocio borrado',
+                'business_edited' : 'negocio editado',
+                'post_added' : 'publicación agregada',
+                'post_edited' : 'publicación editada',
+                'post_deleted' : 'publicación eliminada',
+                'editing_post' : 'Editando post',
+                'type' : 'tipo',
+                'new_buss' : 'Nuevo negocio',
+                'new_post' : 'Nueva publicación',
+                'add_a_buss' : 'Agregar un negocio',
+                'post_type': '{type,select, i{Inversión} d{Donación} j{Trabajo}}'
+              }
+            }
+          }
+        },
+        noBusiness : {
+          type : Boolean,
+          statePath(state){
+            return state.business.business.length<=0
+          }
+        },
+        lastError : {
+          type : Boolean,
+          statePath : 'business.lastError',
+          observer : '_lastErrorObserver'
+        },
+        currentBusiness:{
+          type:Object,
+          statePath:'business.selectedBusiness'
+        },
+        currentPost:{
+          type:Object,
+          statePath:'business.selectedPost'
+        },
+        hasPosts:{
+          type:Boolean,
+          statePath(state){
+            if(!state.business.selectedBusiness)return false;
+            var selectedId=state.business.selectedBusiness.id;
+            return state.business.posts.reduce((result,item)=>{
+              if(item.business===selectedId){
+                return true;
+              }
+              return result;
+            },false);
+          }
+        }
+      },
+      observers : [
+        '_onRouteChanged(route.path)'
+      ],
+      _businessChanged(newValue,lastValue){
+        if(newValue){
+          if(newValue.length>0||this.busData.id){
+            this._selectBusinessById(this.busData.id);
+          }
+        }
+      },
+      _postsChanged:function(newValue,lastValue){
+        if(newValue){
+          if(newValue.length>0||this.postData.id){
+            this._selectPostById(this.postData.id);
+          }
+        }
+      },
+      _onRouteChanged : function(route){
+        if(route===undefined){
+          return;
+        }
+        var s = route.split('').reduce((count,item)=>{
+          if(item==='/'){
+            return count+1;
+          }
+          return count;
+        },0);
+        var bus=this.busData || {};
+        var post=this.postData || {};
+
+        switch (s) {
+          case 2:
+            this.set('section','resume');
+            break;
+          case 3:
+            if(bus.id){
+              if(bus.id==='new'){
+                this.set('section','newBus');
+              }else{
+                this._selectBusinessById(bus.id);
+                this.set('section','editBus');
+              }
+            }
+            break;
+          case 4:
+            if(post.id){
+              if(post.id==='new'){
+                this.set('currentPost',{id:'new'});
+                this.set('section','newPost');
+              }else{
+                this._selectPostById(post.id);
+                this.set('section','editPost');
+              }
+            }
+            break;
+          default:
+          this.set('section','resume');
+        }
+
+      },
+      _lastErrorObserver : function(error){
+        if(error){
+          this.showToast(error);
+        }
+      },
+      _filterPosts:function(post){
+        if(!this.currentBusiness)return false;
+        if(post.business===this.currentBusiness.id){
+          return true;
+        }else{
+          return false;
+        }
+      },
+      showToast : function(message){
+        this.$.toast.text = message;
+        this.$.toast.open();
+      },
+      computeNoBusiness : function(business){
+        if(!business || !business.length || business.length===0)return true;
+        return false;
+      },
+      _selectBusiness: function(e){
+        var business= e.model.__data__.item;
+        this.dispatch('selectBusiness',business.id)
+      },
+      _selectBusinessById:function(id){
+        if(!id)return;
+        this.dispatch('selectBusiness',id);
+      },
+      _selectPostById:function(id){
+        if(!id)return;
+        this.dispatch('selectPost',id);
+      }
+    });
+  </script>
+</dom-module>

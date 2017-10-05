@@ -1,0 +1,11 @@
+module.exports.keys={
+  logentries:process.env.LOGENTRIES_KEY,
+  sriPassword:process.env.SRI_PASSWORD,
+  bitcoin:{
+    name:process.env.BIT_NAME,
+    pass:process.env.BIT_PASS,
+    secret:process.env.BIT_SECRET
+  },
+  appUrl:process.env.APP_URL,
+  scheduledLogEntriesKey:process.env.SCHED_LOG_KEY
+};

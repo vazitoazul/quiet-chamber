@@ -1,0 +1,130 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<!-- Polyfills -->
+<script src="../bower_components/promise-polyfill/Promise.min.js"></script>
+<script src="../bower_components/fetch/fetch.js"></script>
+
+<!-- Date Utils -->
+<script src="../bower_components/date-utils/lib/date-utils.min.js"></script>
+
+<!-- Redux -->
+<script src="../bower_components/redux.min/index.js"></script>
+<script src="../bower_components/redux-thunk.min/index.js"></script>
+
+<!-- Elements  -->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="fragments/main-view.html">
+<link rel="import" href="redux/global-store.html">
+<link rel="import" href="redux/actions/auth-actions.html">
+<link rel="import" href="my-icons.html">
+
+<dom-module id="my-app">
+  <template>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="/:page"
+        data="{{routeData}}"
+        tail="{{subroute}}"></app-route>
+    <iron-pages
+        selected="[[page]]"
+        attr-for-selected="name"
+        fallback-selection="main"
+        role="main">
+      <main-view name="main" route="[[page]]"></main-view>
+      <acco-view name="acco" on-route-change="changeRoute"></acco-view>
+      <notfound-view name="notfound"></notfound-view>
+      <forbidden-view name="forbidden"></forbidden-view>
+      <servererror-view name="servererror"></servererror-view>
+      <rgst-view name="rgst" on-route-change="changeRoute"></rgst-view>
+      <lgin-view name="lgin" on-route-change="changeRoute"></lgin-view>
+      <papr-view name="papr" on-route-change="changeRoute"></papr-view>
+      <mvf-view name="mvf" route="[[subroute]]"></mvf-view>
+      <rcp-view name="rcp" route="[[subroute]]"></rcp-view>
+      <recw-view name="recw" on-route-change="changeRoute"></recw-view>
+      <srch-view name="srch" on-route-change="changeRoute"></srch-view>
+      <pas-view name="pas"></pas-view>
+      <post-view name="post"></post-view>
+      <wlcm-view name="wlcm"></wlcm-view>
+      <trms-view name="trms"></trms-view>
+
+    </iron-pages>
+    <paper-toast id="toast" class="vertical">
+      <paper-button class="accent self-end" on-tap="closeToast" hidden$="[[!infiniteToast]]">Cerrar</paper-button>
+    </paper-toast>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'my-app',
+      behaviors:[GlobalStoreBehavior,AuthActionsBehavior],
+      properties: {
+        page: {
+          type: String,
+          reflectToAttribute: true,
+          observer: '_pageChanged'
+        }
+      },
+      observers: [
+        '_routePageChanged(routeData.page)'
+      ],
+      attached:function(){
+        if(this.checkLogIn()){
+          this.dispatch('loadUserInfo');
+        }
+        window.addEventListener('show-message',(e)=>{
+          this.debounce('showMessage',()=>{
+            var toast = this.$.toast;
+            toast.text = e.detail.message;
+            if(e.detail.duration===0){
+              this.infiniteToast=true;
+              toast.duration=0;
+            }else{
+              this.infiniteToast=false;
+              toast.duration=e.detail.duration||4000;
+            }
+            toast.show();
+          },100);
+        });
+      },
+      _routePageChanged: function(page) {
+        this.page = page || 'main';
+      },
+      _pageChanged: function(page) {
+        if(page==='logout'){
+          return this.dispatch('logOut',(err)=>{
+            if(err){
+              console.log(err);
+            }
+          });
+        }
+        // Load page import on demand. Show 404 page if fails
+        var resolvedPageUrl = this.resolveUrl('fragments/'+ page +'-view.html');
+        this.importHref(resolvedPageUrl, null, this._showPage404, true);
+      },
+      _showPage404: function() {
+        this.page = 'notfound';
+      },
+      changeRoute : function(e){
+        var newPath = e.detail.route
+        this.page = newPath;
+        this.set('route.path','/'+newPath);
+      },
+      closeToast:function(){
+        this.$.toast.close();
+      }
+    });
+  </script>
+</dom-module>

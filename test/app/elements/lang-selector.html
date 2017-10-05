@@ -1,0 +1,89 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>lang-selector</title>
+
+    <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../../bower_components/web-component-tester/browser.js"></script>
+
+    <!-- Import the element to test -->
+    <link rel="import" href="../../../src/elements/lang-selector.html">
+  </head>
+  <body>
+    <test-fixture id="basic">
+      <template>
+        <lang-selector></lang-selector>
+      </template>
+    </test-fixture>
+    <script>
+      
+      describe('<lang-selector>', function() {
+        
+        describe('local storage test ', function(){
+          var lang;
+          before(function(){
+            lang = fixture('basic');
+          });
+          it('should set language on local storage when setLanguage is called',function(){
+            lang.language='es';
+            lang.setLanguage();
+            var currentLang=lang.$.localStorageLang.data;
+            assert.equal(currentLang,lang.language);
+          });
+          it('should not use the new value if it equals the one setted on local storage',function(){
+            lang.language='es';
+            assert.equal(lang.$.toast.opened,false);
+          });
+          it('should open success toast when setLanguage is called',function(){
+            lang.language='en';
+            lang.setLanguage();
+            assert.equal(lang.$.success.opened,true);
+          });
+        }); 
+        describe('opening toast tests',function(){
+          var lang;
+          var opositeLang;
+          beforeEach(function(){
+            lang = fixture('basic');
+          });
+          it('should have a valid language after savedLanguage changes for the first time',function(done){
+            lang.addEventListener('first-language-setted',function(){
+              assert(lang.language,'It does not have a valid language');
+              opositeLang=lang.language==='es'? 'en' : 'es';
+              done();
+            });            
+          });
+          it('should open its toast when language changes', function() {
+            lang.language=opositeLang;
+            assert.equal(lang.$.toast.opened,true);
+          });
+          it('should not open its toast when language remains the same', function() {
+            lang.$.toast.close();
+            lang.language=lang.language;
+            assert.equal(lang.$.toast.opened,false);
+          });
+          it('should not open when language is set to empty', function() {
+            lang.language='';
+            assert.equal(lang.$.toast.opened,false);
+          });
+
+        });  
+
+      });
+      
+    </script>
+  </body>
+</html>

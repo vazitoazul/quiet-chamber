@@ -1,0 +1,28 @@
+
+<script>
+
+const {payments:paymentsInit} = GlobalState;
+const payments = (state=paymentsInit,action) => {
+
+  switch (action.type) {
+    case 'LOAD_PAYMENTS':
+      switch (action.status) {
+        case 'success':
+          return Object.assign({},state,{entities:action.payments,loading:false});
+          break;
+        case 'error':
+          return Object.assign({},state,{lastError:action.error,loading:false});
+          break;
+        default:
+
+          return Object.assign({},state,{loading:true});
+          break;
+      }
+      break;
+    default:
+      return state;
+  }
+};
+
+
+</script>

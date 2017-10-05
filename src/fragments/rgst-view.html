@@ -1,0 +1,280 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/re-captcha/re-captcha.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../my-icons.html">
+<link rel="import" href="../elements/facebook-login.html">
+<link rel="import" href="../elements/google-login.html">
+<link rel="import" href="../fragments/lgin-view.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
+<dom-module id="rgst-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px 20px;
+        height: 95vh;
+      }
+      paper-card {
+        min-width: 320px;
+        max-width: 400px;
+      }
+      .divider{
+        border-style: solid;
+        border-color: #bdced7;
+        border-width: 0 0 1px 0;
+      }
+      div#recaptchaDiv{
+        height: 5rem;
+      }
+      div.top{
+        background: var(--dark-primary-color);
+        color:var(--light-primary-text-color);
+      }
+      div.top h3{
+        margin: 0;
+        text-align: center;
+      }
+    </style>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="/:route/:section"
+        data="{{routeData}}"
+        tail="{{subroute}}"></app-route>
+    <div class="vertical center">
+      <paper-card>
+        <div class="card-content top">
+          <h3>[[localize('register')]]</h3>
+        </div>
+        <div class="card-content">
+          <div class="text-center">
+            <span class="s-text">[[localize('you_can_use')]]</span>
+          </div>
+          <div class="row horizontal center">
+            <facebook-login recommender=[[recommender]]></facebook-login>
+            <google-login recommender=[[recommender]]></google-login>
+          </div>
+          <div class="text-center">
+            <span class="s-text">[[localize('or_your_email')]]</span>
+          </div>
+          <form is="iron-form" id="registerForm">
+            <paper-input name="firstName" label="[[localize('name')]]" required pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+            <paper-input name="lastName" label="[[localize('last_name')]]" required pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+        	  <paper-input name="email" label="[[localize('email')]]" required auto-validate pattern="^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$" error-message="[[localize('email_form')]]"></paper-input>
+            <paper-input name="password" id="password" label="[[localize('password')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('pass_form')]]"></paper-input>
+        	  <paper-input name="confirmation" id="confirmation" label="[[localize('confirmation')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('repeat_pass')]]"></paper-input>
+            <br>
+            <input hidden name="g-recaptcha-response" value="[[recaptchaToken]]">
+            <input hidden name="recommender" value="[[recommender]]">
+            <div id="recaptchaDiv" class="vertical center">
+              <paper-spinner active hidden$="[[captchaLoaded]]"></paper-spinner>
+            </div>
+      	  </form>
+        </div>
+        <div class="card-actions">
+          <span class="s-text">Al hacer click en Registrarme aceptas nuestros <a href="/trms" target="_blank">Términos y condiciones</a></span>
+        </div>
+        <div class="card-actions horizontal">
+          <div class="flex">
+          </div>
+          <paper-button on-click="submit" id="submitButton" class="accent">
+          [[localize('register_me')]]
+          <paper-spinner hidden$="[[!user.loading]]" active></paper-spinner>
+          </paper-button>
+        </div>
+      </paper-card>
+      <paper-card hidden="[[!recommender.watingAuthorization]]">
+        <div class="card-content vertical layout">
+          <span class="warning">[[localize('you_are_about_to_register_under')]] <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b></span>
+          <span>[[localize('register_to_continue')]]</span>
+        </div>
+      </paper-card>
+      <div class="output"></div>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'rgst-view',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        AuthActionsBehavior
+      ],
+
+      properties : {
+        user:{
+          type:Object,
+          statePath:'user'
+        },
+        language : {
+          type:String,
+          statePath : 'language'
+        },
+        recommender:{
+          type:Object,
+          statePath:'recommender'
+        },
+        route : {
+          type: String,
+          observer : 'routeObserver'
+        },
+        recaptchaToken : {
+          type: String
+        },
+        resources: {
+            value: function() {
+              return {
+                'en': {
+                  'register':'Register',
+                  'register_me':'Register',
+                  'you_can_use':'You can use',
+                  'or_your_email':'Or your email address:',
+                  'name' : 'First Name',
+                  'last_name' : 'Last name',
+                  'must_fill_this_just_letters' : 'This field is required, use just letters',
+                  'must_fill_this' : 'This field is required',
+                  'email' : 'Email',
+                  'password' : 'Password' ,
+                  'confirmation' : 'Repeat password',
+                  'submit' : 'Submit',
+                  'reset' : 'Reset',
+                  'pass_form' : 'Must have 8 chars, one capital and one number',
+                  'email_form' : 'Must be a valid email',
+                  'repeat_pass' : 'Repeat the password',
+                  'or' : 'or',
+                  'pass_not_match' : "The password confirmation doesn't match ",
+                  'not_robot' : "Prove you are not a robot",
+                  'or_login' : "Or",
+                  'you_are_about_to_register_under':'Your recommender is going to be: ',
+                  'register_to_continue':'Register to continue',
+                  'welcome':'Welcome to out platform :)',
+                  'user_already_exists':'That email address is already being used.'
+                },
+                'es': {
+                  'register':'Regístrate',
+                  'register_me':'Registrarme',
+                  'you_can_use':'Puedes utilizar:',
+                  'or_your_email':'O tu dirección de correo electrónico:',
+                  'name' : 'Nombre',
+                  'last_name' : 'Apellido',
+                  'must_fill_this_just_letters' : 'Este campo es obligatorio, solo letras',
+                  'must_fill_this' : 'Debes llenar este campo',
+                  'email' : 'Correo electrónico',
+                  'password' : 'Contraseña' ,
+                  'confirmation' : 'Repita contraseña',
+                  'submit' : 'Enviar',
+                  'reset' : 'Limpiar forma',
+                  'pass_form' : '8 caracteres, una mayúscula y un número',
+                  'email_form' : 'Debe ser una dirección de correo válida',
+                  'repeat_pass' : 'Repita la contraseña',
+                  'not_robot' : "Comprueba que no eres un robot.",
+                  'or' : 'o',
+                  'pass_not_match' : "Las contraseñas no coinciden",
+                  'or_login' : "O",
+                  'you_are_about_to_register_under':'Estas por enlistarte debajo de: ',
+                  'register_to_continue':'Regístrate para luego confirmar esta acción.',
+                  'welcome':'Bienvenido a nuestra plataforma :)',
+                  'user_already_exists':'Esa dirección de correo ya está registrada.'
+                }
+              }
+          }
+        }
+
+      },
+      _setUpRecaptcha:function(){
+        if(document.querySelector('#recaptchaElement')){
+          document.body.removeChild(document.querySelector('#recaptchaElement'));
+        }
+        this.recaptcha = document.createElement('re-captcha');
+        this.recaptcha.style.position = 'absolute';
+        var bodyRect = document.body.getBoundingClientRect(),
+            elemRect = this.$.recaptchaDiv.getBoundingClientRect(),
+            top   = elemRect.top - bodyRect.top,
+            left   = elemRect.left - bodyRect.left;
+        this.recaptcha.id = "recaptchaElement";
+        this.recaptcha.style.left = (left-6) + 'px';
+        this.recaptcha.style.top = (top) + 'px';
+        this.recaptcha.setAttribute('sitekey','6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq');
+        var self=this;
+        this.recaptcha.addEventListener('captcha-response',function(e){
+          self.recaptchaToken=e.detail.response;
+          self.set('recaptchaResponse',true);
+        });
+        this.recaptcha.addEventListener('captcha-expired',function(e){
+          this.set('recaptchaResponse',false);
+        });
+        document.body.appendChild(this.recaptcha);
+        this.async(()=>{
+          this.captchaLoaded=true;
+          var position = this.$.recaptchaDiv.getBoundingClientRect();
+          console.log(position);
+        },500)
+
+      },
+
+      submit : function(e){
+        if(this.$.password.value !== this.$.confirmation.value){
+          showMessage(this.localize('pass_not_match'));
+        }else{
+          if(this.recaptchaResponse){
+            if(this.$.registerForm.validate()){
+              this.dispatch('register',this.$.registerForm.serialize(),(err)=>{
+                if(err) {
+                  if(this.recaptcha)(this.recaptcha.reload());
+                  this.set('recaptchaResponse',false);
+                  return showMessage(this.localize(err.message));
+                }
+                this.dispatch('loadUserInfo');
+                showMessage(this.localize('welcome'));
+              });
+            }
+          }else{
+            showMessage(this.localize('not_robot'));
+          }
+        }
+
+      },
+
+      validateForm : function(e){
+        this.$.submitButton.disabled = !this.$.registerForm.validate();
+      },
+
+      reset : function(e){
+        this.$.registerForm.reset();
+      },
+      routeObserver : function(newValue,lastValue){
+        if(this.route.path === '/rgst'){
+
+          var self = this;
+          this.async(function(){
+            if(self.user.authenticated){
+              window.history.pushState({},null,'/wlcm');
+              window.dispatchEvent(new CustomEvent('location-changed'));
+              return;
+            }
+            if(!document.querySelector('#recaptchaElement')){
+              self._setUpRecaptcha()
+            }
+          },100);
+        }else{
+          if(document.querySelector('#recaptchaElement')){
+            document.body.removeChild(document.querySelector('#recaptchaElement'));
+          }
+        }
+      }
+
+    });
+  </script>
+</dom-module>

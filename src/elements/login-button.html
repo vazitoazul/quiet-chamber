@@ -1,0 +1,83 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+
+
+<dom-module id="login-button">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+      paper-material.dropdown{
+        background-color: var(--primary-background-color);
+        border-radius: 3px;
+        color: var(--primary-text-color);
+        padding: 8px;
+      }
+    </style>
+
+    <a href="/lgin" hidden$="[[authenticated]]"><paper-button raised class="accent">[[localize('log_in')]]</paper-button></a>
+    <div hidden$="[[!authenticated]]">
+      <paper-menu-button horizontal-align="right">
+        <paper-material class="dropdown-trigger horizontal dropdown">
+          <div class="name">
+            [[user.firstName]]
+          </div>
+          <iron-icon icon="arrow-drop-down"></iron-icon>
+        </paper-material>
+        <paper-menu class="dropdown-content" >
+          <a href="/acco"><paper-item>[[localize('account')]]</paper-item></a>
+          <a href="/logout" rel="external"><paper-item>[[localize('log_out')]]</paper-item></a>
+        </paper-menu>
+      </paper-menu-button>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'login-button',
+      behaviors: [
+        GlobalStoreBehavior,
+        Polymer.AppLocalizeBehavior
+      ],
+      properties: {
+        user:{
+          type:Object,
+          statePath:'user.info'
+        },
+        authenticated:{
+          type:Boolean,
+          statePath:'user.authenticated'
+        },
+        language:{
+          type:String,
+          statePath:'language'
+        },
+        resources:{
+          value:function(){
+            return {
+              'es':{
+                'log_in':'Ingresar',
+                'log_out':'Salir',
+                'account':'Mi Cuenta'
+              },
+              'en':{
+                'log_in':'Log In',
+                'log_out':'Log Out',
+                'account':'My Account'
+              }
+            }
+          }
+        }
+      }
+    });
+  </script>
+</dom-module>

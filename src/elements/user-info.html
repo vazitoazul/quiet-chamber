@@ -1,0 +1,245 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/gold-phone-input/gold-phone-input.html">
+<link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
+<link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/user-actions.html">
+
+<dom-module id="user-info">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px 20px;
+        max-width: 600px;
+        min-width: 300px;
+      }
+      paper-card{
+        width: 100%;
+      }
+      paper-toast{
+        right: 0 !important;
+        left: inherit !important;
+      }
+      h6.no-margin-button{
+        margin-bottom: -0.5rem;
+      }
+    </style>
+    <iron-ajax
+      id="mailVerifAjax"
+      url="/getMailVerification"
+      method="POST"
+      on-response="handleMailVerifResponse"></iron-ajax>
+    <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
+    <form is="iron-form" method="POST" action="/updateuserinfo" id="userInfoForm">
+    <paper-card>
+      <div class="card-content">
+        <div hidden$="[[!user.mailVerified]]">
+          <span class="success">[[localize('your_address')]] <b>[[user.email]]</b> [[localize('has_been_verified')]]</span>
+        </div>
+        <div hidden$="[[user.mailVerified]]">
+          <div hidden$="[[mailVerification.success]]" class="vertical layout">
+            <span class="warning">[[localize('your_address')]] <b>[[user.email]]</b> [[localize('hasnt_been_verified')]] </span>
+            <div class="horizontal layout">
+              <span>[[localize('an_email_will_be_sent')]]</span>
+              <div class="flex"></div>
+              <paper-button raised class="info" on-click="requestMailVerification" class="self-end">[[localize('verify')]]</paper-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </paper-card>
+    <!-- <h4>Información de Registro</h4>
+    <paper-card>
+      <div class="card-content">
+          <paper-input name="userFirstName" label="[[localize('names')]]" required  value="{{user.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+          <paper-input name="userLastName" label="[[localize('last_name')]]" required  value="{{user.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+      </div>
+    </paper-card> -->
+    <h4>[[localize('personal_info')]]</h4>
+    <paper-card id="toastContainer">
+      <div class="card-content">
+        <paper-input name="firstName" label="[[localize('names')]]" required  value="{{user.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+        <paper-input name="lastName" label="[[localize('last_name')]]" required  value="{{user.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
+        <div>
+          <h6 class="no-margin-button">[[localize('telephones')]]</h6>
+          <paper-input required name="telephone" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('mobile')]]" value="{{user.contactInfo.telephones.0}}"></paper-input>
+          <paper-input name="telephone" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','1')]]" value="{{user.contactInfo.telephones.1}}"></paper-input>
+          <paper-input name="telephone" pattern="[0-9]{5,20}" error-message="[[localize('must_be_numbers')]]" label="[[localize('number','number','2')]]" value="{{user.contactInfo.telephones.2}}"></paper-input>
+        </div>
+        <paper-input id="addressInput" name="addressLabel" label="[[localize('address')]]" error-message="[[localize('must_enter_this')]]" value={{user.contactInfo.address}} required></paper-input>
+        <input hidden name="longitude" value="{{user.contactInfo.location.longitude}}">
+        <input hidden name="latitude" value="{{user.contactInfo.location.latitude}}">
+        <gold-email-input name="contactEmail" label="[[localize('email')]]" value="{{user.contactInfo.email}}" error-message="[[localize('valid_email')]]"></gold-email-input>
+      </div>
+      <div class="card-actions">
+        <paper-button raised on-click="submit" id="submitButton">
+        <paper-spinner id="spinner" hidden></paper-spinner>[[localize('update')]]</paper-button>
+      </div>
+    </paper-card>
+    <div class="output"></div>
+    </form>
+  	<paper-toast id="toast" duration="5000" ></paper-toast>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'user-info',
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        UserActionsBehavior,
+        AuthActionsBehavior
+      ],
+      properties : {
+        language : {
+          type:String,
+          statePath:'language'
+        },
+        user :{
+        	type : Object,
+          observer : 'userChanged',
+          statePath : 'user.info'
+        },
+        addressSearch:{
+          type:Object
+        },
+        mailVerification:{
+          type:Object,
+          observer:'mailVerifChanged',
+          statePath:'mailVerification'
+        },
+        resources: {
+            value: function() {
+              return {
+                'en': {
+                  'user_info' : 'User Information',
+                  'names' : 'Name',
+                  'last_name' : 'Last name',
+                  'must_fill_this_just_letters' : 'This field is required, use just letters',
+                  'must_fill_this' : 'This field is required',
+                  'update' : 'Update',
+                  'contact_info' : 'User Contact Information',
+                  'telephones' : 'Telephones',
+                  'mobile' : 'Mobile phone',
+                  'number' : 'Phone number {number}',
+                  'address' : 'Address',
+                  'email' : 'Email',
+                  'valid_email' : 'Enter a valid email',
+                  'must_be_numbers' : 'Must have just from 5 to 20 numbers',
+                  'info_updated' : 'Your information has been updated',
+                  'not_valid_address' : 'Address not valid, please type and select an other one',
+                  'email_sent':'A confirmation email has been sent to {email}.',
+                  'user_cant_request_mail_verification':'An email has already been sent to {email}. Check your inbox.',
+                  'your_address': 'Your address',
+                  'has_been_verified': 'has been verified.',
+                  'hasnt_been_verified' : 'hasn\'t been verified yet.',
+                  'an_email_will_be_sent': 'A confirmation email will be sent to verify it.',
+                  'verify': 'Verify',
+                  'an_email_has_been_sent_to':'An email has been sent to',
+                  'personal_info':'Personal Info',
+                  'with_a_link_to_verify':'with a link to verify your address.',
+
+                 },
+                'es': {
+                  'user_info' : 'Información del Usuario',
+                  'names' : 'Nombres',
+                  'last_name' : 'Apellidos',
+                  'must_fill_this_just_letters' : 'Este campo es obligatorio, solo letras',
+                  'must_fill_this' : 'Debes llenar este campo',
+                  'update' : 'Actualizar',
+                  'contact_info' : 'Información de Contacto',
+                  'telephones' : 'Teléfonos',
+                  'mobile' : 'Teléfono celular',
+                  'number' : 'Teléfono {number}',
+                  'address' : 'Dirección',
+                  'email' : 'Correo electrónico',
+                  'valid_email' : 'Ingrese una dirección de correo válida',
+                  'must_be_numbers' : 'Debe ser solo de 5 a 20 números',
+                  'info_updated' : 'Se ha actualizado tu información',
+                  'not_valid_address' : 'Dirección no válida,escribe y elije otro',
+                  'email_sent':'Un correo de confirmación ha sido enviado a {email}.',
+                  'user_cant_request_mail_verification':'Ya se ha enviado un correo a {email}. Revisa tu bandeja.',
+                  'your_address': 'Tu dirección',
+                  'has_been_verified': 'ha sido verificada.',
+                  'hasnt_been_verified' : 'no ha sido verificada todavía.',
+                  'an_email_will_be_sent': 'Se te enviará un correo de confirmación para verificarlo.',
+                  'verify': 'Verificar',
+                  'an_email_has_been_sent_to':'Se ha enviado un correo a',
+                  'personal_info':'Información Personal',
+                  'with_a_link_to_verify':'con un link para verificar tu correo.',
+                }
+              }
+          }
+        },
+      },
+      showMessage:function(message,duration){
+        this.$.toast.text = message;
+        this.$.toast.duration = duration||3000;
+        this.$.toast.show();
+      },
+      submit : function(e){
+        var self = this;
+        if(this.$.userInfoForm.validate()){
+          this.$.spinner.active = true;
+          this.$.spinner.hidden = false;
+          this.dispatch('updateUserInfo',this.$.userInfoForm.serialize(),function(err){
+            if(err)return self.showMessage(self.localize(err.message));
+            self.showMessage(self.localize('info_updated'));
+          });
+        }
+      },
+      handleApiLoad : function(e){
+        var self = this;
+        this.addressSearch= new google.maps.places.Autocomplete(self.$.addressInput.inputElement,{types : ['(regions)']});
+        google.maps.event.addListener(this.addressSearch,'place_changed', function(){
+          var address = self.addressSearch.getPlace();
+          if(!address.geometry){
+            self.$.toast.text = self.localize('not_valid_address');
+            self.$.toast.open();
+          }else{
+            self.set(['user','contactInfo','location','latitude'],address.geometry.location.lat());
+            self.set(['user','contactInfo','location','longitude'],address.geometry.location.lng());
+            self.set(['user','contactInfo','address'],address.formatted_address);
+            self.setCurrentUser(self.user);
+          }
+        });
+        this._setUpAddressSearchRestrictions();
+      },
+      _setUpAddressSearchRestrictions:function(){
+        if(this.user){
+          if(this.user.intlCredential&&this.addressSearch){
+            //get the country code form the first two letters of user intlCredential
+            var countryCode=this.user.intlCredential.substring(0,2);
+            this.addressSearch.setComponentRestrictions({country: countryCode});
+          }
+        }
+      },
+      userChanged:function(newUser,lastUser){
+        this._setUpAddressSearchRestrictions();
+        this.$.spinner.active = false;
+        this.$.spinner.hidden = false;
+      },
+      setCurrentUser : function(newUser){
+        this.set('user',newUser);
+      },
+      requestMailVerification:function(){
+        this.dispatch('requestMailVerif');
+      },
+      mailVerifChanged:function(newVal){
+        if(newVal.lastError){
+          this.showMessage(this.localize(newVal.lastError,'email',this.user.email),6000);
+        }
+      }
+    });
+  </script>
+</dom-module>

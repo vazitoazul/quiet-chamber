@@ -1,0 +1,104 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../my-icons.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
+<dom-module id="facebook-login">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      iron-icon.facebook{
+        height: 5rem;
+        width: 5rem;
+      }
+      iron-icon.facebook,paper-button.facebook{
+        color:white;
+        background-color: #3b5998;
+      }
+      paper-button{
+        padding: 0;
+      }
+    </style>
+    <paper-button raised on-click="login" class="facebook">
+      <iron-icon icon="custom:facebook" class="facebook"></iron-icon>
+    </paper-button>
+  </template>
+  <script>
+    Polymer({
+      is: 'facebook-login',
+      behaviors:[GlobalStoreBehavior,AuthActionsBehavior],
+      properties:{
+        recommender : {
+          type : String
+        },
+        fbLoaded:{
+          type: Boolean,
+          value:false
+        },
+        wantsLogin:{
+          type:Boolean,
+          value:false
+        },
+        fbKey:{
+          type:String,
+          value:function(){
+
+          }
+        }
+      },
+      login:function(){
+        console.log(window.FB);
+        if(!window.FB){
+          this.dispatch('userStartLoading');
+          return this.async(()=>{
+            this.login();
+          },1000);
+        }
+        var self=this;
+        FB.getLoginStatus(function(response){
+          if (response.status === 'connected') {
+            // Logged into your app and Facebook.
+            var body={
+              token:response.authResponse.accessToken,
+              userID:response.authResponse.userID,
+              recommender : this.recommender
+            };
+            self.dispatch('logIn','facebook',body,(err)=>{
+              if(err)return console.log(err);
+              self.dispatch('loadUserInfo');
+            });
+          } else if (response.status === 'not_authorized') {
+            // The person is logged into Facebook, but not your app.
+            FB.login(function(response){
+              self.callback(response);
+            },{scope: 'email,public_profile'});
+          } else {
+            FB.login(function(response){
+              self.callback(response);
+            },{scope: 'email,public_profile'});
+          }
+        });
+      },
+      callback:function(response){
+        if (response.status === 'connected') {
+          // Logged into your app and Facebook.
+          var body={
+            token:response.authResponse.accessToken,
+            userID:response.authResponse.userID,
+            recommender : this.recommender
+          };
+          this.dispatch('logIn','facebook',body,(err)=>{
+            if(err)return console.log(err);
+            this.dispatch('loadUserInfo');
+          });
+        } else {
+          showMessage('Hubo un error autenticándote con facebook.');
+        }
+      }
+    });
+  </script>
+</dom-module>

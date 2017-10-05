@@ -1,0 +1,359 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
+<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-box/app-box.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-range-slider/paper-range-slider.html">
+<link rel="import" href="../elements/label-autocomplete.html">
+<link rel="import" href="../elements/login-button.html">
+<link rel="import" href="../elements/post-card.html">
+<link rel="import" href="../redux/actions/search-actions.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="srch-view">
+  <style include="shared-styles">
+    div.start{
+        width: 100%;
+        max-width: 761px;
+    }
+    paper-material.jobs ,paper-material.invest, paper-material.donation{
+      color:#fff;
+      margin: 0.5rem;
+      padding: 1rem;
+      @apply(--layout-flex);
+      text-align: center;
+      height: 120px;
+      @apply(--layout-vertical);
+      @apply(--layout-center-center);
+    }
+    paper-material.jobs{
+      background-color: var(--job-color);
+    }
+    paper-material.invest{
+      background-color: var(--investment-color);
+    }
+    paper-material.donation{
+      background-color: var(--donation-color);
+    }
+    div.results {
+      margin-top: 2rem;
+    }
+    paper-input#placeInput{
+      min-width: 200px;
+    }
+    div.placeholder{
+      height: 70vh;
+      width: 100%;
+    }
+    div.placeholder h3 {
+      max-width: 500px;
+      text-align: center;
+    }
+  </style>
+   <template>
+    <google-maps-api version="3.exp" on-api-load="apiLoaded" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY"></google-maps-api>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+       route="{{route}}"
+       pattern="/srch/:type"
+       data="{{routeData}}"
+       tail="{{subroute}}"
+       id="route"
+       ></app-route>
+     <app-drawer-layout force-narrow>
+       <app-drawer align="left" id="drawer">
+         <div class="p-2 vertical">
+           <h5>Filtros</h5>
+           <label-autocomplete value="{{params.labels}}"></label-autocomplete>
+           <iron-pages selected="[[params.type]]" attr-for-selected="name">
+             <section name="j" class="vertical">
+               <paper-input class="self-start" label="Sueldo" name="salary" value="{{query.salary}}" required allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
+                 <span suffix>$</span>
+               </paper-input>
+               <paper-dropdown-menu required label="Plan de pagos">
+                 <paper-listbox class="dropdown-content" selected="{{query.time}}"  attr-for-selected="value" >
+                   <paper-item value="m">Mensual</paper-item>
+                   <paper-item value="w">Semanal</paper-item>
+                   <paper-item value="h">Por hora</paper-item>
+                 </paper-listbox>
+               </paper-dropdown-menu>
+             </section>
+             <section name="i" class="vertical">
+               <paper-input label="Inversión mínima" class="self-start" name="minInvestment" value="{{params.minInvestment}}" required allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
+                 <span suffix>$</span>
+               </paper-input>
+               <paper-input label="Porcentaje de retorno (anual)" class="self-start" name="returnPercentage" value="{{params.returnPercentage}}" required allowed-pattern="^\d+[\.\,]?\d{0,2}$" autocorrect>
+                 <span suffix>%</span>
+               </paper-input>
+               <div class="ligth">Tiempo para recuperar la inversión</div>
+               <paper-range-slider pin single-slider slider-width="300px" value-max="{{params.returnTime}}" max="100" min="1"></paper-range-slider>
+               <span>[[params.returnTime]] Mes(es)</span>
+             </section>
+             <section name="d">
+
+             </section>
+           </iron-pages>
+           <br>
+           <paper-button raised class="accent self-center" on-tap="search">Buscar</paper-button>
+         </div>
+       </app-drawer>
+       <app-header-layout>
+         <app-header>
+          <app-toolbar>
+            <div class="horizontal flex">
+              <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+              <div main-title class="self-center"><span class="dinabun-title">Dinabun</span></div>
+              <div class="flex"></div>
+              <login-button></login-button>
+            </div>
+          </app-toolbar>
+         </app-header>
+         <div class="main">
+           <iron-pages selected="[[page]]" attr-for-selected="name">
+             <section name="start" class="vertical center">
+               <div class="start vertical center">
+                 <h3>Bienvenido!</h3>
+                 <h5 class="light">Aquí podrás encontrar oportunidades para invertir el dinero de tu negocio.</h5>
+                 <div class="horizontal around-justified">
+                   <a href="/srch/jobs">
+                     <paper-material elevation="3" class="jobs" >
+                       <h4>Trabajos</h4>
+                       <paper-ripple></paper-ripple>
+                     </paper-material>
+                   </a>
+                   <a href="/srch/investments">
+                     <paper-material elevation="3" class="invest" >
+                       <h4>Oportunidades inversión</h4>
+                       <paper-ripple></paper-ripple>
+                     </paper-material>
+                   </a>
+                   <a href="/srch/donations">
+                     <paper-material elevation="3" class="donation">
+                       <h4>Donaciones</h4>
+                       <paper-ripple></paper-ripple>
+                     </paper-material>
+                   </a>
+
+                 </div>
+               </div>
+             </section>
+             <section name="results">
+               <div class="row">
+                 <div class="col-12 horizontal center">
+                   <paper-material elevation="1" class="p-1 mt-3 horizontal">
+                     <paper-dropdown-menu label="Estás buscando...">
+                       <paper-listbox class="dropdown-content" selected="{{params.type}}"  attr-for-selected="value">
+                         <paper-item value="i">Inversiones</paper-item>
+                         <paper-item value="d">Donaciones</paper-item>
+                         <paper-item value="j">Trabajos</paper-item>
+                       </paper-listbox>
+                     </paper-dropdown-menu>
+                     <paper-input label="En...(lugar)" id="placeInput" class="mx-1"></paper-input>
+                     <paper-button class="accent self-center" on-tap="openFilters">Más filtros</paper-button>
+                     <paper-button raised class="accent self-center" on-tap="search">Buscar</paper-button>
+                   </paper-material>
+                 </div>
+               </div>
+               <div class="row">
+                 <div class="col-12 horizontal">
+                   <template is="dom-repeat" items="[[results]]">
+                     <post-card post="[[item]]" class="m-2"></post-card>
+                   </template>
+                   <div class="placeholder vertical center" hidden$="[[results.0]]">
+                     <h4>No se han encontrado resultados..</h4>
+                     <h3 class="light">Selecciona una ciudad para empezar la búsqueda.</h3>
+                   </div>
+                 </div>
+               </div>
+             </section>
+           </iron-pages>
+         </div>
+       </app-header-layuout>
+      <app-drawer-layout>
+   </template>
+   <script>
+    Polymer({
+      is: 'srch-view',
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        SearchActionsBehavior
+      ],
+      properties:{
+        query : {
+          type: Object,
+          statePath : 'search.query'
+        },
+        urlQuery : {
+          type:Object
+        },
+        params:{
+          type: Object,
+          value:function(){
+            return {
+              type:null,
+              labels:[]
+            };
+          }
+        },
+        language:{
+          type:String,
+          statePath:'language'
+        },
+        page:{
+          type:String
+        },
+        resources:{
+          value:function(){
+            return {
+              'es':{
+                'search_post':'Search for posts',
+                'log_out':'Salir',
+                'account':'Mi Cuenta',
+                'create' : 'Create',
+                'name' : 'name',
+                'amount' : 'amount',
+                'update' : 'Update',
+                'cancel' : 'Cancel',
+                'delete' : 'delete',
+              },
+              'en':{
+                'search_post':'Busca una publicación',
+                'log_out':'Log Out',
+                'account':'My Account',
+                'type' : 'tipo',
+                'donation' : 'donación',
+                'advertising' : 'publicidad',
+                'investment' : 'inverciones',
+                'job' : 'trabajo',
+                'create' : 'Crear',
+                'name' : 'name',
+                'amount' : 'monto',
+              }
+            }
+          }
+        },
+        results : {
+          type : Array,
+          statePath : 'search.lastResult'
+        },
+        queryLoaded : {
+          type : Boolean
+        }
+      },
+      observers : [
+        '_routeObserver(routeData.path)',
+        '_paramsChanged(params.*)',
+        '_updateUrl(query)'
+      ],
+      attached:function(){
+        if(this.$.route.queryParams!==undefined){
+          var freshParams=Object.assign({},this.params,this.$.route.queryParams);
+          //make sure labels is an array
+          if(typeof freshParams.labels!='object'){
+            //labels can also be an empty string when parsed from the url so we also check for that
+            if(freshParams.labels){
+              freshParams.labels=[freshParams.labels];
+            }else{
+              freshParams.labels=[];
+            }
+          }
+          this.set('params',freshParams);
+          this.queryLoaded=true;
+        }
+      },
+      _updateUrl:function(query){
+        if(this.queryLoaded){
+          this.$.route.queryParams=query;
+        }
+      },
+      _routeObserver : function(route){
+        if(route==='/srch'){
+          return this.page='start';
+        }
+        if(this.routeData===undefined||this.routeData.type===undefined){
+          this.page='start';
+        }else{
+          this.page='results';
+          if(!this.params.type){
+            this.set('params.type',this.routeData.type.split('')[0]);
+          }
+        }
+      },
+      _paramsChanged:function(params){
+        this.dispatch('updateQuery',params.base);
+        if(params.path==='params.type'){
+          switch (params.value) {
+            case 'j':
+              this.set('routeData.type','jobs');
+              break;
+            case 'i':
+              this.set('routeData.type','investments');
+              break;
+            case 'd':
+              this.set('routeData.type','donations');
+              break;
+          }
+        }
+      },
+      search:function(){
+        if(this.$.drawer.opened){
+          this.$.drawer.close();
+        }
+        if(!this.params.type||!this.params.place){
+          return showMessage('Debes seleccionar un lugar.');
+        }
+        this.dispatch('searchPosts');
+      },
+      openFilters:function(){
+        this.$.drawer.open();
+      },
+      apiLoaded:function(){
+        var googleMapsApiRestrictions = {
+          type : Object,
+          value : {types : ['(regions)'],componentRestrictions: {country: 'ec'}}
+        };
+        var input = this.$.placeInput.inputElement;
+        var placeAutocomplete= new google.maps.places.Autocomplete(input,googleMapsApiRestrictions);
+
+        google.maps.event.addListener(placeAutocomplete,'place_changed', ()=>{
+          var city = placeAutocomplete.getPlace();
+          if(!city.geometry){
+            showMessage('No hemos encontrado ese lugar');
+          }else{
+            this.set('params.place',city.place_id);
+          }
+        });
+        //deffer the search for the name of that place so the we make sure there is a value on params too look for
+        this.async(()=>{
+          if(this.params.place){
+            var geocoder = new google.maps.Geocoder;
+            geocoder.geocode({'placeId': this.params.place},(results, status)=>{
+              if (status === 'OK') {
+                if (results[0]) {
+                  this.$.placeInput.value=results[0].formatted_address;
+                  this.dispatch('searchPosts');
+                } else {
+                  showMessage('Vuelve a seleccionar un lugar');
+                }
+              } else {
+                showMessage('Vuelve a seleccionar un lugar');
+              }
+            });
+          }
+        },100);
+
+      }
+    })
+   </script>
+</dom-module>

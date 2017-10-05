@@ -1,0 +1,329 @@
+-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/app-layout/app-grid/app-grid-style.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/re-captcha/re-captcha.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../elements/main-toolbar.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../fragments/rgst-view.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
+<link rel="import" href="../redux/actions/user-actions.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../fragments/lgin-view.html">
+
+
+<dom-module id="recw-view">
+  <style include="shared-styles">
+    div#recaptchaStaf{
+      height: 100px;
+    }
+    .content{
+      padding: 3rem;
+    }
+    paper-dialog {
+      width: 52rem;
+    }
+    paper-button#confirmButton{
+      height: 4rem;
+      margin-top: 2rem;
+    }
+    rgst-view{
+      height: 43rem;
+    }
+    lgin-view{
+      height: 43rem;
+    }
+    paper-button.change-rec{
+      margin-top: 3rem;
+    }
+    .capped{
+      max-width: 600px;
+    }
+  </style>
+  <template>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+      route="{{route}}"
+      pattern="/:page/:recommenderId"
+      data="{{data}}"
+      tail="{{tail}}"></app-route>
+    <app-toolbar>
+        <a href="/">
+          <iron-image height="50" width="50" src="/images/logo.png" preload sizing="cover"></iron-image>
+        </a>
+        <div main-title><span class="dinabun-title">Dinabun</span></div>
+        <login-button></login-button>
+    </app-toolbar>
+    <iron-pages selected="[[section]]" attr-for-selected="section">
+      <section class="col" section="noLogged" class="horizontal">
+        <div class="vertical center">
+          <h4>[[localize('welcome')]]</h4>
+          <paper-card class="capped">
+            <div class="card-content">
+              <h5>[[localize('you_are_here_because')]]</h5>
+              <div class="vertical">
+                <span>[[localize('your_recommender_is')]]</span>
+                <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b>
+              </div>
+            </div>
+            <div class="card-actions">
+              <div class="vertical flex">
+                <span>[[localize('if_you_have_an_acco')]]</span>
+                <paper-button on-click="goLogin" class="primary">[[localize('log_in')]]</paper-button>
+              </div>
+            </div>
+            <div class="card-actions">
+              <div class="vertical flex">
+                <span>[[localize('or_if_you_havent_registered')]]</span>
+                <paper-button on-click="goRegister" class="primary">[[localize('register')]]</paper-button>
+              </div>
+            </div>
+          </paper-card>
+        </div>
+      </section>
+      <section class="col" section="malformed">
+        <div class="vertical center">
+          <div class="capped">
+            <h2>[[localize('something_is_wrong')]]</h2>
+            <h4>[[localize('the_url_is_wrong')]]</h4>
+          </div>
+        </div>
+      </section>
+      <section class="col" section="changeRecommender">
+        <div class="vertical center">
+          <div class="capped">
+            <h5>[[localize('change_recommender','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
+            <paper-button class="secondary col-sm-3 offset-sm-4 change-rec" on-click="openDialog">[[localize('change')]]</paper-button>
+          </div>
+        </div>
+      </section>
+      <section class="col" section="setRecommender">
+        <div class="vertical center">
+          <h4>[[localize('youre_about_to_finish')]]</h4>
+          <paper-card>
+            <div class="card-content">
+              <span>[[localize('confirm_now_to_become')]]
+                <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b>
+              </span>
+            </div>
+            <div class="card-actions vertical">
+              <paper-button class="primary self-end" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
+            </div>
+          </paper-card>
+        </div>
+      </section>
+      <section class="col" section="sameRecommenderThanBefore">
+        <div class="vertical center">
+          <div class="capped">
+            <h4>[[localize('same_recommender_than_before','recommender',recommender.info.firstName)]]</h4>
+          </div>
+        </div>
+      </section>
+      <section class="col" section="recommendedFull">
+        <div class="vertical center">
+          <div class="capped">
+            <h4>[[localize('recommended_full','recommender',recommender.info.firstName)]]</h4>
+          </div>
+        </div>
+      </section>
+      <section class="col" section="success">
+        <div class="vertical center">
+          <h4>[[localize('all_set')]]</h4>
+          <span>[[localize('now_youre_one_of','recommender',recommender.info.firstName)]]</span>
+          <paper-button raised class="accent" on-click="goAccount">[[localize('go_to_my_account')]]</paper-button>
+        </div>
+      </section>
+    </iron-pages>
+    <paper-dialog class="row" id="dialog" with-backdrop>
+      <h5 class="col-sm-10">[[localize('confirm_change','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
+      <paper-button id="confirmButton" raised class="primary col-sm-3 offset-sm-4" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
+    </paper-dialog>
+  </template>
+  <script>
+    Polymer({
+      is : 'recw-view',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        AuthActionsBehavior,
+        UserActionsBehavior
+      ],
+
+      properties : {
+        section : {
+          type : String,
+          value: ''
+        },
+        route : {
+          type : Object,
+          observer : 'routeObserver'
+        },
+        user : {
+          type : Object,
+          statePath : 'user.info'
+        },
+        userStatus:{
+          type:String,
+          statePath: 'user'
+        },
+        userAuth : {
+          type : Boolean,
+          statePath : 'user.authenticated'
+        },
+        watingAuth :{
+          type:Boolean,
+          statePath : (state)=>{
+            //this becomes true when user is no longer wating for authorization and use info is lodaded
+            if(state.user.info.email&&state.user.authenticated&&!state.recommender.watingAuthorization){
+              return true;
+            }else{
+              return false;
+            }
+          },
+          observer:'_watchWaitingAuth'
+        },
+        recommender : {
+          type : Object,
+          statePath : 'recommender'
+        },
+        resources : {
+          value : function(){
+            return {
+              'en' : {
+                'welcome':'Welcome!',
+                'you_are_here_because':'You are here because someone recommended this website to you.',
+                'your_recommender_is':'Your recommender is:',
+                'if_you_have_an_acco':'If you already have an account, you can log in here to continue.',
+                'log_in':'Log In',
+                'or_if_you_havent_registered':'Or if you need an account, you can also register here.',
+                'register':'Register',
+                'something_is_wrong':'Something is not right!',
+                'the_url_is_wrong':'The URL you are requesting is wrong or you are trying to be your own recommender.',
+                'youre_about_to_finish':'You almost get it!',
+                'confirm_now_to_become':'Confirm here to be on the list of: ',
+                'all_set':'All set!',
+                'now_youre_one_of': 'Now you\'re one of {recommender}\'s recommended ',
+                'go_to_my_account':'Go to my Account',
+                'same_recommender_than_before': 'You are already a recommended of {recommender} ! =)',
+                'change_recommender' : 'You are a recommended of {lastRecommender}, would you like to be a recommended of {newRecommender} ?',
+                'change':'Change',
+                'confirm_change' : 'Are you sure you want to change your recommender {lastRecommender} to {newRecommender} ?',
+                'confirm' : 'Confirm',
+                'recommender_set' : 'You have changed your recommender {recommender}',
+                'recommender_set_error' : 'Thera was an error changing the recommender try again with a new one',
+                'recommended_full':'The user {recommender} has already all the recommended, try with other one!',
+                'same_user':'You can\'t be your own recommender',
+                'user_can_not_recommend':'That user\'s list is full.'
+              },
+              'es' : {
+                'welcome':'¡Bienvenido!',
+                'you_are_here_because':'Estas aquí porque alguien te ha recomendado nuestra página.',
+                'your_recommender_is':'Tu recomendador es:',
+                'if_you_have_an_acco':'Si ya tienes una cuenta con nosotros puedes iniciar sesión ahora.',
+                'log_in':'Iniciar Sesión',
+                'or_if_you_havent_registered':'O si no te has registrado puedes hacerlo ahora.',
+                'register':'Registrarme',
+                'something_is_wrong':'¡Algo and mal aquí!',
+                'the_url_is_wrong':'El url al que estás tratando de acceder no existe o intentas recomendarte a ti mismo.',
+                'youre_about_to_finish':'¡Estás a punto de terminar!',
+                'confirm_now_to_become':'Confirma a continuación para ser uno de los recomendados de: ',
+                'all_set':'¡Todo listo!',
+                'now_youre_one_of': 'Ahora eres un recomendado de {recommender}',
+                'go_to_my_account':'Ir a mi cuenta',
+                'same_recommender_than_before': 'Tu ya eres recomendado de {recommender} ! =)',
+                'change_recommender' : 'Tu eres recomendado bajo {lastRecommender}, deseas cambiarte a ser recomendado de {newRecommender} ?',
+                'change':'Cambiar',
+                'confirm_change' : 'Estas seguro que quieres cambiar la persona que te recomendó de {lastRecommender} a {newRecommender}',
+                'confirm' : 'Confirmar',
+                'recommender_set' : 'Has cambiado la persona que te recomendó a {recommender}',
+                'recommender_set_error' : 'Hubo un error cambiando tu recommendador intenta con otro',
+                'recommended_full':'El/la usuario {recommender} ya tiene todos los recomendados, intenta con otro!',
+                'same_user':'No puedes ser tu propio recomendador!',
+                'user_can_not_recommend':'Ese usuario ya no puede tener más recomendados.'
+              }
+            }
+          }
+        },
+        language :{
+          tpye : String,
+          statePath:'language'
+        },
+
+      },
+
+      observers : [
+        '_recommenderExists(recommender.exists)'
+      ],
+
+      routeObserver : function(newPage,lastPage){
+        if(this.data && this.data.recommenderId){
+          this.dispatch('loadRecommender',{ id : this.data.recommenderId});
+        }else{
+          this.set('section','malformed');
+        }
+      },
+
+      _recommenderExists : function(exists){
+        //when recommender does not exists
+        if(!exists)return this.set('section','malformed');
+        //when recommender exists but can't recommend anymore
+        if(!this.recommender.info.canRecomend)return this.set('section','recommendedFull');
+        //when all above are false and user isn't authenticated
+        if(!this.userAuth)return this.set('section','noLogged');
+        //when user is authenticated check if he has a recommender
+        if(!this.user.recommender){
+          // if not, send him to the corresponding page
+          this.set('section','setRecommender');
+        }else{
+          //if it gets here user has a recommender and wants to change him
+          //if he wants to change by the same recommender that he already has, show sameRecommenderThanBefore
+          if(this.user.recommender.id == this.recommender.info.id){
+            return this.set('section','sameRecommenderThanBefore');
+          }
+
+          //if not, just show him changeRecommender
+          this.set('section','changeRecommender');
+        }
+      },
+      openDialog : function(){
+        this.$.dialog.toggle();
+      },
+      changeRecommender : function(){
+        this.dispatch('updateUserRecommender', this.recommender.info.id,(err)=>{
+          if(err){
+            return showMessage(this.localize(err.message));
+          }
+          this.section='success';
+          this.dispatch('loadUserInfo');
+        });
+      },
+
+      _watchWaitingAuth : function(newVal){
+        //check if the user just returned from logging or registering
+        if(newVal){
+          //if so, run the function to place the user in the acording section
+          if(!this.recommender)return;
+          this._recommenderExists(this.recommender.exists);
+        }
+      },
+      goLogin:function(){
+        this.dispatch('waitForUserAuthForRecommeder','lgin');
+      },
+      goRegister:function(){
+        this.dispatch('waitForUserAuthForRecommeder','rgst');
+      },
+      goAccount:function(){
+        window.history.pushState({}, null, '/acco/recommended');
+        window.dispatchEvent(new CustomEvent('location-changed'));
+      }
+    });
+  </script>
+</dom-module>

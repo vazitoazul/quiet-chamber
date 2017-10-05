@@ -1,0 +1,29 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="servererror-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px 20px;
+      }
+      div.main{
+        @apply(--layout-fullbleed);
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
+    </style>
+    <div class="main">
+      <h1>Algo salió muy mal :(</h1>
+      <h4>Tu operación no puede ser atendida por el momento. Por favor intenta nuevamente</h4>
+      <h4><a href="/">Regresar al inicio</a></h4>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'servererror-view'
+    });
+  </script>
+</dom-module>

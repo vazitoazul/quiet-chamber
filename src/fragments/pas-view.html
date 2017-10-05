@@ -1,0 +1,75 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="pas-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        height: 95vh;
+      }
+      div.main{
+        width: 90%;
+        max-width: 600px;
+      }
+    </style>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="/pas/:status"
+        data="{{routeData}}"
+        query-params="{{query}}"></app-route>
+    <div class="vertical center h-100">
+      <div class="main">
+        <paper-card>
+          <div class="card-content vertical">
+            <iron-pages selected="[[routeData.status]]" attr-for-selected="status">
+              <section status="new" class="vertical">
+                <h3 class="title">Este pago no se ha completado</h3>
+                <span class="s-text">Para completar el pago debes regeresar a la página del pago en Alfacoins</span>
+                <a href="[[query.url]]" class="self-end"><paper-button raised class="primary">Completar el pago</paper-button>
+                </a>
+              </section>
+              <section status="paid" class="vertical">
+                <h3 class="title">Se ha recibido tu pago</h3>
+                <span class="s-text">Estamos esperando a la confirmación de la red de bitcoins. En cuanto se confirme, se activará tu suscripción.</span>
+                <a href="/acco/membership" class="self-end"><paper-button raised class="primary">Regesar a mi cuenta</paper-button>
+                </a>
+              </section>
+              <section status="expired" class="vertical">
+                <h3 class="title">Este pago ha expirado</h3>
+                <span class="s-text">No has hecho el pago a tiempo. Para empezar el proceso nuevamente puedes ir a tu cuenta a la sección Membrecía.</span>
+                <a href="/acco/membership" class="self-end"><paper-button raised class="primary">Regesar a mi cuenta</paper-button>
+                </a>
+              </section>
+              <section status="completed" class="vertical">
+                <h3 class="title">Pago completado</h3>
+                <span class="s-text">Felicidades! Hemos recibido tu pago satisfactoriamente y ahora estas suscrito a nuestra página.</span>
+                <a href="/acco" class="self-end"><paper-button raised class="primary">Regesar a mi cuenta</paper-button>
+                </a>
+              </section>
+              <section status="partially_received" class="vertical">
+                <h3 class="title">Pagado parcialmente</h3>
+                <span class="s-text">Hemos detectado que no transferiste la cantidad exacta para completar el pago. Ponte en contacto con <a href="mailto:info@dinabun.com">info@dinabun.com</a> para resolver el conflicto.</span>
+              </section>
+            </iron-pages>
+
+
+          </div>
+        </paper-card>
+      </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'pas-view',
+      properties:{
+        route:{
+
+        }
+      }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,121 @@
+isi<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../elements/label-autocomplete.html">
+<link rel="import" href="../elements/login-button.html">
+<link rel="import" href="../elements/account-postcard.html">
+<link rel="import" href="../redux/global-store.html">
+<dom-module id="business-card">
+  <style include="shared-styles">
+    :host{
+      display: block;
+    }
+    div.main{
+    }
+    paper-card{
+      width: 100%;
+      --paper-card-header-image:{
+        height: 200px;
+
+      }
+      --paper-card-header-image-text:{
+        color: #fff;
+      }
+    }
+  </style>
+  <template>
+    <div class="main">
+      <paper-card heading="[[business.name]]" image="[[business.image]]" placeholder-image="https://images.unsplash.com/photo-1473187983305-f615310e7daa?dpr=1&auto=format&fit=crop&w=500&h=400&q=80&cs=tinysrgb">
+        <div class="card-content bus-resume">
+          <div class="horizontal">
+            <div class="vertical flex">
+              <span class="s-text">[[localize('city')]]</span>
+              <span>[[business.cityLabel]]</span>
+            </div>
+            <a href="/acco/business/[[business.id]]">
+              <paper-button class="primary" raised hidden$="[[readOnly]]">Ver</paper-button>
+            </a>
+          </div>
+          <div class="vertical">
+            <span class="s-text">[[localize('description')]]</span>
+            <span>[[business.description]]</span>
+          </div>
+          <div class="vertical">
+            <span class="s-text">[[localize('telephones')]]</span>
+            <span>[[business.telephones.0]]</span>
+            <span>[[business.telephones.1]]</span>
+          </div>
+          <div class="vertical">
+            <span class="s-text">[[localize('labels')]]</span>
+            <label-autocomplete readonly value="[[business.labels]]"></label-autocomplete>
+          </div>
+        </div>
+        <div class="card-actions horizontal" hidden$="[[readOnly]]">
+          <div class="flex"></div>
+          <a href="/acco/business/[[business.id]]/new">
+            <paper-button class="accent">Nuevo anuncio</paper-button>
+          </a>
+        </div>
+      </paper-card>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'business-card',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior
+      ],
+      properties : {
+        business : {
+          type : Object,
+          notify:true
+        },
+        language:{
+          type:String,
+          statePath:'language'
+        },
+        resources : {
+          value :  function(){
+            return  {
+              'en' : {
+                'name' : 'Name',
+                'city' : 'City',
+                'labels' : 'Labels',
+                'telephones' : 'Telephones',
+                'number' : 'Phone number {number}',
+                'email' : 'Email',
+                'mobile' : 'Mobile phone',
+                'description' : 'Description',
+                'posts' : 'Posts',
+                'edit' : 'Edit'
+              } ,
+              'es' : {
+                'name' : 'Nombre',
+                'city' : 'Ciudad',
+                'labels' : 'Etiquetas',
+                'telephones' : 'Teléfonos',
+                'number' : 'Teléfono {number}',
+                'email' : 'Correo electrónico',
+                'mobile' : 'Teléfono celular',
+                'description' : 'Descripción',
+                'posts' : 'Publicaciones',
+                'edit' : 'Editar'
+              }
+            }
+          }
+        },
+        readOnly:{
+          type:Boolean,
+          reflectToAttribute:true
+        }
+      }
+    });
+  </script>
+</dom-module>

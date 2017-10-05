@@ -1,0 +1,113 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../redux/global-store.html">
+<link rel="import" href="../redux/actions/auth-actions.html">
+<link rel="import" href="../shared-styles.html">
+
+
+<dom-module id="mvf-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        height: 100vh;
+      }
+      paper-material{
+        min-width: 300px;
+        max-width: 500px;
+        padding: 10px;
+      }
+      paper-toast{
+        max-width: 100% !important;
+      }
+    </style>
+    <app-route
+        route="{{route}}"
+        pattern="/:page"
+        data="{{routeData}}"
+        tail="{{subroute}}"></app-route>
+    <div class="layout vertical center h-100">
+      <paper-material elevation="3">
+        <iron-pages selected="[[page]]" attr-for-selected="name">
+          <section name="success">
+            <div class="vertical layout">
+              <h4>Has confirmado tu correo exitosamente</h4>
+              <span class="s-text">Puedes regresar a tu cuenta haciendo click <a href="/acco">Aquí</a> </span>
+            </div>
+          </section>
+          <section name="failure">
+            <div class="vertical layout">
+              <h4>El tiempo para verificar tu correo ha expirado</h4>
+              <span class="s-text">Puedes solicitar otro correo de verificación a continuación</span>
+              <br>
+              <paper-button raised class="primary" on-click="send" disabled="[[mailVerification.loading]]">Solicitar verificación</paper-button>
+            </div>
+          </section>
+        </iron-pages>
+      </paper-material>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'mvf-view',
+      behaviors:[
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior,
+        AuthActionsBehavior
+      ],
+      properties:{
+        page:{
+          type:String,
+          reflectToAttribute: true
+        },
+        mailVerification:{
+          type:Object,
+          statePath:'mailVerification',
+          observer:'_mailVerifChange'
+        },
+        language :{
+          tpye : String,
+          statePath:'language'
+        },
+        resources:{
+          value:function(){
+            return {
+              "es":{
+                "success":"Se ha enviado un correo a {address} con un link para la verificación",
+                "failure":"Ya se ha enviado un correo de verificación o ya has confirmado tu correo"
+              },
+              "en":{
+                "success":"An email with a verification link has been sent to {address}",
+                "failure":"An email has already been sent or that address is already verified"
+              }
+            };
+          }
+        }
+      },
+      observers: [
+        '_routePageChanged(routeData.page)'
+      ],
+
+      _routePageChanged: function(page) {
+        this.page = page || 'succes';
+      },
+      send:function(){
+        this.dispatch('requestMailVerif')
+      },
+      _mailVerifChange:function(newVal){
+        if(newVal.success){
+          showMessage(this.localize('success','address',newVal.addressUsed),0);
+        }else if(newVal.lastError){
+          showMessage(this.localize('failure'),0);
+        }
+      }
+
+    });
+  </script>
+</dom-module>

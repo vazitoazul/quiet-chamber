@@ -1,0 +1,172 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../elements/label-autocomplete.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../redux/global-store.html">
+<dom-module id="post-card">
+  <style include="shared-styles">
+    span.heading{
+      @apply(--paper-font-display1);
+    }
+    span.title{
+      @apply(--paper-font-title);
+    }
+    span.big-number{
+      @apply(--paper-font-display1);
+      color:var(--accent-color);
+      font-weight: 100;
+    }
+    paper-card{
+      width: 100%;
+      max-width: 350px;
+      --paper-card-header-image:{
+        height: 120px;
+      }
+      --paper-card-header-image-text:{
+        color: #fff;
+      }
+    }
+  </style>
+  <template>
+    <iron-pages selected="[[post.type]]" attr-for-selected="name">
+      <section name="j">
+        <paper-card placeholder-image="https://unsplash.it/300/300" image="[[business.image]]" heading="[[business.name]]">
+      		<div class="card-content vertical">
+            <span class="title">[[post.name]]</span>
+            <span class="ligth">[[localize('post_type','type','j')]]</span>
+            <span>[[business.cityLabel]]</span>
+            <span class="light">[[post.details.description]]</span>
+            <div class="horizontal">
+              <div class="flex"></div>
+              <span class="big-number self-end">[[post.details.salary]]$</span>
+              <span class="light self-end">/[[localize('salary_time','time',post.details.time)]]</span>
+            </div>
+      		</div>
+          <div class="card-actions horizontal">
+            <div class="flex"></div>
+            <a href="/post/[[post.id]]" target="_blank"><paper-button class="accent self-end">Detalles</paper-button></a>
+          </div>
+      	</paper-card>
+      </section>
+      <section name="i">
+        <paper-card placeholder-image="https://unsplash.it/300/300" heading="[[business.name]]" image="[[business.image]]">
+      		<div class="card-content vertical">
+            <span class="light">[[localize('post_type','type','i')]]</span>
+            <span>[[business.cityLabel]]</span>
+            <span class="title">[[post.name]]</span>
+            <br>
+      			<span class="light">[[post.details.description]]</span>
+            <br>
+            <div class="horizontal">
+              <div class="flex">
+                <span class="light"> <b>[[post.details.minInvestment]]$</b> de inversión mínima.</span> <br>
+                <span class="light"> Se recuperan en un plazo de <b>[[post.details.returnTime]] meses</b> </span>
+              </div>
+              <div class="vertical">
+                <span class="big-number self-end">[[post.details.returnPercentage]] %</span>
+                <span class="light self-end">De retorno</span>
+              </div>
+            </div>
+      		</div>
+          <div class="card-actions horizontal">
+            <div class="flex"></div>
+            <a href="/post/[[post.id]]" target="_blank"><paper-button class="accent self-end">Detalles</paper-button></a>
+          </div>
+      	</paper-card>
+      </section>
+      <section name="d">
+        <paper-card placeholder-image="https://unsplash.it/300/300" image="[[business.image]]" heading="[[business.name]]">
+      		<div class="card-content vertical">
+            <h4 class="title">[[post.name]]</h4>
+            <span class="light">[[localize('post_type','type','d')]]</span>
+            <span>[[business.cityLabel]]</span>
+            <br>
+            <span class="light">[[post.details.description]]</span>
+            <br>
+            <span class="light">[[post.details.reason]]</span>
+            <div hidden$="[[!post.details.minDonation]]">
+              <span>Se aceptan donaciones desde <b>$[[post.details.minDonation]]</b> </span>
+            </div>
+      		</div>
+          <div class="card-actions horizontal" hidden$="[[!post.id]]">
+            <div class="flex"></div>
+            <a href="/post/[[post.id]]" target="_blank" ><paper-button class="accent self-end">Detalles</paper-button></a>
+          </div>
+      	</paper-card>
+      </section>
+    </iron-pages>
+  </template>
+  <script>
+    Polymer({
+      is: 'post-card',
+
+      behaviors : [
+        Polymer.AppLocalizeBehavior,
+        GlobalStoreBehavior
+      ],
+
+      properties : {
+        post : {
+          type: Object,
+          notify:true
+        },
+        business:{
+          type: Object,
+          computed:'_computeBusiness(post,altBusiness)'
+        },
+        altBusiness:{
+          type: Object
+        },
+        language:{
+          type:String,
+          statePath:'language'
+        },
+        resources : {
+          value :  function(){
+            return  {
+              'en' : {
+                'name' : 'name',
+                'type' : 'type',
+                'post_type' : '{type, select, d {Donation} i {Investment Oportinity} j {Job} }',
+                'salary_time' : '{time, select, m {Month} w {Week} h {Hour} }',
+                'labels' : 'labels',
+                'telephones' : 'telephones',
+                'number' : 'Phone number {number}',
+                'email' : 'Email',
+                'amount' : 'amount',
+                'mobile' : 'Mobile phone',
+                'description' : 'Description',
+                'edit' : 'Edit'
+              } ,
+              'es' : {
+                'name' : 'nombre',
+                'type' : 'tipo',
+                'post_type' : '{type, select, d {Donación} i {Oportunidad de Inversión} j {Oportunidad de trabajo}}',
+                'salary_time' : '{time, select, m {Mes} w {Semana} h {Hora}}',
+                'labels' : 'etiquetas',
+                'telephones' : 'teléfonos',
+                'number' : 'Teléfono {number}',
+                'email' : 'Correo electrónico',
+                'mobile' : 'Teléfono celular',
+                'description' : 'Descripccion',
+                'edit' : 'Editar',
+                'amount' : 'monto',
+              }
+            }
+          }
+        }
+      },
+      _computeBusiness:function(post,alt){
+        if(typeof post.business==='object'){
+          return post.business;
+        }else{
+          return alt;
+        }
+      }
+    });
+  </script>
+</dom-module>

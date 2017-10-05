@@ -1,0 +1,389 @@
+<%
+	var pad = function pad(n, width, z) {
+	  z = z || '0';
+	  n = n + '';
+	  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+	};
+	var BARS       = [212222,222122,222221,121223,121322,131222,122213,122312,132212,221213,221312,231212,112232,122132,122231,113222,123122,123221,223211,221132,221231,213212,223112,312131,311222,321122,321221,312212,322112,322211,212123,212321,232121,111323,131123,131321,112313,132113,132311,211313,231113,231311,112133,112331,132131,113123,113321,133121,313121,211331,231131,213113,213311,213131,311123,311321,331121,312113,312311,332111,314111,221411,431111,111224,111422,121124,121421,141122,141221,112214,112412,122114,122411,142112,142211,241211,221114,413111,241112,134111,111242,121142,121241,114212,124112,124211,411212,421112,421211,212141,214121,412121,111143,111341,131141,114113,114311,411113,411311,113141,114131,311141,411131,211412,211214,211232,23311120]
+    , START_BASE = 38
+    , STOP       = 106 //BARS[STOP]==23311120 (manually added a zero at the end)
+    ;
+
+	  // TODO: hoe met een array van getallen om te gaan
+	  function code128(code, barcodeType) {
+	    if (arguments.length<2) barcodeType = code128Detect(code);
+	    if (barcodeType=='C' && code.length%2==1) code = '0'+code;
+	    var a = parseBarcode(code,  barcodeType);
+	    return bar2html(a.join('')) + '<label>' + code + '</label>';
+	  }
+
+	  function bar2html(s) {
+	    for(var pos=0, sb=[]; pos<s.length; pos+=2) {
+	      sb.push('<div class="bar' + s.charAt(pos) + ' space' + s.charAt(pos+1) + '"></div>');
+	    }
+	    return sb.join('');
+	  }
+
+	  function code128Detect(code) {
+	    if (/^[0-9]+$/.test(code)) return 'C';
+	    if (/[a-z]/.test(code)) return 'B';
+	    return 'A';
+	  }
+
+	  function parseBarcode(barcode, barcodeType) {
+	    var bars = [];
+	    bars.add = function(nr) {
+	      var nrCode = BARS[nr];
+	      this.check = this.length==0 ? nr : this.check + nr*this.length;
+	      this.push( nrCode || ("UNDEFINED: "+nr+"->"+nrCode) );
+	    };
+	    bars.add(START_BASE + barcodeType.charCodeAt(0));
+	    for(var i=0; i<barcode.length; i++) {
+	      var code = barcodeType=='C' ? +barcode.substr(i++, 2) : barcode.charCodeAt(i);
+	      converted = fromType[barcodeType](code);
+	      if (isNaN(converted) || converted<0 || converted>106) throw new Error("Unrecognized character ("+code+") at position "+i+" in code '"+barcode+"'.");
+	      bars.add( converted );
+	    }
+	    bars.push(BARS[bars.check % 103], BARS[STOP]);
+	    return bars;
+	  }
+	  var fromType = {
+	    A: function(charCode) {
+	      if (charCode>=0 && charCode<32) return charCode+64;
+	      if (charCode>=32 && charCode<96) return charCode-32;
+	      return charCode;
+	    },
+	    B: function(charCode) {
+	      if (charCode>=32 && charCode<128) return charCode-32;
+	      return charCode;
+	    },
+	    C: function(charCode) {
+	      return charCode;
+	    }
+	  };
+
+%>
+
+<style type="text/css">
+	* {
+	  overflow: visible !important; // forces a built-in PDF rendering gotcha in WebKit so that images never span 2 pages
+	}
+	img {
+	  margin-top:20px;
+	  max-width: 92%; // images will never overflow off the right hand side of a page
+	}
+/*	.page-break {
+	  display: block;
+	  page-break-before: always; // force a page break
+	}*/
+    .main{
+       width:1550px;
+       height: 2000px;
+    }
+    .layout.horizontal,
+	.layout.horizontal-reverse,
+	.layout.vertical,
+	.layout.vertical-reverse {
+	   display: -ms-flexbox;
+	   display: -webkit-flex;
+	   display: flex;
+	}
+    .layout.horizontal {
+        -ms-flex-direction: row;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+    }
+
+    .layout.vertical {
+        -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+    }
+    .title{
+        font-weight:bold;
+    }
+    .slim{
+        width:35%;
+    }
+    .half{
+        width:50%;
+    }
+    .flex{
+        -ms-flex: 1;
+        -webkit-flex: 1;
+        flex: 1;
+    }
+    .box{
+        height:16px;
+        margin:2px;
+        text-align:left;
+    }
+    .box.big{
+    	height:20px;
+    }
+    .round-border{
+    	border: 2px solid black;
+    	border-radius: 10px;
+    	margin: 10px;
+    	padding: 20px;
+    }
+    .center{
+    	text-align: center;
+    }
+    table,td,th{
+    	border: 1px solid black;
+    	border-collapse: collapse;
+    }
+    table{
+    	width: 100%;
+    	margin: 10px;
+
+    }
+    table.res{
+    	width: 300px;
+    	margin-right: 100px;
+    }
+</style>
+<style type="text/css">
+	.barcode {
+	  float:left;
+	  clear:both;
+	  padding: 0 10px; /*quiet zone*/
+	  overflow:auto;
+	  height:0.5in; /*size*/
+	}
+	.right { float:right; }
+	.barcode + * { clear:both; }
+	.barcode div {
+	  float:left;
+	  height: 0.35in; /*size*/
+	}
+	.barcode .bar1 { border-left:1px solid black; }
+	.barcode .bar2 { border-left:2px solid black; }
+	.barcode .bar3 { border-left:3px solid black; }
+	.barcode .bar4 { border-left:4px solid black; }
+	.barcode .space0 { margin-right:0 }
+	.barcode .space1 { margin-right:1px }
+	.barcode .space2 { margin-right:2px }
+	.barcode .space3 { margin-right:3px }
+	.barcode .space4 { margin-right:4px }
+	.barcode label {
+	  clear:both;
+	  display:block;
+	  text-align:center;
+	  font: 0.125in/100% helvetica; /*size*/
+	}
+	/*** bigger ******************************************/
+	.barcode2 {
+	  float:left;
+	  clear:both;
+	  padding: 0 10px; /*quiet zone*/
+	  overflow:auto;
+	  height:1in; /*size*/
+	}
+	.barcode2 + * { clear:both; }
+	.barcode2 div {
+	  float:left;
+	  height: 0.7in; /*size*/
+	}
+	.barcode2 .bar1 { border-left:2px solid black; }
+	.barcode2 .bar2 { border-left:4px solid black; }
+	.barcode2 .bar3 { border-left:6px solid black; }
+	.barcode2 .bar4 { border-left:8px solid black; }
+	.barcode2 .space0 { margin-right:0 }
+	.barcode2 .space1 { margin-right:2px }
+	.barcode2 .space2 { margin-right:4px }
+	.barcode2 .space3 { margin-right:6px }
+	.barcode2 .space4 { margin-right:8px }
+	.barcode2 label {
+	  clear:both;
+	  display:block;
+	  text-align:center;
+	  font: 0.250in/100% helvetica; /*size*/
+	}
+</style>
+<div class="layout vertical main">
+    <div class="layout horizontal">
+        <div class="layout vertical half">
+            <img class="logo" src="<%=logo%>">
+            <div class="round-border">
+                <h4 class="center"><%=bill.infoTributaria.razonSocial%></h4>
+                <div class="layout horizontal">
+                    <div class="layout vertical title slim">
+                        <span class="box">Dir Matriz:</span>
+                        <span class="box"></span>
+                        <span class="box">Obligado a llevar Contabilidad:</span>
+                    </div>
+                    <div class="vertical layout flex">
+                        <span class="box"><%=bill.infoTributaria.dirMatriz%></span>
+                        <span class="box"></span>
+                        <span class="box">SI</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layout vertical flex round-border">
+        	<div class="horizontal layout">
+        		<div class="box half title">R.U.C.</div>
+        		<div class="box half "><%=bill.infoTributaria.ruc%></div>
+        	</div>
+        	<h2>Factura</h2>
+        	<div class="box horizontal layout">
+        		<div class="box half title">No.</div>
+        		<div class="box half "><%=bill.infoTributaria.estab%>-<%=bill.infoTributaria.ptoEmi%>-<%=bill.infoTributaria.secuencial%></div>
+        	</div>
+        	<h2 >Número de Autorizacion</h2>
+        	<div class="box center">
+        		<span><%=bill.infoTributaria.claveAcceso%></span>
+        	</div>
+        	<div class="box horizontal layout">
+        		<div class="box half title">Ambiente</div>
+        		<div class="box half ">
+        			<%if(bill.infoTributaria.ambiente==='1'){%>
+        				PRUEBAS
+        			<%}else{%>
+        				PRODUCCION
+        			<%}%>
+        		</div>
+        	</div>
+        	<div class="horizontal layout">
+        		<div class="box half title">Emisión</div>
+        		<div class="box half ">NORMAL</div>
+        	</div>
+       		<h2 >Clave de acceso</h2>
+        	<div class='center'>
+        		<%var s =parseBarcode(bill.infoTributaria.claveAcceso,'A').join('');%>
+        		<div class="barcode">
+        			<%for(var pos=0; pos<s.length; pos+=2) {
+        				var cls= "bar"+ s[pos]+ " space" +s[pos+1]+ " ";
+        				%>
+						<div class="<%=cls%>"></div>
+	    			<%}%>
+	    			<label><%=bill.infoTributaria.claveAcceso%></label>
+        		</div>
+        	</div>
+
+        </div>
+    </div>
+    <div class="vertical layout round-border">
+		<div class="horizontal layout">
+			<div class="box title slim">Razón social/Nombre y Apellidos</div>
+			<div class="box flex"><%=bill.infoFactura.razonSocialComprador%></div>
+			<div class="box title slim">Identificación</div>
+			<div class="box flex"><%=bill.infoFactura.identificacionComprador%></div>
+		</div>
+		<div class="horizontal layout">
+			<div class="box title slim">Fecha de Emisión</div>
+			<div class="box flex"><%=bill.infoFactura.fechaEmision%></div>
+			<div class="box flex"></div>
+		</div>
+	</div>
+    <table>
+		<tr>
+			<th>Cod Principal</th>
+			<th>Cod Auxiliar</th>
+			<th>Descripcion</th>
+			<th>Cant.</th>
+			<th>Precio Unitario</th>
+			<th>Descuento</th>
+			<th>Precio Total</th>
+		</tr>
+		<%
+			bill.detalles.detalle.forEach(function(item){
+		%>
+			<tr>
+				<td><%=item.codigoPrincipal%></td>
+				<td></td>
+				<td><%=item.descripcion%></td>
+				<td><%=item.cantidad%></td>
+				<td><%=item.precioUnitario%></td>
+				<td><%=item.descuento%></td>
+				<td><%=item.totalSinImpuestos%></td>
+			</tr>
+		<%})%>
+
+	</table>
+	<div class="horizontal layout">
+		<div class="vertical layout half">
+			<div class="round-border">
+				<h2>Info Adicional</h2>
+				<%if(bill.email){%>
+					<div class="horizontal layout">
+						<div class="half title">Email: </div>
+						<div class="flex"><%=bill.email%></div>
+					</div>
+				<%}%>
+				<%if(bill.address){%>
+					<div class="horizontal layout">
+						<div class="half title">Dirección: </div>
+						<div class="flex"><%=bill.address%></div>
+					</div>
+				<%}%>
+			</div>
+			<div>
+				<span>Para consultas o requerimientos puede escribirnos al correo de atención al cliente customerservice@dinabun.com</span>
+				<span>Puedes imprimir tus facturas nuevamente desde tu cuenta del portal web.</span>
+			</div>
+
+		</div>
+		<%
+			var iva;
+			bill.infoFactura.totalConImpuestos.totalImpuesto.forEach(function(item){
+				if(item.codigo==='2'){
+					iva=item.valor;
+				}
+			});
+		%>
+		<div class="vertical layout flex">
+			<table class="res">
+				<tr>
+					<td class="title"> Subtotal 14%</td>
+					<td><%=bill.infoFactura.totalSinImpuestos%></td>
+				</tr>
+				<tr>
+					<td class="title">Subtotal 0%</td>
+					<td>0.00</td>
+				</tr>
+				<tr>
+					<td class="title">Subtotal no objeto de IVA</td>
+					<td>0.00</td>
+				</tr>
+				<tr>
+					<td class="title">Subtotal excento de IVA</td>
+					<td>0.00</td>
+				</tr>
+				<tr>
+					<td class="title">Subtotal sin impuestos</td>
+					<td><%=bill.infoFactura.totalSinImpuestos%></td>
+				</tr>
+				<tr>
+					<td class="title">Descuento</td>
+					<td><%=bill.infoFactura.totalDescuento%></td>
+				</tr>
+				<tr>
+					<td class="title">ICE</td>
+					<td>0.00</td>
+				</tr>
+				<tr>
+					<td class="title">IVA 14%</td>
+					<td><%=iva%></td>
+				</tr>
+				<tr>
+					<td class="title">IRBPNR</td>
+					<td>0.00</td>
+				</tr>
+				<tr>
+					<td class="title">Propina</td>
+					<td>0.00</td>
+				</tr>
+				<tr>
+					<td class="title">Valor Total</td>
+					<td><%=bill.infoFactura.importeTotal%></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+    <div class="layout horizontal">
+
+    </div>
+</div>

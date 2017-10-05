@@ -1,0 +1,114 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="lang-selector">
+	<template include="shared-styles">
+		<style>
+			:host {
+				display: block;
+			}
+			:host.light paper-dropdown-menu{
+				width: 4.5rem;
+				--paper-input-container-color: white ;
+				--paper-input-container-focus-color : var(--accent-color);
+				--paper-input-container-label: {
+			      color: white;
+			      font-weight: bold;
+			    };
+			    --paper-input-container-input: {
+			      color: white;
+			    }
+			    --paper-input-container-underline: {
+			      color: white;
+			    };
+			}
+		</style>
+
+		<!-- <app-localstorage-document id="localStorageLang" key="language" data="{{savedLang}}"></app-localstorage-document> -->
+		<paper-dropdown-menu label="[[localize('language')]]" vertical-align="[[verticalAlign]]">
+		  <paper-listbox class="dropdown-content" selected="{{language}}" attr-for-selected="value" >
+		    <paper-item value="es">Español</paper-item>
+		    <paper-item value="en">English</paper-item>
+		  </paper-listbox>
+		</paper-dropdown-menu>
+		<paper-toast id="toast" text="[[localize('warn')]]" duration="0">
+			<paper-button on-click='setLanguage' class="primary">[[localize('set')]]</paper-button>
+			<paper-button on-click='closeToast'>[[localize('close')]]</paper-button>
+		</paper-toast>
+		<paper-toast text="[[localize('success')]]" id="success"></paper-toast>
+	</template>
+	<script>
+		Polymer({
+			is: 'lang-selector',
+			behaviors: [
+	          Polymer.AppLocalizeBehavior
+	        ],
+			properties:{
+				verticalAlign:{
+					type:String,
+					notify:true
+				},
+				language:{
+					type:String,
+					notify:true,
+					observer:'languageChanged'
+				},
+				resources: {
+		            value: function() {
+		              return {
+		                'en': {
+		                	'language': 'Language',
+		                	'warn':'Set english as preffered language',
+		                	'close': 'Close',
+		                	'set': 'Set',
+		                	'success': 'English setted as preffered language'
+		                },
+		                'es': {
+		                	'language': 'Idioma',
+		                	'warn':'Usar Español como idioma predeterminado',
+		                	'close':'Cerrar',
+		                	'set':'Usar',
+		                	'success': 'Español configurado como idioma predeterminado'
+		              	}
+		          		}
+		        	}
+		        },
+		        savedLang:{
+		        	type:String,
+		        	notify:true,
+		        	observer:'savedLangChanged'
+		        }
+			},
+			savedLangChanged:function(newValue,lastValue){
+				this.language=newValue;
+				if(!lastValue){
+					this.fire('first-language-setted');
+				}
+			},
+			languageChanged:function(newValue,lastValue){
+				this.$.toast.close();
+				if((newValue===lastValue)||!newValue||this.savedLang===newValue){
+					return;
+				}
+				this.$.toast.open();
+			},
+			closeToast:function(){
+				this.$.toast.close();
+			},
+			setLanguage:function(){
+				this.$.localStorageLang.data = this.language;
+				this.$.localStorageLang.save('langauge');
+				this.$.success.open();
+				this.closeToast();
+			},
+
+
+		});
+	</script>
+</dom-module>

@@ -1,0 +1,40 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="notfound-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px 20px;
+      }
+      div.main{
+        @apply(--layout-fullbleed);
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
+    </style>
+    <div class="main">
+      <h1>Opps!</h1>
+      <h4>La página que buscas no existe.</h4>
+      <h4><a href="/">Regresar al inicio</a></h4>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'notfound-view'
+    });
+  </script>
+</dom-module>
