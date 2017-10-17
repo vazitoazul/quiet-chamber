@@ -153,9 +153,9 @@ var subsValue;
         });
         result.fourth.forEach((item,key)=>{
           if(reduced[item]){
-            reduced[item]+=distValue*0.1;
+            reduced[item]+=distValue*0.18;
           }else{
-            reduced[item]=distValue*0.1;
+            reduced[item]=distValue*0.18;
           }
         });
         //Finally, update each user

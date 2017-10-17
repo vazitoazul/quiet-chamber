@@ -133,7 +133,7 @@ module.exports = {
 				Token.createToken(tok,(err,token)=>{
 					if(err)return next(err);
 					var info={
-						url:'https://dinabun.com/verifyMail/'+token
+						url:'https://www.dinabun.com/verifyMail/'+token
 					};
 					var destination = {
 						to:user.email,
@@ -268,7 +268,7 @@ module.exports = {
 			Token.createToken(token,(err,token)=>{
 				if(err) return next(err);
 				var info={
-					url:'https://dinabun.com/rcp/'+token
+					url:'https://www.dinabun.com/rcp/'+token
 				};
 				var destination={
 					to:user.email,
