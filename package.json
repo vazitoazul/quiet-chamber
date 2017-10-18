@@ -28,7 +28,7 @@
     "passport-local": "^1.0.0",
     "paypal-rest-sdk": "^1.7.0",
     "pem": "^1.9.4",
-    "polymer-cli": "^1.5.2",
+    "polymer-cli": "^1.5.7",
     "pp-ipn": "^1.0.5",
     "randomstring": "^1.1.5",
     "rc": "1.0.1",
