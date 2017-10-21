@@ -4,12 +4,6 @@ var User = {
   schema: true,
 
   types: {
-    recommended : (json) => {
-      if(Object.keys(json).length > 3){
-        return false;
-      }
-      return true;
-    },
     billingInfo:function(info){
       return validate.billingInfo(info);
     }
@@ -30,7 +24,8 @@ var User = {
     payouts : {collection : 'payout',via : 'user'},
     subscribedUntil : {type: 'date',defaultsTo:null,date:true},
     recommender : {type : 'string', defaultsTo : null},
-    recommended : {type:'json',defaultsTo:{}, recommended :true},
+    recommended : {type:'json',defaultsTo:{}},
+    maxReco:{type:'int',defaultsTo:3},
     totalBalance : { type:'float'},
     balance : { type : 'array', defaultsTo : []},
     hasBillingInfo:function(){
@@ -48,7 +43,7 @@ var User = {
       };
     },
     canRecomend:function(){
-      return Object.keys(this.recommended).length < 3;
+      return Object.keys(this.recommended).length < this.maxRecomended||3;
     },
     isSubscribed:function(){
       return this.subscribedUntil==null ? false :  Date.compare(this.subscribedUntil, Date.today()) >= 0;

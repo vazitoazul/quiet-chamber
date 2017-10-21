@@ -187,14 +187,21 @@ module.exports = {
 	setRecommender : function(req,res,next){
 		var recommender = req.param('recommender');
 		var currentUser = req.user;
+    //can't continue without a recommender id
 		if(!req.param('recommender'))return res.badRequest();
+    //find recommender
 		User.findOne({id : recommender},(err, newRecommender) => {
 			if(err) return next(err);
+      //if there is nobody with that id
 			if(!newRecommender)return res.badRequest({error : 'user_does_not_exists'});
+      //if the recommender can't recommend anymore
 			if(!newRecommender.canRecomend())return res.json(409,{error : 'user_can_not_recommend'});
+      //if they are the same person
 			if(newRecommender.id === currentUser.id)return res.json(409,{error : 'same_user'});
+      //find the last recommender
 			User.findOne({id : req.user.recommender },(err,lastRecommender) => {
 				if(err) return next(err);
+        //if there is someone delete the relationship between them and replace it with the new recommender
 				if(lastRecommender){
 					if(lastRecommender.id == newRecommender.id)return res.ok();
 					delete lastRecommender.recommended[currentUser.id];
@@ -221,6 +228,7 @@ module.exports = {
 						});
 					});
 				}
+        //if not, just create a new relationship
 				else{
 					User.update({ id:currentUser.id},{recommender : recommender},(err,updated) => {
 						if(err)return next(err);

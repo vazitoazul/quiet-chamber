@@ -20,6 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-icons/social-icons.html">
@@ -53,22 +54,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       div .card{
         padding: 5rem;
       }
-      paper-menu{
-        width: 100%;
-      }
-      a.menu-item{
-        color : #bdced7;
-        width: 100%;
-        height: 3rem;
-      }
+
       paper-card{
         width: 18rem;
       }
       paper-card.subscription{
         width: 300px;
       }
-      paper-card.reco{
-        max-width: 800px;
+      .capped{
+        max-width: 600px;
       }
       div.no-recommended{
         margin-top: 4rem;
@@ -81,12 +75,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .dinabun-title{
         color: #fff;
       }
-      paper-item.aditionla{
-        color:var(--accent-color);
+      paper-item.aditional{
+        color:var(--dark-primary-color);
       }
       #credentialDialog{
         max-width: 500px;
+      }
+      span.big-number{
+        @apply(--paper-font-display2);
+      }
+      span.caption{
+        @apply(--paper-font-caption);
+      }
 
+      .main-menu a {
+        display: block;
+        text-decoration: none;
+        color: var(--accent-color);
+        line-height: 40px;
+      }
+      .main-menu a.iron-selected {
+        font-weight: bold;
+        background-color: rgba(0,0,0,0.1);
       }
     </style>
     <app-location route="{{route}}"></app-location>
@@ -98,16 +108,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <app-drawer-layout id="drawerLayout" responsive-width="768px">
       <app-drawer align="left" id="drawer">
-        <div class="h-100 vertical">
-          <h5>Menu</h5>
-          <paper-menu>
-            <paper-item><a class="menu-item" href="/acco"><iron-icon item-icon icon="star"></iron-icon>Inicio</a></paper-item>
-            <paper-item><a class="menu-item" href="/acco/userInfo"><iron-icon item-icon icon="info"></iron-icon>[[localize('userInfo')]]</a></paper-item>
-            <paper-item><a class="menu-item" href="/acco/membership"><iron-icon item-icon icon="card-membership"></iron-icon>[[localize('membership')]]</a></paper-item>
-            <paper-item><a class="menu-item" href="/acco/recommended"><iron-icon item-icon icon="social:people"></iron-icon>[[localize('recommended')]]</a></paper-item>
-            <paper-item><a class="menu-item" href="/acco/business"><iron-icon item-icon icon="work"></iron-icon>[[localize('bussiness')]]</a></paper-item>
-            <paper-item><a class="menu-item" href="/acco/payments"><iron-icon item-icon icon="payment"></iron-icon>[[localize('payments')]]</a></paper-item>
-          </paper-menu>
+        <div class="h-100 vertical p-2">
+          <h4 class="s-text">Menu</h4>
+          <iron-selector class="main-menu" attr-for-selected="page" selected="[[page]]">
+            <a page="resume" href="/acco"><iron-icon class="pr-1" icon="star"></iron-icon>Inicio</a>
+            <a page="userInfo" href="/acco/userInfo"><iron-icon class="pr-1" icon="info"></iron-icon>[[localize('userInfo')]]</a>
+            <a page="membership" href="/acco/membership"><iron-icon class="pr-1" icon="card-membership"></iron-icon>[[localize('membership')]]</a>
+            <a page="recommended" href="/acco/recommended"><iron-icon class="pr-1" icon="social:people"></iron-icon>[[localize('recommended')]]</a>
+            <a page="business" href="/acco/business"><iron-icon class="pr-1" icon="work"></iron-icon>[[localize('bussiness')]]</a>
+            <a page="payments" href="/acco/payments"><iron-icon class="pr-1" icon="payment"></iron-icon>[[localize('payments')]]</a>
+          </iron-selector>
           <div class="flex"></div>
           <a href="/srch"><paper-item class="aditional"><iron-icon item-icon icon="search"></iron-icon>Buscar Anuncios</paper-item></a>
           <a href="/sytm"><paper-item class="aditional"><iron-icon item-icon icon="info"></iron-icon>Ayuda</paper-item></a>
@@ -127,7 +137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </app-header-layuout>
       <iron-pages selected='[[page]]' attr-for-selected="section" fallback-selection="resume">
         <section section="resume" class="p-2">
-          <h3 class="mb-2">Tu cuenta</h3>
+          <h4 class="s-text mb-2">Tu cuenta</h4>
           <div class="vth">
             <paper-card heading="Tu suscripción" class="m-2 vertical">
               <div class="card-content flex" hidden$="[[user.isSuscribed]]">
@@ -148,28 +158,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <span>Todavía no cuentas con recomendados. Invita personas para que sean tus recomendados para recibir beneficios por sus suscripciones.</span>
               </div>
               <div class="card-content flex" hidden$="[[!user.recommended.0]]">
-                <span>Cuentas con <b>[[user.recommended.lenght]]/3</b> recomendados.</span>
+                <span>Cuentas con <b>[[user.recommended.length]]/[[user.maxReco]]</b> recomendados.</span>
               </div>
               <div class="card-actions horizontal" hidden$="[[user.recommended.2]]">
                 <div class="flex"></div>
-                <a href="/acco/membership">
+                <a href="/acco/recommended">
                   <paper-button class="accent" hidden$="[[user.recommended.0]]">Invitar</paper-button>
                   <paper-button class="accent" hidden$="[[!user.recommended.0]]">Detalles</paper-button>
                 </a>
               </div>
             </paper-card>
           </div>
-
         </section>
         <section section="membership">
           <membership-panel></membership-panel>
-        </section>
-        <section section="payments" >
-          <div class="vertical">
-            <div class="horizontal">
-              <payments-grid class="flex" on-bill-added="billAdded"></payments-grid>
-            </div>
-          </div>
         </section>
         <section section="userInfo">
           <div class="card">
@@ -180,7 +182,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="container-fluid">
             <div class="row" >
               <div class="col-12 my-3">
-                <paper-card class="w-100 reco" heading="Estás debajo de:" hidden$="[[!recommender.email]]">
+                <div class="horizontal capped">
+                  <h4 class="s-text flex">Recomendados</h4>
+                  <div class="vertical">
+                    <div class="horizontal">
+                      <div class="flex"></div>
+                      <span class="big-number">[[user.recommended.length]]</span>
+                      <span class="self-end">/[[user.maxReco]]</span>
+                    </div>
+                    <span class="caption">Recomendados</span>
+                  </div>
+                </div>
+                <paper-card class="w-100 capped" heading="Estás debajo de:" hidden$="[[!recommender.email]]">
                   <div class="card-content vertical layout">
                     <span class="s-text">Nombre</span>
                     <span>[[recommender.firstName]] [[recommender.lastName]]</span>
@@ -188,16 +201,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <span>[[recommender.email]]</span>
                   </div>
                 </paper-card>
-                <paper-card class="w-100 reco" hidden$="[[recommender.email]]">
-                  <div class="card-content vertical layout">
-                    <h6>[[localize('no_recommender')]]</h6>
-                  </div>
-                </paper-card>
               </div>
             </div>
             <div class="row">
               <div class="col-12">
-                <paper-card class="w-100 reco">
+                <paper-card class="w-100 capped">
                   <div class="card-content vertical layout">
                     <span>[[localize('for_recommend_a_user')]]</span>
                     <div class="horizontal">
@@ -239,6 +247,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <section section="business">
           <business-section></business-section>
         </section>
+        <section section="payments" >
+          <div class="vertical">
+            <div class="horizontal">
+              <payments-grid class="flex" on-bill-added="billAdded"></payments-grid>
+            </div>
+          </div>
+        </section>
       </iron-pages>
     </app-drawer-layout>
     <paper-dialog modal id="credentialDialog" class="userCredential">
@@ -277,14 +292,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         authenticated : {
           type: Boolean,
           statePath : 'user.authenticated'
-        },
-        entities:{
-          type:Object,
-          statePath:'entities'
-        },
-        recommended:{
-          type:String,
-          computed:'_getArrayFromObj(entities.recommended)'
         },
         recommender:{
           type:Object,

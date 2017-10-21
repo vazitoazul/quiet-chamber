@@ -76,9 +76,16 @@
         overflow: hidden;
         text-align: right;
       }
+      paper-card.no-subs{
+        --paper-card-header-color:rgba(0,0,0,0.82);
+        --paper-card-header:{
+          background-color:var(--light-primary-color);
+        }
+      }
     </style>
 
     <div class="vertical p-3">
+      <h4 class="s-text">Suscripción</h4>
       <div class="vertical py-2" hidden$="[[!processingPayment]]">
         <paper-card class="vertical m1-y capped">
           <div class="card-content flex">
@@ -100,9 +107,8 @@
       </div>
       <div class="horizontal">
         <div hidden$="[[user.isSubscribed]]">
-          <paper-card  class="vertical subscription" hidden$="[[processingPayment]]">
+          <paper-card heading="No tienes una suscripción activa"  class="vertical no-subs" hidden$="[[processingPayment]]">
             <div class="card-content flex">
-              <h4>No tienes una suscripción activa</h4>
               <span>Encuentra todos los beneficios de suscribirte <a href="/sytm" target="_blank">Aquí</a></span>
             </div>
             <div class="card-actions horizontal center">
@@ -113,7 +119,7 @@
           </paper-card>
         </div>
         <div hidden$="[[!user.isSubscribed]]">
-          <paper-card  class="vertical subscription">
+          <paper-card  class="vertical">
             <div class="card-content flex">
               <h4>Tienes una suscripción activa</h4>
               <div class="susbcribed-until">

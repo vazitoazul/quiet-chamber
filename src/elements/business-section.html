@@ -60,10 +60,11 @@
     <app-route route="[[route]]" pattern="/acco/business/:id" data="{{busData}}" tail="{{postRoute}}"></app-route>
     <app-route route="[[postRoute]]" pattern="/:id" data="{{postData}}"></app-route>
     <iron-pages selected="{{section}}" attr-for-selected="name">
-      <section name="resume" class="container">
+      <section name="resume" class="container-fluid">
         <div class="row">
           <div class="col-12 col-md-6">
-            <paper-card heading="Tus Negocios" class="start-card">
+            <h4 class="s-text flex mt-3">Negocios</h4>
+            <paper-card class="start-card">
               <div class="card-content vertical flex">
                 <template is="dom-if" if="[[noBusiness]]">
                   <div class="vertical flex">
@@ -104,19 +105,22 @@
               </div>
             </paper-card>
           </div>
-          <div class="col-md-6 py-3">
+          <div class="col-md-6 py-1">
+            <h4>&nbsp;</h4>
             <business-card business="[[currentBusiness]]" hidden$="[[!currentBusiness.id]]" no-image></business-card>
-            <paper-card class="business-placeholder" hidden$="[[currentBusiness.id]]">
-              <div class="card-content vertical center">
-                <span class="font-display1 s-text">
-                  Selecciona un negocio para ver sus detalles
-                </span>
-              </div>
-            </paper-card>
+            <div hidden$="[[noBusiness]]">
+              <paper-card class="business-placeholder" hidden$="[[currentBusiness.id]]">
+                <div class="card-content vertical center">
+                  <span class="font-display1 s-text">
+                    Selecciona un negocio para ver sus detalles
+                  </span>
+                </div>
+              </paper-card>
+            </div>
           </div>
         </div>
       </section>
-      <section name="editBus" class="container">
+      <section name="editBus" class="container-fluid">
         <div class="row">
           <div class="col-12">
             <a href="/acco/business">Mis negocios</a>
@@ -168,7 +172,7 @@
           </div>
         </div>
       </section>
-      <section name="newBus" class="container">
+      <section name="newBus" class="container-fluid">
         <div class="row">
           <div class="col-12 horizontal p-1">
             <a href="/acco/business">Mis negocios</a>
@@ -182,7 +186,7 @@
           </div>
         </div>
       </section>
-      <section name="newPost" class="container">
+      <section name="newPost" class="container-fluid">
         <div class="row">
           <div class="col-12">
             <a href="/acco/business">Mis negocios</a>
@@ -198,7 +202,7 @@
           </div>
         </div>
       </section>
-      <section name="editPost" class="container">
+      <section name="editPost" class="container-fluid">
         <div class="row">
           <div class="col-12">
             <a href="/acco/business">Mis negocios</a>
