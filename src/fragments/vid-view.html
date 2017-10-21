@@ -1,0 +1,64 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="vid-view">
+  <template>
+    <style include="shared-styles">
+      .main{
+        @apply(--layout-vertical);
+        width: 100%;
+      }
+      .top{
+        max-width: 500px;
+      }
+      .videos{
+        max-width: 800px;
+        width: 100%;
+        @apply(--layout-self-center);
+        padding: 1rem 0;
+      }
+      .card{
+        @apply(--shadow-elevation-3dp);
+        min-width: 300px;
+        padding: 8px;
+        margin-bottom: 3rem;
+      }
+      google-youtube{
+        width: 100%;
+      }
+    </style>
+    <div class="main">
+      <div class="top self-center">
+        <h3>Nuestros videos</h3>
+        <h5 class="s-text">Aquí encontrarás más información sobre nuestro sistema y sus beneficios.</h5>
+      </div>
+      <div class="videos">
+        <div class="card">
+          <google-youtube
+            fluid
+            video-id="AOEEYpddVFQ"
+            rel="0">
+          </google-youtube>
+        </div>
+        <div class="card">
+          <google-youtube
+            fluid
+            video-id="sXh5q8w4QMg"
+            rel="0">
+          </google-youtube>
+        </div>
+      </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'vid-view',
+      properties:{
+        route:{
+          type:String
+        }
+      }
+    });
+  </script>
+</dom-module>
