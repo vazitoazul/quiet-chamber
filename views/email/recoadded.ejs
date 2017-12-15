@@ -1,53 +1,51 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+<html xmlns="http://www.w3.org/1999/xhtml" style="box-sizing: border-box; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; margin: 0;">
 <head>
-<meta name="viewport" content="width=device-width" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Tienes un nuevo recomendado - Dinabun</title>
-
 
 </head>
 
-<body itemscope="" itemtype="http://schema.org/EmailMessage" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; width: 100% !important; height: 100%; line-height: 1.6em; background-color: #373b50; margin: 0; padding: 0;" bgcolor="#373b50">
+<body itemscope="" itemtype="http://schema.org/EmailMessage" style="-webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; background-color: #1a237e; height: 100%; line-height: 1.6em; width: 100% !important;">
 
-<table class="body-wrap" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; width: 100%; background-color: #373b50; margin: 0;" bgcolor="#373b50">
-	<tr style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-		<td style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0;" valign="top"></td>
-		<td class="container" width="600" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; display: block !important; max-width: 600px !important; clear: both !important; width: 100% !important; margin: 0 auto; padding: 0;" valign="top">
-			<div class="content" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; max-width: 600px; display: block; margin: 0 auto; padding: 0;">
-				<table class="main" width="100%" cellpadding="0" cellspacing="0" itemprop="action" itemscope="" itemtype="http://schema.org/ConfirmAction" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; border-radius: 3px; background-color: #fff; margin: 0; border: 1px solid #3d415a;" bgcolor="#fff">
-					<tr style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-						<td class="content-wrap" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 10px;" valign="top">
-							<meta itemprop="name" content="Confirm Email" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;" />
-							<table width="100%" cellpadding="0" cellspacing="0" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-								<tr style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-									<td class="content-block" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
-										Hola, <%=recommender.firstName%>
+<table class="body-wrap" style="background-color: #1a237e; width: 100%;">
+	<tr>
+		<td style="vertical-align: top;"></td>
+		<td class="container" width="600" style="clear: both !important; display: block !important; margin: 0 auto !important; max-width: 600px !important; vertical-align: top;">
+			<div class="content" style="display: block; margin: 0 auto; max-width: 600px; padding: 20px;">
+				<table class="main" width="100%" cellpadding="0" cellspacing="0" itemprop="action" itemscope="" itemtype="http://schema.org/ConfirmAction" style="background-color: #fff; border: 1px solid #1a237e; border-radius: 3px;">
+					<tr>
+						<td class="content-wrap" style="padding: 20px; vertical-align: top;">
+							<meta itemprop="name" content="Confirm Email">
+							<table width="100%" cellpadding="0" cellspacing="0">
+								<tr>
+									<td class="content-block" style="padding: 0 0 20px; vertical-align: top;">
+										Hola, <%=recomender.firstname%></td>
+								</tr>
+								<tr>
+									<td class="content-block" style="padding: 0 0 20px; vertical-align: top;">
+										Te informamos que <b><%=recomended.firstname%> <%=recomended.lastname%></b>  se ha unido a tu red con la dirección <b><%=recommended.email%></b> . En cuanto inicie una suscripción con la página empezarás a recibir beneficios.
 									</td>
 								</tr>
-								<tr style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-									<td class="content-block" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
-										Te informamos que <b style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;"><%=recommended.firstName%> <%=recommended.lastName%> </b>se ha unido a tu red con la dirección <b style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;"><%=recommended.email%></b> . En cuanto inicie una suscripción con la página empezarás a recibir beneficios.
-									</td>
-								</tr>
-								<tr style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-									<td class="content-block" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
-										— Dinabun
+								<tr>
+									<td class="content-block" style="padding: 0 0 20px; vertical-align: top;">
+										&mdash; Dinabun
 									</td>
 								</tr>
 							</table>
 						</td>
 					</tr>
 				</table>
-				<div class="footer" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; width: 100%; clear: both; color: #999; margin: 0; padding: 20px;">
-					<table width="100%" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-						<tr style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-							<td class="aligncenter content-block" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 12px; vertical-align: top; color: #999; text-align: center; margin: 0; padding: 0 0 20px;" align="center" valign="top">Follow <a href="http://www.facebook.com" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 12px; color: #999; text-decoration: underline; margin: 0;">Dinabun</a> on Facebook.</td>
+				<div class="footer" style="clear: both; color: #999; padding: 20px; width: 100%;">
+					<table width="100%">
+						<tr>
+							<td class="aligncenter content-block" style="color: #999; font-size: 12px; padding: 0 0 20px; text-align: center; vertical-align: top;">Follow <a href="http://www.facebook.com" style="color: #999; font-size: 12px; text-decoration: underline;">Dinabun</a> on Facebook.</td>
 						</tr>
 					</table>
 				</div></div>
 		</td>
-		<td style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0;" valign="top"></td>
+		<td style="vertical-align: top;"></td>
 	</tr>
 </table>
 

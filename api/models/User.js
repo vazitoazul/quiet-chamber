@@ -16,11 +16,22 @@ var User = {
     intlCredential : { type: 'string', unique : true},
     firstName : {type : 'string'},
     lastName : {type : 'string'},
-    contactInfo: {type : 'json',defaultsTo:{firstName:null,lastName:null,telephones:[],location:{latitude:null,longitude:null},email:null,address:null}},
+    contactInfo: {
+      type : 'json',
+      defaultsTo:{
+        firstName:null,
+        lastName:null,
+        telephones:[],
+        location:{
+          latitude:null,
+          longitude:null},
+          email:null,
+          address:null
+        }
+      },
     autoSub:{type:'boolean',defaultsTo:false},
     tokens : {collection:'Token',via:'user'},
     payments : { collection : 'Payment', via : 'user'},
-    // bills : { collection : 'bill', via : 'user'},
     payouts : {collection : 'payout',via : 'user'},
     subscribedUntil : {type: 'date',defaultsTo:null,date:true},
     recommender : {type : 'string', defaultsTo : null},
@@ -43,7 +54,9 @@ var User = {
       };
     },
     canRecomend:function(){
-      return Object.keys(this.recommended).length < this.maxRecomended||3;
+      //this change has to be made in order to allow users to recommend indefinitely
+      //return Object.keys(this.recommended).length < this.maxRecomended||3;
+      return true;
     },
     isSubscribed:function(){
       return this.subscribedUntil==null ? false :  Date.compare(this.subscribedUntil, Date.today()) >= 0;
@@ -89,7 +102,6 @@ var User = {
       var subscribedUntil;
       if(!user.subscribedUntil){
         subscribedUntil= new Date();
-
       }else{
         subscribedUntil= new Date(user.subscribedUntil);
       }

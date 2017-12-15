@@ -20,6 +20,7 @@
     "google-recaptcha": "^1.0.2",
     "html-pdf": "^2.1.0",
     "include-all": "~0.1.6",
+    "inline-css": "^2.2.3",
     "le_node": "^1.7.1",
     "mailgun-js": "^0.8.0",
     "newrelic": "^1.36.2",

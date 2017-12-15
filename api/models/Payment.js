@@ -26,7 +26,8 @@ module.exports = {
     distributed : { type: 'boolean', defaultsTo : false },
     realized: {type:'boolean',defaultsTo:false},
     amount: {type:'float'},
-    url: {type:'string'}
+    url: {type:'string'},
+    automatic: {type:'boolean',defaultsTo:false}
 
   }
 };

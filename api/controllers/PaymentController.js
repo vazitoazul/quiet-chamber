@@ -182,7 +182,7 @@ module.exports = {
       if(payment.txStatus==='completed'){
         //If payment was succesfully completed then update the user and credit
         //him with one month of subscription
-        User.extendSubscription(payment.user,1,(err)=>{
+        User.extendSubscription(payment.user,12,(err)=>{
           if(err){
             console.log('paymentListenerError',{error:'user_not_updated'});
             return res.ok();

@@ -33,7 +33,7 @@ var AuthController = {
       res.ok();
     }else{
       res.redirect('/');
-    }    
+    }
   },
 
   /**

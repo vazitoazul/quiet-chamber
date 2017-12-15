@@ -4,3 +4,4 @@ node_modules/
 config/local.js
 views/homepage.ejs
 package-lock.json
+templates/

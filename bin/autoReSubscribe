@@ -1,0 +1,142 @@
+#!/usr/bin/env node
+var url = require('url');
+var path= require('path'),
+    async = require('async'),
+    ObjectId = require('mongodb').ObjectID;
+var Logger = require('le_node');
+require('date-utils')
+process.chdir(path.resolve(__dirname,'../'));
+var subsValue;
+(function() {
+  var sails;
+  try {
+    sails = require('sails');
+  } catch (e) {
+    console.error('To run an app using `node app.js`, you usually need to have a version of `sails` installed in the same directory as your app.');
+    console.error('To do that, run `npm install sails`');
+    console.error('');
+    console.error('Alternatively, if you have sails installed globally (i.e. you did `npm install -g sails`), you can use `sails lift`.');
+    console.error('When you run `sails lift`, your app will still use a local `./node_modules/sails` dependency if it exists,');
+    console.error('but if it doesn\'t, the app will run with the global sails instead!');
+    return;
+  }
+
+  // Try to get `rc` dependency
+  var rc;
+  try {
+    rc = require('rc');
+  } catch (e0) {
+    try {
+      rc = require('sails/node_modules/rc');
+    } catch (e1) {
+      console.error('Could not find dependency: `rc`.');
+      console.error('Your `.sailsrc` file(s) will be ignored.');
+      console.error('To resolve this, run:');
+      console.error('npm install rc --save');
+      rc = function () { return {}; };
+    }
+  }
+  // Start server
+  sails.lift(rc('sails'),function(done){
+    var logger = new Logger({
+      token:sails.config.keys.scheduledLogEntriesKey
+    });
+    var future = Date.today().add({days:5});
+    var tomorrow = Date.today().add({days:1});
+    console.log(future,tomorrow,Date.today());
+    //Find all the users that have suscriptions about to end
+    User.find({autoSub:true,subscribedUntil:{'>':Date.today(),'<':Date.today().add({days:6})}},(err,users)=>{
+      if(err){
+        logger.err('Error finding users on autoReSubscribe',err);
+        return sails.lower(()=>{
+          process.exit();
+        });
+      }
+      console.log(users.length);
+      async.eachOfLimit(users,20,(user,index,cb)=>{
+        var susbsUntil=new Date(user.subscribedUntil);
+        var balance=user.balance.reduce((a, b) => a + b,0);
+        if(Date.equalsDay(susbsUntil,tomorrow)){
+          if(balance>=0.01){
+            var newBalance = user.balance.reduce((res,val)=>{
+              return res + val;
+            },-0.01);
+            User.update(user.id,{balance:newBalance},(err,updated)=>{
+              if(err){
+                logger.err('Error updating user on autoReSubscribe',err);
+                return cb();
+              }
+              var newCompletedPayment={
+                user:user.id,
+                txStatus:'completed',
+                realized:true,
+                amount:0.01*100000000,
+                automatic:true
+              };
+              User.extendSubscription(user.id,12,(err)=>{
+                if(err){
+                  logger.err('Error updating User subscription time on autoReSubscribe',err);
+                  return cb();
+                }
+                Payment.create(newCompletedPayment,(err,payment)=>{
+                  if(err){
+                    logger.err('Error updating payment on autoReSubscribe',err);
+                    return cb();
+                  }
+                  var info={
+        						name:`${user.firstName} ${user.lastName}`,
+                    scenario:'success'
+        					};
+        					var destination = {
+        						to:user.email,
+        						subject:'Pago automático - Dinabun'
+        					};
+        					mailgun.send('autoSubs',info,destination,(err,result)=>{
+        						if(err) return next(err);
+        						return cb();
+        					});
+                });
+              });
+
+            });
+          }else{
+            var info={
+              name:`${user.firstName} ${user.lastName}`,
+              scenario:'failed'
+            };
+            var destination = {
+              to:user.email,
+              subject:'Pago automático - Dinabun'
+            };
+            mailgun.send('autoSubs',info,destination,(err,result)=>{
+              if(err) return next(err);
+              console.log('emailsent');
+              return cb();
+            });
+          }
+        }else if(Date.equalsDay(susbsUntil,future)){
+          var info={
+            name:`${user.firstName} ${user.lastName}`,
+            scenario:'warning'
+          };
+          var destination = {
+            to:user.email,
+            subject:'Pago automático - Dinabun'
+          };
+          console.log(info,destination);
+          mailgun.send('autoSubs',info,destination,(err,result)=>{
+            if(err) return next(err);
+            return cb();
+          });
+        }else{
+          return cb();
+        }
+      },(err)=>{
+        return sails.lower(()=>{
+          process.exit();
+        });
+      });
+    });
+
+  });
+})();
