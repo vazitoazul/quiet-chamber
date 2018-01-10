@@ -18,7 +18,8 @@
     "src/fragments/servererror-view.html",
     "src/fragments/srch-view.html",
     "src/fragments/sytm-view.html",
-    "src/fragments/wlcm-view.html"
+    "src/fragments/wlcm-view.html",
+    "src/fragments/vid-view.html"
   ],
   "sources": [
    "src/**/*",

@@ -8,16 +8,13 @@
 <link rel="import" href="../redux/global-store.html">
 <link rel="import" href="../redux/actions/auth-actions.html">
 <link rel="import" href="../shared-styles.html">
-
-
 <dom-module id="wlcm-view">
   <template>
     <style include="shared-styles">
       :host {
         display: block;
         height: 100%;
-        @apply(--layout-vertical)
-
+        @apply(--layout-vertical);
       }
       div.main{
         padding: 1rem;
@@ -33,7 +30,7 @@
       }
       @media screen and (max-width: 768px) {
         div.options{
-          @apply(--layout-vertical)
+          @apply(--layout-vertical);
         }
       }
       paper-card{
