@@ -132,16 +132,16 @@ var subsValue;
         var reduced = {};
         result.first.forEach((item,key)=>{
           if(reduced[item]){
-            reduced[item]+=distValue*0.5;
+            reduced[item]+=distValue*0.26;
           }else{
-            reduced[item]=distValue*0.5;
+            reduced[item]=distValue*0.26;
           }
         });
         result.second.forEach((item,key)=>{
           if(reduced[item]){
-            reduced[item]+=distValue*0.2;
+            reduced[item]+=distValue*0.18;
           }else{
-            reduced[item]=distValue*0.2;
+            reduced[item]=distValue*0.18;
           }
         });
         result.third.forEach((item,key)=>{
@@ -153,9 +153,9 @@ var subsValue;
         });
         result.fourth.forEach((item,key)=>{
           if(reduced[item]){
-            reduced[item]+=distValue*0.18;
+            reduced[item]+=distValue*0.6;
           }else{
-            reduced[item]=distValue*0.18;
+            reduced[item]=distValue*0.6;
           }
         });
         //Finally, update each user
