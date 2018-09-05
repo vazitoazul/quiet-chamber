@@ -70,7 +70,8 @@ var User = {
       Token.createToken(tok,(err,token)=>{
         if(err)return next(err);
         var info={
-          url:'https://www.dinabun.com/verifyMail/'+token
+          url:'https://www.dinabun.com/verifyMail/'+token,
+          name:`${user.firstName} ${user.lastName}`
         };
         var destination = {
           to:user.email,
