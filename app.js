@@ -13,17 +13,18 @@
  *   => `modulus deploy`
  *   => `heroku scale`
  *
- *
  * The same command-line arguments are supported, e.g.:
  * `node app.js --silent --port=80 --prod`
+ *
+ * For more information see:
+ *   https://sailsjs.com/anatomy/app.js
  */
 
-// Ensure we're in the project directory, so relative paths work as expected
-// no matter where we actually lift from.
 process.chdir(__dirname);
-
+const throng = require('throng');
+var WORKERS = process.env.WEB_CONCURRENCY || 1;
 // Ensure a "sails" can be located:
-(function() {
+function start() {
   var sails;
   try {
     sails = require('sails');
@@ -53,7 +54,13 @@ process.chdir(__dirname);
     }
   }
 
-
   // Start server
   sails.lift(rc('sails'));
-})();
+}
+
+//enable clusterization
+throng({
+  workers: WORKERS,
+  lifetime: Infinity,
+  start: start
+});
