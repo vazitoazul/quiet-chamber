@@ -118,6 +118,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <style is="custom-style" include="root-styles"></style>
 
+    <script src='https://www.google.com/recaptcha/api.js?onload=reCaptchaLoaded&render=explicit' async defer></script>
+    <script>
+      function reCaptchaLoaded(){
+        window.dispatchEvent(new CustomEvent('recaptcha-loaded'));
+      }
+    </script>
+
   </head>
   <body>
     <my-app></my-app>

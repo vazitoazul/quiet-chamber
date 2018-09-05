@@ -193,35 +193,41 @@
         }
 
       },
+
+      _recaptchaCallback(){
+        if(window.grecaptcha){
+          this._setUpRecaptcha();
+        }else{
+          window.addEventListener('recaptcha-loaded',()=>{
+            this._setUpRecaptcha();
+          });
+        }
+      }
       _setUpRecaptcha:function(){
         if(document.querySelector('#recaptchaElement')){
           document.body.removeChild(document.querySelector('#recaptchaElement'));
         }
-        this.recaptcha = document.createElement('re-captcha');
-        this.recaptcha.style.position = 'absolute';
+        this.captchaContainer=document.createElement('div');
+        this.captchaContainer.style.position = 'absolute';
         var bodyRect = document.body.getBoundingClientRect(),
             elemRect = this.$.recaptchaDiv.getBoundingClientRect(),
             top   = elemRect.top - bodyRect.top,
             left   = elemRect.left - bodyRect.left;
-        this.recaptcha.id = "recaptchaElement";
-        this.recaptcha.style.left = (left-6) + 'px';
-        this.recaptcha.style.top = (top) + 'px';
-        this.recaptcha.setAttribute('sitekey','6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq');
-        var self=this;
-        this.recaptcha.addEventListener('captcha-response',function(e){
-          self.recaptchaToken=e.detail.response;
-          self.set('recaptchaResponse',true);
+        this.captchaContainer.id = "recaptchaElement";
+        this.captchaContainer.style.left = (left-6) + 'px';
+        this.captchaContainer.style.top = (top) + 'px';
+        document.body.appendChild(this.captchaContainer);
+        grecaptcha.render(this.captchaContainer,{
+          sitekey:'6LdkIAoUAAAAANOf7Dqpf_72eLGFLQNr0pdFwKAq',
+          callback:(e)=>{
+            this.recaptchaToken=e;
+            this.set('recaptchaResponse',true);
+          },
+          'expired-callback':()=>{
+            this.set('recaptchaResponse',false);
+          }
         });
-        this.recaptcha.addEventListener('captcha-expired',function(e){
-          this.set('recaptchaResponse',false);
-        });
-        document.body.appendChild(this.recaptcha);
-        this.async(()=>{
-          this.captchaLoaded=true;
-          var position = this.$.recaptchaDiv.getBoundingClientRect();
-          console.log(position);
-        },500)
-
+        this.captchaLoaded=true;
       },
 
       submit : function(e){
