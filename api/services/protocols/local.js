@@ -4,6 +4,7 @@ var crypto    = require('crypto');
 var recaptcha = require("recaptcha_v2");
 var keys = sails.config.recaptcha;
 var captcha = new recaptcha({secret:keys.private_key});
+var selectRecommender = require('../utils/selectRecommender.js');
 /**
  * Local Authentication Protocol
  *
@@ -33,7 +34,6 @@ exports.register = function (req, res, next) {
     , password = req.param('password')
     , confirmation = req.param('confirmation')
     , recommenderId = req.param('recommender');
-
   if (!email) {
     return next(null,false,{message:'no_email_entered'});
   }
@@ -53,8 +53,9 @@ exports.register = function (req, res, next) {
         }
         if(done) {
            // recaptcha verified
-           User.findOne({id : recommenderId}, function(err,recommender){
+           selectRecommender(recommenderId, function(err,recommender){
              if(err) return next(err,false,{message:'error_finding_recomender'});
+             if(!recommender) return next(null,null,{message:'invalid_recommender'});
              var newUser = {
                email : email,
                firstName : firstName,

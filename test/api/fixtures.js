@@ -10,7 +10,8 @@ module.exports ={
       },
       {
       	"email" : "currentUser@dinabun.com",
-
+        "firstName":"Juan",
+        "lastName":"Rosero"
       },
       {
       	"email" : "extraUser@dinabun.com",
@@ -18,7 +19,11 @@ module.exports ={
       },
       {
       	"email" : "newRecommender@dinabun.com",
-
+        "defaultRecommender":true
+      },
+      {
+      	"email" : "alternateRecommender@dinabun.com",
+        "defaultRecommender":true
       },
       {
       	"email" : "mailNotVerifiedUser@dinabun.com",

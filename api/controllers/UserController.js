@@ -68,22 +68,23 @@ module.exports = {
     *@param {string} firstName
     *@param {string} lastName
     *@param {array} telephones
-    *@param {string} email
-    *@param {object} location - latitude and longitude
-    *@param {object} contactInfo
+    *@param {number} latitude - latitude
+    *@param {number} longitude - latitude
+    *@param {string} contactEmail
+    *@param {string} address
     */
 	updateUserInfo : function(req,res,next){
 		var info = {
 			firstName:req.param('firstName'),
 			lastName: req.param('lastName'),
 			contactInfo:{
-				telephones : req.param('telephone'),
+				telephones : req.param('telephones'),
 				email : req.param('contactEmail'),
 				location : {
 					latitude : req.param('latitude'),
 					longitude : req.param('longitude'),
 				},
-				address : req.param('addressLabel')
+				address : req.param('address')
 			}
 		};
 		User.update({id : req.user.id}, info, function(err,updated){
@@ -133,6 +134,7 @@ module.exports = {
 				Token.createToken(tok,(err,token)=>{
 					if(err)return next(err);
 					var info={
+            name:`${user.firstName} ${user.lastName}`,
 						url:'https://www.dinabun.com/verifyMail/'+token
 					};
 					var destination = {
@@ -156,6 +158,9 @@ module.exports = {
 	getRecommenderUser : function(req,res,next){
 		var response = {};
 		var recommenderId = req.param('id');
+    if(req.user.id === recommenderId){
+      return res.json(409,{error:'same_user'});
+    }
 		User.findOne({id : recommenderId},(err,recommender) => {
 			if(err) return next(err);
 			if(!recommender){
@@ -171,86 +176,8 @@ module.exports = {
 			if(!req.user){
 				return res.json(200,response);
 			}
-			if(req.user.id == recommenderId){
-				return res.json(409,{error:'same_user'});
-			}
+
 			return res.json(200,response);
-		});
-	},
-	/**
-	*Recives an an id and sets the recomender for the current User.
-	*In case the user already has one, it changes it for the new one and delete the last form the lastRecommender list
-	*
-	*@param {String} recommender - The id of the new recommender for the current user.
-	*/
-	setRecommender : function(req,res,next){
-		var recommender = req.param('recommender');
-		var currentUser = req.user;
-    //can't continue without a recommender id
-		if(!req.param('recommender'))return res.badRequest();
-    //find recommender
-		User.findOne({id : recommender},(err, newRecommender) => {
-			if(err) return next(err);
-      //if there is nobody with that id
-			if(!newRecommender)return res.badRequest({error : 'user_does_not_exists'});
-      //if the recommender can't recommend anymore
-			if(!newRecommender.canRecomend())return res.json(409,{error : 'user_can_not_recommend'});
-      //if they are the same person
-			if(newRecommender.id === currentUser.id)return res.json(409,{error : 'same_user'});
-      //find the last recommender
-			User.findOne({id : req.user.recommender },(err,lastRecommender) => {
-				if(err) return next(err);
-        //if there is someone delete the relationship between them and replace it with the new recommender
-				if(lastRecommender){
-					if(lastRecommender.id == newRecommender.id)return res.ok();
-					delete lastRecommender.recommended[currentUser.id];
-					User.update({id:lastRecommender.id},{recommended:lastRecommender.recommended},(err,saved)=>{
-						if(err)return next(err);
-						User.update({ id:currentUser.id},{recommender : recommender},(err,updated) => {
-							if(err||!updated[0])return res.badRequest();
-							newRecommender.recommended[currentUser.id] = true;
-							User.update({id:newRecommender.id},{recommended:newRecommender.recommended},(err,saved)=>{
-								if(err)return next(err);
-                var info={
-      						recommender:newRecommender,
-                  recommended:req.user
-      					};
-      					var destination = {
-      						to:newRecommender.email,
-      						subject:'Tienes un nuevo recomendado - Dinabun'
-      					};
-      					mailgun.send('recoadded',info,destination,(err,result)=>{
-      						if(err) return next(err);
-      						return res.ok();
-      					});
-							});
-						});
-					});
-				}
-        //if not, just create a new relationship
-				else{
-					User.update({ id:currentUser.id},{recommender : recommender},(err,updated) => {
-						if(err)return next(err);
-						if(!updated[0])return res.badRequest();
-						newRecommender.recommended[currentUser.id] = true;
-						newRecommender.save((err,saved)=>{
-							if(err)return next(err);
-              var info={
-                recommender:newRecommender,
-                recommended:req.user
-              };
-              var destination = {
-                to:newRecommender.email,
-                subject:'Tienes un nuevo recomendado - Dinabun'
-              };
-              mailgun.send('recoadded',info,destination,(err,result)=>{
-                if(err) return next(err);
-                return res.ok();
-              });
-						});
-					});
-				}
-			});
 		});
 	},
 	/**
