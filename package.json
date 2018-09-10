@@ -50,6 +50,7 @@
   "scripts": {
     "postinstall": "bash ./post-install.sh",
     "debug": "node debug app.js",
+    "test": "NODE_ENV=test mocha test/api/**/*.test.js",
     "start": "node --max_old_space_size=400 app.js"
   },
   "main": "app.js",

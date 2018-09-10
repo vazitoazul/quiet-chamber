@@ -31,12 +31,6 @@ describe('AuthController', function(){
         });
 
 
-        it('should logout the user', function (done) {
-          user
-            .get('/logout')
-            .expect('location','/',done);
-        });
-
         it('should login the new user',(done)=>{
           user
               .post('/auth/local')
@@ -48,6 +42,7 @@ describe('AuthController', function(){
               });
         });
 
+
         it('should return the user logged in', function (done) {
           user
             .get('/getcurrentuser')
@@ -55,6 +50,13 @@ describe('AuthController', function(){
               res.body.should.have.property('email').equal('test@dinabun.com');
             })
             .end(done)
+        });
+
+        it('should logout the user', function (done) {
+          user
+            .get('/logout')
+            .set('Accept', 'text/html')
+            .expect('location','/',done);
         });
 
 	});

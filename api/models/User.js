@@ -37,6 +37,7 @@ var User = {
     recommender : {type : 'string', defaultsTo : null},
     recommended : {type:'json',defaultsTo:{}},
     maxReco:{type:'int',defaultsTo:3},
+    defaultRecommender:{type:'boolean',defaultsTo:false},
     totalBalance : { type:'float'},
     balance : { type : 'array', defaultsTo : []},
     hasBillingInfo:function(){
@@ -62,6 +63,7 @@ var User = {
       return this.subscribedUntil==null ? false :  Date.compare(this.subscribedUntil, Date.today()) >= 0;
     }
   },
+
   afterCreate:function(user,next){
     //mail is verified when a uses signed up using third-party services like facebook
     if(!user.mailVerified){
