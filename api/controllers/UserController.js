@@ -156,7 +156,6 @@ module.exports = {
 	getRecommenderUser : function(req,res,next){
 		var response = {};
 		var recommenderId = req.param('id');
-
 		User.findOne({id : recommenderId},(err,recommender) => {
 			if(err) return next(err);
 			if(!recommender){

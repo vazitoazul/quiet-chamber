@@ -62,7 +62,7 @@ module.exports.routes = {
   '/updateintlcredential' : 'UserController.updateIntlCredential',
   '/updateuserinfo' : 'UserController.updateUserInfo',
   '/updateuserautosub' : 'UserController.activateAutoSub',
-  '/getRecommenderUser' : 'UserController.getRecommenderUser',
+  'get /getRecommenderUser/:id' : 'UserController.getRecommenderUser',
   '/setRecommender' : 'UserController.setRecommender',
 
   //General Payments related routes

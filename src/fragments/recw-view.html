@@ -276,7 +276,8 @@
 
       routeObserver : function(newPage,lastPage){
         if(this.data && this.data.recommenderId){
-          this.dispatch('loadRecommender',{ id : this.data.recommenderId});
+          console.log(this.data.recommenderId);
+          this.dispatch('loadRecommender',this.data.recommenderId);
         }else{
           this.set('section','malformed');
         }

@@ -78,12 +78,11 @@
         return function(dispatch){
           dispatch({type:'GET_RECO'});
           let request = new Request(
-            '/getRecommenderUser',
+            `/getRecommenderUser/${id}`,
             {
-              method:'POST',
+              method:'GET',
               headers:standardHeaders,
-              credentials: 'include',
-              body: JSON.stringify(id)
+              credentials: 'include'
             }
           );
           window.fetch(request)
@@ -94,6 +93,7 @@
               });
             })
             .catch((e)=>{
+              console.log(e);
               dispatch({type:'GET_RECO',status:'error',error:e.message});
             });
         };
