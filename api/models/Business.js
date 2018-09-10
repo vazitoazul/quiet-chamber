@@ -13,7 +13,7 @@
 module.exports = {
 
   attributes: {
-  	user : { type : 'string' , required : true },
+    user : { model : 'User', required : true },
   	name : { type : 'string' , required : true},
   	description : { type : 'string' },
   	placesIds : { type : 'array', required : true},

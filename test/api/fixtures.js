@@ -1,6 +1,6 @@
 require('date-utils');
 module.exports ={
-  order: [ 'User', 'Passport','Payment'],
+  order: [ 'User', 'Passport','Payment','Business','Post'],
   empty:['Passport'],
   User:[
       {
@@ -22,7 +22,13 @@ module.exports ={
       },
       {
       	"email" : "mailNotVerifiedUser@dinabun.com",
+      },
+      {
+      	"email" : "businessowner@dinabun.com",
+        "mailVerified":true,
+        "intlCredential":"EC040102030104"
       }
+
   ],
   Passport:[
   		{
@@ -58,6 +64,13 @@ module.exports ={
   			"password" : "testtest",
   			models :{
   					"user" : {email:"mailNotVerifiedUser@dinabun.com"}
+  			}
+  		},
+  		{
+  			"protocol" : "local",
+  			"password" : "testtest",
+  			models :{
+  					"user" : {email:"businessowner@dinabun.com"}
   			}
   		}
   ],
@@ -95,50 +108,106 @@ module.exports ={
       }
     }
   ],
-  Post:[
+  Business:[
     {
-      type: 'j',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget egestas mi, sed sagittis velit. Vivamus arcu risus, laoreet ut nisl non, pellentesque sagittis leo. In pulvinar quam eu ultrices facilisis. Aliquam erat volutpat. ',
-      amount : 345,
-      name : 'trabajo 1',
-      labels : [ "automovile", "propaganda", "plumber" ],
-      placesIds : [ "ChIJ1UuaqN2HI5ARAjecEQSvdp0", "ChIJn3xCAkCa1ZERclXvWOGRuUQ" ],
-      models : {
-        business : { name : 'chachito'}
+      name: 'Test Business 1',
+      description: 'This is the first business',
+      placesIds:[
+        'ChIJN-TvJYNw1ZERnqEqXhutzpQ',
+        'ChIJn3xCAkCa1ZERclXvWOGRuUQ',
+        'ChIJ1UuaqN2HI5ARAjecEQSvdp0',
+        'ChIJn3xCAkCa1ZERclXvWOGRuUQ'
+      ],
+      cityLabel: 'Quito, Ecuador',
+      email: 'asdf@asdf.com',
+      telephones: ['12341234','123423'],
+      labels: [ 'automovile'],
+      models :{
+          "user" : {email:"businessowner@dinabun.com"}
       }
     },
     {
-      type: 'd',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget egestas mi, sed sagittis velit. Vivamus arcu risus, laoreet ut nisl non, pellentesque sagittis leo. In pulvinar quam eu ultrices facilisis. Aliquam erat volutpat. ',
-      amount : 345,
-      name : 'trabajo 2',
-      labels : [ "accesories"],
-      placesIds : [ "ChIJN-TvJYNw1ZERnqEqXhutzpQ" ],
-      models : {
-        business : { name : 'chachito'}
-      }
-    },
-    {
-      type: 'j',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget egestas mi, sed sagittis velit. Vivamus arcu risus, laoreet ut nisl non, pellentesque sagittis leo. In pulvinar quam eu ultrices facilisis. Aliquam erat volutpat. ',
-      amount : 345,
-      name : 'trabajo 3',
-      labels : [ "accesories","art"],
-      placesIds : [ "asdf","asdf" ],
-      models : {
-        business : { name : 'panchito'}
-      }
-    },
-    {
-      type: 'd',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eget egestas mi, sed sagittis velit. Vivamus arcu risus, laoreet ut nisl non, pellentesque sagittis leo. In pulvinar quam eu ultrices facilisis. Aliquam erat volutpat. ',
-      amount : 345,
-      name : 'trabajo 4',
-      labels : ["art"],
-      placesIds : [ "ChIJN-TvJYNw1ZERnqEqXhutzpQ", "ChIJn3xCAkCa1ZERclXvWOGRuUQ", "ChIJ1UuaqN2HI5ARAjecEQSvdp0", "ChIJn3xCAkCa1ZERclXvWOGRuUQ" ],
-      models : {
-        business : { name : 'panchito'}
+      name: 'Test Business 2',
+      description: 'This is the second business',
+      placesIds:[
+        'ChIJN-TvJYNw1ZERnqEqXhutzpQ',
+        'ChIJn3xCAkCa1ZERclXvWOGRuUQ',
+        'ChIJ1UuaqN2HI5ARAjecEQSvdp0',
+        'ChIJn3xCAkCa1ZERclXvWOGRuUQ'
+      ],
+      cityLabel: 'Quito, Ecuador',
+      email: 'asdf@asdf.com',
+      telephones: ['12341234','123423'],
+      labels: [ 'accesories'],
+      models :{
+          "user" : {email:"businessowner@dinabun.com"}
       }
     }
+  ],
+  Post:[
+    {
+      type: 'd' ,
+      labels : ['automovile'],
+      placesIds: [
+        'ChIJN-TvJYNw1ZERnqEqXhutzpQ',
+        'ChIJn3xCAkCa1ZERclXvWOGRuUQ',
+        'ChIJ1UuaqN2HI5ARAjecEQSvdp0',
+        'ChIJn3xCAkCa1ZERclXvWOGRuUQ'
+      ],
+      cityLabel: 'Quito, Ecuador',
+      details:{
+        description:'Queremos salvar perritos en quito',
+        reason:'El dinero se va a utilizar para recoger los perros',
+        minDonation: 100
+      },
+      name : 'Salva perros en quito',
+      models : {
+        business : { name : 'Test Business 1'}
+      }
+    },
+    {
+      type: 'j' ,
+      labels : ['automovile'],
+      placesIds: [
+        'ChIJN-TvJYNw1ZERnqEqXhutzpQ',
+        'ChIJn3xCAkCa1ZERclXvWOGRuUQ',
+        'ChIJ1UuaqN2HI5ARAjecEQSvdp0',
+        'ChIJn3xCAkCa1ZERclXvWOGRuUQ'
+      ],
+      cityLabel: 'Quito, Ecuador',
+      details:{
+        description:'Se necesita un repartidor en quito',
+        requirements:'Se debe tener licencia tipo B',
+        salary: 300,
+        time: 'm'
+      },
+      name : 'Se busca un repartidor en Quito',
+      models : {
+        business : { name : 'Test Business 1'}
+      }
+    },
+    {
+      type: 'i' ,
+      labels : ['accesories'],
+      placesIds: [
+        'ChIJN-TvJYNw1ZERnqEqXhutzpQ',
+        'ChIJn3xCAkCa1ZERclXvWOGRuUQ',
+        'ChIJ1UuaqN2HI5ARAjecEQSvdp0',
+        'ChIJn3xCAkCa1ZERclXvWOGRuUQ'
+      ],
+      cityLabel: 'Quito, Ecuador',
+      details:{
+        description:'Necesitamos dinero para nuestro nuevo almacén de calcetines',
+        reason:'El dinero se va a utilizar para alquilar el almacén',
+        minInvestment: 100,
+        returnPercentage: 12,
+        returnTime:1
+      },
+      name : 'Invierte en calcentines',
+      models : {
+        business : { name : 'Test Business 2'}
+      }
+    }
+
   ]
 };

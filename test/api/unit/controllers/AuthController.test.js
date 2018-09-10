@@ -58,6 +58,7 @@ describe('AuthController', function(){
             .set('Accept', 'text/html')
             .expect('location','/',done);
         });
+        
 
 	});
 

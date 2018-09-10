@@ -75,7 +75,7 @@ module.exports.routes = {
   '/signawsurl' : 'BusinessController.signAwsUrl',
   '/deleteawsimage' : 'BusinessController.deleteBusinessImage',
 
-  '/createPost' : 'PostController.createPost',
+  'post /createPost' : 'PostController.createPost',
   '/updatePost/:id' : 'PostController.updatePost',
   '/deletePost/:id' : 'PostController.deletePost',
   '/searchPosts' : 'PostController.searchPosts',

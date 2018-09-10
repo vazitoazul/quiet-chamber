@@ -40,6 +40,7 @@ var User = {
     defaultRecommender:{type:'boolean',defaultsTo:false},
     totalBalance : { type:'float'},
     balance : { type : 'array', defaultsTo : []},
+    business : { collection : 'business', via : 'user'},
     hasBillingInfo:function(){
       var info = this.toObject().billingInfo;
       return validate.billingInfo(info);
