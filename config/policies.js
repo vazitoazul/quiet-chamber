@@ -52,6 +52,8 @@ module.exports.policies = {
     'singlePost' : ['passport'],
     'searchPosts' : ['passport'],
     'signAwsUrl' : ['passport','sessionAuth'],
+    'updatePost': ['passport','sessionAuth','intlCredential'],
+    'deletePost': ['passport','sessionAuth','intlCredential'],
     '*' : ['passport','sessionAuth','intlCredential','businessOwner']
   },
 

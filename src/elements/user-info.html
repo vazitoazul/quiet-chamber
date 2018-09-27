@@ -26,10 +26,6 @@
       paper-card{
         width: 100%;
       }
-      paper-toast{
-        right: 0 !important;
-        left: inherit !important;
-      }
       h6.no-margin-button{
         margin-bottom: -0.5rem;
       }
@@ -39,9 +35,10 @@
       url="/getMailVerification"
       method="POST"
       on-response="handleMailVerifResponse"></iron-ajax>
-    <google-maps-api id="googleApi" api-key="AIzaSyAgHlheOp2U3v1xSDgxFOjyZvYiv7s63yY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
+    <google-maps-api id="googleApi" api-key="AIzaSyBulOanq4RQO1hSU2j7kkA-b0wOPE27-GY" version="3.exp" on-api-load="handleApiLoad"></google-maps-api>
     <form is="iron-form" method="POST" action="/updateuserinfo" id="userInfoForm">
-    <paper-card>
+    <h4 class="s-text">[[localize('personal_info')]]</h4>
+    <paper-card class="my-2">
       <div class="card-content">
         <div hidden$="[[!user.mailVerified]]">
           <span class="success">[[localize('your_address')]] <b>[[user.email]]</b> [[localize('has_been_verified')]]</span>
@@ -52,20 +49,12 @@
             <div class="horizontal layout">
               <span>[[localize('an_email_will_be_sent')]]</span>
               <div class="flex"></div>
-              <paper-button raised class="info" on-click="requestMailVerification" class="self-end">[[localize('verify')]]</paper-button>
+              <paper-button class="accent" on-click="requestMailVerification" class="self-end">[[localize('verify')]]</paper-button>
             </div>
           </div>
         </div>
       </div>
     </paper-card>
-    <!-- <h4>Información de Registro</h4>
-    <paper-card>
-      <div class="card-content">
-          <paper-input name="userFirstName" label="[[localize('names')]]" required  value="{{user.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
-          <paper-input name="userLastName" label="[[localize('last_name')]]" required  value="{{user.lastName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
-      </div>
-    </paper-card> -->
-    <h4>[[localize('personal_info')]]</h4>
     <paper-card id="toastContainer">
       <div class="card-content">
         <paper-input name="firstName" label="[[localize('names')]]" required  value="{{user.firstName}}" pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
@@ -81,14 +70,14 @@
         <input hidden name="latitude" value="{{user.contactInfo.location.latitude}}">
         <gold-email-input name="contactEmail" label="[[localize('email')]]" value="{{user.contactInfo.email}}" error-message="[[localize('valid_email')]]"></gold-email-input>
       </div>
-      <div class="card-actions">
-        <paper-button raised on-click="submit" id="submitButton">
-        <paper-spinner id="spinner" hidden></paper-spinner>[[localize('update')]]</paper-button>
+      <div class="card-actions horizontal">
+        <div class="flex"></div>
+        <paper-button class="accent" on-click="submit" id="submitButton">[[localize('update')]]</paper-button>
+        <paper-spinner id="spinner" hidden></paper-spinner>
       </div>
     </paper-card>
     <div class="output"></div>
     </form>
-  	<paper-toast id="toast" duration="5000" ></paper-toast>
   </template>
 
   <script>
@@ -182,19 +171,14 @@
           }
         },
       },
-      showMessage:function(message,duration){
-        this.$.toast.text = message;
-        this.$.toast.duration = duration||3000;
-        this.$.toast.show();
-      },
       submit : function(e){
         var self = this;
         if(this.$.userInfoForm.validate()){
           this.$.spinner.active = true;
           this.$.spinner.hidden = false;
           this.dispatch('updateUserInfo',this.$.userInfoForm.serialize(),function(err){
-            if(err)return self.showMessage(self.localize(err.message));
-            self.showMessage(self.localize('info_updated'));
+            if(err)return showMessage(self.localize(err.message));
+            showMessage(self.localize('info_updated'));
           });
         }
       },
@@ -237,7 +221,7 @@
       },
       mailVerifChanged:function(newVal){
         if(newVal.lastError){
-          this.showMessage(this.localize(newVal.lastError,'email',this.user.email),6000);
+          showMessage(this.localize(newVal.lastError,'email',this.user.email),6000);
         }
       }
     });

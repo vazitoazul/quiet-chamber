@@ -10,6 +10,7 @@
 <link rel="import" href="../../bower_components/re-captcha/re-captcha.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../elements/main-toolbar.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../fragments/rgst-view.html">
@@ -100,7 +101,7 @@
         <div class="vertical center">
           <div class="capped">
             <h5>[[localize('change_recommender','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
-            <paper-button class="secondary col-sm-3 offset-sm-4 change-rec" on-click="openDialog">[[localize('change')]]</paper-button>
+            <paper-button class="secondary col-sm-3 offset-sm-4 change-rec" on-click="openDialog"  >[[localize('change')]]</paper-button>
           </div>
         </div>
       </section>
@@ -113,8 +114,10 @@
                 <b>[[recommender.info.firstName]] [[recommender.info.lastName]]</b>
               </span>
             </div>
-            <div class="card-actions vertical">
-              <paper-button class="primary self-end" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
+            <div class="card-actions horizontal">
+              <div class="flex"></div>
+              <paper-spinner active="[[loading]]"></paper-spinner>
+              <paper-button class="primary self-end" on-click="changeRecommender" disabled="[[loading]]">[[localize('confirm')]]</paper-button>
             </div>
           </paper-card>
         </div>
@@ -143,7 +146,11 @@
     </iron-pages>
     <paper-dialog class="row" id="dialog" with-backdrop>
       <h5 class="col-sm-10">[[localize('confirm_change','lastRecommender',user.recommender.firstName,'newRecommender',recommender.info.firstName)]]</h5>
-      <paper-button id="confirmButton" raised class="primary col-sm-3 offset-sm-4" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
+      <div class="horizontal buttons">
+        <paper-spinner active="[[loading]]"></paper-spinner>
+        <paper-button id="confirmButton" disabled="[[loading]]" raised class="primary col-sm-3 offset-sm-4" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
+      </div>
+
     </paper-dialog>
   </template>
   <script>
@@ -177,6 +184,10 @@
         userAuth : {
           type : Boolean,
           statePath : 'user.authenticated'
+        },
+        loading:{
+          type:Boolean,
+          statePath : 'user.loading'
         },
         watingAuth :{
           type:Boolean,
@@ -265,7 +276,8 @@
 
       routeObserver : function(newPage,lastPage){
         if(this.data && this.data.recommenderId){
-          this.dispatch('loadRecommender',{ id : this.data.recommenderId});
+          console.log(this.data.recommenderId);
+          this.dispatch('loadRecommender',this.data.recommenderId);
         }else{
           this.set('section','malformed');
         }
@@ -297,6 +309,7 @@
         this.$.dialog.toggle();
       },
       changeRecommender : function(){
+
         this.dispatch('updateUserRecommender', this.recommender.info.id,(err)=>{
           if(err){
             return showMessage(this.localize(err.message));

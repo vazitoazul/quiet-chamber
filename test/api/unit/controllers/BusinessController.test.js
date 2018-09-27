@@ -68,33 +68,6 @@ describe('BusinessController',function(){
           .end(done)
     });
 
-    it('should create a business with two posts',function(done){
-        user
-          .post('/createBusiness')
-          .send({ business : {
-                    labels: [ 'art','plumber' ],
-                    telephones: '12341234',
-                    name: 'deberia postear',
-                    description: 'asdfsdf',
-                    cityLabel: 'Quito, Ecuador',
-                    placesIds:
-                     [ 'ChIJN-TvJYNw1ZERnqEqXhutzpQ',
-                       'ChIJn3xCAkCa1ZERclXvWOGRuUQ',
-                       'chochin',
-                       'ChIJn3xCAkCa1ZERclXvWOGRuUQ' ],
-                    email: 'asdf@asdf.com' ,
-                  },
-                  posts : {'0' : { description : 'post 1' , type : 'j' ,name : 'name 12 ', amount : 300} ,
-                           '1' :  {description : 'post 2' , type : 'j',name : 'name 32', amount : 400} ,
-                           '2' :  {description : 'post 2' , type : 'i',name : 'name 32', amount : 100}
-                         }
-              })
-          .expect(function(res,err){
-            res.body.should.property('posts');
-          })
-          .end(done)
-    });
-
     it('should eddit the last business',function(done){
         user
           .post('/updateBusiness/'+businessId)

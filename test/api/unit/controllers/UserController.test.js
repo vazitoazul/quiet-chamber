@@ -8,14 +8,18 @@ var recaptchaResponse='03AHJ_Vuvwyf4S1GmaZsKFLFHKSh10HCtY3TrsmeCB-46UdGxNQSQyRhu
 
 
 describe('UserController',function(){
-    var currentUserId,newRecommenderId, extraUserId;
+    var newRecommended,newRecommender,alternateRecommender, extraUserId;
     before(function(done){
       var userModel =sails.models.user;
       //get the id for a created User who is going to be the recommender
       userModel.findOne({email:'newRecommender@dinabun.com'}).populate('passports').exec((err,usera)=>{
         if(err)return done(err);
-        newRecommenderId=usera.id;
-        done();
+        newRecommender=usera;
+        userModel.findOne({email:'alternateRecommender@dinabun.com'}).populate('passports').exec((err,userb)=>{
+          if(err)return done(err);
+          alternateRecommender=userb;
+          done();
+        });
       });
     });
 
@@ -25,9 +29,7 @@ describe('UserController',function(){
          currentUser
            .post('/auth/local')
            .send({identifier : 'currentUser@dinabun.com',password : 'testtest'})
-           .expect((res)=>{
-             currentUserId = res.body.user;
-           })
+           .expect(200)
            .end(done);
       });
       it('should forbid the action because no intlCredential has been configured for this user',function(done){
@@ -47,19 +49,21 @@ describe('UserController',function(){
           currentUser
             .post('/updateuserinfo')
             .send({	userFirstName: 'Federico',
-        			userLastName: 'Contreras BB',
-        			contactFirstName : 'Federico',
-        			contactLastName : 'Contreras',
-        			telephone : ['0997226768','040302038'],
+        			firstName: 'Federico',
+              lastName: 'Contreras',
+        			telephones : ['0997226768','040302038'],
         			contactEmail : 'ferediquito@contreras.com',
-        			latitude : '',
-        			longitude : '',
-        			addressLabel : 'Una descripción de la dirección'
+        			latitude : 0.212532,
+        			longitude : -72.1223112,
+        			address : 'Cerca de la casa'
         		})
             .expect(200)
             .expect((res)=>{
-              res.body.should.have.deep.property('contactInfo.firstName','Federico');
-              res.body.should.have.deep.property('contactInfo.email','ferediquito@contreras.com');
+              var body = res.body;
+              body.firstName.should.equal('Federico');
+              body.should.have.property('contactInfo');
+              body.contactInfo.should.have.property('address');
+              body.contactInfo.address.should.equal('Cerca de la casa');
             })
             .end(done);
 
@@ -68,34 +72,45 @@ describe('UserController',function(){
 
     describe('geting user recommender tests',function(){
 
-      it('should return a bad request becouse there is not id parameter',function(done){
+      before((done)=>{
+        currentUser
+          .get('/getcurrentuser')
+          .expect(200)
+          .expect(function(res){
+            newRecommended=res.body;
+          })
+          .end(done)
+
+      })
+
+      it('should not be returned because there is not id parameter',function(done){
           request(sails.hooks.http.app)
-            .post('/getRecommenderUser')
-            .expect(400)
+            .get('/getRecommenderUser')
+            .expect(404)
             .end(done);
       });
 
       it('should return a badRequest because the id is from the same user',function(done){
           currentUser
-            .post('/getRecommenderUser')
-            .send({'id' : currentUserId})
+            .get('/getRecommenderUser/'+newRecommended.id)
             .expect(409)
             .end(done)
       });
 
       it('should get the recommender in response',function(done){
           currentUser
-            .post('/getRecommenderUser')
-            .send({'id' : newRecommenderId})
+            .get('/getRecommenderUser/'+newRecommender.id)
+            .expect(200)
             .expect((res) => {
-              res.body.recommender.should.have.property('email');
+              res.body.recommender.should.have.property('id');
+              res.body.recommender.id.should.equal(newRecommender.id);
             })
             .end(done)
       });
 
     });
 
-    describe('setting users recommender test',function(){
+    describe('creating users with recommenders test',function(){
       before(function(done){
         extraUser
           .post('/auth/local')
@@ -105,92 +120,38 @@ describe('UserController',function(){
           })
           .end(done);
       });
-      it('should return a bad request response because it has no recommender id',function(done){
-          currentUser
-            .post('/setRecommender')
-            .expect(400,done);
-      });
 
-      it('should return a bad request response because the id is not from a real user',function(done){
-          currentUser
-            .post('/setRecommender')
-            .send({'recommender' : '12341234'})
-            .expect(400,done);
-      });
-
-      it('should return conflict request response because the id is from the same user',function(done){
-          currentUser
-            .post('/setRecommender')
-            .send({'recommender' : currentUserId})
-            .expect(409,done);
-      });
-
-      it('should set the user recommender',function(done){
-          currentUser
-            .post('/setRecommender')
-            .send({'recommender' : newRecommenderId})
-            .expect(200)
-            .end(done);
-      });
-
-      //Now that we have set a recommender we can test getRecommenderUser again to see if its working
-      it('should return user object with the recommender parameter filled',function(done){
-          currentUser
-            .post('/getCurrentUser')
-            .expect((res) => {
-              res.body.recommender.should.have.property('email');
-            })
-            .end(done)
-      });
-
-
-      it('should try to register a new user with a false recommender id ',function(done){
+      it('should return an error if an invalid recommender is sent',function(done){
           request(sails.hooks.http.app)
             .post('/auth/local/register')
             .send({email : 'userWithFalse@dinabun.com',password : 'testtest', recommender : '12341234' ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
-            .expect(function(res){
-              res.body.should.have.property('hasRecommender').equal(false);
-            })
+            .expect(409)
             .end(done)
       });
 
-      it('should register a second user with newRecommender as recommender',function(done){
+      it('should register a user with newRecommender as recommender',function(done){
           request(sails.hooks.http.app)
             .post('/auth/local/register')
-            .send({email : 'test4@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
+            .send({email : 'test5@dinabun.com',password : 'testtest', recommender : newRecommender.id ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
             .expect(function(res){
               res.body.should.have.property('hasRecommender').equal(true);
+              res.body.should.have.property('recommender').equal(newRecommender.id);
             })
             .end(done)
       });
 
-      it('should register the third and last user with newRecommender as recommender',function(done){
+      it('should automatically select alternateRecommender as recommender for newRecommender has already a recommended user',function(done){
           request(sails.hooks.http.app)
             .post('/auth/local/register')
-            .send({email : 'test5@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
+            .send({email : 'test4@dinabun.com',password : 'testtest',confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
+            .expect(200)
             .expect(function(res){
               res.body.should.have.property('hasRecommender').equal(true);
+              res.body.should.have.property('recommender').equal(alternateRecommender.id);
             })
             .end(done)
       });
 
-      it('should return a conflict request because newRecommender can\'t have more recomended users',function(done){
-        extraUser
-          .post('/setRecommender')
-          .send({'recommender' : newRecommenderId})
-          .expect(409)
-          .end(done);
-      });
-
-      it('should register a new user but with a blank recommender since newRecommender can\'t have more recomended users',function(done){
-          request(sails.hooks.http.app)
-            .post('/auth/local/register')
-            .send({email : 'noRecmonder@dinabun.com',password : 'testtest', recommender : newRecommenderId ,confirmation :'testtest','g-recaptcha-response' : recaptchaResponse})
-            .expect(function(res){
-              res.body.should.have.property('hasRecommender').equal(false);
-            })
-            .end(done)
-      });
     });
 
     //this is a unified test for getEmailVerification and verifyMail
@@ -207,7 +168,7 @@ describe('UserController',function(){
         })
         .end((err)=>{
           //delete currentUser auto generated token for testing purposes
-          tokensModel.destroy({user:currentUserId},(err,deleted)=>{
+          tokensModel.destroy({user:newRecommended.id},(err,deleted)=>{
             //create a token in the database to be verified later
             tokensModel.createToken({user:mailNotVerifiedUserId,rol:'m',expireAt:(new Date()).add({days:7})},function(err,result){
                 token=result;
@@ -352,78 +313,5 @@ describe('UserController',function(){
           .end(done);
       });
     });
-    describe('Update billing info',function(){
-      currentUser = request.agent('http://localhost:9000');
-      before(function(done) {
-        //this user is going to be used all accross this tests
-         currentUser
-           .post('/auth/local')
-           .send({identifier : 'currentUser@dinabun.com',password : 'testtest'})
-           .end(done);
-      });
-
-      it('should return 409 when invalid info is provided (Missing parameters)',function(done){
-          currentUser
-            .post('/updatebillinginfo')
-            .send({identifier:'0401584909',name:'Pepe Trueno'})
-            .expect(409)
-            .end(done);
-      });
-      it('should return 409 when invalid info is provided (wrong id number)',function(done){
-          currentUser
-            .post('/updatebillinginfo')
-            .send({identifier:'123123123',name:'Pepe Trueno',idType:'05'})
-            .expect(409)
-            .end(done);
-      });
-      it('should return 409 when invalid info is provided (wrong idType for finalConsumer)',function(done){
-          currentUser
-            .post('/updatebillinginfo')
-            .send({identifier:'0401584909',name:'Pepe Trueno',idType:'07'})
-            .expect(409)
-            .end(done);
-      });
-      it('should return 200 when propper info ins sent (Natural person Case) ',function(done){
-          currentUser
-            .post('/updatebillinginfo')
-            .send({identifier:'0401584909',name:'Pepe Trueno',idType:'05'})
-            .expect(200)
-            .expect((res)=>{
-              res.body.should.have.property('info');
-            })
-            .end(done);
-      });
-      it('should return 200 when propper info ins sent (RUC Case) ',function(done){
-          currentUser
-            .post('/updatebillinginfo')
-            .send({identifier:'0401584909001',name:'Pepe Trueno Company',idType:'04'})
-            .expect(200)
-            .expect((res)=>{
-              res.body.should.have.property('info');
-            })
-            .end(done);
-      });
-      it('should return 200 when propper info ins sent (Passport Case) ',function(done){
-          currentUser
-            .post('/updatebillinginfo')
-            .send({identifier:'EC1232187656',name:'Peter Thunder',idType:'06'})
-            .expect(200)
-            .expect((res)=>{
-              res.body.should.have.property('info');
-            })
-            .end(done);
-      });
-      it('should return 200 when propper info ins sent (Final consumer Case) ',function(done){
-          currentUser
-            .post('/updatebillinginfo')
-            .send({identifier:'9999999999999',name:'Pepe Trueno',idType:'07'})
-            .expect(200)
-            .expect((res)=>{
-              res.body.should.have.property('info');
-            })
-            .end(done);
-      });
-    });
-
 
   });

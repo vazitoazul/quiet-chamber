@@ -3,7 +3,9 @@
 <head>
 <meta name="viewport" content="width=device-width">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Verificación de email</title>
+<title>Suscripción Automática - Dinabun</title>
+
+
 </head>
 
 <body itemscope="" itemtype="http://schema.org/EmailMessage" style="-webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; background-color: #1a237e; height: 100%; line-height: 1.6em; width: 100% !important;">
@@ -23,13 +25,30 @@
 										Hola <%=name%>,</td>
 								</tr>
 								<tr>
+                  <%if(scenario==='billed'){%>
+                    <td class="content-block" style="padding: 0 0 20px; vertical-align: top;">
+  										Te informamos que hemos debitado <b>0.01BTC</b> de tu cuenta para pagar la suscripción de este año. Gracias por invertir con nosotros :).
+  									</td>
+                  <%}%>
+                  <%if(scenario==='failed'){%>
+                    <td class="content-block" style="padding: 0 0 20px; vertical-align: top;">
+  										Este email es para informarte que no hemos podido cobrar tu suscripción anual. Recuerda que si no te encuentras activo en la plataforma no recibes ninguno de los beneficios, como el dinero proveniente de tus recomendados.
+  									</td>
+                  <%}%>
+                  <%if(scenario==='warning'){%>
+                    <td class="content-block" style="padding: 0 0 20px; vertical-align: top;">
+  										Este email es para recordarte que tienes activada la suscripción automática y en <b>5 días</b> más, la plataforma descontará automáticamente el valor de la suscripción del siguiente año.
+  									</td>
+                  <%}%>
+								</tr>
+                <tr>
 									<td class="content-block" style="padding: 0 0 20px; vertical-align: top;">
-										Es necesario que confirmes tu correo para saber que le hacemos llegar la información a la persona correcta.
+										Si necesitas revisar el estado de tu suscripción puedes ir a tu cuenta:
 									</td>
 								</tr>
 								<tr>
 									<td class="content-block" itemprop="handler" itemscope="" itemtype="http://schema.org/HttpActionHandler" style="padding: 0 0 20px; vertical-align: top;">
-										<a href="<%=url%>" class="btn-primary" itemprop="url" style="background-color: #00bfa5; border: solid #00bfa5; border-radius: 5px; border-width: 10px 20px; color: #263d3b; cursor: pointer; display: inline-block; font-weight: bold; line-height: 2em; text-align: center; text-decoration: none; text-transform: capitalize;">Confirmar mi correo electrónico</a>
+										<a href="https://www.dinabun.com/acco" class="btn-primary" itemprop="url" style="background-color: #00bfa5; border: solid #00bfa5; border-radius: 5px; border-width: 10px 20px; color: #263d3b; cursor: pointer; display: inline-block; font-weight: bold; line-height: 2em; text-align: center; text-decoration: none; text-transform: capitalize;">Ir a mi cuenta</a>
 									</td>
 								</tr>
 								<tr>

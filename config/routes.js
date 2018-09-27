@@ -62,7 +62,7 @@ module.exports.routes = {
   '/updateintlcredential' : 'UserController.updateIntlCredential',
   '/updateuserinfo' : 'UserController.updateUserInfo',
   '/updateuserautosub' : 'UserController.activateAutoSub',
-  '/getRecommenderUser' : 'UserController.getRecommenderUser',
+  'get /getRecommenderUser/:id' : 'UserController.getRecommenderUser',
   '/setRecommender' : 'UserController.setRecommender',
 
   //General Payments related routes
@@ -75,7 +75,7 @@ module.exports.routes = {
   '/signawsurl' : 'BusinessController.signAwsUrl',
   '/deleteawsimage' : 'BusinessController.deleteBusinessImage',
 
-  '/createPost' : 'PostController.createPost',
+  'post /createPost' : 'PostController.createPost',
   '/updatePost/:id' : 'PostController.updatePost',
   '/deletePost/:id' : 'PostController.deletePost',
   '/searchPosts' : 'PostController.searchPosts',

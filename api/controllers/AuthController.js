@@ -33,7 +33,7 @@ var AuthController = {
       res.ok();
     }else{
       res.redirect('/');
-    }    
+    }
   },
 
   /**
@@ -121,7 +121,7 @@ var AuthController = {
         if(!req.wantsJSON){
           return res.redirect('/acco');
         }else{
-          var response = {user:user.id};
+          var response = {user:user.id,recommender:user.recommender};
           response.hasRecommender= info ? info.hasRecommender : false;
           return res.ok(response);
         }

@@ -2,6 +2,7 @@ var path     = require('path')
   , url      = require('url')
   , passport = require('passport')
   , appUrl = sails.config.appUrl;
+var selectRecommender = require('./utils/selectRecommender.js');
 
 /**
  * Passport Service
@@ -71,6 +72,8 @@ passport.connect = function (req, query, profile, next) {
   if(req.session){
     recommender = req.session.recommender;
   }
+
+
   // Get the authentication provider from the query.
   query.provider = req.param('provider');
   // Use profile.provider or fallback to the query.provider if it is undefined
@@ -103,8 +106,11 @@ passport.connect = function (req, query, profile, next) {
     return next(null,false,{message:'no_username_or_email_provided'});
   }
 
-  User.findOne({ id : recommender}, function(err , newRecommender){
+  selectRecommender(recommender, function(err , newRecommender){
     if(err)return next(err,false);
+    if(!newRecommender){
+      return next(null,null,{message:'invalid_recommender'});
+    }
     if(newRecommender && newRecommender.canRecomend() ){
       user.recommender = newRecommender.id;
     }

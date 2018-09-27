@@ -5,32 +5,44 @@ var user = request.agent('http://localhost:9000');
 
 
 describe('PostController',function(){
-  var businessId;
+  var business;
   var postId;
   before(function(done) {
      user
        .post('/auth/local')
-       .send({identifier : 'test@dinabun.com',password : 'testtest'})
-       .end(done);
+       .send({identifier : 'businessowner@dinabun.com',password : 'testtest'})
+       .end(()=>{
+         user
+           .get('/getBusiness')
+           .expect(function(res,err){
+             business = res.body[0];
+           })
+           .end(done)
+       });
   });
-  before(function(done){
-      user
-        .get('/getBusiness')
-        .expect(function(res,err){
-          businessId = res.body[0].id;
-        })
-        .end(done)
-  });
-
   describe('Manage posts ',function(){
+
     it('create a post',function(done){
         user
           .post('/createPost')
-          .send({description : 'test@dinabun.com' , business : businessId , type: 'donation' , name : 'donacion para el pich', amount : 350})
+          .send({
+            business : business.id ,
+            type: 'd' ,
+            labels : business.labels,
+            placesIds: business.placesIds,
+            cityLabel:business.cityLabel,
+            details:{
+              description:'Queremos salvar perritos en quito',
+              reason:'El dinero se va a utilizar para recoger los perros',
+              minDonation: 100
+            },
+            name : 'Salva perros en quito'
+          })
+          .expect(200)
           .expect(function(res,err){
-            postId = res.body.id;
-            res.body.should.have.deep.property('id');
-            res.body.should.have.deep.property('name').equal('donacion para el pich');
+            postId=res.body.id;
+            res.body.should.have.property('id');
+            res.body.name.should.equal('Salva perros en quito');
           })
           .end(done)
     });
@@ -38,9 +50,12 @@ describe('PostController',function(){
     it('edit post',function(done){
         user
           .post('/updatePost/'+postId)
-          .send({description : 'fuking fuck eddited' , type: 'i' , business : businessId})
+          .send({
+            name: 'Vuelve a salvar perros en quito'
+          })
+          .expect(200)
           .expect(function(res,err){
-            res.body.should.have.deep.property('type').equal('i');
+            res.body.name.should.equal('Vuelve a salvar perros en quito');
           })
           .end(done)
     });
@@ -48,7 +63,7 @@ describe('PostController',function(){
     it('delete post',function(done){
         user
           .post('/deletePost/'+postId)
-          .send({description : 'fuking fuck eddited' , type: 'i', business : businessId})
+          .send()
           .expect(function(res,err){
             res.body.should.have.deep.property('id').equal(postId);
           })
@@ -58,9 +73,12 @@ describe('PostController',function(){
     it('serach post',function(done){
         user
           .post('/searchPosts')
-          .send({location : ['chochin'], amountTo : 300 , amountFrom : 99, type : 'j'})
+          .send({
+            location : ['ChIJn3xCAkCa1ZERclXvWOGRuUQ'],
+            type : 'i'
+          })
           .expect(function(res,err){
-            res.body[0].should.have.property('name').equal('name 12 ');
+            res.body[0].should.have.property('name').equal('Invierte en calcentines');
           })
           .end(done)
     });

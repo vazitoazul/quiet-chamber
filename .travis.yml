@@ -17,4 +17,3 @@ before_script:
   - npm install -g bower web-component-tester
 script:
   - mocha test/api/**/*.test.js
-  - xvfb-run wct test/app

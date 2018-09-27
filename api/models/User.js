@@ -4,12 +4,6 @@ var User = {
   schema: true,
 
   types: {
-    recommended : (json) => {
-      if(Object.keys(json).length > 3){
-        return false;
-      }
-      return true;
-    },
     billingInfo:function(info){
       return validate.billingInfo(info);
     }
@@ -22,17 +16,31 @@ var User = {
     intlCredential : { type: 'string', unique : true},
     firstName : {type : 'string'},
     lastName : {type : 'string'},
-    contactInfo: {type : 'json',defaultsTo:{firstName:null,lastName:null,telephones:[],location:{latitude:null,longitude:null},email:null,address:null}},
+    contactInfo: {
+      type : 'json',
+      defaultsTo:{
+        firstName:null,
+        lastName:null,
+        telephones:[],
+        location:{
+          latitude:null,
+          longitude:null},
+          email:null,
+          address:null
+        }
+      },
     autoSub:{type:'boolean',defaultsTo:false},
     tokens : {collection:'Token',via:'user'},
     payments : { collection : 'Payment', via : 'user'},
-    // bills : { collection : 'bill', via : 'user'},
     payouts : {collection : 'payout',via : 'user'},
     subscribedUntil : {type: 'date',defaultsTo:null,date:true},
     recommender : {type : 'string', defaultsTo : null},
-    recommended : {type:'json',defaultsTo:{}, recommended :true},
+    recommended : {type:'json',defaultsTo:{}},
+    maxReco:{type:'int',defaultsTo:3},
+    defaultRecommender:{type:'boolean',defaultsTo:false},
     totalBalance : { type:'float'},
     balance : { type : 'array', defaultsTo : []},
+    business : { collection : 'business', via : 'user'},
     hasBillingInfo:function(){
       var info = this.toObject().billingInfo;
       return validate.billingInfo(info);
@@ -48,12 +56,15 @@ var User = {
       };
     },
     canRecomend:function(){
-      return Object.keys(this.recommended).length < 3;
+      //this change has to be made in order to allow users to recommend indefinitely
+      //return Object.keys(this.recommended).length < this.maxRecomended||3;
+      return true;
     },
     isSubscribed:function(){
       return this.subscribedUntil==null ? false :  Date.compare(this.subscribedUntil, Date.today()) >= 0;
     }
   },
+
   afterCreate:function(user,next){
     //mail is verified when a uses signed up using third-party services like facebook
     if(!user.mailVerified){
@@ -62,7 +73,8 @@ var User = {
       Token.createToken(tok,(err,token)=>{
         if(err)return next(err);
         var info={
-          url:'https://dinabun.com/verifyMail/'+token
+          url:'https://www.dinabun.com/verifyMail/'+token,
+          name:`${user.firstName} ${user.lastName}`
         };
         var destination = {
           to:user.email,
@@ -94,7 +106,6 @@ var User = {
       var subscribedUntil;
       if(!user.subscribedUntil){
         subscribedUntil= new Date();
-
       }else{
         subscribedUntil= new Date(user.subscribedUntil);
       }
