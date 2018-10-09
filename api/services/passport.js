@@ -107,7 +107,13 @@ passport.connect = function (req, query, profile, next) {
   }
 
   selectRecommender(recommender, function(err , newRecommender){
-    if(err)return next(err,false);
+    if(err){
+      if(err.message!=='user_pool_empty'){
+        return next(err,false,{message:'error_finding_recomender'});
+      }else{
+        newRecommender = {id:null,canRecomend:()=>true};
+      }
+    }
     if(!newRecommender){
       return next(null,null,{message:'invalid_recommender'});
     }

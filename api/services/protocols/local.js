@@ -34,6 +34,7 @@ exports.register = function (req, res, next) {
     , password = req.param('password')
     , confirmation = req.param('confirmation')
     , recommenderId = req.param('recommender');
+  console.log(recommenderId);
   if (!email) {
     return next(null,false,{message:'no_email_entered'});
   }
@@ -54,8 +55,16 @@ exports.register = function (req, res, next) {
         if(done) {
            // recaptcha verified
            selectRecommender(recommenderId, function(err,recommender){
-             if(err) return next(err,false,{message:'error_finding_recomender'});
-             if(!recommender) return next(null,null,{message:'invalid_recommender'});
+             if(err){
+               if(err.message!=='user_pool_empty'){
+                 return next(err,false,{message:'error_finding_recomender'});
+               }else{
+                 recommender = {id:null,canRecomend:()=>true};
+               }
+             }
+             if(!recommender){
+               return next(null,null,{message:'invalid_recommender'});
+             }
              var newUser = {
                email : email,
                firstName : firstName,
