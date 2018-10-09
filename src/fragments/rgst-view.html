@@ -74,7 +74,7 @@
         	  <paper-input name="confirmation" id="confirmation" label="[[localize('confirmation')]]" type="password" required auto-validate pattern="(?=^.[^ ]{7,}$)(?=.*\d)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" error-message="[[localize('repeat_pass')]]"></paper-input>
             <br>
             <input hidden name="g-recaptcha-response" value="[[recaptchaToken]]">
-            <input hidden name="recommender" value="[[recommender]]">
+            <input hidden name="recommender" value="[[recommender.info.id]]">
             <div id="recaptchaDiv" class="vertical center">
               <paper-spinner active hidden$="[[captchaLoaded]]"></paper-spinner>
             </div>
@@ -234,8 +234,10 @@
             if(this.$.registerForm.validate()){
               this.dispatch('register',this.$.registerForm.serialize(),(err)=>{
                 if(err) {
-                  if(this.recaptcha)(this.recaptcha.reload());
-                  this.set('recaptchaResponse',false);
+                  if(this.recaptcha){
+                    this.recaptcha.reload();
+                    this.set('recaptchaResponse',false);
+                  }
                   return showMessage(this.localize(err.message));
                 }
                 this.dispatch('loadUserInfo');
