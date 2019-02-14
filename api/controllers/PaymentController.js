@@ -49,6 +49,7 @@ module.exports = {
             payment.amount=Math.ceil((parseFloat(response.coin_amount))*100000000);
             payment.txId=response.id;
             payment.url=response.url;
+            
             payment.save((err)=>{
               if(err){return next(err)};
               console.log(response);

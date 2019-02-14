@@ -9,9 +9,10 @@ var appUrl = sails.config.keys.appUrl;
 function checkRate(callback){
   rp({
     method:'GET',
-    uri:'https://www.alfacoins.com/api/rate/btcusd.json',
+    uri:'https://www.alfacoins.com/api/rate/BTC_USD.json',
     json:true
   }).then((data)=>{
+    console.log(data);
     var stripped = data[0].replace(',','');
     callback(null,parseFloat(stripped));
     //return null so the promise wont turn on a runaway promise
@@ -24,6 +25,7 @@ function checkRate(callback){
 module.exports = {
   createOrder : (user,paymentId,callback)=>{
     checkRate((err,rate)=>{
+      console.log(err || rate);
       var reqBody ={
         "name": config.name,
         "secret_key": config.secret,
@@ -46,6 +48,7 @@ module.exports = {
         body:reqBody,
         json:true
       }).then((data)=>{
+        console.log(data);
         callback(null,data);
       }).catch((err)=>{
         callback(err);
