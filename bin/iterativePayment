@@ -46,8 +46,7 @@ var subsValue;
         secondlvl = [],
         thirdlvl = [],
         fourthlvl = [];
-    //distributed value in satoshis. This is the amount that will be distributed from each payment. (0.01BTC - 0.003BTC)
-    const distValue=700000;
+  
     //Get the native colletions
 
     /**
@@ -87,23 +86,23 @@ var subsValue;
                 //Make sure father actually exists. This may be the case when the recommender in son is somehow wrong
                 if(!father)return cb();
                 //push father to the first array if son's recommender exists.
-                result.first.push(son.recommender);
+                result.first.push({recommender: son.recommender, amount: payment.amount});
                 //from this on just repeat the process above
                 if(father.recommender){
                   uc.findOne({_id:new ObjectId(father.recommender)},{fields:{recommender:1}},(err,grandpa)=>{
                     if(err)return cb(new Error(`Error retrivering grandpa on ${payment._id} payment`));
                     if(!grandpa)return cb();
-                    result.second.push(father.recommender);
+                    result.second.push({recommender: father.recommender, amount: payment.amount});
                     if(grandpa.recommender){
                       uc.findOne({_id:new ObjectId(grandpa.recommender)},{fields:{recommender:1}},(err,grandgrandpa)=>{
                         if(err)return cb(new Error(`Error retrivering grandgrandpa on ${payment._id} payment`));
                         if(!grandgrandpa)return cb();
-                        result.third.push(grandpa.recommender);
+                        result.third.push({recommender: grandpa.recommender, amount: payment.amount});
                         if(grandgrandpa.recommender){
                           uc.findOne({_id:new ObjectId(grandgrandpa.recommender)},{fields:{recommender:1}},(err,oldest)=>{
                             if(err)return cb(new Error(`Error retrivering oldest on ${payment._id} payment`));
                             if(!oldest)return cb();
-                            result.fourth.push(grandgrandpa.recommender);
+                            result.fourth.push({recommender: grandgrandpa.recommender, amount: payment.amount});
                             //We are done for this payment
                             return cb();
                           });
@@ -131,31 +130,31 @@ var subsValue;
         //Transform and reduce the result arrays so they become an Object with users id as keys and total to be atributted as values
         var reduced = {};
         result.first.forEach((item,key)=>{
-          if(reduced[item]){
-            reduced[item]+=distValue*0.26;
+          if(reduced[item.recommender]){
+            reduced[item.recommender]+=(item.amount*0.7)*0.26;
           }else{
-            reduced[item]=distValue*0.26;
+            reduced[item.recommender]=(item.amount*0.7)*0.26;
           }
         });
         result.second.forEach((item,key)=>{
-          if(reduced[item]){
-            reduced[item]+=distValue*0.18;
+          if(reduced[item.recommender]){
+            reduced[item.recommender]+=(item.amount*0.7)*0.18;
           }else{
-            reduced[item]=distValue*0.18;
+            reduced[item.recommender]=(item.amount*0.7)*0.18;
           }
         });
         result.third.forEach((item,key)=>{
-          if(reduced[item]){
-            reduced[item]+=distValue*0.1;
+          if(reduced[item.recommender]){
+            reduced[item.recommender]+=(item.amount*0.7)*0.1;
           }else{
-            reduced[item]=distValue*0.1;
+            reduced[item.recommender]=(item.amount*0.7)*0.1;
           }
         });
         result.fourth.forEach((item,key)=>{
-          if(reduced[item]){
-            reduced[item]+=distValue*0.6;
+          if(reduced[item.recommender]){
+            reduced[item.recommender]+=(item.amount*0.7)*0.6;
           }else{
-            reduced[item]=distValue*0.6;
+            reduced[item.recommender]=(item.amount*0.7)*0.6;
           }
         });
         //Finally, update each user

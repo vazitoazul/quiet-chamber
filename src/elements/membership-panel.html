@@ -109,7 +109,7 @@
         <div hidden$="[[user.isSubscribed]]">
           <paper-card heading="No tienes una suscripción activa"  class="vertical no-subs" hidden$="[[processingPayment]]">
             <div class="card-content">
-              <span>Inicia una suscripción anual por 0.01BTC. Recomiendale nuestro servicio a tus amigos y consigue recompensas.</span>
+              <span>Inicia una suscripción anual por 30$. Recomiendale nuestro servicio a tus amigos y consigue recompensas.</span>
               <span>Encuentra todos los beneficios de suscribirte <a href="/sytm" target="_blank">Aquí.</a></span>
             </div>
             <div class="card-actions horizontal center">
@@ -127,17 +127,17 @@
                 Tu suscripción es válida hasta : <b>[[localize('date','value',user.subscribedUntil)]]</b>
               </div>
               <div class="vth">
-                <span class="light flex">Recueda que cada año debes renovar tu suscripción. Si deseas pagar por adelantado puedes hacerlo ahora.</span>
+                <span class="light flex">Recueda que cada mes debes renovar tu suscripción. Si deseas pagar por adelantado puedes hacerlo ahora.</span>
                 <paper-button raised class="accent self-center" on-tap="openDialog">Renovar susciripción</paper-button>
               </div>
               <br>
               <div class="vertical">
                 <div class="vth" hidden$="[[user.autoSub]]">
-                  <span class="light flex">También puedes activar la suscripción automática para que se te debite automáticamente cada año el valor de la misma.</span>
+                  <span class="light flex">También puedes activar la suscripción automática para que se te debite automáticamente cada mes el valor de la misma.</span>
                   <paper-button class="accent self-center" on-tap="openAutoSubConfirm">Activar</paper-button>
                 </div>
                 <div class="vth" hidden$="[[!user.autoSub]]">
-                  <span class="light flex">Tienes activado la suscripción automática. Cada año se debitarán 0.01 BTC de tu cuenta de manera automática.</span>
+                  <span class="light flex">Tienes activado la suscripción automática. Cada mes se debitarán 30$ de tu cuenta de manera automática.</span>
                   <paper-button class="warning self-center" on-tap="openAutoSubConfirm">Desactivar</paper-button>
                 </div>
               </div>
@@ -233,7 +233,7 @@
     <paper-dialog id="confirmDialog" class="vertical">
       <h2>Suscripción automática</h2>
       <div class="vertical" hidden$="[[user.autoSub]]">
-        <span class="light">Al activar esta opción se debitará automáticamente de tu saldo <b>0.01</b> cada año para pagar tu suscripción.</span>
+        <span class="light">Al activar esta opción se debitará automáticamente de tu saldo <b>30$</b> cada mes para pagar tu suscripción.</span>
         <paper-button class="accent self-end" on-tap="activateAutoSub">Activar</paper-button>
         <br>
       </div>

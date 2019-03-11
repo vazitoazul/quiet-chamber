@@ -43,7 +43,6 @@ var subsValue;
     });
     var future = Date.today().add({days:5});
     var tomorrow = Date.today().add({days:1});
-    console.log(future,tomorrow,Date.today());
     //Find all the users that have suscriptions about to end
     User.find({autoSub:true,subscribedUntil:{'>':Date.today(),'<':Date.today().add({days:6})}},(err,users)=>{
       if(err){
@@ -52,7 +51,6 @@ var subsValue;
           process.exit();
         });
       }
-      console.log(users.length);
       async.eachOfLimit(users,20,(user,index,cb)=>{
         var susbsUntil=new Date(user.subscribedUntil);
         var balance=user.balance.reduce((a, b) => a + b,0);
@@ -66,35 +64,37 @@ var subsValue;
                 logger.err('Error updating user on autoReSubscribe',err);
                 return cb();
               }
-              var newCompletedPayment={
-                user:user.id,
-                txStatus:'completed',
-                realized:true,
-                amount:0.01*100000000,
-                automatic:true
-              };
-              User.extendSubscription(user.id,12,(err)=>{
-                if(err){
-                  logger.err('Error updating User subscription time on autoReSubscribe',err);
-                  return cb();
-                }
-                Payment.create(newCompletedPayment,(err,payment)=>{
+              bitcoins.rate((err, rate) => {
+                var newCompletedPayment={
+                  user:user.id,
+                  txStatus:'completed',
+                  realized:true,
+                  amount:(30*rate)*100000000,
+                  automatic:true
+                };
+                User.extendSubscription(user.id,1,(err)=>{
                   if(err){
-                    logger.err('Error updating payment on autoReSubscribe',err);
+                    logger.err('Error updating User subscription time on autoReSubscribe',err);
                     return cb();
                   }
-                  var info={
-        						name:`${user.firstName} ${user.lastName}`,
-                    scenario:'success'
-        					};
-        					var destination = {
-        						to:user.email,
-        						subject:'Pago automático - Dinabun'
-        					};
-        					mailgun.send('autoSubs',info,destination,(err,result)=>{
-        						if(err) return next(err);
-        						return cb();
-        					});
+                  Payment.create(newCompletedPayment,(err,payment)=>{
+                    if(err){
+                      logger.err('Error updating payment on autoReSubscribe',err);
+                      return cb();
+                    }
+                    var info={
+                      name:`${user.firstName} ${user.lastName}`,
+                      scenario:'success'
+                    };
+                    var destination = {
+                      to:user.email,
+                      subject:'Pago automático - Dinabun'
+                    };
+                    mailgun.send('autoSubs',info,destination,(err,result)=>{
+                      if(err) return next(err);
+                      return cb();
+                    });
+                  });
                 });
               });
 

@@ -24,37 +24,33 @@ function checkRate(callback){
 };
 module.exports = {
   createOrder : (user,paymentId,callback)=>{
-    checkRate((err,rate)=>{
-      console.log(err || rate);
-      var reqBody ={
-        "name": config.name,
-        "secret_key": config.secret,
-        "password" : config.pass,
-        "type" : "bitcoin",
-        "address" : "33PYu8NfzPHwMfuF953yBwb3aD4HDaKNx5",
-        "amount" : (0.01*rate*1.01).toString(),
-        "order_id" : paymentId,
-        "description": "Pago por subscripción a Dinabun",
-        "options" : {
-          "notificationURL": appUrl+"/paylistener",
-          "redirectURL": appUrl+"/paymentStatus/"+paymentId,
-          "payerName": user.firstName + user.lastName,
-          "payerEmail": user.email
-        }
-      };
-      rp({
-        method:'POST',
-        uri:'https://www.alfacoins.com/api/create',
-        body:reqBody,
-        json:true
-      }).then((data)=>{
-        console.log(data);
-        callback(null,data);
-      }).catch((err)=>{
-        callback(err);
-      });
+    var reqBody ={
+      "name": config.name,
+      "secret_key": config.secret,
+      "password" : config.pass,
+      "type" : "bitcoin",
+      "address" : "33PYu8NfzPHwMfuF953yBwb3aD4HDaKNx5",
+      "amount" : '30',
+      "order_id" : paymentId,
+      "description": "Pago por subscripción a Dinabun",
+      "options" : {
+        "notificationURL": appUrl+"/paylistener",
+        "redirectURL": appUrl+"/paymentStatus/"+paymentId,
+        "payerName": user.firstName + user.lastName,
+        "payerEmail": user.email
+      }
+    };
+    rp({
+      method:'POST',
+      uri:'https://www.alfacoins.com/api/create',
+      body:reqBody,
+      json:true
+    }).then((data)=>{
+      console.log(data);
+      callback(null,data);
+    }).catch((err)=>{
+      callback(err);
     });
-
   },
   orderStatus:function(txId,callback){
     rp({
