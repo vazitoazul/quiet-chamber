@@ -24,7 +24,7 @@ module.exports = {
     migrate : 'alter'
   },
   paths:{
-  	'public':'build/es5-bundled'
+  	'public':'./'
   }
 
 };

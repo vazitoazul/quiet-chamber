@@ -34,7 +34,6 @@ exports.register = function (req, res, next) {
     , password = req.param('password')
     , confirmation = req.param('confirmation')
     , recommenderId = req.param('recommender');
-  console.log(recommenderId);
   if (!email) {
     return next(null,false,{message:'no_email_entered'});
   }
