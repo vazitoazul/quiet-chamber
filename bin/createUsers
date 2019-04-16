@@ -11,7 +11,7 @@ const config = {
   user: {
     email : 'jfrosero@rosero.in',
     firstName : 'Juan',
-    lastName : 'Rosero'
+    lastName : 'Rosero',
     defaultRecommender: true,
   },
   passport: {
