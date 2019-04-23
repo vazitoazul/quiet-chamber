@@ -28,11 +28,11 @@ module.exports = {
 				User.findOne({id : user.recommender}, (err,recommender) => {
 					if(err) return res.badRequest();
 					user.recommender = {
+						id: recommender.id,
             firstName:recommender.firstName,
             lastName:recommender.lastName,
             email:recommender.email
           };
-          console.log(user);
 					return res.json(user);
 				});
 			});
@@ -158,9 +158,11 @@ module.exports = {
 	getRecommenderUser : function(req,res,next){
 		var response = {};
 		var recommenderId = req.param('id');
-    if(req.user.id === recommenderId){
-      return res.json(409,{error:'same_user'});
-    }
+		if(req.session.authenticated) {
+			if(req.user.id === recommenderId){
+				return res.json(409,{error:'same_user'});
+			}
+		} 
 		User.findOne({id : recommenderId},(err,recommender) => {
 			if(err) return next(err);
 			if(!recommender){

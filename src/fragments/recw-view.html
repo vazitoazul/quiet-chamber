@@ -76,14 +76,8 @@
             </div>
             <div class="card-actions">
               <div class="vertical flex">
-                <span>[[localize('if_you_have_an_acco')]]</span>
-                <paper-button on-click="goLogin" class="primary">[[localize('log_in')]]</paper-button>
-              </div>
-            </div>
-            <div class="card-actions">
-              <div class="vertical flex">
-                <span>[[localize('or_if_you_havent_registered')]]</span>
-                <paper-button on-click="goRegister" class="primary">[[localize('register')]]</paper-button>
+                <span>[[localize('you_havent_registered')]]</span>
+                <paper-button on-click="goRegister" class="accent">[[localize('register')]]</paper-button>
               </div>
             </div>
           </paper-card>
@@ -150,7 +144,6 @@
         <paper-spinner active="[[loading]]"></paper-spinner>
         <paper-button id="confirmButton" disabled="[[loading]]" raised class="primary col-sm-3 offset-sm-4" on-click="changeRecommender">[[localize('confirm')]]</paper-button>
       </div>
-
     </paper-dialog>
   </template>
   <script>
@@ -214,7 +207,7 @@
                 'your_recommender_is':'Your recommender is:',
                 'if_you_have_an_acco':'If you already have an account, you can log in here to continue.',
                 'log_in':'Log In',
-                'or_if_you_havent_registered':'Or if you need an account, you can also register here.',
+                'you_havent_registered':'You can create an account now',
                 'register':'Register',
                 'something_is_wrong':'Something is not right!',
                 'the_url_is_wrong':'The URL you are requesting is wrong or you are trying to be your own recommender.',
@@ -240,7 +233,7 @@
                 'your_recommender_is':'Tu recomendador es:',
                 'if_you_have_an_acco':'Si ya tienes una cuenta con nosotros puedes iniciar sesión ahora.',
                 'log_in':'Iniciar Sesión',
-                'or_if_you_havent_registered':'O si no te has registrado puedes hacerlo ahora.',
+                'you_havent_registered':'Puedes crear una cuenta a continuación',
                 'register':'Registrarme',
                 'something_is_wrong':'¡Algo and mal aquí!',
                 'the_url_is_wrong':'El url al que estás tratando de acceder no existe o intentas recomendarte a ti mismo.',
@@ -249,7 +242,7 @@
                 'all_set':'¡Todo listo!',
                 'now_youre_one_of': 'Ahora eres un recomendado de {recommender}',
                 'go_to_my_account':'Ir a mi cuenta',
-                'same_recommender_than_before': 'Tu ya eres recomendado de {recommender} ! =)',
+                'same_recommender_than_before': 'Ya eres un recomendado de {recommender}.',
                 'change_recommender' : 'Tu eres recomendado bajo {lastRecommender}, deseas cambiarte a ser recomendado de {newRecommender} ?',
                 'change':'Cambiar',
                 'confirm_change' : 'Estas seguro que quieres cambiar la persona que te recomendó de {lastRecommender} a {newRecommender}',
