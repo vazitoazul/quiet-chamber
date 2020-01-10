@@ -110,7 +110,6 @@ var subsValue;
             };
             mailgun.send('autoSubs',info,destination,(err,result)=>{
               if(err) return next(err);
-              console.log('emailsent');
               return cb();
             });
           }
@@ -123,7 +122,6 @@ var subsValue;
             to:user.email,
             subject:'Pago automático - Dinabun'
           };
-          console.log(info,destination);
           mailgun.send('autoSubs',info,destination,(err,result)=>{
             if(err) return next(err);
             return cb();

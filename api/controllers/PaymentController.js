@@ -52,7 +52,6 @@ module.exports = {
             
             payment.save((err)=>{
               if(err){return next(err)};
-              console.log(response);
               res.redirect(response.url);
             });
           });

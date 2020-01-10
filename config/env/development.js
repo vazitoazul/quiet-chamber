@@ -17,7 +17,7 @@ module.exports = {
    * environment (see config/connections.js and config/models.js )           *
    ***************************************************************************/
   log: {
-   level: "verbose"
+   level: 'info'
   },
   models: {
     connection: 'mongodbServer',

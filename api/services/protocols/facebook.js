@@ -9,7 +9,6 @@ module.exports=function(req,callback){
       fb_exchange_token : req.body.token
   }, function (res) {
       if(!res || res.error) {
-          console.log(!res ? 'facebook auth error occurred' : res.error);
           return callback({message:'Error getting facebook token'});
       }
 
@@ -18,7 +17,6 @@ module.exports=function(req,callback){
       fb.api(req.body.userID, { fields: config.profileFields }, function (profile) {
 
         if(!profile || profile.error) {
-          console.log(!profile ? 'facebook auth error occurred' : profile.error);
           return callback({message:'Error getting facebook user profile'});
         }
         var query    = {

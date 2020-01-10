@@ -12,7 +12,6 @@ function checkRate(callback){
     uri:'https://www.alfacoins.com/api/rate/BTC_USD.json',
     json:true
   }).then((data)=>{
-    console.log(data);
     var stripped = data[0].replace(',','');
     callback(null,parseFloat(stripped));
     //return null so the promise wont turn on a runaway promise
@@ -46,7 +45,6 @@ module.exports = {
       body:reqBody,
       json:true
     }).then((data)=>{
-      console.log(data);
       callback(null,data);
     }).catch((err)=>{
       callback(err);
