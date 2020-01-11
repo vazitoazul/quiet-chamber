@@ -79,6 +79,11 @@
       paper-card.no-subs{
         --paper-card-header-color:rgba(0,0,0,0.82);
       }
+      paper-card.capitalika{
+        background: var(--default-primary-color);
+        color: var(--light-primary-text-color);
+        --paper-card-header-color: var(--light-primary-text-color);
+      }
     </style>
 
     <div class="vertical p-3">
@@ -172,6 +177,21 @@
             </div>
           </paper-card>
         </div>
+      </div>
+      <div class="horizontal my-3">
+        <paper-card heading="¿Necesitas ayuda con tus Bitcoins?" class="capitalika">
+          <div class="card-content vertical">
+            <iron-image height="50" width="260" src="/images/capitalika.png" preload sizing="contain"></iron-image>
+            <span>
+              Nuestro aliado, Capitalika, tiene soluciones que te ayudarán a obtener, cambiar y gastar tus bitcoins de manera sencilla. 
+            </span>
+          </div>
+          <div class="card-actions horizontal center">
+            <a href="https://exchange.x-bitpay.com/signup/4db897a062" rel="external" target="_blank">
+              <paper-button class="accent" >Visitar Capitalika</paper-button>
+            </a>
+          </div>
+        </paper-card>
       </div>
     </div>
     <paper-dialog id="dialog" >
