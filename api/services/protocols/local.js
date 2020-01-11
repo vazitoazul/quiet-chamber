@@ -54,7 +54,6 @@ exports.register = function (req, res, next) {
         if(done) {
            // recaptcha verified
            selectRecommender(recommenderId, function(err,recommender){
-             console.log('recommender', err, recommender);
              if(err){
                if(err.message!=='user_pool_empty'){
                  return next(err,false,{message:'error_finding_recomender'});

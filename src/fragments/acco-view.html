@@ -54,7 +54,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       div .card{
         padding: 5rem;
       }
-
+      app-drawer .drawer-content{
+        background: var(--darker-background-color);
+      }
+      app-drawer .drawer-title{
+        color: var(--light-primary-text-color);
+      }
       paper-card{
         width: 18rem;
       }
@@ -87,7 +92,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       span.caption{
         @apply(--paper-font-caption);
       }
-
       .main-menu a {
         display: block;
         text-decoration: none;
@@ -96,7 +100,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       .main-menu a.iron-selected {
         font-weight: bold;
-        background-color: rgba(0,0,0,0.1);
+        background-color: rgba(255,255,255,0.1);
       }
     </style>
     <app-location route="{{route}}"></app-location>
@@ -108,8 +112,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <google-maps-api id="googleApi" api-key="AIzaSyBulOanq4RQO1hSU2j7kkA-b0wOPE27-GY" version="3.exp" on-api-load="googleApiReady"></google-maps-api>
     <app-drawer-layout id="drawerLayout" responsive-width="768px">
       <app-drawer align="left" id="drawer">
-        <div class="h-100 vertical p-2">
-          <h4 class="s-text">Menu</h4>
+        <div class="h-100 vertical p-2 drawer-content">
+          <h4 class="drawer-title">Menu</h4>
           <iron-selector class="main-menu" attr-for-selected="page" selected="[[page]]">
             <a page="resume" href="/acco"><iron-icon class="pr-1" icon="star"></iron-icon>Inicio</a>
             <a page="userInfo" href="/acco/userInfo"><iron-icon class="pr-1" icon="info"></iron-icon>[[localize('userInfo')]]</a>
@@ -136,10 +140,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </app-header>
       </app-header-layuout>
       <iron-pages selected='[[page]]' attr-for-selected="section" fallback-selection="resume">
-        <section section="resume" class="p-2">
-          <h4 class="s-text mb-2">Tu cuenta</h4>
+        <section section="resume" class="p-3">
+          <h4 class="s-text mb-4">Tu cuenta</h4>
           <div class="vth">
-            <paper-card heading="Tu suscripción" class="m-2 vertical">
+            <paper-card heading="Tu suscripción" class="mr-3 mb-3 vertical">
               <div class="card-content flex" hidden$="[[user.isSuscribed]]">
                 <span>No cuentas con una suscripción. Suscríbete y aprovecha <a href="/sytm">los beneficios de nuestro portal</a>.</span>
               </div>
@@ -153,7 +157,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </a>
               </div>
             </paper-card>
-            <paper-card heading="Tus recomendados" class="m-2 vertical">
+            <paper-card heading="Tus recomendados" class="mr-3 mb-3 vertical">
               <div class="card-content flex" hidden$="[[user.recommended.0]]">
                 <span>Todavía no cuentas con recomendados. Invita personas para que sean tus recomendados para recibir beneficios por sus suscripciones.</span>
               </div>

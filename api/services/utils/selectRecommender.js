@@ -13,7 +13,6 @@ module.exports = selectRecommender = function(id,cb){
     User.findOne(id).exec(cb);
   }else{
     User.find({defaultRecommender:true},(err,users)=>{
-      console.log('its here',err,users)
       if(err)return cb(err);
       if(users.length===0)return cb({message:'user_pool_empty'});
       var ordered=users.sort((a,b)=>{
