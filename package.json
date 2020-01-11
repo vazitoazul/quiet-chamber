@@ -13,7 +13,7 @@
     "bower": "^1.8.4",
     "connect-redis": "^3.0.2",
     "date-utils": "^1.2.17",
-    "ejs": "2.3.4",
+    "ejs": "3.0.1",
     "express-sslify": "^1.2.0",
     "fb": "^1.1.1",
     "google-auth-library": "^0.9.10",
