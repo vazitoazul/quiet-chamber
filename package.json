@@ -59,8 +59,8 @@
     "url": "git://github.com/juanrosero/quiet-chamber.git"
   },
   "engines": {
-    "node": "8.9.4",
-    "npm": "5.6.0"
+    "node": "10.16.0",
+    "npm": "6.9.0"
   },
   "author": "juanrosero",
   "license": "",
