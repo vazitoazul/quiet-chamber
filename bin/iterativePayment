@@ -38,10 +38,16 @@ var subsValue;
   }
   // Start server
   sails.lift(rc('sails'),function(err){
+    if(err){
+      throw err;
+    }
     //start logger to log error events when this happens
     var logger = new Logger({
       token:sails.config.keys.scheduledLogEntriesKey
     });
+    if(err){
+      throw err;
+    }
     var firstlvl = [],
         secondlvl = [],
         thirdlvl = [],
@@ -71,6 +77,7 @@ var subsValue;
         fourth:[] //this will contain the user's ids that must be credited the final 0.1 of distValue
       };
       async.eachOfLimit(payments,20,(payment,index,cb)=>{
+        console.log('payment', payment);
         //this function gets executed for each payment
         //first, mark the payment as distributed
         pc.update({_id:payment._id},{$set:{distributed:true}},{w:1},(err,updatedPayment)=>{
@@ -128,6 +135,7 @@ var subsValue;
         //Log any error so it can be hand fixed
         if(err)logger.err('Error on iterative payment',err);
         //Transform and reduce the result arrays so they become an Object with users id as keys and total to be atributted as values
+        console.log(result);
         var reduced = {};
         result.first.forEach((item,key)=>{
           if(reduced[item.recommender]){
@@ -152,14 +160,14 @@ var subsValue;
         });
         result.fourth.forEach((item,key)=>{
           if(reduced[item.recommender]){
-            reduced[item.recommender]+=(item.amount*0.7)*0.6;
+            reduced[item.recommender]+=(item.amount*0.7)*0.06;
           }else{
-            reduced[item.recommender]=(item.amount*0.7)*0.6;
+            reduced[item.recommender]=(item.amount*0.7)*0.06;
           }
         });
         //Finally, update each user
         async.eachOf(reduced,(value,userId,cb)=>{
-          uc.update({ _id : new ObjectId(userId)} , { $push : { balance : [value] }},{w:1},(err,updatedUser)=>{
+          uc.update({ _id : new ObjectId(userId)} , { $push : { balance : value }},{w:1},(err,updatedUser)=>{
             if(err){
               logger.err(`User missing balance ${userId} ${balance}`,err);
             }
@@ -185,7 +193,7 @@ var subsValue;
           console.log('Iterative Payment Failed',err);
           throw err;
         }
-        paymentCol.find({realized:true,distributed:false},{fields:{_id:1,user:1}}).toArray((err,startPayments)=>{
+        paymentCol.find({realized:true,distributed:false},{fields:{_id:1,user:1, amount: 1}}).toArray((err,startPayments)=>{
           if(err){
             logger.err('Error finding payments on IterativePayment',err);
             return sails.lower(()=>{
