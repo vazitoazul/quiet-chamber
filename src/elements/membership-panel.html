@@ -146,37 +146,40 @@
               <br>
               <span class="warning">Recuerda que si no estás suscrito no recibes los beneficios de las personas que enlistaste como tus recomendados.</span>
             </div>
-            <div class="card-content flex">
-              <div class="">
-                <h5>Tu saldo</h5>
-              </div>
-              <div hidden$="[[!userHasBalance]]" class="vertical">
-                <span>Tu saldo es de: [[toRegBitcoin(user.totalBalance)]] BTC</span>
-                <span hidden$="[[!user.payoutRequested]]" class="text-accent">Este saldo cambiará después de que se confirme tu retiro.</span>
-              </div>
-              <div hidden$="[[userHasBalance]]" class="vertical">
-                <span>Todavía no tienes saldo a tu favor.</span>
-                <div class="vth">
-                  <span class="s-text flex self-center">Para empezar a ganar puedes agregar recomendados</span>
-                  <a href="/acco/recommended">
-                    <paper-button class="accent">Agregar recomendados</paper-button>
-                  </a>
-                </div>
-
-              </div>
-            </div>
-            <div hidden$="[[!userHasBalance]]" class="card-actions horizontal center">
-              <div class="horizontal center flex" hidden$="[[user.payoutRequested]]">
-                <b>Aquí puedes retirar saldo de tu cuenta: </b>
-                <div class="flex"></div>
-                <paper-button class="accent" on-tap="openPayoutDialog" >Retirar Dinero</paper-button>
-              </div>
-              <div class="horizontal center flex" hidden$="[[!user.payoutRequested]]">
-                <span class="warning">Has solicitado un retiro en las últimas 12 horas. Debes esperar a que se confirme.</span>
-              </div>
-            </div>
           </paper-card>
         </div>
+      </div>
+      <div class="horizontal my-3">
+        <paper-card>
+          <div class="card-content flex">
+            <div class="">
+              <h5>Tu saldo</h5>
+            </div>
+            <div hidden$="[[!userHasBalance]]" class="vertical">
+              <span>Tu saldo es de: [[toRegBitcoin(user.totalBalance)]] BTC</span>
+              <span hidden$="[[!user.payoutRequested]]" class="text-accent">Este saldo cambiará después de que se confirme tu retiro.</span>
+            </div>
+            <div hidden$="[[userHasBalance]]" class="vertical">
+              <span>Todavía no tienes saldo a tu favor.</span>
+              <div class="vth">
+                <span class="s-text flex self-center">Para empezar a ganar puedes agregar recomendados</span>
+                <a href="/acco/recommended">
+                  <paper-button class="accent">Agregar recomendados</paper-button>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div hidden$="[[!userHasBalance]]" class="card-actions horizontal center">
+            <div class="horizontal center flex" hidden$="[[user.payoutRequested]]">
+              <b>Aquí puedes retirar saldo de tu cuenta: </b>
+              <div class="flex"></div>
+              <paper-button class="accent" on-tap="openPayoutDialog" >Retirar Dinero</paper-button>
+            </div>
+            <div class="horizontal center flex" hidden$="[[!user.payoutRequested]]">
+              <span class="warning">Has solicitado un retiro en las últimas 12 horas. Debes esperar a que se confirme.</span>
+            </div>
+          </div>
+        </paper-card>
       </div>
       <div class="horizontal my-3">
         <paper-card heading="¿Necesitas ayuda con tus Bitcoins?" class="capitalika">
