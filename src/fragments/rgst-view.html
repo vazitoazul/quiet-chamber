@@ -56,16 +56,6 @@
           <h3>[[localize('register')]]</h3>
         </div>
         <div class="card-content">
-          <div class="text-center">
-            <span class="s-text">[[localize('you_can_use')]]</span>
-          </div>
-          <div class="row horizontal center">
-            <facebook-login recommender=[[recommender]]></facebook-login>
-            <google-login recommender=[[recommender]]></google-login>
-          </div>
-          <div class="text-center">
-            <span class="s-text">[[localize('or_your_email')]]</span>
-          </div>
           <form is="iron-form" id="registerForm">
             <paper-input name="firstName" label="[[localize('name')]]" required pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
             <paper-input name="lastName" label="[[localize('last_name')]]" required pattern="^[a-zA-Z á-úÁ-Ú]*$" error-message="[[localize('must_fill_this_just_letters')]]"></paper-input>
